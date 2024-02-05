@@ -131,14 +131,6 @@ void dpdk_terminate(void)
  * return codes are reserved for future use. Unknown return codes will
  * result in packet drops and a warning via bpf_warn_invalid_xdp_action().
  */
-enum xdp_action
-{
-	XDP_ABORTED = 0,
-	XDP_DROP,
-	XDP_PASS,
-	XDP_TX,
-	XDP_REDIRECT,
-};
 
 void dpdk_poll(void)
 {
@@ -168,13 +160,14 @@ void dpdk_poll(void)
 				// TODO
 				break;
 			case XDP_TX:
+				printf("send packet to dpdk_out\n");
 				dpdk_out(rx_pkts[i]);
 				break;
 			case XDP_REDIRECT:
 				// TODO
 				break;
 			default:
-				return false;
+				return;
 			}
 		}
 		else
