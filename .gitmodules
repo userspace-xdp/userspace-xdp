@@ -7,3 +7,6 @@
 [submodule "afxdp/lib/xdp-tools"]
 	path = afxdp/lib/xdp-tools
 	url = https://github.com/xdp-project/xdp-tools
+[submodule "bpftime"]
+	path = bpftime
+	url = https://github.com/eunomia-bpf/bpftime
