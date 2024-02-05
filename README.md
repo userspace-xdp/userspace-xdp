@@ -35,36 +35,6 @@ $ sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpf
 [2024-01-29 00:36:14.781] [info] [syscall_context.hpp:84] manager constructed
 [2024-01-29 00:36:14.782] [info] [syscall_server_utils.cpp:24] Initialize syscall server
 ...
-[2024-01-29 00:36:14][debug][239359] Loaded program `libbpf_nametest` id=4
-[2024-01-29 00:36:14][debug][239359] Closing fd 4
-[2024-01-29 00:36:14][debug][239359] SYS_BPF 0 140730514784464 72 140378836147558 0 17179869186
-[2024-01-29 00:36:14][debug][239359] Creating map
-[2024-01-29 00:36:14][debug][239359] Create map with type 2
-[2024-01-29 00:36:14][debug][239359] Created map 4, type=2, name=libbpf_mmap, key_size=4, value_size=4
-[2024-01-29 00:36:14][debug][239359] Closing fd 4
-[2024-01-29 00:36:14][debug][239359] SYS_BPF 0 140730514783968 72 1 0 17179869186
-[2024-01-29 00:36:14][debug][239359] Creating map
-[2024-01-29 00:36:14][debug][239359] Create map with type 2
-[2024-01-29 00:36:14][debug][239359] Created map 4, type=2, name=libbpf_global, key_size=4, value_size=32
-[2024-01-29 00:36:14][debug][239359] SYS_BPF 5 140730514783968 128 5 0 0
-[2024-01-29 00:36:14][debug][239359] Loading program `` license `GPL` prog_type `1` attach_type 1616363456 map_type 1
-[2024-01-29 00:36:14][debug][239359] Set handler fd 5 to bpf_prog_handler, name , prog_type 1, insn_cnt 5
-[2024-01-29 00:36:14][debug][239359] Loaded program `` id=5
-[2024-01-29 00:36:14][debug][239359] Closing fd 4
-[2024-01-29 00:36:14][debug][239359] Closing fd 5
-[2024-01-29 00:36:14][debug][239359] SYS_BPF 0 140730514783952 72 1 140730514784192 17179869186
-[2024-01-29 00:36:14][debug][239359] Creating map
-[2024-01-29 00:36:14][debug][239359] Create map with type 2
-[2024-01-29 00:36:14][debug][239359] Created map 4, type=2, name=xdppass_.rodata, key_size=4, value_size=16
-[2024-01-29 00:36:14][debug][239359] SYS_BPF 2 140730514784272 32 140378836147558 0 4
-[2024-01-29 00:36:14][debug][239359] Updating map
-[2024-01-29 00:36:14][debug][239359] SYS_BPF 22 140730514784272 4 1 1 4
-[2024-01-29 00:36:14][debug][239359] Calling bpf map freeze, but we didn't implement this
-[2024-01-29 00:36:14][debug][239359] SYS_BPF 5 140730514781920 128 2 140730514782144 140730514782144
-[2024-01-29 00:36:14][debug][239359] Loading program `` license `GPL` prog_type `9` attach_type 1616361520 map_type 9
-[2024-01-29 00:36:14][debug][239359] Set handler fd 5 to bpf_prog_handler, name , prog_type 9, insn_cnt 2
-[2024-01-29 00:36:14][debug][239359] Loaded program `` id=5
-[2024-01-29 00:36:14][debug][239359] Closing fd 5
 [2024-01-29 00:36:14][debug][239359] SYS_BPF 5 140730514782208 128 9 140730514782512 140730514782512
 [2024-01-29 00:36:14][debug][239359] Loading program `xdp_pass` license `GPL` prog_type `6` attach_type 2755110320 map_type 6
 ```
@@ -151,8 +121,8 @@ build bpftime library
 
 ```sh
 export PKG_CONFIG_PATH=<the path of the pkgconfig directory inside dpdk>
-cmake -B build-bpftime .
-make -C  build-bpftime
+cmake -B build-bpftime .  -DBUILD_BPFTIME_DAEMON=0
+make -C  build-bpftime -j
 ```
 
 To build the dpdk-based server:

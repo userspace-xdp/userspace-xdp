@@ -1,6 +1,6 @@
 ROOTDIR=$(shell git rev-parse --show-toplevel)
 OBJDIR=./
-SRCDIR=$(ROOTDIR)/src/
+SRCDIR=$(ROOTDIR)/dpdk/
 DPDK_DIR=$(ROOTDIR)/external/dpdk
 
 TARGETS=base-server
