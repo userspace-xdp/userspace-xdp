@@ -183,3 +183,11 @@ sudo arping -i veth0 1.2.3.4
 ```sh
 sudo build-bpftime/bpftime/tools/bpftimetool/bpftimetool remove
 ```
+
+## hugepages
+
+For 2MB page, you can activate hugepages while booting or at anytime after system is booted. Define hugepages setting in /etc/default/grub to activate it while booting, or overwrite the number of 2MB hugepages as following.
+
+```sh
+$ echo 1024 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+```

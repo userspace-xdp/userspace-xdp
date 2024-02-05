@@ -126,6 +126,20 @@ void dpdk_terminate(void)
 	rte_eth_dev_close(portid);
 }
 
+
+/* User return codes for XDP prog type.
+ * A valid XDP program must return one of these defined values. All other
+ * return codes are reserved for future use. Unknown return codes will
+ * result in packet drops and a warning via bpf_warn_invalid_xdp_action().
+ */
+enum xdp_action {
+	XDP_ABORTED = 0,
+	XDP_DROP,
+	XDP_PASS,
+	XDP_TX,
+	XDP_REDIRECT,
+};
+
 void dpdk_poll(void)
 {
 	int ret = 0;
@@ -141,10 +155,25 @@ void dpdk_poll(void)
 		{
 			uint64_t bpf_ret = 0;
 			struct xdp_md data;
-			data.data = rx_pkts[i]->buf_addr;
+			data.data = rte_pktmbuf_mtod(rx_pkts[i], unsigned int);
 			data.data_end = data.data + rx_pkts[i]->data_len;
 			/* FIXME: Start your logic from here */
 			ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
+			switch (bpf_ret)
+			{
+				case XDP_DROP:
+					// TODO
+					break;
+				case XDP_PASS:
+					// TODO
+					break;
+				case XDP_TX:
+					dpdk_out(rx_pkts[i]);
+					break;
+				case XDP_REDIRECT:
+					// TODO
+					break;
+			}
 		}
 		else
 		{
