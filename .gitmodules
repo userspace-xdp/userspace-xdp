@@ -10,3 +10,6 @@
 [submodule "bpftime"]
 	path = bpftime
 	url = https://github.com/eunomia-bpf/bpftime
+[submodule "af_xdp_simple/af_xdp_simple/libbpf"]
+	path = af_xdp_simple/af_xdp_simple/libbpf
+	url = https://github.com/libbpf/libbpf/
