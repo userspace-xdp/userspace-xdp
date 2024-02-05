@@ -1,43 +1,33 @@
-/* SPDX-License-Identifier: GPL-2.0 */
-
+// SPDX-License-Identifier: GPL-2.0
 #include <linux/bpf.h>
-
 #include <bpf/bpf_helpers.h>
+
+#define MAX_SOCKS 4
+
+#define SOCKET_NAME "sock_cal_bpf_fd"
+#define MAX_NUM_OF_CLIENTS 10
+
+#define CLOSE_CONN  1
+
+typedef __u64 u64;
+typedef __u32 u32;
+
+/* This XDP program is only needed for the XDP_SHARED_UMEM mode.
+ * If you do not use this mode, libbpf can supply an XDP program for you.
+ */
 
 struct {
 	__uint(type, BPF_MAP_TYPE_XSKMAP);
-	__type(key, __u32);
-	__type(value, __u32);
-	__uint(max_entries, 64);
+	__uint(max_entries, MAX_SOCKS);
+	__uint(key_size, sizeof(int));
+	__uint(value_size, sizeof(int));
 } xsks_map SEC(".maps");
 
-struct {
-	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
-	__type(key, __u32);
-	__type(value, __u32);
-	__uint(max_entries, 64);
-} xdp_stats_map SEC(".maps");
+static unsigned int rr;
 
-SEC("xdp")
-int xdp_sock_prog(struct xdp_md *ctx)
+SEC("xdp") int xdp_sock_prog(struct xdp_md *ctx)
 {
-    int index = ctx->rx_queue_index;
-    __u32 *pkt_count;
+	rr = (rr + 1) & (MAX_SOCKS - 1);
 
-    pkt_count = bpf_map_lookup_elem(&xdp_stats_map, &index);
-    if (pkt_count) {
-
-        /* We pass every other packet */
-        if ((*pkt_count)++ & 1)
-            return XDP_PASS;
-    }
-
-    /* A set entry here means that the correspnding queue_id
-     * has an active AF_XDP socket bound to it. */
-    if (bpf_map_lookup_elem(&xsks_map, &index))
-        return bpf_redirect_map(&xsks_map, index, 0);
-
-    return XDP_PASS;
+	return bpf_redirect_map(&xsks_map, rr, XDP_DROP);
 }
-
-char _license[] SEC("license") = "GPL";
