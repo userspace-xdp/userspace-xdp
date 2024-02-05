@@ -36,7 +36,6 @@
 #define RX_BATCH_SIZE 64
 #define INVALID_UMEM_FRAME UINT64_MAX
 
-static struct xdp_program *prog;
 int xsk_map_fd;
 bool custom_xsk = false;
 struct config cfg = {
@@ -303,31 +302,56 @@ static bool process_packet(struct xsk_socket_info *xsk,
 	 * - Recalculate the icmp checksum */
 	int ret;
 	uint32_t tx_idx = 0;
-	uint8_t tmp_mac[ETH_ALEN];
-	struct in6_addr tmp_ip;
-	struct ethhdr *eth = (struct ethhdr *)pkt;
-	struct ipv6hdr *ipv6 = (struct ipv6hdr *)(eth + 1);
-	struct icmp6hdr *icmp = (struct icmp6hdr *)(ipv6 + 1);
+	// uint8_t tmp_mac[ETH_ALEN];
+	// struct in6_addr tmp_ip;
+	// struct ethhdr *eth = (struct ethhdr *)pkt;
+	// struct ipv6hdr *ipv6 = (struct ipv6hdr *)(eth + 1);
+	// struct icmp6hdr *icmp = (struct icmp6hdr *)(ipv6 + 1);
 
-	if (ntohs(eth->h_proto) != ETH_P_IPV6 ||
-		len < (sizeof(*eth) + sizeof(*ipv6) + sizeof(*icmp)) ||
-		ipv6->nexthdr != IPPROTO_ICMPV6 ||
-		icmp->icmp6_type != ICMPV6_ECHO_REQUEST)
+	// if (ntohs(eth->h_proto) != ETH_P_IPV6 ||
+	// 	len < (sizeof(*eth) + sizeof(*ipv6) + sizeof(*icmp)) ||
+	// 	ipv6->nexthdr != IPPROTO_ICMPV6 ||
+	// 	icmp->icmp6_type != ICMPV6_ECHO_REQUEST)
+	// 	return false;
+
+	// memcpy(tmp_mac, eth->h_dest, ETH_ALEN);
+	// memcpy(eth->h_dest, eth->h_source, ETH_ALEN);
+	// memcpy(eth->h_source, tmp_mac, ETH_ALEN);
+
+	// memcpy(&tmp_ip, &ipv6->saddr, sizeof(tmp_ip));
+	// memcpy(&ipv6->saddr, &ipv6->daddr, sizeof(tmp_ip));
+	// memcpy(&ipv6->daddr, &tmp_ip, sizeof(tmp_ip));
+
+	// icmp->icmp6_type = ICMPV6_ECHO_REPLY;
+
+	// csum_replace2(&icmp->icmp6_cksum,
+	// 			  htons(ICMPV6_ECHO_REQUEST << 8),
+	// 			  htons(ICMPV6_ECHO_REPLY << 8));
+
+	printf("received packet, send data to eBPF module\n");
+	uint64_t bpf_ret = 0;
+	struct xdp_md data;
+	data.data = (unsigned int)pkt;
+	data.data_end = data.data + len;
+	/* FIXME: Start your logic from here */
+	ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
+	switch (bpf_ret)
+	{
+	case XDP_DROP:
+		// TODO
 		return false;
-
-	memcpy(tmp_mac, eth->h_dest, ETH_ALEN);
-	memcpy(eth->h_dest, eth->h_source, ETH_ALEN);
-	memcpy(eth->h_source, tmp_mac, ETH_ALEN);
-
-	memcpy(&tmp_ip, &ipv6->saddr, sizeof(tmp_ip));
-	memcpy(&ipv6->saddr, &ipv6->daddr, sizeof(tmp_ip));
-	memcpy(&ipv6->daddr, &tmp_ip, sizeof(tmp_ip));
-
-	icmp->icmp6_type = ICMPV6_ECHO_REPLY;
-
-	csum_replace2(&icmp->icmp6_cksum,
-				  htons(ICMPV6_ECHO_REQUEST << 8),
-				  htons(ICMPV6_ECHO_REPLY << 8));
+	case XDP_PASS:
+		// TODO
+		return true;
+	case XDP_TX:
+		// continue sending packet out
+		break;
+	case XDP_REDIRECT:
+		// TODO
+		return true;
+	default:
+		return false;
+	}
 
 	/* Here we sent the packet out of the receive port. Note that
 	 * we allocate one entry and schedule it. Your design would be
@@ -536,8 +560,6 @@ int main(int argc, char **argv)
 	struct xsk_umem_info *umem;
 	struct xsk_socket_info *xsk_socket;
 	pthread_t stats_poll_thread;
-	int err;
-	char errmsg[1024];
 
 	/* Global shutdown handler */
 	signal(SIGINT, exit_application);

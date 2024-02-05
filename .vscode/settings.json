@@ -8,6 +8,8 @@
         "string_view": "c",
         "ranges": "c",
         "span": "c",
-        "xdp-runtime.h": "c"
+        "xdp-runtime.h": "c",
+        "errno.h": "c",
+        "if_link.h": "c"
     }
 }
