@@ -27,13 +27,13 @@ You are free to explore those scripts, but their exact functionality is beyond t
 
 To setup the topology run:
 
-```
+```sh
 sudo ./testbed-setup.sh
 ```
 
 To destroy the topology run:
 
-```
+```sh
 sudo ./testbed-teardown.sh
 ```
 
@@ -47,16 +47,93 @@ To verify that the topology is setup properly, try `ping`ing the different inter
 From your local machine you can ping `10.0.0.2` and `10.0.0.3`.
 Use the aliases to ping other interfaces from within the namespaces similar to mininet.
 
-```
+```sh
 source ./aliases.sh
 ```
 
-```
+and
+
+```sh
 h2 ping 10.0.0.1
 ```
 
-```
+and
+
+```sh
 h3 ping 10.0.0.2
+```
+
+> IN 23.10 my computer, if:
+
+```console
+$ h2 ping 10.0.0.1
+PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
+^C
+--- 10.0.0.1 ping statistics ---
+7 packets transmitted, 0 received, 100% packet loss, time 6128ms
+$ sudo ip netns exec h2 ip addr show
+sudo ip netns exec h2 ip link show
+1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+15: veth2@if14: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether de:ad:be:ef:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.2/24 brd 10.0.0.255 scope global veth2
+       valid_lft forever preferred_lft forever
+    inet6 fe80::dcad:beff:feef:2/64 scope link 
+       valid_lft forever preferred_lft forever
+1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+15: veth2@if14: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether de:ad:be:ef:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+```
+
+Then it needs:
+
+```sh
+sudo ip netns exec h2 ip link set lo up
+```
+
+> another prolem, if:
+
+```console
+$ sudo iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination         
+DOCKER-USER  all  --  anywhere             anywhere            
+DOCKER-ISOLATION-STAGE-1  all  --  anywhere             anywhere            
+ACCEPT     all  --  anywhere             anywhere             ctstate RELATED,ESTABLISHED
+DOCKER     all  --  anywhere             anywhere            
+ACCEPT     all  --  anywhere             anywhere            
+ACCEPT     all  --  anywhere             anywhere            
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain DOCKER (1 references)
+target     prot opt source               destination         
+
+Chain DOCKER-ISOLATION-STAGE-1 (1 references)
+target     prot opt source               destination         
+DOCKER-ISOLATION-STAGE-2  all  --  anywhere             anywhere            
+RETURN     all  --  anywhere             anywhere            
+
+Chain DOCKER-ISOLATION-STAGE-2 (1 references)
+target     prot opt source               destination         
+DROP       all  --  anywhere             anywhere            
+RETURN     all  --  anywhere             anywhere            
+
+Chain DOCKER-USER (1 references)
+target     prot opt source               destination         
+RETURN     all  --  anywhere             anywhere  
+```
+
+Then:
+
+```sh
+sudo iptables -P FORWARD ACCEPT
 ```
 
 ### Step 0.3: Understanding the endgoal
@@ -84,19 +161,19 @@ The provided DPDK skeleton can be built as is and reply to `ARP` requests.
 
 Download the necessary submodules if you haven't already.
 
-```
+```sh
 git submodule update --init --recursive
 ```
 
 Build DPDK from the `dpdk-lb` directory
 
-```
+```sh
 make dpdk
 ```
 
 Build the skeleton code.
 
-```
+```sh
 make build
 ```
 
@@ -104,13 +181,13 @@ Note: if during `make build`, your linker complains about various dpdk functions
 
 DPDK requires huge pages, so run the equivalent script to enable them.
 
-```
+```sh
 sudo ./hugepages.sh
 ```
 
 To make sure everything works correctly run the middlebox
 
-```
+```sh
 sudo ./build/base-server -l 0 --vdev=net_tap0,iface=tapdpdk
 ```
 
@@ -118,13 +195,13 @@ In this configuration, DPDK uses a [TAP interface](https://en.wikipedia.org/wiki
 So, every time you run the load balancer, you need to connect this TAP interface to the bridge.
 To do so, use the provided script.
 
-```
+```sh
 sudo scripts/link-dpdk.sh
 ```
 
 From your machine try `arp`ing the middlebox.
 
-```
+```sh
 sudo arping 10.0.0.10
 ```
 
@@ -160,24 +237,27 @@ To test your load balancer you will simply use the netcat (`nc`) program both fo
 
 In two different terminals run two netcat servers in the two namespaces
 
-```
+```sh
 h2 nc -l 8080
 ```
 
-```
+```sh
 h3 nc -l 8080
 ```
 
 From your machine run to connect to one of the servers and send some messages.
 
-```
+```sh
 nc 10.0.0.10 8080
 ```
 
 On which of the two servers do you see the output?
+
+> Both servers should receive some packets.
+
 Execute the same process again several times till you receive packets on both servers.
 
-#### Deliverables
+### Deliverables
 
 In your report, provide a short description of what happens during the above process, and screenshots that show both servers respond to the client for different client connections.
 
@@ -198,7 +278,7 @@ So, we need to add another endpoint in the provided topology that will play the 
 
 To do so, as before run the provided script:
 
-```
+```sh
 sudo ./testbed-setup.sh ebpf
 ```
 
@@ -209,19 +289,13 @@ To work with eBPF you will need [`libbpf`](https://github.com/libbpf/libbpf).
 This library is a submodule in your project.
 So, to fetch it, if you haven't already,  run:
 
-```
+```sh
 git submodule update --init --recursive
 ```
 
-To build `libbpf` run the following from the [ebpf-lb](./ebpf-lb/) folder.
+To build the provided code run in xdp-ebpf directory:
 
-```
-make libbpf
-```
-
-To build the provided code run:
-
-```
+```sh
 make
 ```
 
@@ -232,7 +306,7 @@ After successfully finishing the above step, you should see:
 
 To load the eBPF program run the following:
 
-```
+```sh
 lb ./loader xdp_lb.bpf.o xdp_lb veth6
 ```
 
@@ -245,7 +319,7 @@ When the eBPF program is loaded you should not get any ICMP responses.
 
 To unload the eBPF program run:
 
-```
+```sh
 lb ip link set dev veth6 xdpgeneric off
 ```
 
@@ -261,7 +335,7 @@ The loader is already configures the eBPF maps accordingly based on the needs of
 Writing eBPF programs can be challenging since the [verifier](https://docs.kernel.org/bpf/verifier.html) needs to guarantee certain properties for the program, such as termination and safe memory accesses.
 Thus, we already provide you with certain functionality that you might find useful and challenging to implement, e.g. `compute_tcp_csum()` which computes the tcp checksums.
 
-#### Deliverables
+### Deliverables
 
 The modified `xdp_lb.bpf.c` file that includes the load balancer implementation for this specific topology and usecase.
 
@@ -271,7 +345,7 @@ You can test your load balancer as in the equivalent step for DPDK using `nc`.
 
 Deliverables: Include a similar packet trace in your report that shows the client opening a connection to `10.0.0.10` and the load balancer forwarding this connection to the backend servers.
 
-#### Deliverables
+### Deliverables
 
 Your load balancer should allow ICMP traffic to go through. Explain why, unlike the DPDK load balancer, the eBPF load balancer can reply to ICMP requests. How could you enable the DPDK load balancer to reply ICMP requests?
 

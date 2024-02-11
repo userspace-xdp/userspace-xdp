@@ -5,7 +5,7 @@ CXXFLAGS = -I$(LIBBPF_HEADERS) -g -Wall
 LOADER := loader
 BPF_PROG := xdp_lb.bpf.o
 
-all: $(LOADER) $(BPF_PROG)
+all: libbpf $(LOADER) $(BPF_PROG)
 
 libbpf:
 	OBJDIR=build DESTDIR=install-dir make -C ../external/libbpf/src install
