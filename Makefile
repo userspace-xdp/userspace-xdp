@@ -6,7 +6,7 @@ DPDK_DIR=$(ROOTDIR)/external/dpdk
 dpdk:
 	cd external/dpdk && meson --prefix $(DPDK_DIR)/install-dir -Dplatform=generic build && cd build && ninja && ninja install
 
-build:
+dpdk-ebpf:
 	make -C build-bpftime
 	# rm -f build/base-server
 	make -C build
