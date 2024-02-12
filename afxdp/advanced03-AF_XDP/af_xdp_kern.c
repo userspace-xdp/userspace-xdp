@@ -1,16 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
+#include <bpf/bpf_core_read.h> /* bpf_core_type_id_local */
 
 #define MAX_SOCKS 4
 
-#define SOCKET_NAME "sock_cal_bpf_fd"
-#define MAX_NUM_OF_CLIENTS 10
-
-#define CLOSE_CONN  1
-
-typedef __u64 u64;
-typedef __u32 u32;
 
 /* This XDP program is only needed for the XDP_SHARED_UMEM mode.
  * If you do not use this mode, libbpf can supply an XDP program for you.
@@ -23,8 +17,8 @@ struct {
 	__uint(value_size, sizeof(int));
 } xsks_map SEC(".maps");
 
-
 SEC("xdp") int xdp_sock_prog(struct xdp_md *ctx)
 {
+	/* Let network stack handle ARP and IPv6 Neigh Solicitation */
 	return bpf_redirect_map(&xsks_map, ctx->rx_queue_index, XDP_DROP);
 }

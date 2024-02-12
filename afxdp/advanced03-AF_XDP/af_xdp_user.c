@@ -26,6 +26,7 @@
 #include <linux/ipv6.h>
 #include <linux/ip.h> // For ipv4hdr
 #include <linux/icmpv6.h>
+#include <netinet/tcp.h>
 #include <xdp-runtime.h>
 
 #include "../common/common_params.h"
@@ -334,6 +335,80 @@ struct arp_payload
 	unsigned char ar_tip[4];		// 目标IP地址
 };
 
+static handle_arp(uint8_t *pkt, struct ethhdr *eth, struct eth_addr our_mac)
+{
+	printf("handle_arp in userspace\n");
+	struct arphdr *arp_hdr = (struct arphdr *)(pkt + sizeof(struct ethhdr));
+	struct arp_payload *payload = (struct arp_payload *)(arp_hdr + 1);
+	// 检查ARP操作类型是请求(ARPOP_REQUEST)
+	if (ntohs(eth->h_proto) == ETH_P_ARP && ntohs(arp_hdr->ar_op) == ARPOP_REQUEST)
+	{
+		int our_ip = inet_addr("10.0.0.10");
+		// 检查ARP请求是否针对我们的IP
+		if (memcmp(payload->ar_tip, &our_ip, 4) == 0)
+		{
+			printf("Received ARP request for our IP, sending reply\n");
+
+			// 构造ARP响应
+			arp_hdr->ar_op = htons(ARPOP_REPLY);				// 设置操作为响应
+			memcpy(payload->ar_tha, payload->ar_sha, ETH_ALEN); // 设置目标MAC为请求方MAC
+			memcpy(payload->ar_sha, &our_mac, ETH_ALEN);		// 设置发送方MAC为我们的MAC
+			memcpy(payload->ar_tip, payload->ar_sip, 4);		// 设置目标IP为请求方IP
+			memcpy(payload->ar_sip, &our_ip, 4);				// 设置发送方IP为我们的IP
+
+			// 设置以太网头部
+			memcpy(eth->h_dest, payload->ar_tha, ETH_ALEN); // 设置目标MAC为原请求方MAC
+			memcpy(eth->h_source, &our_mac, ETH_ALEN);		// 设置源MAC为我们的MAC
+			eth->h_proto = htons(ETH_P_ARP);				// 设置协议类型为ARP
+
+			// TODO: 发送ARP响应
+			// 这里需要实现发送逻辑，例如将响应包加入到AF_XDP的TX环，并触发发送
+		}
+	}
+}
+
+/* set tcp checksum: given IP header and tcp segment */
+void compute_tcp_checksum(struct iphdr *pIph, unsigned short *ipPayload)
+{
+	register unsigned long sum = 0;
+	unsigned short tcpLen = ntohs(pIph->tot_len) - (pIph->ihl << 2);
+	struct tcphdr *tcphdrp = (struct tcphdr *)(ipPayload);
+	// add the pseudo header
+	// the source ip
+	sum += (pIph->saddr >> 16) & 0xFFFF;
+	sum += (pIph->saddr) & 0xFFFF;
+	// the dest ip
+	sum += (pIph->daddr >> 16) & 0xFFFF;
+	sum += (pIph->daddr) & 0xFFFF;
+	// protocol and reserved: 6
+	sum += htons(IPPROTO_TCP);
+	// the length
+	sum += htons(tcpLen);
+
+	// add the IP payload
+	// initialize checksum to 0
+	tcphdrp->check = 0;
+	while (tcpLen > 1)
+	{
+		sum += *ipPayload++;
+		tcpLen -= 2;
+	}
+	// if any bytes left, pad the bytes and add
+	if (tcpLen > 0)
+	{
+		// printf("+++++++++++padding, %dn", tcpLen);
+		sum += ((*ipPayload) & htons(0xFF00));
+	}
+	// Fold 32-bit sum to 16 bits: add carrier to result
+	while (sum >> 16)
+	{
+		sum = (sum & 0xffff) + (sum >> 16);
+	}
+	sum = ~sum;
+	// set computation result
+	tcphdrp->check = (unsigned short)sum;
+}
+
 static bool process_packet(struct xsk_socket_info *xsk,
 						   uint64_t addr, uint32_t len)
 {
@@ -399,37 +474,14 @@ static bool process_packet(struct xsk_socket_info *xsk,
 		// Recalculate the IP checksum
 		ip->check = 0; // Reset checksum to 0 before recalculating
 		ip->check = compute_ip_checksum(ip);
+		// Recalculate the TCP checksum
+		if (ip->protocol == IPPROTO_TCP)
+			compute_tcp_checksum(ip, (unsigned short *)(pkt + sizeof(struct ethhdr) + sizeof(struct iphdr)));
 	}
 	// handle arp
 	else if (ntohs(eth->h_proto) == ETH_P_ARP)
 	{
-		struct arphdr *arp_hdr = (struct arphdr *)(pkt + sizeof(struct ethhdr));
-		struct arp_payload *payload = (struct arp_payload *)(arp_hdr + 1);
-		// 检查ARP操作类型是请求(ARPOP_REQUEST)
-		if (ntohs(eth->h_proto) == ETH_P_ARP && ntohs(arp_hdr->ar_op) == ARPOP_REQUEST)
-		{
-			int our_ip = inet_addr("10.0.0.10");
-			// 检查ARP请求是否针对我们的IP
-			if (memcmp(payload->ar_tip, &our_ip, 4) == 0)
-			{
-				printf("Received ARP request for our IP, sending reply\n");
-
-				// 构造ARP响应
-				arp_hdr->ar_op = htons(ARPOP_REPLY);				// 设置操作为响应
-				memcpy(payload->ar_tha, payload->ar_sha, ETH_ALEN); // 设置目标MAC为请求方MAC
-				memcpy(payload->ar_sha, &our_mac, ETH_ALEN);		// 设置发送方MAC为我们的MAC
-				memcpy(payload->ar_tip, payload->ar_sip, 4);		// 设置目标IP为请求方IP
-				memcpy(payload->ar_sip, &our_ip, 4);				// 设置发送方IP为我们的IP
-
-				// 设置以太网头部
-				memcpy(eth->h_dest, payload->ar_tha, ETH_ALEN); // 设置目标MAC为原请求方MAC
-				memcpy(eth->h_source, &our_mac, ETH_ALEN);		// 设置源MAC为我们的MAC
-				eth->h_proto = htons(ETH_P_ARP);				// 设置协议类型为ARP
-
-				// TODO: 发送ARP响应
-				// 这里需要实现发送逻辑，例如将响应包加入到AF_XDP的TX环，并触发发送
-			}
-		}
+		handle_arp(pkt, eth, our_mac);
 	}
 	else
 	{
