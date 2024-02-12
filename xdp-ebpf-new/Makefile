@@ -66,8 +66,8 @@ $(call allow-override,CC,$(CROSS_COMPILE)cc)
 $(call allow-override,CXX,$(CROSS_COMPILE)g++)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
-.PHONY: all
-all: $(APPS)
+.PHONY: all 
+all: $(APPS) base.btf
 
 .PHONY: clean
 clean:
@@ -126,6 +126,10 @@ $(OUTPUT)/%.o: %.cpp $(wildcard %.h) | $(OUTPUT)
 $(patsubst %,$(OUTPUT)/%.o,$(BZS_APPS)): $(LIBBLAZESYM_HEADER)
 
 $(BZS_APPS): $(LIBBLAZESYM_OBJ)
+
+base.btf: base.c
+	gcc -g base.c -c -o base.o
+	pahole --btf_encode_detached base.btf base.o 
 
 # Build application binary
 $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)

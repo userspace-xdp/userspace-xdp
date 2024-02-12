@@ -66,3 +66,38 @@ test: From your machine run to connect to one of the servers and send some messa
 ```sh
 nc 10.0.0.10 8080
 ```
+
+problem: data in xdp_md is 32 bit, while kernel will convert it into 64 bit.
+
+```txt
+received packet 0x7fea635ee100, send data to eBPF module len 42
+received packet 0x635ee100 0x635ee12a
+Segmentation fault (core dumped)
+```
+
+However, our jit doesn't do that.
+
+see <https://lists.iovisor.org/g/iovisor-dev/topic/question_about_struct_xdp_md/21385959?p=>
+
+Solution: let BTF help us.
+
+This is kernel BTF relocation, run with the above command:
+
+```txt
+libbpf: prog 'xdp_pass': relo #0: <byte_off> [19] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'xdp_pass': relo #0: matching candidate #0 <byte_off> [6034] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'xdp_pass': relo #0: patched insn #0 (LDX/ST/STX) off 0 -> 0
+libbpf: prog 'xdp_pass': relo #0: patched insn #0 (LDX/ST/STX) mem_sz 8 -> 4
+libbpf: prog 'xdp_pass': relo #1: <byte_off> [19] struct xdp_md.data_end (0:1 @ offset 8)
+libbpf: prog 'xdp_pass': relo #1: matching candidate #0 <byte_off> [6034] struct xdp_md.data_end (0:1 @ offset 4)
+libbpf: prog 'xdp_pass': relo #1: patched insn #1 (LDX/ST/STX) off 8 -> 4
+libbpf: prog 'xdp_pass': relo #1: patched insn #1 (LDX/ST/STX) mem_sz 8 -> 4
+libbpf: CO-RE relocating [24] struct iphdr: found target candidate [11775] struct iphdr in [vmlinux]
+```
+
+This is for usespace CO-RE commands:
+
+```txt
+LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei37/dpdk-startingpoint/xdp-ebpf-new/base.btf
+```
+

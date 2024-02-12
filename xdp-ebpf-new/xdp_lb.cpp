@@ -31,6 +31,12 @@ extern "C" {
 // 	return bpf_map__fd(targets_map);
 // }
 
+static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
+			   va_list args)
+{
+	return vfprintf(stderr, format, args);
+}
+
 static int add_to_map(int fd, int key, int suf)
 {
 	int err;
@@ -60,6 +66,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	/* Set up libbpf errors and debug info callback */
+	libbpf_set_print(libbpf_print_fn);
+
 	// // Open and load the BPF program
 	// auto obj = bpf_object__open(argv[1]);
 	// // if (bpf_object__load(obj)) {
@@ -74,7 +83,12 @@ int main(int argc, char **argv)
 	// // std::cout << "Loaded XDP prog with fd " << progFd << " and name "
 	// // 		  << progName << '\n';
 
-	xdp_lb_bpf* skel = xdp_lb_bpf__open();
+	LIBBPF_OPTS(bpf_object_open_opts , opts,
+	);
+	if (argc == 3)
+		opts.btf_custom_path = argv[2];
+
+	xdp_lb_bpf* skel = xdp_lb_bpf__open_opts(&opts);
 	int res = xdp_lb_bpf__load(skel);
 	if (res < 0) {
 		std::cout << "load failed" << '\n';
@@ -127,7 +141,7 @@ int main(int argc, char **argv)
 							 XDP_FLAGS_UPDATE_IF_NOEXIST | XDP_FLAGS_SKB_MODE,
 							 nullptr);
 	if (err) {
-		std::cerr << "Error while attaching bpf program\n";
+		// std::cerr << "Error while attaching bpf program\n";
 		return 1;
 	}
 

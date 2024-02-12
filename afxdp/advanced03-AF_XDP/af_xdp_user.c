@@ -287,6 +287,17 @@ static inline void csum_replace2(__sum16 *sum, __be16 old, __be16 new)
 	*sum = ~csum16_add(csum16_sub(~(*sum), old), new);
 }
 
+// here we use a sightly different one than kernel
+// BTF can help us
+struct xdp_md_userspace {
+	__u64 data;
+	__u64 data_end;
+	__u32 data_meta;
+	__u32 ingress_ifindex;
+	__u32 rx_queue_index;
+	__u32 egress_ifindex;
+};
+
 static bool process_packet(struct xsk_socket_info *xsk,
 						   uint64_t addr, uint32_t len)
 {
@@ -328,10 +339,10 @@ static bool process_packet(struct xsk_socket_info *xsk,
 	// 			  htons(ICMPV6_ECHO_REQUEST << 8),
 	// 			  htons(ICMPV6_ECHO_REPLY << 8));
 
-	printf("received packet, send data to eBPF module\n");
+	printf("received packet %p, send data to eBPF module len %d\n", pkt, len);
 	uint64_t bpf_ret = 0;
-	struct xdp_md data;
-	data.data = (unsigned int)pkt;
+	struct xdp_md_userspace data;
+	data.data = (uintptr_t)pkt;
 	data.data_end = data.data + len;
 	/* FIXME: Start your logic from here */
 	ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
@@ -342,7 +353,8 @@ static bool process_packet(struct xsk_socket_info *xsk,
 		return false;
 	case XDP_PASS:
 		// TODO
-		return true;
+		// return true;
+		// in the load balance case, we will send the packet out
 	case XDP_TX:
 		// continue sending packet out
 		break;
@@ -560,6 +572,8 @@ int main(int argc, char **argv)
 	struct xsk_umem_info *umem;
 	struct xsk_socket_info *xsk_socket;
 	pthread_t stats_poll_thread;
+
+	verbose = false;
 
 	/* Global shutdown handler */
 	signal(SIGINT, exit_application);

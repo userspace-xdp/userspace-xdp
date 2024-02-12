@@ -1,6 +1,6 @@
 #pragma once
 
-#include <linux/if_ether.h>
+#define ETH_ALEN        6
 
 struct __attribute__((packed)) eth_addr {
 	unsigned char addr[ETH_ALEN];
