@@ -7,7 +7,7 @@ TARGETS=base-server
 
 all: $(TARGETS)
 
-OBJS_C := $(addprefix $(OBJDIR), $(patsubst %.c, %.o, $(shell ls $(SRCDIR))))
+OBJS_C := $(patsubst $(SRCDIR)%.c,$(OBJDIR)%.o,$(wildcard $(SRCDIR)*.c))
 
 CFLAGS += -g -O3 -I$(ROOTDIR)/inc -I$(DPDK_DIR)/install-dir/include -I$(ROOTDIR)/ -I$(ROOTDIR)/module
 WERROR_FLAGS := -W -Wall -Wstrict-prototypes -Wmissing-prototypes
@@ -31,7 +31,6 @@ LDFLAGS =   -L$(ROOTDIR)/build-bpftime/bpftime/runtime  \
 			-lfrida-gum -lpthread -lm -ldl -lz -lelf 
 
 $(info $(SRCDIR))
-$(info $(OBJS_C))
 
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	cc $(CFLAGS) -c -o $@ $<

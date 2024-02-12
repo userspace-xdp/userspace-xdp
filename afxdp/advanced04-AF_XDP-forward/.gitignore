@@ -1,3 +1,0 @@
-*.o
-af_xdp_user
-af_xdp_kern.ll

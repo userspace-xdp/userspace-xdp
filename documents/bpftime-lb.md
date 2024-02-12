@@ -82,18 +82,22 @@ test:
 In two different terminals run two netcat servers in the two namespaces
 
 ```sh
-h2 nc -l 8080
+h2 bash
+python3 -m http.server
 ```
 
 ```sh
-h3 nc -l 8080
+h3 bash
+python3 -m http.server
 ```
 
 From your machine run to connect to one of the servers and send some messages.
 
 ```sh
-nc 10.0.0.10 8080
+curl -vv 10.0.0.10:8000
 ```
+
+Then you will get the data in both terminals.
 
 problem: data in xdp_md is 32 bit, while kernel will convert it into 64 bit.
 

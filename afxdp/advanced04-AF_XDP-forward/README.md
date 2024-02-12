@@ -1,2 +1,0 @@
-# af xdp forwarding
-
