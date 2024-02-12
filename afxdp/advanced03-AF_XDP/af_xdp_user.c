@@ -432,10 +432,10 @@ void print_ip_info(uint8_t *pkt) {
 		inet_ntop(AF_INET, &(ip->saddr), src_ip, INET_ADDRSTRLEN);
 		inet_ntop(AF_INET, &(ip->daddr), dst_ip, INET_ADDRSTRLEN);
 		printf("Received packet: SRC IP: %s, DST IP: %s\n", src_ip, dst_ip);
-		ip->check = 0; // Reset checksum to 0 before recalculating
-		ip->check = compute_ip_checksum(ip);
-		if (ip->protocol == IPPROTO_TCP)
-			compute_tcp_checksum(ip, (unsigned short *)(pkt + sizeof(struct ethhdr) + sizeof(struct iphdr)));
+		// ip->check = 0; // Reset checksum to 0 before recalculating
+		// ip->check = compute_ip_checksum(ip);
+		// if (ip->protocol == IPPROTO_TCP)
+		// 	compute_tcp_checksum(ip, (unsigned short *)(pkt + sizeof(struct ethhdr) + sizeof(struct iphdr)));
 	}
 }
 
