@@ -360,13 +360,13 @@ int xdp_pass(struct xdp_md* ctx) {
       ip->daddr = bpf_htonl(dst->ip);
       ip->saddr = bpf_htonl(src->ip);
 
-      /* FIX IP checksum */
-      ip->check = 0;
-      ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
+    //   /* FIX IP checksum */
+    //   ip->check = 0;
+    //   ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
 
-      /* FIX TCP chksum */
-      if (compute_tcp_csum(ip, tcp, data_end))
-        return XDP_DROP;
+    //   /* FIX TCP chksum */
+    //   if (compute_tcp_csum(ip, tcp, data_end))
+    //     return XDP_DROP;
 	  bpf_printk("sending packet to %d\n", key);
       return XDP_TX;
     }
