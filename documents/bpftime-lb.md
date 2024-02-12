@@ -48,5 +48,21 @@ load the eBPF XDP program into shared memory
 scripts/testbed-setup.sh ebpf
 source scripts/aliases.sh
 lb bash
-LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6
+LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6
+```
+
+(ignore the error message)
+
+And run the xd_xdp_user application in the testbed:
+
+```sh
+source scripts/aliases.sh
+lb bash
+afxdp/advanced03-AF_XDP# sudo sudo ./af_xdp_user -d veth6
+```
+
+test: From your machine run to connect to one of the servers and send some messages.
+
+```sh
+nc 10.0.0.10 8080
 ```

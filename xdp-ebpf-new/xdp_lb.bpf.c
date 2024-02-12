@@ -110,36 +110,37 @@ SEC("xdp")
 int xdp_pass(struct xdp_md* ctx) {
     void* data_end = (void*) (long) ctx->data_end;
     void* data = (void*) (long) ctx->data;
+    bpf_printk("received packet %p %p\n", data, data_end);
 
     struct ethhdr *eth = data;
     if (CHECK_OUT_OF_BOUNDS(data, sizeof(struct ethhdr), data_end)){
-		bpf_printk("Out of bounds ethhdr\n");
-		return XDP_DROP;
-	}
-
+      bpf_printk("Out of bounds ethhdr\n");
+      return XDP_DROP;
+    }
 
     struct iphdr* ip = data + sizeof(struct ethhdr);
     if (CHECK_OUT_OF_BOUNDS(ip, sizeof(struct iphdr), data_end)){
-		bpf_printk("Out of bounds iphdr\n");
-		return XDP_DROP;
-	}
+      bpf_printk("Out of bounds iphdr\n");
+      return XDP_DROP;
+    }
 
     /* FIXME: Implement the load balancer logic */
 
     if (ip->protocol == IPPROTO_TCP) {
       struct tcphdr* tcp = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
+      bpf_printk("received tcp packet\n");
 
       if (CHECK_OUT_OF_BOUNDS(tcp, sizeof(struct tcphdr), data_end)) {
-		bpf_printk("Out of bounds tcphdr\n");
-		return XDP_DROP;
-	  }
+        bpf_printk("Out of bounds tcphdr\n");
+        return XDP_DROP;
+      }
 	
       uint32_t key = 1;
       struct ip_mac_pair *client_cfg = bpf_map_lookup_elem(&config_map, &key);
       if (!client_cfg) {
-		bpf_printk("Client config not found\n");
-		return XDP_ABORTED;
-	  }
+        bpf_printk("Client config not found\n");
+        return XDP_ABORTED;
+      }
 
       struct ip_mac_pair *dst, *src;
 
