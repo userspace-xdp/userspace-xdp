@@ -75,6 +75,15 @@ struct xdp_md {
 	__u32 egress_ifindex;
 };
 
+// struct xdp_md {
+// 	__u32 data;
+// 	__u32 data_end;
+// 	__u32 data_meta;
+// 	__u32 ingress_ifindex;
+// 	__u32 rx_queue_index;
+// 	__u32 egress_ifindex;
+// };
+
 enum xdp_action {
 	XDP_ABORTED = 0,
 	XDP_DROP = 1,

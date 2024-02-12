@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 							 XDP_FLAGS_UPDATE_IF_NOEXIST | XDP_FLAGS_SKB_MODE,
 							 nullptr);
 	if (err) {
-		// std::cerr << "Error while attaching bpf program\n";
+		std::cerr << "Error while attaching bpf program\n";
 		return 1;
 	}
 

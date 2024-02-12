@@ -20,9 +20,11 @@
 #include <linux/if_link.h>
 #include <linux/if_ether.h>
 #include <linux/ipv6.h>
+#include <linux/ip.h>
 #include <linux/icmpv6.h>
 #include <xdp-runtime.h>
 
+#include "../libbpf/src/bpf.h"
 #include "../libbpf/src/libbpf.h"
 #include "../libbpf/src/xsk.h"
 
@@ -208,7 +210,7 @@ struct bpf_object *load_bpf_object_file__simple(const char *filename)
     struct bpf_object *obj;
     int err;
 
-    err = bpf_prog_load(filename, BPF_PROG_TYPE_XDP, &obj, &first_prog_fd);
+    err = bpf_prog_load_opts(filename, BPF_PROG_TYPE_XDP, &obj, &first_prog_fd);
     if (err)
     {
         fprintf(stderr, "Error loading XDP program. File => %s. Error => %s. Error Num => %d\n", filename, strerror(-err), err);
@@ -324,71 +326,128 @@ static inline __sum16 csum16_sub(__sum16 csum, __be16 addend)
 }
 
 
+unsigned short compute_ip_checksum(struct iphdr* iphdrp) {
+    unsigned long sum = 0;
+    const unsigned short* ptr = (const unsigned short*)iphdrp;
+
+    for (size_t i = 0; i < sizeof(struct iphdr) / 2; ++i) {
+        sum += *ptr++;
+    }
+
+    while (sum >> 16) {
+        sum = (sum & 0xFFFF) + (sum >> 16);
+    }
+
+    return (unsigned short)(~sum);
+}
+
+struct __attribute__((packed)) eth_addr {
+	unsigned char addr[ETH_ALEN];
+};
+
 static bool process_packet(struct xsk_socket_info *xsk,
                            uint64_t addr, uint32_t len)
 {
     uint8_t *pkt = xsk_umem__get_data(xsk->umem->buffer, addr);
 
-    /* Lesson#3: Write an IPv6 ICMP ECHO parser to send responses
-     *
-     * Some assumptions to make it easier:
-     * - No VLAN handling
-     * - Only if nexthdr is ICMP
-     * - Just return all data with MAC/IP swapped, and type set to
-     *   ICMPV6_ECHO_REPLY
-     * - Recalculate the icmp checksum */
-    int ret;
-    uint32_t tx_idx = 0;
-    // uint8_t tmp_mac[ETH_ALEN];
-    // struct in6_addr tmp_ip;
-    // struct ethhdr *eth = (struct ethhdr *)pkt;
-    // struct ipv6hdr *ipv6 = (struct ipv6hdr *)(eth + 1);
-    // struct icmp6hdr *icmp = (struct icmp6hdr *)(ipv6 + 1);
+	/* Lesson#3: Write an IPv6 ICMP ECHO parser to send responses
+	 *
+	 * Some assumptions to make it easier:
+	 * - No VLAN handling
+	 * - Only if nexthdr is ICMP
+	 * - Just return all data with MAC/IP swapped, and type set to
+	 *   ICMPV6_ECHO_REPLY
+	 * - Recalculate the icmp checksum */
+	int ret;
+	uint32_t tx_idx = 0;
+	uint8_t tmp_mac[ETH_ALEN];
+	// struct in6_addr tmp_ip;
+	struct ethhdr *eth = (struct ethhdr *)pkt;
 
-    // if (ntohs(eth->h_proto) != ETH_P_IPV6 ||
-    // 	len < (sizeof(*eth) + sizeof(*ipv6) + sizeof(*icmp)) ||
-    // 	ipv6->nexthdr != IPPROTO_ICMPV6 ||
-    // 	icmp->icmp6_type != ICMPV6_ECHO_REQUEST)
-    // 	return false;
-
-    // memcpy(tmp_mac, eth->h_dest, ETH_ALEN);
-    // memcpy(eth->h_dest, eth->h_source, ETH_ALEN);
-    // memcpy(eth->h_source, tmp_mac, ETH_ALEN);
-
-    // memcpy(&tmp_ip, &ipv6->saddr, sizeof(tmp_ip));
-    // memcpy(&ipv6->saddr, &ipv6->daddr, sizeof(tmp_ip));
-    // memcpy(&ipv6->daddr, &tmp_ip, sizeof(tmp_ip));
-
-    // icmp->icmp6_type = ICMPV6_ECHO_REPLY;
-
-    // csum_replace2(&icmp->icmp6_cksum,
-    // 			  htons(ICMPV6_ECHO_REQUEST << 8),
-    // 			  htons(ICMPV6_ECHO_REPLY << 8));
-
-    printf("received packet, send data to eBPF module\n");
-    uint64_t bpf_ret = 0;
-    struct xdp_md data;
-    data.data = (unsigned int)pkt;
-    data.data_end = data.data + len;
-    /* FIXME: Start your logic from here */
-    ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
-    switch (bpf_ret)
-    {
-    case XDP_DROP:
-        // TODO
+    // Ensure the packet is IPv4
+    if (ntohs(eth->h_proto) != ETH_P_IP)
         return false;
-    case XDP_PASS:
-        // TODO
-        return true;
-    case XDP_TX:
-        // continue sending packet out
-        break;
-    case XDP_REDIRECT:
-        // TODO
-        return true;
-    default:
-        return false;
-    }
+
+    struct iphdr *ip = (struct iphdr *)(pkt + sizeof(struct ethhdr));
+
+    // Print received packet information
+	char addr_str[INET_ADDRSTRLEN];
+    char src_ip[INET_ADDRSTRLEN];
+    char dst_ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(ip->saddr), src_ip, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &(ip->daddr), dst_ip, INET_ADDRSTRLEN);
+    printf("Received packet: SRC IP: %s, DST IP: %s\n", src_ip, dst_ip);
+	struct eth_addr mac = {0xde, 0xad, 0xbe, 0xef, 0x0, 0x0};
+
+    // Change the destination IP address to 10.0.0.3
+	if (ip->saddr == inet_addr("10.0.0.2")) {
+		ip->daddr = inet_addr("10.0.0.3");
+		ip->saddr = inet_addr("10.0.0.10");
+		mac.addr[5] = 3;
+		memcpy(eth->h_dest, mac.addr, ETH_ALEN);
+		printf("Change the destination IP address to 10.0.0.3");
+	} else if (ip->saddr == inet_addr("10.0.0.3")) {
+		ip->daddr = inet_addr("10.0.0.2");
+		ip->saddr = inet_addr("10.0.0.10");
+		mac.addr[5] = 2;
+		memcpy(eth->h_dest, mac.addr, ETH_ALEN);
+		printf("Change the destination IP address to 10.0.0.2");
+	} else {
+		printf("Unknown source IP address, drop\n");
+		return false;
+	}
+	mac.addr[5] = 10;
+	memcpy(eth->h_source, mac.addr, ETH_ALEN);
+    // Recalculate the IP checksum
+    ip->check = 0; // Reset checksum to 0 before recalculating
+    ip->check = compute_ip_checksum(ip);
+	// struct ipv6hdr *ipv6 = (struct ipv6hdr *)(eth + 1);
+	// struct icmp6hdr *icmp = (struct icmp6hdr *)(ipv6 + 1);
+
+	// if (ntohs(eth->h_proto) != ETH_P_IPV6 ||
+	// 	len < (sizeof(*eth) + sizeof(*ipv6) + sizeof(*icmp)) ||
+	// 	ipv6->nexthdr != IPPROTO_ICMPV6 ||
+	// 	icmp->icmp6_type != ICMPV6_ECHO_REQUEST)
+	// 	return false;
+
+	// memcpy(tmp_mac, eth->h_dest, ETH_ALEN);
+	// memcpy(eth->h_dest, eth->h_source, ETH_ALEN);
+	// memcpy(eth->h_source, tmp_mac, ETH_ALEN);
+
+	// memcpy(&tmp_ip, &ipv6->saddr, sizeof(tmp_ip));
+	// memcpy(&ipv6->saddr, &ipv6->daddr, sizeof(tmp_ip));
+	// memcpy(&ipv6->daddr, &tmp_ip, sizeof(tmp_ip));
+
+	// icmp->icmp6_type = ICMPV6_ECHO_REPLY;
+
+	// csum_replace2(&icmp->icmp6_cksum,
+	// 			  htons(ICMPV6_ECHO_REQUEST << 8),
+	// 			  htons(ICMPV6_ECHO_REPLY << 8));
+
+	printf("received packet %p, send data to eBPF module len %d\n", pkt, len);
+    // uint64_t bpf_ret = 0;
+    // struct xdp_md data;
+    // data.data = (unsigned int)pkt;
+    // data.data_end = data.data + len;
+    // /* FIXME: Start your logic from here */
+    // ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
+    // switch (bpf_ret)
+    // {
+    // case XDP_DROP:
+    //     // TODO
+    //     return false;
+    // case XDP_PASS:
+    //     // TODO
+    //     return true;
+    // case XDP_TX:
+    //     // continue sending packet out
+    //     break;
+    // case XDP_REDIRECT:
+    //     // TODO
+    //     return true;
+    // default:
+    //     return false;
+    // }
 
     /* Here we sent the packet out of the receive port. Note that
      * we allocate one entry and schedule it. Your design would be

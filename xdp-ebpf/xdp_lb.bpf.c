@@ -113,16 +113,16 @@ int xdp_lb(struct xdp_md* ctx) {
 
     struct ethhdr *eth = data;
     if (CHECK_OUT_OF_BOUNDS(data, sizeof(struct ethhdr), data_end)){
-		bpf_printk("Out of bounds ethhdr\n");
-		return XDP_DROP;
-	}
+      bpf_printk("Out of bounds ethhdr\n");
+      return XDP_DROP;
+    }
 
 
     struct iphdr* ip = data + sizeof(struct ethhdr);
     if (CHECK_OUT_OF_BOUNDS(ip, sizeof(struct iphdr), data_end)){
-		bpf_printk("Out of bounds iphdr\n");
-		return XDP_DROP;
-	}
+      bpf_printk("Out of bounds iphdr\n");
+      return XDP_DROP;
+    }
 
     /* FIXME: Implement the load balancer logic */
 

@@ -23,11 +23,8 @@ struct {
 	__uint(value_size, sizeof(int));
 } xsks_map SEC(".maps");
 
-static unsigned int rr;
 
 SEC("xdp") int xdp_sock_prog(struct xdp_md *ctx)
 {
-	rr = (rr + 1) & (MAX_SOCKS - 1);
-
-	return bpf_redirect_map(&xsks_map, rr, XDP_DROP);
+	return bpf_redirect_map(&xsks_map, ctx->rx_queue_index, XDP_DROP);
 }

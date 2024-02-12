@@ -2,8 +2,23 @@
 
 For details on how to setup the test bed, see [l4lb-ebpf.md](l4lb-ebpf.md)
 
+DPDK:
+
 ```sh
 scripts/testbed-setup.sh
+```
+
+eBPF:
+
+```sh
+scripts/testbed-setup.sh ebpf
+```
+
+And also
+
+```sh
+sudo iptables -P FORWARD ACCEPT
+sudo ip netns exec h2 ip link set lo up
 ```
 
 ## default: use kernel xdp load balance
@@ -58,16 +73,44 @@ And run the xd_xdp_user application in the testbed:
 ```sh
 source scripts/aliases.sh
 lb bash
-afxdp/advanced03-AF_XDP# sudo sudo ./af_xdp_user -d veth6
+cd afxdp/advanced03-AF_XDP
+./af_xdp_user -d veth6
 ```
 
-test: From your machine run to connect to one of the servers and send some messages.
+test:
+
+In two different terminals run two netcat servers in the two namespaces
+
+```sh
+h2 nc -l 8080
+```
+
+```sh
+h3 nc -l 8080
+```
+
+From your machine run to connect to one of the servers and send some messages.
 
 ```sh
 nc 10.0.0.10 8080
 ```
 
 problem: data in xdp_md is 32 bit, while kernel will convert it into 64 bit.
+
+The xdp_md is:
+
+```c
+struct xdp_md {
+    __u32 data;
+    __u32 data_end;
+    __u32 data_meta;
+    __u32 ingress_ifindex;
+    __u32 rx_queue_index;
+    __u32 egress_ifindex;
+};
+```
+
+it will cause in userspace:
 
 ```txt
 received packet 0x7fea635ee100, send data to eBPF module len 42
@@ -100,4 +143,3 @@ This is for usespace CO-RE commands:
 ```txt
 LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei37/dpdk-startingpoint/xdp-ebpf-new/base.btf
 ```
-
