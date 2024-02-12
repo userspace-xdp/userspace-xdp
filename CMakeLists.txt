@@ -10,6 +10,10 @@ project(
     LANGUAGES C CXX
 )
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
 option(ENABLE_LTO "Whether to enable LTO" NO)
 
 set(CMAKE_C_STANDARD 99)
@@ -29,3 +33,4 @@ target_include_directories(xdp-bpftime PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/bpftime/third_party/
     ${CMAKE_CURRENT_SOURCE_DIR}/bpftime/third_party/spdlog/include
 )
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)

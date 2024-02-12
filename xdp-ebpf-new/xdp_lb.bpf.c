@@ -107,7 +107,7 @@ static uint32_t get_target_key(uint32_t src_ip, uint16_t src_port,
 }
 
 SEC("xdp")
-int xdp_lb(struct xdp_md* ctx) {
+int xdp_pass(struct xdp_md* ctx) {
     void* data_end = (void*) (long) ctx->data_end;
     void* data = (void*) (long) ctx->data;
 
