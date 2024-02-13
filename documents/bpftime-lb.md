@@ -126,7 +126,7 @@ And run the xd_xdp_user application in the testbed:
 source scripts/aliases.sh
 lb bash
 cd afxdp/advanced03-AF_XDP
-./af_xdp_user -d veth6
+./af_xdp_user veth6
 ```
 
 test:

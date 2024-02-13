@@ -27,11 +27,7 @@ COPY_LOADER ?=
 LOADER_DIR ?= $(LIB_DIR)/xdp-tools/xdp-loader
 STATS_DIR ?= $(COMMON_DIR)/../basic-solutions
 
-COMMON_OBJS += $(COMMON_DIR)/common_params.o
 include $(LIB_DIR)/defines.mk
-
-# Create expansions for dependencies
-COMMON_H := ${COMMON_OBJS:.o=.h}
 
 EXTRA_DEPS +=
 
@@ -99,20 +95,11 @@ $(OBJECT_LIBXDP):
 		cd $(LIBXDP_DIR) && $(MAKE) all OBJDIR=.; \
 	fi
 
-# Create dependency: detect if C-file change and touch H-file, to trigger
-# target $(COMMON_OBJS)
-$(COMMON_H): %.h: %.c
-	touch $@
-
-# Detect if any of common obj changed and create dependency on .h-files
-$(COMMON_OBJS):	%.o: %.h
-	$(Q)$(MAKE) -C $(COMMON_DIR)
-
 $(USER_TARGETS): %: %.c  $(OBJECT_LIBBPF) $(OBJECT_LIBXDP) Makefile $(COMMON_MK) $(COMMON_OBJS) $(KERN_USER_H) $(EXTRA_DEPS)
 	$(QUIET_CC)$(CC) -Wall $(CFLAGS) $(LDFLAGS) -o $@ $(COMMON_OBJS) $(LIB_OBJS) \
 	 $< $(LDLIBS)
 
-$(XDP_OBJ): %.o: %.c  Makefile $(COMMON_MK) $(KERN_USER_H) $(EXTRA_DEPS) $(OBJECT_LIBBPF)
+$(XDP_OBJ): %.o: %.c  Makefile $(KERN_USER_H) $(EXTRA_DEPS) $(OBJECT_LIBBPF)
 	$(QUIET_CLANG)$(CLANG) -S \
 	    -target bpf \
 	    -D __BPF_TRACING__ \

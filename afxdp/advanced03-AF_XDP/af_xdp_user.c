@@ -29,9 +29,6 @@
 #include <netinet/tcp.h>
 #include <xdp-runtime.h>
 
-#include "../common/common_params.h"
-#include "../common/common_user_bpf_xdp.h"
-#include "../common/common_libbpf.h"
 #include <net/if_arp.h>
 
 #define NUM_FRAMES 4096
@@ -39,11 +36,11 @@
 #define RX_BATCH_SIZE 64
 #define INVALID_UMEM_FRAME UINT64_MAX
 
-int xsk_map_fd;
+int verbose = 1;
+int ifindex = -1;
+int xsk_map_fd = 0;
 bool custom_xsk = false;
-struct config cfg = {
-	.ifindex = -1,
-};
+const char* ifname = NULL;
 
 struct xsk_umem_info
 {
@@ -81,56 +78,6 @@ static inline __u32 xsk_ring_prod__free(struct xsk_ring_prod *r)
 	r->cached_cons = *r->consumer + r->size;
 	return r->cached_cons - r->cached_prod;
 }
-
-static const char *__doc__ = "AF_XDP kernel bypass example\n";
-
-static const struct option_wrapper long_options[] = {
-
-	{{"help", no_argument, NULL, 'h'},
-	 "Show help",
-	 false},
-
-	{{"dev", required_argument, NULL, 'd'},
-	 "Operate on device <ifname>",
-	 "<ifname>",
-	 true},
-
-	{{"skb-mode", no_argument, NULL, 'S'},
-	 "Install XDP program in SKB (AKA generic) mode"},
-
-	{{"native-mode", no_argument, NULL, 'N'},
-	 "Install XDP program in native mode"},
-
-	{{"auto-mode", no_argument, NULL, 'A'},
-	 "Auto-detect SKB or native mode"},
-
-	{{"force", no_argument, NULL, 'F'},
-	 "Force install, replacing existing program on interface"},
-
-	{{"copy", no_argument, NULL, 'c'},
-	 "Force copy mode"},
-
-	{{"zero-copy", no_argument, NULL, 'z'},
-	 "Force zero-copy mode"},
-
-	{{"queue", required_argument, NULL, 'Q'},
-	 "Configure interface receive queue for AF_XDP, default=0"},
-
-	{{"poll-mode", no_argument, NULL, 'p'},
-	 "Use the poll() API waiting for packets to arrive"},
-
-	{{"quiet", no_argument, NULL, 'q'},
-	 "Quiet mode (no output)"},
-
-	{{"filename", required_argument, NULL, 1},
-	 "Load program from <file>",
-	 "<file>"},
-
-	{{"progname", required_argument, NULL, 2},
-	 "Load program from function <name> in the ELF file",
-	 "<name>"},
-
-	{{0, 0, NULL, 0}, NULL, false}};
 
 static bool global_exit;
 
@@ -178,7 +125,7 @@ static uint64_t xsk_umem_free_frames(struct xsk_socket_info *xsk)
 	return xsk->umem_frame_free;
 }
 
-static struct xsk_socket_info *xsk_configure_socket(struct config *cfg,
+static struct xsk_socket_info *xsk_configure_socket(
 													struct xsk_umem_info *umem)
 {
 	struct xsk_socket_config xsk_cfg;
@@ -195,11 +142,11 @@ static struct xsk_socket_info *xsk_configure_socket(struct config *cfg,
 	xsk_info->umem = umem;
 	xsk_cfg.rx_size = XSK_RING_CONS__DEFAULT_NUM_DESCS;
 	xsk_cfg.tx_size = XSK_RING_PROD__DEFAULT_NUM_DESCS;
-	xsk_cfg.xdp_flags = cfg->xdp_flags;
-	xsk_cfg.bind_flags = cfg->xsk_bind_flags;
+	xsk_cfg.xdp_flags = 0;
+	xsk_cfg.bind_flags = 0;
 	xsk_cfg.libbpf_flags = (custom_xsk) ? XSK_LIBBPF_FLAGS__INHIBIT_PROG_LOAD : 0;
-	ret = xsk_socket__create(&xsk_info->xsk, cfg->ifname,
-							 cfg->xsk_if_queue, umem->umem, &xsk_info->rx,
+	ret = xsk_socket__create(&xsk_info->xsk, ifname,
+							 0, umem->umem, &xsk_info->rx,
 							 &xsk_info->tx, &xsk_cfg);
 	if (ret)
 		goto error_exit;
@@ -213,7 +160,7 @@ static struct xsk_socket_info *xsk_configure_socket(struct config *cfg,
 	else
 	{
 		/* Getting the program ID must be after the xdp_socket__create() call */
-		if (bpf_xdp_query_id(cfg->ifindex, cfg->xdp_flags, &prog_id))
+		if (bpf_xdp_query_id(ifindex, 0, &prog_id))
 			goto error_exit;
 	}
 
@@ -630,7 +577,7 @@ static void handle_receive_packets(struct xsk_socket_info *xsk)
 	complete_tx(xsk);
 }
 
-static void rx_and_process(struct config *cfg,
+static void rx_and_process(
 						   struct xsk_socket_info *xsk_socket)
 {
 	struct pollfd fds[2];
@@ -642,12 +589,12 @@ static void rx_and_process(struct config *cfg,
 
 	while (!global_exit)
 	{
-		if (cfg->xsk_poll_mode)
-		{
-			ret = poll(fds, nfds, -1);
-			if (ret <= 0 || ret > 1)
-				continue;
-		}
+		// if (cfg->xsk_poll_mode)
+		// {
+		// 	ret = poll(fds, nfds, -1);
+		// 	if (ret <= 0 || ret > 1)
+		// 		continue;
+		// }
 		handle_receive_packets(xsk_socket);
 	}
 }
@@ -662,7 +609,7 @@ static uint64_t gettime(void)
 	if (res < 0)
 	{
 		fprintf(stderr, "Error with gettimeofday! (%i)\n", res);
-		exit(EXIT_FAIL);
+		exit(1);
 	}
 	return (uint64_t)t.tv_sec * NANOSEC_PER_SEC + t.tv_nsec;
 }
@@ -739,16 +686,44 @@ static void *stats_poll(void *arg)
 	return NULL;
 }
 
+
+int do_unload(void)
+{
+	struct xdp_multiprog *mp = NULL;
+	int err = EXIT_FAILURE;
+	DECLARE_LIBBPF_OPTS(bpf_object_open_opts, opts);
+
+	mp = xdp_multiprog__get_from_ifindex(ifindex);
+	if (libxdp_get_error(mp)) {
+		fprintf(stderr, "Unable to get xdp_dispatcher program: %s\n",
+			strerror(errno));
+		goto out;
+	} else if (!mp) {
+		fprintf(stderr, "No XDP program loaded on %s\n", ifname);
+		mp = NULL;
+		goto out;
+	}
+
+		err = xdp_multiprog__detach(mp);
+		if (err) {
+			fprintf(stderr, "Unable to detach XDP program: %s\n",
+				strerror(-err));
+			goto out;
+		}
+out:
+	xdp_multiprog__close(mp);
+	return err ? 0 : 1;
+}
+
 static void exit_application(int signal)
 {
 	int err;
 
-	cfg.unload_all = true;
-	err = do_unload(&cfg);
+	err = do_unload();
 	if (err)
 	{
 		fprintf(stderr, "Couldn't detach XDP program on iface '%s' : (%d)\n",
-				cfg.ifname, err);
+				ifname, err);
 	}
 
 	signal = signal;
@@ -772,15 +747,17 @@ int main(int argc, char **argv)
 	/* Global shutdown handler */
 	signal(SIGINT, exit_application);
 
-	/* Cmdline options can change progname */
-	parse_cmdline_args(argc, argv, long_options, &cfg, __doc__);
-
+	if (argc !=2) {
+		printf("Usage: %s <ifname>\n", argv[0]);
+		return -1;
+	}
+	ifname = argv[1];
+	ifindex = if_nametoindex(ifname);
 	/* Required option */
-	if (cfg.ifindex == -1)
+	if (ifindex == -1)
 	{
 		fprintf(stderr, "ERROR: Required option --dev missing\n\n");
-		usage(argv[0], __doc__, long_options, (argc == 1));
-		return EXIT_FAIL_OPTION;
+		return 1;
 	}
 
 	/* Allow unlimited locking of memory, so all memory needed for packet
@@ -790,7 +767,7 @@ int main(int argc, char **argv)
 	{
 		fprintf(stderr, "ERROR: setrlimit(RLIMIT_MEMLOCK) \"%s\"\n",
 				strerror(errno));
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	ebpf_module_init();
@@ -804,7 +781,7 @@ int main(int argc, char **argv)
 	{
 		fprintf(stderr, "ERROR: Can't allocate buffer memory \"%s\"\n",
 				strerror(errno));
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	/* Initialize shared packet_buffer for umem usage */
@@ -813,16 +790,16 @@ int main(int argc, char **argv)
 	{
 		fprintf(stderr, "ERROR: Can't create umem \"%s\"\n",
 				strerror(errno));
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	/* Open and configure the AF_XDP (xsk) socket */
-	xsk_socket = xsk_configure_socket(&cfg, umem);
+	xsk_socket = xsk_configure_socket(umem);
 	if (xsk_socket == NULL)
 	{
 		fprintf(stderr, "ERROR: Can't setup AF_XDP socket \"%s\"\n",
 				strerror(errno));
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 
 	/* Start thread to do statistics display */
@@ -835,16 +812,16 @@ int main(int argc, char **argv)
 			fprintf(stderr, "ERROR: Failed creating statistics thread "
 							"\"%s\"\n",
 					strerror(errno));
-			exit(EXIT_FAILURE);
+			exit(1);
 		}
 	}
 
 	/* Receive and count packets than drop them */
-	rx_and_process(&cfg, xsk_socket);
+	rx_and_process(xsk_socket);
 
 	/* Cleanup */
 	xsk_socket__delete(xsk_socket->xsk);
 	xsk_umem__delete(umem->umem);
 
-	return EXIT_OK;
+	return 0;
 }
