@@ -13,7 +13,7 @@ LDLIBS+= -lpthread  -L$(ROOTDIR)/build-bpftime/bpftime/runtime  \
 			-lvm-bpf -lspdlogd -lbpf \
 			-lfrida-gum -lpthread -lm -ldl -lz -lelf 
 CFLAGS += -I$(ROOTDIR)/ -I$(ROOTDIR)/module
-COMMON_DIR = ../common
+COMMON_DIR = ../
 
 include $(COMMON_DIR)/common.mk
 
