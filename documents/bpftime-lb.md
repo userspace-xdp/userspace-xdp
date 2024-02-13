@@ -25,7 +25,7 @@ The old `xdp-ebpf` has some bug in bpftime, so we use the new one in `xdp-ebpf-n
 
 ## default: use kernel xdp load balance
 
-To build the provided code run in xdp-ebpf directory:
+To build the provided code run in xdp-ebpf-new directory:
 
 ```sh
 make
@@ -34,7 +34,8 @@ make
 To load the eBPF program run the following:
 
 ```sh
-lb ./loader xdp_lb.bpf.o xdp_lb veth6
+lb bash
+xdp-ebpf-new/xdp_lb veth6
 ```
 
 Note: make sure you have run `source alias.sh` before, so that `lb` make sense.
