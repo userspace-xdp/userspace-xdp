@@ -21,6 +21,8 @@ sudo iptables -P FORWARD ACCEPT
 sudo ip netns exec h2 ip link set lo up
 ```
 
+The old `xdp-ebpf` has some bug in bpftime, so we use the new one in `xdp-ebpf-new`. (it's not critical, can be fix later)
+
 ## default: use kernel xdp load balance
 
 To build the provided code run in xdp-ebpf directory:
@@ -63,41 +65,8 @@ load the eBPF XDP program into shared memory
 scripts/testbed-setup.sh ebpf
 source scripts/aliases.sh
 lb bash
-LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6
+LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei37/dpdk-startingpoint/xdp-ebpf-new/base.btf
 ```
-
-(ignore the error message)
-
-And run the xd_xdp_user application in the testbed:
-
-```sh
-source scripts/aliases.sh
-lb bash
-cd afxdp/advanced03-AF_XDP
-./af_xdp_user -d veth6
-```
-
-test:
-
-In two different terminals run two netcat servers in the two namespaces
-
-```sh
-h2 bash
-python3 -m http.server
-```
-
-```sh
-h3 bash
-python3 -m http.server
-```
-
-From your machine run to connect to one of the servers and send some messages.
-
-```sh
-curl -vv 10.0.0.10:8000
-```
-
-Then you will get the data in both terminals.
 
 problem: data in xdp_md is 32 bit, while kernel will convert it into 64 bit.
 
@@ -146,4 +115,80 @@ This is for usespace CO-RE commands:
 
 ```txt
 LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei37/dpdk-startingpoint/xdp-ebpf-new/base.btf
+```
+
+(ignore the error message)
+
+And run the xd_xdp_user application in the testbed:
+
+```sh
+source scripts/aliases.sh
+lb bash
+cd afxdp/advanced03-AF_XDP
+./af_xdp_user -d veth6
+```
+
+test:
+
+In two different terminals run two netcat servers in the two namespaces
+
+```sh
+source scripts/aliases.sh
+h2 bash
+python3 -m http.server
+```
+
+```sh
+source scripts/aliases.sh
+h3 bash
+python3 -m http.server
+```
+
+From your machine run to connect to one of the servers and send some messages.
+
+```sh
+curl -vv 10.0.0.10:8000
+```
+
+Then you will get the data in both terminals.
+
+## run with dpdk
+
+compile the dpdk-ebpf
+
+```sh
+export PKG_CONFIG_PATH=<the path of the pkgconfig directory inside dpdk>
+# e.g. export PKG_CONFIG_PATH=/home/yunwei37/dpdk-startingpoint/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig
+SRCDIR=/home/yunwei37/dpdk-startingpoint/dpdk-lb/ make dpdk-ebpf
+```
+
+Set up the testbed
+
+```sh
+sudo ./hugepages.sh
+scripts/testbed-setup.sh 
+```
+
+Run bpftime server
+
+```sh
+LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei37/dpdk-startingpoint/xdp-ebpf-new/base.btf
+```
+
+Run the dpdk server
+
+```sh
+./build/base-server -l 0 --vdev=net_tap0,iface=tapdpdk
+```
+
+Link the tap interface to the dpdk server
+
+```sh
+scripts/link-dpdk.sh
+```
+
+From your machine try `arp`ing the middlebox.
+
+```sh
+arping 10.0.0.10
 ```

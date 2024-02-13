@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include <rte_lcore.h>
-
+#include <xdp-runtime.h>
 #include <base.h>
 
 volatile bool force_quit;
@@ -33,6 +33,8 @@ int main(int argc, char **argv)
 	int count, lcore_id, ret = 0;
 
 	printf("Hello world\n");
+	ebpf_module_init();
+	printf("init eBPF runtime success\n");
 
 	dpdk_init(&argc, &argv);
 

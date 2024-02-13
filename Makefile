@@ -8,7 +8,7 @@ dpdk:
 
 dpdk-ebpf:
 	make -C build-bpftime
-	# rm -f build/base-server
+	make -C build distclean
 	make -C build
 
 clean:
