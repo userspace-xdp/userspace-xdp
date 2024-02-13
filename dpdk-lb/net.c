@@ -2,6 +2,7 @@
 #include <rte_arp.h>
 #include <rte_ethdev.h>
 #include <rte_ether.h>
+#include <rte_tcp.h>
 
 #include <base.h>
 #include <net-config.h>
@@ -92,8 +93,17 @@ static void lb_in(struct rte_mbuf *pkt_buf)
 	/* FIXME: Set the src and destination IPs */
 
 	/* FIXME: Fix the tcp and ip checksums */
+	struct rte_ipv4_hdr *ip_hdr = rte_pktmbuf_mtod_offset(pkt_buf, struct rte_ipv4_hdr *, sizeof(struct rte_ether_hdr));
+	ip_hdr->hdr_checksum = 0;					   // 将IP头校验和字段置0
+	ip_hdr->hdr_checksum = rte_ipv4_cksum(ip_hdr); // 计算IP头校验和
+
+	struct rte_tcp_hdr *tcp_hdr = (struct tcp_hdr *)((unsigned char *)ip_hdr + sizeof(struct rte_ipv4_hdr));
+	tcp_hdr->cksum = 0;										 // 将TCP校验和字段置0
+	tcp_hdr->cksum = rte_ipv4_udptcp_cksum(ip_hdr, tcp_hdr); // 计算TCP校验和
 
 	/* Send the packet out */
+	eth_out(pkt_buf, RTE_ETHER_TYPE_IPV4, get_mac_for_ip(targets[0]),
+			rte_be_to_cpu_16(iph->total_length));
 }
 
 // here we use a sightly different one than kernel
@@ -134,6 +144,10 @@ void eth_in(struct rte_mbuf *pkt_buf)
 	case XDP_TX:
 		printf("send packet to dpdk_out\n");
 		// eth_out(pkt_buf);
+		if (hdr->ether_type == rte_cpu_to_be_16(RTE_ETHER_TYPE_IPV4))
+		{
+			lb_in(pkt_buf);
+		}
 		dpdk_out(pkt_buf);
 		return;
 	case XDP_PASS:

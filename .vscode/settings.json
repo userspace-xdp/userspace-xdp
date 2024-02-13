@@ -14,6 +14,7 @@
         "libbpf.h": "c",
         "bpf_core_read.h": "c",
         "base.h": "c",
-        "rte_ether.h": "c"
+        "rte_ether.h": "c",
+        "rte_tcp.h": "c"
     }
 }
