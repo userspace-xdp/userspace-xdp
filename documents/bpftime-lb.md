@@ -160,7 +160,7 @@ compile the dpdk-ebpf
 ```sh
 export PKG_CONFIG_PATH=<the path of the pkgconfig directory inside dpdk>
 # e.g. export PKG_CONFIG_PATH=/home/yunwei37/dpdk-startingpoint/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig
-SRCDIR=/home/yunwei37/dpdk-startingpoint/dpdk-lb/ make dpdk-ebpf
+make dpdk-ebpf
 ```
 
 Set up the testbed
