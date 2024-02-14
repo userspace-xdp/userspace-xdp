@@ -40,7 +40,7 @@ int verbose = 1;
 int ifindex = -1;
 int xsk_map_fd = 0;
 bool custom_xsk = false;
-const char* ifname = NULL;
+const char *ifname = NULL;
 
 struct xsk_umem_info
 {
@@ -126,7 +126,7 @@ static uint64_t xsk_umem_free_frames(struct xsk_socket_info *xsk)
 }
 
 static struct xsk_socket_info *xsk_configure_socket(
-													struct xsk_umem_info *umem)
+	struct xsk_umem_info *umem)
 {
 	struct xsk_socket_config xsk_cfg;
 	struct xsk_socket_info *xsk_info;
@@ -314,6 +314,79 @@ static void handle_arp(uint8_t *pkt, struct ethhdr *eth, struct eth_addr our_mac
 	}
 }
 
+#define MAX_OPT_WORDS 10 // 40 bytes for options
+
+static __always_inline __u16 csum_reduce_helper(__u32 csum)
+{
+	csum = ((csum & 0xffff0000) >> 16) + (csum & 0xffff);
+	csum = ((csum & 0xffff0000) >> 16) + (csum & 0xffff);
+	return csum;
+}
+
+struct ipv4_psd_header
+{
+	uint32_t src_addr; /* IP address of source host. */
+	uint32_t dst_addr; /* IP address of destination host. */
+	uint8_t zero;	   /* zero. */
+	uint8_t proto;	   /* L4 protocol type. */
+	uint16_t len;	   /* L4 length. */
+};
+
+static __always_inline int compute_tcp_csum(struct iphdr *ip, struct tcphdr *tcp, void *data_end)
+{
+	struct ipv4_psd_header psdh;
+	uint32_t csum;
+	int ret = 0;
+
+	register __be16 before_sum = tcp->check;
+	tcp->check = 0;
+	csum = bpftime_csum_diff(0, 0, (__be32 *)tcp, sizeof(struct tcphdr), 0);
+	printf("csum: %x\n", (unsigned short)csum);
+	psdh.src_addr = ip->saddr;
+	psdh.dst_addr = ip->daddr;
+	psdh.zero = 0;
+	psdh.proto = IPPROTO_TCP;
+	psdh.len = htons(ntohs(ip->tot_len) - sizeof(struct iphdr));
+	printf("psdh.len: %d\n", ntohs(psdh.len));
+	csum = bpftime_csum_diff(0, 0, (__be32 *)&psdh, sizeof(struct ipv4_psd_header),
+							 csum);
+	uint32_t tcphdrlen = tcp->doff * 4;
+	printf("csum: %x\n", (unsigned short)csum);
+	if (tcphdrlen == sizeof(struct tcphdr))
+	{
+		printf("no TCP options\n");
+		goto OUT;
+	}
+
+	/* There are TCP options */
+	uint32_t *opt = (uint32_t *)(tcp + 1);
+	uint32_t parsed = sizeof(struct tcphdr);
+	for (int i = 0; i < MAX_OPT_WORDS; i++)
+	{
+		if ((void *)(opt + 1) > data_end)
+		{
+			ret = -1;
+			goto OUT;
+		}
+
+		csum = bpftime_csum_diff(0, 0, (__be32 *)opt, sizeof(uint32_t), csum);
+
+		parsed += sizeof(uint32_t);
+		if (parsed == tcphdrlen)
+			break;
+		opt++;
+	}
+	printf("csum: %x\n", (unsigned short)csum);
+
+OUT:
+	tcp->check = ~csum_reduce_helper(csum);
+	if (before_sum != tcp->check)
+	{
+		printf("before in compute_tcp_csum checksum: %x, after checksum: %x\n", before_sum, tcp->check);
+	}
+	return ret;
+}
+
 /* set tcp checksum: given IP header and tcp segment */
 void compute_tcp_checksum(struct iphdr *pIph, unsigned short *ipPayload)
 {
@@ -331,9 +404,13 @@ void compute_tcp_checksum(struct iphdr *pIph, unsigned short *ipPayload)
 	sum += htons(IPPROTO_TCP);
 	// the length
 	sum += htons(tcpLen);
+	printf("tcpLen: %d\n", tcpLen);
+	printf("sum: %x\n", (unsigned short)sum);
 
 	// add the IP payload
 	// initialize checksum to 0
+	// printf("before checksum: %x\n", tcphdrp->check);
+	register __be16 before_sum = tcphdrp->check;
 	tcphdrp->check = 0;
 	while (tcpLen > 1)
 	{
@@ -346,47 +423,57 @@ void compute_tcp_checksum(struct iphdr *pIph, unsigned short *ipPayload)
 		// printf("+++++++++++padding, %dn", tcpLen);
 		sum += ((*ipPayload) & htons(0xFF00));
 	}
+	printf("sum: %x\n", (unsigned short)sum);
 	// Fold 32-bit sum to 16 bits: add carrier to result
 	while (sum >> 16)
 	{
 		sum = (sum & 0xffff) + (sum >> 16);
 	}
 	sum = ~sum;
+
 	// set computation result
 	tcphdrp->check = (unsigned short)sum;
+	if (before_sum != tcphdrp->check)
+	{
+		printf("before checksum: %x, after checksum: %x\n", before_sum, tcphdrp->check);
+	}
 }
 
-void print_mac(unsigned char mac[6]) {
+void print_mac(unsigned char mac[6])
+{
 	printf("MAC address: %02x:%02x:%02x:%02x:%02x:%02x\n",
-           mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		   mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
-void print_ip_info(uint8_t *pkt) {
+void print_ip_info(uint8_t *pkt, void *data_end)
+{
 	struct ethhdr *eth = (struct ethhdr *)pkt;
 
 	// Ensure the packet is IPv4
 	if (ntohs(eth->h_proto) == ETH_P_IP)
 	{
-		printf("Received IPv4 packet, processing\n");
 		int ret;
 		uint32_t tx_idx = 0;
 		struct iphdr *ip = (struct iphdr *)(pkt + sizeof(struct ethhdr));
 
 		// Print received packet information
-		char addr_str[INET_ADDRSTRLEN];
 		char src_ip[INET_ADDRSTRLEN];
 		char dst_ip[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &(ip->saddr), src_ip, INET_ADDRSTRLEN);
 		inet_ntop(AF_INET, &(ip->daddr), dst_ip, INET_ADDRSTRLEN);
-		printf("Received packet: SRC IP: %s, DST IP: %s\n", src_ip, dst_ip);
+		printf("SRC IP: %s, DST IP: %s\n", src_ip, dst_ip);
 		// ip->check = 0; // Reset checksum to 0 before recalculating
 		// ip->check = compute_ip_checksum(ip);
-		// if (ip->protocol == IPPROTO_TCP)
-		// 	compute_tcp_checksum(ip, (unsigned short *)(pkt + sizeof(struct ethhdr) + sizeof(struct iphdr)));
+		if (ip->protocol == IPPROTO_TCP)
+		{
+			compute_tcp_csum(ip, (struct tcphdr *)(pkt + sizeof(struct ethhdr) + sizeof(struct iphdr)), data_end);
+			compute_tcp_checksum(ip, (unsigned short *)(pkt + sizeof(struct ethhdr) + sizeof(struct iphdr)));
+		}
 	}
 }
 
-bool do_userspace_redirect_demo(uint8_t *pkt) {
+bool do_userspace_redirect_demo(uint8_t *pkt)
+{
 	struct ethhdr *eth = (struct ethhdr *)pkt;
 	struct eth_addr mac = {0xde, 0xad, 0xbe, 0xef, 0x0, 0x0};
 	struct eth_addr our_mac = mac;
@@ -396,12 +483,12 @@ bool do_userspace_redirect_demo(uint8_t *pkt) {
 	if (ntohs(eth->h_proto) == ETH_P_IP)
 	{
 		printf("Received IPv4 packet, processing\n");
-		int ret;
-		uint32_t tx_idx = 0;
+		// int ret;
+		// uint32_t tx_idx = 0;
 		struct iphdr *ip = (struct iphdr *)(pkt + sizeof(struct ethhdr));
 
 		// Print received packet information
-		char addr_str[INET_ADDRSTRLEN];
+		// char addr_str[INET_ADDRSTRLEN];
 		char src_ip[INET_ADDRSTRLEN];
 		char dst_ip[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &(ip->saddr), src_ip, INET_ADDRSTRLEN);
@@ -469,11 +556,11 @@ static bool process_packet(struct xsk_socket_info *xsk,
 	 * - Recalculate the icmp checksum */
 	struct ethhdr *eth = (struct ethhdr *)pkt;
 	printf("\nreceived packet %p, len %d\n", pkt, len);
-	print_ip_info(pkt);
-	printf("h_dest ");
-	print_mac(eth->h_dest);
-	printf("h_source ");
-	print_mac(eth->h_source);
+	// print_ip_info(pkt, pkt + len);
+	// printf("h_dest ");
+	// print_mac(eth->h_dest);
+	// printf("h_source ");
+	// print_mac(eth->h_source);
 	uint64_t bpf_ret = 0;
 	struct xdp_md_userspace data;
 	data.data = (uintptr_t)pkt;
@@ -500,11 +587,11 @@ static bool process_packet(struct xsk_socket_info *xsk,
 		return false;
 	}
 
-	print_ip_info(pkt);
-	printf("h_dest ");
-	print_mac(eth->h_dest);
-	printf("h_source ");
-	print_mac(eth->h_source);
+	print_ip_info(pkt, pkt + len);
+	// printf("h_dest ");
+	// print_mac(eth->h_dest);
+	// printf("h_source ");
+	// print_mac(eth->h_source);
 	/* Here we sent the packet out of the receive port. Note that
 	 * we allocate one entry and schedule it. Your design would be
 	 * faster if you do batch processing/transmission */
@@ -578,10 +665,9 @@ static void handle_receive_packets(struct xsk_socket_info *xsk)
 }
 
 static void rx_and_process(
-						   struct xsk_socket_info *xsk_socket)
+	struct xsk_socket_info *xsk_socket)
 {
 	struct pollfd fds[2];
-	int ret, nfds = 1;
 
 	memset(fds, 0, sizeof(fds));
 	fds[0].fd = xsk_socket__fd(xsk_socket->xsk);
@@ -686,7 +772,6 @@ static void *stats_poll(void *arg)
 	return NULL;
 }
 
-
 int do_unload(void)
 {
 	struct xdp_multiprog *mp = NULL;
@@ -694,22 +779,26 @@ int do_unload(void)
 	DECLARE_LIBBPF_OPTS(bpf_object_open_opts, opts);
 
 	mp = xdp_multiprog__get_from_ifindex(ifindex);
-	if (libxdp_get_error(mp)) {
+	if (libxdp_get_error(mp))
+	{
 		fprintf(stderr, "Unable to get xdp_dispatcher program: %s\n",
-			strerror(errno));
+				strerror(errno));
 		goto out;
-	} else if (!mp) {
+	}
+	else if (!mp)
+	{
 		fprintf(stderr, "No XDP program loaded on %s\n", ifname);
 		mp = NULL;
 		goto out;
 	}
 
-		err = xdp_multiprog__detach(mp);
-		if (err) {
-			fprintf(stderr, "Unable to detach XDP program: %s\n",
+	err = xdp_multiprog__detach(mp);
+	if (err)
+	{
+		fprintf(stderr, "Unable to detach XDP program: %s\n",
 				strerror(-err));
-			goto out;
-		}
+		goto out;
+	}
 out:
 	xdp_multiprog__close(mp);
 	return err ? 0 : 1;
@@ -747,7 +836,8 @@ int main(int argc, char **argv)
 	/* Global shutdown handler */
 	signal(SIGINT, exit_application);
 
-	if (argc !=2) {
+	if (argc != 2)
+	{
 		printf("Usage: %s <ifname>\n", argv[0]);
 		return -1;
 	}

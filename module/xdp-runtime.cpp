@@ -4,6 +4,10 @@
 #include "bpftime_shm_internal.hpp"
 #include "handler/prog_handler.hpp"
 #include <bpftime_shm.hpp>
+extern "C"
+{
+#include "xdp-runtime.h"
+}
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -25,6 +29,8 @@ union bpf_attach_ctx_holder
 };
 
 static bpf_attach_ctx_holder ctx_holder;
+
+bpftime::bpftime_helper_info csum_diff = {.index = 28, .name = "bpftime_csum_diff", .fn = (void *)bpftime_csum_diff};
 
 extern "C" int ebpf_module_init()
 {
@@ -49,6 +55,7 @@ extern "C" int ebpf_module_init()
             .add_helper_group_to_prog(::prog);
         bpftime_helper_group::get_shm_maps_helper_group()
             .add_helper_group_to_prog(::prog);
+        ::prog->bpftime_prog_register_raw_helper(csum_diff);
         ::prog->bpftime_prog_load(false);
         printf("load eBPF program xdp_pass\n");
         return 0;
@@ -59,9 +66,10 @@ extern "C" int ebpf_module_init()
 }
 
 extern "C" int ebpf_module_run_at_handler(void *mem, uint64_t mem_size,
-                                     uint64_t *ret)
+                                          uint64_t *ret)
 {
-  if (!prog) {
+  if (!prog)
+  {
     fprintf(stderr, "No prog found\n");
     return 0;
   }
