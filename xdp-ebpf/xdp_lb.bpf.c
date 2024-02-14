@@ -58,49 +58,49 @@ static __always_inline __u16 csum_reduce_helper(__u32 csum)
   return csum;
 }
 
-static __always_inline int compute_tcp_csum(struct iphdr *ip, struct tcphdr *tcp, void *data_end)
-{
-  struct ipv4_psd_header psdh;
-  uint32_t csum;
-  int ret = 0;
+// static __always_inline int compute_tcp_csum(struct iphdr *ip, struct tcphdr *tcp, void *data_end)
+// {
+//   struct ipv4_psd_header psdh;
+//   uint32_t csum;
+//   int ret = 0;
 
-  tcp->check = 0;
-  csum = bpf_csum_diff(0, 0, (__be32 *)tcp, sizeof(struct tcphdr), 0);
-  psdh.src_addr = ip->saddr;
-  psdh.dst_addr = ip->daddr;
-  psdh.zero = 0;
-  psdh.proto = IPPROTO_TCP;
-  psdh.len = htons(ntohs(ip->tot_len) - sizeof(struct iphdr));
-  csum = bpf_csum_diff(0, 0, (__be32 *)&psdh, sizeof(struct ipv4_psd_header),
-                       csum);
-  uint32_t tcphdrlen = tcp->doff * 4;
+//   tcp->check = 0;
+//   csum = bpf_csum_diff(0, 0, (__be32 *)tcp, sizeof(struct tcphdr), 0);
+//   psdh.src_addr = ip->saddr;
+//   psdh.dst_addr = ip->daddr;
+//   psdh.zero = 0;
+//   psdh.proto = IPPROTO_TCP;
+//   psdh.len = htons(ntohs(ip->tot_len) - sizeof(struct iphdr));
+//   csum = bpf_csum_diff(0, 0, (__be32 *)&psdh, sizeof(struct ipv4_psd_header),
+//                        csum);
+//   uint32_t tcphdrlen = tcp->doff * 4;
 
-  if (tcphdrlen == sizeof(struct tcphdr))
-    goto OUT;
+//   if (tcphdrlen == sizeof(struct tcphdr))
+//     goto OUT;
 
-  /* There are TCP options */
-  uint32_t *opt = (uint32_t *)(tcp + 1);
-  uint32_t parsed = sizeof(struct tcphdr);
-  for (int i = 0; i < MAX_OPT_WORDS; i++)
-  {
-    if ((void *)(opt + 1) > data_end)
-    {
-      ret = -1;
-      goto OUT;
-    }
+//   /* There are TCP options */
+//   uint32_t *opt = (uint32_t *)(tcp + 1);
+//   uint32_t parsed = sizeof(struct tcphdr);
+//   for (int i = 0; i < MAX_OPT_WORDS; i++)
+//   {
+//     if ((void *)(opt + 1) > data_end)
+//     {
+//       ret = -1;
+//       goto OUT;
+//     }
 
-    csum = bpf_csum_diff(0, 0, (__be32 *)opt, sizeof(uint32_t), csum);
+//     csum = bpf_csum_diff(0, 0, (__be32 *)opt, sizeof(uint32_t), csum);
 
-    parsed += sizeof(uint32_t);
-    if (parsed == tcphdrlen)
-      break;
-    opt++;
-  }
+//     parsed += sizeof(uint32_t);
+//     if (parsed == tcphdrlen)
+//       break;
+//     opt++;
+//   }
 
-OUT:
-  tcp->check = ~csum_reduce_helper(csum);
-  return ret;
-}
+// OUT:
+//   tcp->check = ~csum_reduce_helper(csum);
+//   return ret;
+// }
 
 static uint32_t get_target_key(uint32_t src_ip, uint16_t src_port,
                                uint16_t dst_port)
@@ -190,8 +190,8 @@ int xdp_lb(struct xdp_md *ctx)
     ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
 
     /* FIX TCP chksum */
-    if (compute_tcp_csum(ip, tcp, data_end))
-      return XDP_DROP;
+    // if (compute_tcp_csum(ip, tcp, data_end))
+    //   return XDP_DROP;
     bpf_printk("sending packet to %d\n", key);
     return XDP_TX;
   }

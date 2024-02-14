@@ -314,201 +314,212 @@ static void handle_arp(uint8_t *pkt, struct ethhdr *eth, struct eth_addr our_mac
 	}
 }
 
-#define MAX_OPT_WORDS 10 // 40 bytes for options
+// #define MAX_OPT_WORDS 10 // 40 bytes for options
 
-static __always_inline __u16 csum_reduce_helper(__u32 csum)
-{
-	csum = ((csum & 0xffff0000) >> 16) + (csum & 0xffff);
-	csum = ((csum & 0xffff0000) >> 16) + (csum & 0xffff);
-	return csum;
-}
+// static __always_inline __u16 csum_reduce_helper(__u32 csum)
+// {
+// 	csum = ((csum & 0xffff0000) >> 16) + (csum & 0xffff);
+// 	csum = ((csum & 0xffff0000) >> 16) + (csum & 0xffff);
+// 	return csum;
+// }
 
-struct ipv4_psd_header
-{
-	uint32_t src_addr; /* IP address of source host. */
-	uint32_t dst_addr; /* IP address of destination host. */
-	uint8_t zero;	   /* zero. */
-	uint8_t proto;	   /* L4 protocol type. */
-	uint16_t len;	   /* L4 length. */
-};
+// struct ipv4_psd_header
+// {
+// 	uint32_t src_addr; /* IP address of source host. */
+// 	uint32_t dst_addr; /* IP address of destination host. */
+// 	uint8_t zero;	   /* zero. */
+// 	uint8_t proto;	   /* L4 protocol type. */
+// 	uint16_t len;	   /* L4 length. */
+// };
 
+// static inline unsigned short from32to16(unsigned int x)
+// {
+// 	/* add up 16-bit and 16-bit for 16+c bit */
+// 	x = (x & 0xffff) + (x >> 16);
+// 	/* add up carry.. */
+// 	x = (x & 0xffff) + (x >> 16);
+// 	return x;
+// }
 
-static inline unsigned short from32to16(unsigned int x)
-{
-	/* add up 16-bit and 16-bit for 16+c bit */
-	x = (x & 0xffff) + (x >> 16);
-	/* add up carry.. */
-	x = (x & 0xffff) + (x >> 16);
-	return x;
-}
+// static unsigned int do_csum(const unsigned char *buff, int len)
+// {
+// 	int odd;
+// 	unsigned int result = 0;
 
-static unsigned int do_csum(const unsigned char *buff, int len)
-{
-	int odd;
-	unsigned int result = 0;
+// 	if (len <= 0)
+// 		goto out;
+// 	odd = 1 & (unsigned long)buff;
+// 	if (odd)
+// 	{
+// 		// #ifdef __LITTLE_ENDIAN
+// 		result += (*buff << 8);
+// 		// #else
+// 		// 		result = *buff;
+// 		// #endif
+// 		len--;
+// 		buff++;
+// 	}
+// 	if (len >= 2)
+// 	{
+// 		if (2 & (unsigned long)buff)
+// 		{
+// 			result += *(unsigned short *)buff;
+// 			len -= 2;
+// 			buff += 2;
+// 		}
+// 		if (len >= 4)
+// 		{
+// 			const unsigned char *end = buff + ((unsigned)len & ~3);
+// 			unsigned int carry = 0;
+// 			do
+// 			{
+// 				unsigned int w = *(unsigned int *)buff;
+// 				buff += 4;
+// 				result += carry;
+// 				result += w;
+// 				carry = (w > result);
+// 			} while (buff < end);
+// 			result += carry;
+// 			result = (result & 0xffff) + (result >> 16);
+// 		}
+// 		if (len & 2)
+// 		{
+// 			result += *(unsigned short *)buff;
+// 			buff += 2;
+// 		}
+// 	}
+// 	if (len & 1)
+// 		// #ifdef __LITTLE_ENDIAN
+// 		result += *buff;
+// 	// #else
+// 	// 		result += (*buff << 8);
+// 	// #endif
+// 	result = from32to16(result);
+// 	if (odd)
+// 		result = ((result >> 8) & 0xff) | ((result & 0xff) << 8);
+// out:
+// 	return result;
+// }
 
-	if (len <= 0)
-		goto out;
-	odd = 1 & (unsigned long)buff;
-	if (odd)
-	{
-		// #ifdef __LITTLE_ENDIAN
-		result += (*buff << 8);
-		// #else
-		// 		result = *buff;
-		// #endif
-		len--;
-		buff++;
-	}
-	if (len >= 2)
-	{
-		if (2 & (unsigned long)buff)
-		{
-			result += *(unsigned short *)buff;
-			len -= 2;
-			buff += 2;
-		}
-		if (len >= 4)
-		{
-			const unsigned char *end = buff + ((unsigned)len & ~3);
-			unsigned int carry = 0;
-			do
-			{
-				unsigned int w = *(unsigned int *)buff;
-				buff += 4;
-				result += carry;
-				result += w;
-				carry = (w > result);
-			} while (buff < end);
-			result += carry;
-			result = (result & 0xffff) + (result >> 16);
-		}
-		if (len & 2)
-		{
-			result += *(unsigned short *)buff;
-			buff += 2;
-		}
-	}
-	if (len & 1)
-		// #ifdef __LITTLE_ENDIAN
-		result += *buff;
-	// #else
-	// 		result += (*buff << 8);
-	// #endif
-	result = from32to16(result);
-	if (odd)
-		result = ((result >> 8) & 0xff) | ((result & 0xff) << 8);
-out:
-	return result;
-}
+// static __wsum csum_partial(const void *buff, int len, __wsum wsum)
+// {
+// 	unsigned int sum = (unsigned int)wsum;
+// 	unsigned int result = do_csum((const unsigned char *)buff, len);
 
-static __wsum csum_partial(const void *buff, int len, __wsum wsum)
-{
-	unsigned int sum = (unsigned int)wsum;
-	unsigned int result = do_csum((const unsigned char *)buff, len);
+// 	/* add in old sum, and carry.. */
+// 	result += sum;
+// 	if (sum > result)
+// 		result += 1;
+// 	return (__wsum)result;
+// }
 
-	/* add in old sum, and carry.. */
-	result += sum;
-	if (sum > result)
-		result += 1;
-	return (__wsum)result;
-}
+// #define MAX_BPF_STACK 512
+// struct bpf_scratchpad
+// {
+// 	union
+// 	{
+// 		__be32 diff[MAX_BPF_STACK / sizeof(__be32)];
+// 		__u8 buff[MAX_BPF_STACK];
+// 	};
+// };
 
-#define MAX_BPF_STACK 512
-struct bpf_scratchpad
-{
-	union
-	{
-		__be32 diff[MAX_BPF_STACK / sizeof(__be32)];
-		__u8 buff[MAX_BPF_STACK];
-	};
-};
+// static int
+// bpftime_csum_diff(
+// 	const void *from,
+// 	int from_size,
+// 	const void *to,
+// 	int to_size,
+// 	int seed)
+// {
+// 	int csum_diff = -EINVAL;
 
-static uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3, uint64_t to_size, uint64_t seed)
-{
-	// printf("bpftime_csum_diff %lx %lx %lx %lx %lx\n", r1, from_size, r3, to_size, seed);
-	struct bpf_scratchpad sp_data;
-	struct bpf_scratchpad *sp = &sp_data;
-	uint64_t diff_size = from_size + to_size;
-	__be32 *from = (__be32 *)(long)r1;
-	__be32 *to = (__be32 *)(long)r3;
-	int i, j = 0;
+// 	if ((from_size % 4 != 0) || (to_size % 4 != 0))
+// 	{
+// 		// size of buffers should be a multiple of 4.
+// 		goto Exit;
+// 	}
 
-	/* This is quite flexible, some examples:
-	 *
-	 * from_size == 0, to_size > 0,  seed := csum --> pushing data
-	 * from_size > 0,  to_size == 0, seed := csum --> pulling data
-	 * from_size > 0,  to_size > 0,  seed := 0    --> diffing data
-	 *
-	 * Even for diffing, from_size and to_size don't need to be equal.
-	 */
-	if ((((from_size | to_size) & (sizeof(__be32) - 1)) ||
-		 diff_size > sizeof(sp->diff)))
-		return -EINVAL;
+// 	csum_diff = seed;
+// 	if (to != NULL)
+// 	{
+// 		for (int i = 0; i < to_size / 2; i++)
+// 		{
+// 			csum_diff += (uint16_t)(*((uint16_t *)to + i));
+// 		}
+// 	}
+// 	if (from != NULL)
+// 	{
+// 		for (int i = 0; i < from_size / 2; i++)
+// 		{
+// 			csum_diff += (uint16_t)(~*((uint16_t *)from + i));
+// 		}
+// 	}
 
-	for (i = 0; i < from_size / sizeof(__be32); i++, j++)
-		sp->diff[j] = ~from[i];
-	for (i = 0; i < to_size / sizeof(__be32); i++, j++)
-		sp->diff[j] = to[i];
+// 	// Adding 16-bit unsigned integers or their one's complement will produce a positive 32-bit integer,
+// 	// unless the length of the buffers is so long, that the signed 32 bit output overflows and produces a negative
+// 	// result.
+// 	if (csum_diff < 0)
+// 	{
+// 		csum_diff = -EINVAL;
+// 	}
+// Exit:
+// 	return csum_diff;
+// }
 
-	return csum_partial(sp->diff, diff_size, seed);
-}
+// static __always_inline int compute_tcp_csum(struct iphdr *ip, struct tcphdr *tcp, void *data_end)
+// {
+// 	struct ipv4_psd_header psdh;
+// 	uint32_t csum;
+// 	int ret = 0;
 
+// 	register __be16 before_sum = tcp->check;
+// 	tcp->check = 0;
+// 	csum = bpftime_csum_diff(0, 0, tcp, sizeof(struct tcphdr), 0);
+// 	printf("csum: %x\n", (unsigned short)csum);
+// 	psdh.src_addr = ip->saddr;
+// 	psdh.dst_addr = ip->daddr;
+// 	psdh.zero = 0;
+// 	psdh.proto = IPPROTO_TCP;
+// 	psdh.len = htons(ntohs(ip->tot_len) - sizeof(struct iphdr));
+// 	printf("psdh.len: %d\n", ntohs(psdh.len));
+// 	csum = bpftime_csum_diff(0, 0, &psdh, sizeof(struct ipv4_psd_header),
+// 							 csum);
+// 	uint32_t tcphdrlen = tcp->doff * 4;
+// 	printf("csum: %x\n", (unsigned short)csum);
+// 	if (tcphdrlen == sizeof(struct tcphdr))
+// 	{
+// 		printf("no TCP options\n");
+// 		goto OUT;
+// 	}
 
-static __always_inline int compute_tcp_csum(struct iphdr *ip, struct tcphdr *tcp, void *data_end)
-{
-	struct ipv4_psd_header psdh;
-	uint32_t csum;
-	int ret = 0;
+// 	/* There are TCP options */
+// 	uint32_t *opt = (uint32_t *)(tcp + 1);
+// 	uint32_t parsed = sizeof(struct tcphdr);
+// 	for (int i = 0; i < MAX_OPT_WORDS; i++)
+// 	{
+// 		if ((void *)(opt + 1) > data_end)
+// 		{
+// 			ret = -1;
+// 			goto OUT;
+// 		}
 
-	register __be16 before_sum = tcp->check;
-	tcp->check = 0;
-	csum = bpftime_csum_diff(0, 0, tcp, sizeof(struct tcphdr), 0);
-	printf("csum: %x\n", (unsigned short)csum);
-	psdh.src_addr = ip->saddr;
-	psdh.dst_addr = ip->daddr;
-	psdh.zero = 0;
-	psdh.proto = IPPROTO_TCP;
-	psdh.len = htons(ntohs(ip->tot_len) - sizeof(struct iphdr));
-	printf("psdh.len: %d\n", ntohs(psdh.len));
-	csum = bpftime_csum_diff(0, 0, &psdh, sizeof(struct ipv4_psd_header),
-							 csum);
-	uint32_t tcphdrlen = tcp->doff * 4;
-	printf("csum: %x\n", (unsigned short)csum);
-	if (tcphdrlen == sizeof(struct tcphdr))
-	{
-		printf("no TCP options\n");
-		goto OUT;
-	}
+// 		csum = bpftime_csum_diff(0, 0, (__be32 *)opt, sizeof(uint32_t), csum);
 
-	/* There are TCP options */
-	uint32_t *opt = (uint32_t *)(tcp + 1);
-	uint32_t parsed = sizeof(struct tcphdr);
-	for (int i = 0; i < MAX_OPT_WORDS; i++)
-	{
-		if ((void *)(opt + 1) > data_end)
-		{
-			ret = -1;
-			goto OUT;
-		}
+// 		parsed += sizeof(uint32_t);
+// 		if (parsed == tcphdrlen)
+// 			break;
+// 		opt++;
+// 	}
+// 	printf("csum: %x\n", (unsigned short)csum);
 
-		csum = bpftime_csum_diff(0, 0, (__be32 *)opt, sizeof(uint32_t), csum);
-
-		parsed += sizeof(uint32_t);
-		if (parsed == tcphdrlen)
-			break;
-		opt++;
-	}
-	printf("csum: %x\n", (unsigned short)csum);
-
-OUT:
-	tcp->check = ~csum_reduce_helper(csum);
-	if (before_sum != tcp->check)
-	{
-		printf("before in compute_tcp_csum checksum: %x, after checksum: %x\n", before_sum, tcp->check);
-	}
-	return ret;
-}
+// OUT:
+// 	tcp->check = ~csum_reduce_helper(csum);
+// 	if (before_sum != tcp->check)
+// 	{
+// 		printf("before in compute_tcp_csum checksum: %x, after checksum: %x\n", before_sum, tcp->check);
+// 	}
+// 	return ret;
+// }
 
 /* set tcp checksum: given IP header and tcp segment */
 void compute_tcp_checksum(struct iphdr *pIph, unsigned short *ipPayload)
@@ -589,7 +600,7 @@ void print_ip_info(uint8_t *pkt, void *data_end)
 		// ip->check = compute_ip_checksum(ip);
 		if (ip->protocol == IPPROTO_TCP)
 		{
-			compute_tcp_csum(ip, (struct tcphdr *)(pkt + sizeof(struct ethhdr) + sizeof(struct iphdr)), data_end);
+			// compute_tcp_csum(ip, (struct tcphdr *)(pkt + sizeof(struct ethhdr) + sizeof(struct iphdr)), data_end);
 			compute_tcp_checksum(ip, (unsigned short *)(pkt + sizeof(struct ethhdr) + sizeof(struct iphdr)));
 		}
 	}

@@ -1,7 +1,7 @@
 #define BPF_NO_GLOBAL_DATA
 
 #ifndef BPF_NO_PRESERVE_ACCESS_INDEX
-#pragma clang attribute push (__attribute__((preserve_access_index)), apply_to = record)
+#pragma clang attribute push(__attribute__((preserve_access_index)), apply_to = record)
 #endif
 
 typedef signed char __s8;
@@ -21,7 +21,8 @@ typedef __u32 u32;
 typedef __s64 s64;
 typedef __u64 u64;
 
-enum {
+enum
+{
 	false = 0,
 	true = 1,
 };
@@ -36,15 +37,17 @@ typedef u8 uint8_t;
 typedef u64 uint64_t;
 typedef __u16 __sum16;
 
-struct ethhdr {
+struct ethhdr
+{
 	unsigned char h_dest[6];
 	unsigned char h_source[6];
 	__be16 h_proto;
 };
 
-struct iphdr {
-	__u8 ihl: 4;
-	__u8 version: 4;
+struct iphdr
+{
+	__u8 ihl : 4;
+	__u8 version : 4;
 	__u8 tos;
 	__be16 tot_len;
 	__be16 id;
@@ -52,12 +55,15 @@ struct iphdr {
 	__u8 ttl;
 	__u8 protocol;
 	__sum16 check;
-	union {
-		struct {
+	union
+	{
+		struct
+		{
 			__be32 saddr;
 			__be32 daddr;
 		};
-		struct {
+		struct
+		{
 			__be32 saddr;
 			__be32 daddr;
 		} addrs;
@@ -66,7 +72,8 @@ struct iphdr {
 
 // here we use a sightly different one than kernel
 // BTF can help us
-struct xdp_md {
+struct xdp_md
+{
 	__u64 data;
 	__u64 data_end;
 	__u32 data_meta;
@@ -84,7 +91,8 @@ struct xdp_md {
 // 	__u32 egress_ifindex;
 // };
 
-enum xdp_action {
+enum xdp_action
+{
 	XDP_ABORTED = 0,
 	XDP_DROP = 1,
 	XDP_PASS = 2,
@@ -92,29 +100,29 @@ enum xdp_action {
 	XDP_REDIRECT = 4,
 };
 
-
-struct tcphdr {
+struct tcphdr
+{
 	__be16 source;
 	__be16 dest;
 	__be32 seq;
 	__be32 ack_seq;
-	__u16 res1: 4;
-	__u16 doff: 4;
-	__u16 fin: 1;
-	__u16 syn: 1;
-	__u16 rst: 1;
-	__u16 psh: 1;
-	__u16 ack: 1;
-	__u16 urg: 1;
-	__u16 ece: 1;
-	__u16 cwr: 1;
+	__u16 res1 : 4;
+	__u16 doff : 4;
+	__u16 fin : 1;
+	__u16 syn : 1;
+	__u16 rst : 1;
+	__u16 psh : 1;
+	__u16 ack : 1;
+	__u16 urg : 1;
+	__u16 ece : 1;
+	__u16 cwr : 1;
 	__be16 window;
 	__sum16 check;
 	__be16 urg_ptr;
 };
 
-
-enum {
+enum
+{
 	IPPROTO_IP = 0,
 	IPPROTO_ICMP = 1,
 	IPPROTO_IGMP = 2,
@@ -146,8 +154,8 @@ enum {
 	IPPROTO_MAX = 263,
 };
 
-
-enum bpf_map_type {
+enum bpf_map_type
+{
 	BPF_MAP_TYPE_UNSPEC = 0,
 	BPF_MAP_TYPE_HASH = 1,
 	BPF_MAP_TYPE_ARRAY = 2,
@@ -186,7 +194,6 @@ enum bpf_map_type {
 	__MAX_BPF_MAP_TYPE = 33,
 };
 
-
 #ifndef BPF_NO_PRESERVE_ACCESS_INDEX
 #pragma clang attribute pop
 #endif
@@ -198,14 +205,15 @@ enum bpf_map_type {
 
 #define MAX_OPT_WORDS 10 // 40 bytes for options
 #define MAX_TARGET_COUNT 64
-#define CHECK_OUT_OF_BOUNDS(PTR, OFFSET, END) (((void*) PTR) + OFFSET > ((void*) END))
+#define CHECK_OUT_OF_BOUNDS(PTR, OFFSET, END) (((void *)PTR) + OFFSET > ((void *)END))
 
-struct ipv4_psd_header {
-  uint32_t src_addr; /* IP address of source host. */
-  uint32_t dst_addr; /* IP address of destination host. */
-  uint8_t  zero;     /* zero. */
-  uint8_t  proto;    /* L4 protocol type. */
-  uint16_t len;      /* L4 length. */
+struct ipv4_psd_header
+{
+	uint32_t src_addr; /* IP address of source host. */
+	uint32_t dst_addr; /* IP address of destination host. */
+	uint8_t zero;	   /* zero. */
+	uint8_t proto;	   /* L4 protocol type. */
+	uint16_t len;	   /* L4 length. */
 };
 
 /**
@@ -213,11 +221,12 @@ struct ipv4_psd_header {
  * You can assume that this map will always have two elements populated when
  * loading the XDP program
  */
-struct {
-    __uint(type, BPF_MAP_TYPE_ARRAY);
-    __type(key, __u32);
-    __type(value, struct ip_mac_pair);
-    __uint(max_entries, MAX_TARGET_COUNT);
+struct
+{
+	__uint(type, BPF_MAP_TYPE_ARRAY);
+	__type(key, __u32);
+	__type(value, struct ip_mac_pair);
+	__uint(max_entries, MAX_TARGET_COUNT);
 } targets_map SEC(".maps");
 
 /**
@@ -226,13 +235,13 @@ struct {
  * and the information for the client are in the second cell.
  * This map is also populated when loading the XDP program.
  */
-struct {
-    __uint(type, BPF_MAP_TYPE_ARRAY);
-    __type(key, __u32);
-    __type(value, struct ip_mac_pair);
-    __uint(max_entries, MAX_TARGET_COUNT);
+struct
+{
+	__uint(type, BPF_MAP_TYPE_ARRAY);
+	__type(key, __u32);
+	__type(value, struct ip_mac_pair);
+	__uint(max_entries, MAX_TARGET_COUNT);
 } config_map SEC(".maps");
-
 
 static __always_inline __u16 csum_reduce_helper(__u32 csum)
 {
@@ -242,48 +251,49 @@ static __always_inline __u16 csum_reduce_helper(__u32 csum)
 	return csum;
 }
 
-static __always_inline int compute_tcp_csum(struct iphdr *ip, struct tcphdr *tcp, void * data_end)
+static __always_inline int compute_tcp_csum(struct iphdr *ip, struct tcphdr *tcp, void *data_end)
 {
-  struct ipv4_psd_header psdh;
-  uint32_t csum;
-  int ret = 0;
+	struct ipv4_psd_header psdh;
+	uint32_t csum;
+	int ret = 0;
 
-  tcp->check = 0;
-  csum = bpf_csum_diff(0, 0, (__be32 *)tcp, sizeof(struct tcphdr), 0);
-  psdh.src_addr = ip->saddr;
+	tcp->check = 0;
+	csum = bpf_csum_diff(0, 0, (__be32 *)tcp, sizeof(struct tcphdr), 0);
+	psdh.src_addr = ip->saddr;
 	psdh.dst_addr = ip->daddr;
 	psdh.zero = 0;
 	psdh.proto = IPPROTO_TCP;
 	psdh.len = bpf_htons(bpf_ntohs(ip->tot_len) - sizeof(struct iphdr));
-	csum = bpf_csum_diff(0, 0, (__be32*)&psdh, sizeof(struct ipv4_psd_header),
-			csum);
-  uint32_t tcphdrlen = tcp->doff * 4;
+	csum = bpf_csum_diff(0, 0, (__be32 *)&psdh, sizeof(struct ipv4_psd_header),
+						 csum);
+	uint32_t tcphdrlen = tcp->doff * 4;
 
-  if (tcphdrlen == sizeof(struct tcphdr))
-    goto OUT;
+	if (tcphdrlen == sizeof(struct tcphdr))
+		goto OUT;
 
-  /* There are TCP options */
-  uint32_t *opt = (uint32_t *)(tcp + 1);
-  uint32_t parsed = sizeof(struct tcphdr);
-  for (int i=0;i<MAX_OPT_WORDS;i++) {
-    if ((void *)(opt + 1) > data_end) {
-      ret = -1;
-      goto OUT;
-    }
+	/* There are TCP options */
+	uint32_t *opt = (uint32_t *)(tcp + 1);
+	uint32_t parsed = sizeof(struct tcphdr);
+	for (int i = 0; i < MAX_OPT_WORDS; i++)
+	{
+		if ((void *)(opt + 1) > data_end)
+		{
+			ret = -1;
+			goto OUT;
+		}
 
-    csum = bpf_csum_diff(0, 0, (__be32 *)opt, sizeof(uint32_t), csum);
+		csum = bpf_csum_diff(0, 0, (__be32 *)opt, sizeof(uint32_t), csum);
 
-    parsed += sizeof(uint32_t);
-    if (parsed == tcphdrlen)
-      break;
-    opt++;
-  }
+		parsed += sizeof(uint32_t);
+		if (parsed == tcphdrlen)
+			break;
+		opt++;
+	}
 
 OUT:
-  tcp->check = ~csum_reduce_helper(csum);
-  return ret;
+	tcp->check = ~csum_reduce_helper(csum);
+	return ret;
 }
-
 
 // /* set tcp checksum: given IP header and tcp segment */
 // static __always_inline int compute_tcp_csum(struct iphdr *pIph, unsigned short *ipPayload, void * data_end)
@@ -327,93 +337,103 @@ OUT:
 // }
 
 static uint32_t get_target_key(uint32_t src_ip, uint16_t src_port,
-    uint16_t dst_port)
+							   uint16_t dst_port)
 {
-  uint32_t key = (src_ip ^ src_port ^ dst_port) & 0x1;
+	uint32_t key = (src_ip ^ src_port ^ dst_port) & 0x1;
 
-  return key;
+	return key;
 }
 
 SEC("xdp")
-int xdp_pass(struct xdp_md* ctx) {
-    void* data_end = (void*) ctx->data_end;
-    void* data = (void*) ctx->data;
-    bpf_printk("received packet %p %p\n", data, data_end);
+int xdp_pass(struct xdp_md *ctx)
+{
+	void *data_end = (void *)ctx->data_end;
+	void *data = (void *)ctx->data;
+	bpf_printk("received packet %p %p\n", data, data_end);
 
-    struct ethhdr *eth = data;
-    if (CHECK_OUT_OF_BOUNDS(data, sizeof(struct ethhdr), data_end)){
-      bpf_printk("Out of bounds ethhdr\n");
-      return XDP_DROP;
-    }
+	struct ethhdr *eth = data;
+	if (CHECK_OUT_OF_BOUNDS(data, sizeof(struct ethhdr), data_end))
+	{
+		bpf_printk("Out of bounds ethhdr\n");
+		return XDP_DROP;
+	}
 
-    struct iphdr* ip = data + sizeof(struct ethhdr);
-    if (CHECK_OUT_OF_BOUNDS(ip, sizeof(struct iphdr), data_end)){
-      bpf_printk("Out of bounds iphdr\n");
-      return XDP_DROP;
-    }
+	struct iphdr *ip = data + sizeof(struct ethhdr);
+	if (CHECK_OUT_OF_BOUNDS(ip, sizeof(struct iphdr), data_end))
+	{
+		bpf_printk("Out of bounds iphdr\n");
+		return XDP_DROP;
+	}
 
-    /* FIXME: Implement the load balancer logic */
+	/* FIXME: Implement the load balancer logic */
 
-    if (ip->protocol == IPPROTO_TCP) {
-      struct tcphdr* tcp = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
-      bpf_printk("received tcp packet\n");
+	if (ip->protocol == IPPROTO_TCP)
+	{
+		struct tcphdr *tcp = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
+		bpf_printk("received tcp packet\n");
 
-      if (CHECK_OUT_OF_BOUNDS(tcp, sizeof(struct tcphdr), data_end)) {
-        bpf_printk("Out of bounds tcphdr\n");
-        return XDP_DROP;
-      }
-	
-      uint32_t key = 1;
-      struct ip_mac_pair *client_cfg = bpf_map_lookup_elem(&config_map, &key);
-      if (!client_cfg) {
-        bpf_printk("Client config not found\n");
-        return XDP_ABORTED;
-      }
+		if (CHECK_OUT_OF_BOUNDS(tcp, sizeof(struct tcphdr), data_end))
+		{
+			bpf_printk("Out of bounds tcphdr\n");
+			return XDP_DROP;
+		}
 
-      struct ip_mac_pair *dst, *src;
+		uint32_t key = 1;
+		struct ip_mac_pair *client_cfg = bpf_map_lookup_elem(&config_map, &key);
+		if (!client_cfg)
+		{
+			bpf_printk("Client config not found\n");
+			return XDP_ABORTED;
+		}
 
-      if (client_cfg->ip == bpf_ntohl(ip->saddr)) {
-        /* FIXME: Load balance the decision */
-        // key = 0;
-        key = get_target_key(ip->saddr, tcp->source, tcp->dest);
-        dst = bpf_map_lookup_elem(&targets_map, &key);
-        if (!dst)
-          return XDP_ABORTED;
+		struct ip_mac_pair *dst, *src;
 
-        key = 0;
-        src = bpf_map_lookup_elem(&config_map, &key);
-        if (!src)
-          return XDP_ABORTED;
-      } else {
-        key = 1;
-        dst = bpf_map_lookup_elem(&config_map, &key);
-        if (!dst)
-          return XDP_ABORTED;
+		if (client_cfg->ip == bpf_ntohl(ip->saddr))
+		{
+			/* FIXME: Load balance the decision */
+			// key = 0;
+			key = get_target_key(ip->saddr, tcp->source, tcp->dest);
+			dst = bpf_map_lookup_elem(&targets_map, &key);
+			if (!dst)
+				return XDP_ABORTED;
 
-        key = 0;
-        src = bpf_map_lookup_elem(&config_map, &key);
-        if (!src)
-          return XDP_ABORTED;
-      }
+			key = 0;
+			src = bpf_map_lookup_elem(&config_map, &key);
+			if (!src)
+				return XDP_ABORTED;
+		}
+		else
+		{
+			key = 1;
+			dst = bpf_map_lookup_elem(&config_map, &key);
+			if (!dst)
+				return XDP_ABORTED;
 
-      __builtin_memcpy(eth->h_dest, &dst->mac, 6);
-      __builtin_memcpy(eth->h_source, &src->mac, 6);
+			key = 0;
+			src = bpf_map_lookup_elem(&config_map, &key);
+			if (!src)
+				return XDP_ABORTED;
+		}
 
-      ip->daddr = bpf_htonl(dst->ip);
-      ip->saddr = bpf_htonl(src->ip);
+		__builtin_memcpy(eth->h_dest, &dst->mac, 6);
+		__builtin_memcpy(eth->h_source, &src->mac, 6);
 
-    //   /* FIX IP checksum */
-    ip->check = 0;
-    ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
+		ip->daddr = bpf_htonl(dst->ip);
+		ip->saddr = bpf_htonl(src->ip);
 
-    //   /* FIX TCP chksum */
-      if (compute_tcp_csum(ip, (unsigned short*)tcp, data_end))
-        return XDP_DROP;
-	  bpf_printk("sending packet to %d\n", key);
-      return XDP_TX;
-    }
+		//   /* FIX IP checksum */
+		ip->check = 0;
+		ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
+
+		//   /* FIX TCP chksum */
+		// if (compute_tcp_csum(ip, (unsigned short *)tcp, data_end))
+		// 	return XDP_DROP;
+		bpf_printk("No tcp checksum\n");
+		bpf_printk("sending packet to %d\n", key);
+		return XDP_TX;
+	}
 	bpf_printk("pass\n");
-    return XDP_PASS;
+	return XDP_PASS;
 }
 
 char LICENSE[] SEC("license") = "GPL";
