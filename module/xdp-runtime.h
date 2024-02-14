@@ -10,6 +10,4 @@ int ebpf_module_run_at_handler(void *mem, uint64_t mem_size,
 // init the runtime context
 int ebpf_module_init();
 
-uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3, uint64_t to_size, uint64_t seed);
-
 #endif

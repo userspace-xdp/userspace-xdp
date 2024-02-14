@@ -23,7 +23,9 @@ add_subdirectory(bpftime)
 
 add_library(xdp-bpftime 
 module/xdp-runtime.cpp 
-module/xdp-runtime.h)
+module/helpers.c
+module/xdp-runtime.h
+)
 target_link_libraries(xdp-bpftime PUBLIC spdlog::spdlog runtime)
 add_dependencies(xdp-bpftime runtime copy_headers)
 target_include_directories(xdp-bpftime PUBLIC 

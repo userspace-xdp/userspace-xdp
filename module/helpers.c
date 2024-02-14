@@ -1,14 +1,37 @@
-#include <net/if.h>
-#include <linux/if_link.h>
-#include <linux/if_ether.h>
-#include <linux/ipv6.h>
-#include <linux/ip.h> // For ipv4hdr
-#include <linux/icmpv6.h>
-#include <netinet/tcp.h>
+/* SPDX-License-Identifier: GPL-2.0 */
+#include <assert.h>
+#include <errno.h>
+#include <getopt.h>
+#include <locale.h>
+#include <poll.h>
+#include <pthread.h>
+#include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
-#include <linux/errno.h>
+#include <time.h>
+#include <unistd.h>
+
+#include <sys/resource.h>
+
+#include <arpa/inet.h>
+#include <net/if.h>
+#include <netinet/tcp.h>
+#include "xdp-runtime.h"
+
+#include <net/if_arp.h>
+
+
+typedef __u16 __bitwise __le16;
+typedef __u16 __bitwise __be16;
+typedef __u32 __bitwise __le32;
+typedef __u32 __bitwise __be32;
+typedef __u64 __bitwise __le64;
+typedef __u64 __bitwise __be64;
+
+typedef __u16 __bitwise __sum16;
+typedef __u32 __bitwise __wsum;
+
 
 #define MAX_BPF_STACK 512
 struct bpf_scratchpad

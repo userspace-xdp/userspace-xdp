@@ -15,6 +15,11 @@
         "bpf_core_read.h": "c",
         "base.h": "c",
         "rte_ether.h": "c",
-        "rte_tcp.h": "c"
+        "rte_tcp.h": "c",
+        "if_ether.h": "c",
+        "if.h": "c",
+        "if_arp.h": "c",
+        "inet.h": "c",
+        "valarray": "c"
     }
 }

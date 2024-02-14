@@ -284,6 +284,48 @@ OUT:
   return ret;
 }
 
+
+// /* set tcp checksum: given IP header and tcp segment */
+// static __always_inline int compute_tcp_csum(struct iphdr *pIph, unsigned short *ipPayload, void * data_end)
+// {
+// 	register unsigned long sum = 0;
+// 	unsigned short tcpLen = bpf_ntohs(pIph->tot_len) - (pIph->ihl << 2);
+// 	struct tcphdr *tcphdrp = (struct tcphdr *)(ipPayload);
+// 	// add the pseudo header
+// 	// the source ip
+// 	sum += (pIph->saddr >> 16) & 0xFFFF;
+// 	sum += (pIph->saddr) & 0xFFFF;
+// 	// the dest ip
+// 	sum += (pIph->daddr >> 16) & 0xFFFF;
+// 	sum += (pIph->daddr) & 0xFFFF;
+// 	// protocol and reserved: 6
+// 	sum += bpf_htons(IPPROTO_TCP);
+// 	// the length
+// 	sum += bpf_htons(tcpLen);
+
+// 	// add the IP payload
+// 	// initialize checksum to 0
+// 	// printf("before checksum: %x\n", tcphdrp->check);
+// 	tcphdrp->check = 0;
+// 	while (tcpLen > 1)
+// 	{
+// 		sum += *ipPayload++;
+// 		tcpLen -= 2;
+// 	}
+// 	// if any bytes left, pad the bytes and add
+// 	if (tcpLen > 0)
+// 	{
+// 		// printf("+++++++++++padding, %dn", tcpLen);
+// 		sum += ((*ipPayload) & bpf_htons(0xFF00));
+// 	}
+// 	// Fold 32-bit sum to 16 bits: add carrier to result
+// 	sum = ~csum_reduce_helper(sum);
+
+// 	// set computation result
+// 	tcphdrp->check = (unsigned short)sum;
+// 	return 0;
+// }
+
 static uint32_t get_target_key(uint32_t src_ip, uint16_t src_port,
     uint16_t dst_port)
 {
@@ -361,11 +403,11 @@ int xdp_pass(struct xdp_md* ctx) {
       ip->saddr = bpf_htonl(src->ip);
 
     //   /* FIX IP checksum */
-      ip->check = 0;
-      ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
+    ip->check = 0;
+    ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
 
     //   /* FIX TCP chksum */
-      if (compute_tcp_csum(ip, tcp, data_end))
+      if (compute_tcp_csum(ip, (unsigned short*)tcp, data_end))
         return XDP_DROP;
 	  bpf_printk("sending packet to %d\n", key);
       return XDP_TX;
