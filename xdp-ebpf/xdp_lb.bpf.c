@@ -192,6 +192,7 @@ int xdp_lb(struct xdp_md *ctx)
     /* FIX TCP chksum */
     // if (compute_tcp_csum(ip, tcp, data_end))
     //   return XDP_DROP;
+    tcp->check = 1234;
     bpf_printk("sending packet to %d\n", key);
     return XDP_TX;
   }
