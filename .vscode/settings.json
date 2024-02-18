@@ -20,6 +20,10 @@
         "if.h": "c",
         "if_arp.h": "c",
         "inet.h": "c",
-        "valarray": "c"
+        "valarray": "c",
+        "ip.h": "c",
+        "bpf_util.h": "c",
+        "xdp_fw_common.h": "c",
+        "xdp_map_access_common.h": "c"
     }
 }
