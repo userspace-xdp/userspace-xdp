@@ -47,14 +47,14 @@ static __always_inline void ipv4_csum(void *data_start, int data_size,
 	*csum = csum_fold_helper(*csum);
 }
 
-SEC("xdp_csum")
-int xdp_prog1(struct xdp_md *ctx)
+SEC("xdp")
+int xdp_pass(struct xdp_md *ctx)
 {
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	struct ethhdr *eth = data;
 	struct iphdr *iph;
-	int rc = XDP_DROP;
+	int rc = XDP_PASS;
 	long *value;
 	u16 h_proto;
 	u64 nh_off;
@@ -77,9 +77,6 @@ int xdp_prog1(struct xdp_md *ctx)
 	if (data + nh_off  > data_end)
 		return rc;
 	
-//	swap_src_dst_mac(data);
-//	rc = XDP_TX;
-	
 	for (i = 0; i < LOOP_LEN ;i++){
 		ipv4_csum(iph, sizeof(struct iphdr), &csum);
 		iph->check = csum;
@@ -89,7 +86,6 @@ int xdp_prog1(struct xdp_md *ctx)
 	value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
 	if (value)
 		*value += 1;
-	
 
 	return rc;
 }

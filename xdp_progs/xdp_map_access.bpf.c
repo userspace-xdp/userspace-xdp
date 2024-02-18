@@ -40,7 +40,7 @@ int xdp_pass(struct xdp_md *ctx)
 	void *data = (void *)(long)ctx->data;
 	struct ethhdr *eth = data;
 	struct dummy_key key = {0};
-	int rc = XDP_DROP;
+	int rc = XDP_PASS;
 	long *value;
 	u16 h_proto;
 	u64 nh_off;
@@ -62,7 +62,7 @@ int xdp_pass(struct xdp_md *ctx)
 	}else{
 		bpf_map_update_elem(&rxcnt, &key, &dummy_value, BPF_ANY);
 	}
-	return XDP_PASS;
+	return rc;
 }
 
 char _license[] SEC("license") = "GPL";

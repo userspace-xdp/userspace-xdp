@@ -34,7 +34,6 @@ static inline void biflow(struct flow_ctx_table_key *flow_key){
 
 }
 
-
 struct {
 	__uint(type, BPF_MAP_TYPE_DEVMAP);
 	__type(key, int);
@@ -50,8 +49,8 @@ struct {
 } flow_ctx_table SEC(".maps");
 
 
-SEC("xdp_fw")
-int xdp_fw_prog(struct xdp_md *ctx)
+SEC("xdp")
+int xdp_pass(struct xdp_md *ctx)
 {
 	
 	void* data_end = (void*)(long)ctx->data_end;
@@ -128,16 +127,13 @@ l4: {
 
 	biflow(&flow_key);
 	
-
-
-
 	if (ingress_ifindex == B_PORT){
 		flow_leaf = bpf_map_lookup_elem(&flow_ctx_table, &flow_key);
 			
 		if (flow_leaf)
 			return bpf_redirect_map(&tx_port,flow_leaf->out_port, 0);
 		else 
-			return XDP_DROP;
+			return XDP_PASS;
 	} else {
 		flow_leaf = bpf_map_lookup_elem(&flow_ctx_table, &flow_key);
 			
@@ -150,9 +146,8 @@ l4: {
 		return bpf_redirect_map(&tx_port, B_PORT, 0);
 	}
 
-
 EOP:
-	return XDP_DROP;
+	return XDP_PASS;
 
 }
 
