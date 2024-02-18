@@ -33,8 +33,8 @@ static void swap_src_dst_mac(void *data)
 	p[5] = dst[2];
 }
 
-SEC("xdp_map_acces")
-int xdp_prog1(struct xdp_md *ctx)
+SEC("xdp")
+int xdp_pass(struct xdp_md *ctx)
 {
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
@@ -62,7 +62,7 @@ int xdp_prog1(struct xdp_md *ctx)
 	}else{
 		bpf_map_update_elem(&rxcnt, &key, &dummy_value, BPF_ANY);
 	}
-	return rc;
+	return XDP_PASS;
 }
 
 char _license[] SEC("license") = "GPL";

@@ -21,6 +21,8 @@
 #include "xdp_map_access_common.h"
 #include <xdp_map_access.skel.h>
 
+struct xdp_map_access_bpf *skel = NULL;
+
 static int ifindex;
 static __u32 xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST;
 static __u32 prog_id;
@@ -39,6 +41,7 @@ static void int_exit(int sig)
 	// 	printf("couldn't find a prog id on a given interface\n");
 	// else
 	// 	printf("program on interface changed, not removing\n");
+	xdp_map_access_bpf__destroy(skel);
 	exit(0);
 }
 
@@ -61,12 +64,14 @@ static void poll_stats(int map_fd, int interval)
 		{
 			__u64 sum = 0;
 
-			assert(bpf_map_lookup_elem(map_fd, &next_key, values) == 0);
+			if (bpf_map_lookup_elem(map_fd, &next_key, values) != 0) {
+				return;
+			}
 			for (i = 0; i < nr_cpus; i++)
 				sum += values[i];
 			if (sum > prev[next_key.key])
-				printf("proto %u: %10llu pkt/s\n",
-					   next_key.key, (sum - prev[next_key.key]) / interval);
+				printf("proto %u: %10llu pkt\n",
+					   next_key.key, (sum - prev[next_key.key]));
 			prev[next_key.key] = sum;
 			key = next_key;
 		}
@@ -90,14 +95,13 @@ int main(int argc, char **argv)
 	// struct bpf_prog_load_attr prog_load_attr = {
 	// 	.prog_type	= BPF_PROG_TYPE_XDP,
 	// };
-	struct xdp_map_access_bpf *skel;
 	struct bpf_prog_info info = {};
 	__u32 info_len = sizeof(info);
 	const char *optstr = "FSN";
 	int prog_fd, map_fd, opt;
-	struct bpf_object *obj;
+	// struct bpf_object *obj;
 	struct bpf_map *map;
-	char filename[256];
+	// char filename[256];
 	int err;
 
 	while ((opt = getopt(argc, argv, optstr)) != -1)
@@ -157,7 +161,7 @@ int main(int argc, char **argv)
 	}
 
 	// attach
-	res = bpf_xdp_attach(ifindex, bpf_program__fd(skel->progs.xdp_prog1), xdp_flags, NULL);
+	res = bpf_xdp_attach(ifindex, bpf_program__fd(skel->progs.xdp_pass), xdp_flags, NULL);
 	if (res)
 	{
 		fprintf(stderr, "Failed to attach BPF skeleton\n");
@@ -174,7 +178,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	map_fd = bpf_map__fd(map);
-
+	prog_fd = bpf_program__fd(skel->progs.xdp_pass);
 	if (!prog_fd)
 	{
 		printf("bpf_prog_load_xattr: %s\n", strerror(errno));
@@ -198,6 +202,6 @@ int main(int argc, char **argv)
 	prog_id = info.id;
 
 	poll_stats(map_fd, 2);
-
+	int_exit(0);
 	return 0;
 }
