@@ -62,3 +62,8 @@ main
 xdp_fw
 xdp_map_access
 xdp_csum
+xdp_tx_iptunnel
+xdping
+xdp_drop
+xdp_tx
+
