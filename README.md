@@ -14,6 +14,18 @@ See [documents/af-xdp-ebpf.md](documents/af-xdp-ebpf.md)
 
 ## examples
 
-- [xdp-loadbalancer](xdp-ebpf-new): a simple load balancer using XDP
-- [xdp-observer](https://github.com/hamidrezakhosroabadi/xdp-observer): A simple xdp application to observe tcp connections in userspace
-- 
+From Linux source tree and samples, and alo from hXDP, see [xdp_progs](xdp_progs)
+
+- [ ] xdp_drop: parse pkt headers up to TCP, and XDP_DROP valid tcp packets
+- [ ] xdp_tx: swap the mac address and XDP_TX
+- [ ] xdp_map_access: increment counter for incomping packets
+- [ ] xdp_csum: calc the csum of ip and record in a hash map
+- [ ] xdping(client): use xdp as ping(ICMP) client
+- [ ] xdping(server): use xdp as ping(ICMP) client
+- [ ] xdp_fw: output pkt from a specified interface (redirect)
+- [ ] tx_ip_tunnel: parse pkt up to L4, encapsulate and XDP_TX
+
+From other applications
+
+- [ ] [xdp-loadbalancer](xdp-ebpf-new): a simple load balancer using XDP
+- [ ] [xdp-observer](https://github.com/hamidrezakhosroabadi/xdp-observer): A simple xdp application to observe tcp connections in userspace
