@@ -30,3 +30,4 @@ From other applications
 
 - [ ] [xdp-loadbalancer](xdp-ebpf-new): a simple load balancer using XDP
 - [ ] [xdp-observer](https://github.com/hamidrezakhosroabadi/xdp-observer): A simple xdp application to observe tcp connections in userspace
+- [ ] [xdp-firewall](https://github.com/acassen/xdp-fw) XDP FW: eXpress Data Path FireWall module
