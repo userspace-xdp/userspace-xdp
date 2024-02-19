@@ -4,7 +4,7 @@
  * modify it under the terms of version 2 of the GNU General Public
  * License as published by the Free Software Foundation.
  */
-#include "vmlinux.h"
+#include "def.bpf.h"
 #include <bpf/bpf_helpers.h>
 
 static void swap_src_dst_mac(void *data)

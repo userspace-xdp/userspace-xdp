@@ -23,8 +23,8 @@ See [documents/af-xdp-ebpf.md](documents/af-xdp-ebpf.md)
 
 From Linux source tree and samples, and alo from hXDP, see [xdp_progs](xdp_progs)
 
-- [ ] xdp_drop: parse pkt headers up to TCP, and XDP_DROP valid tcp packets
-- [ ] xdp_tx: swap the mac address and XDP_TX
+- [X] xdp_drop: parse pkt headers up to TCP, and XDP_DROP valid tcp packets
+- [X] xdp_tx: swap the mac address and XDP_TX
 - [ ] xdp_map_access: increment counter for incomping packets
 - [ ] xdp_csum: calc the csum of ip and record in a hash map
 - [ ] xdping(client): use xdp as ping(ICMP) client

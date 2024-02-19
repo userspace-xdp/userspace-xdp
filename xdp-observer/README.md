@@ -2,6 +2,8 @@
 
 A simple xdp application to observe tcp connections in userspace.
 
+Use ring buffer to send data to userspace.
+
 See [documents/bpftime-lb.md](../documents/bpftime-lb.md) for setup.
 
 ## How to run in kernel
