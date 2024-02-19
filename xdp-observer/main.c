@@ -25,29 +25,51 @@ int handle_event(void *ctx, void *data, size_t len)
     return 0;
 }
 
+static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
+			   va_list args)
+{
+	return vfprintf(stderr, format, args);
+}
+
 int main(int argc, char *argv[])
 {
     int err;
-    unsigned int ifindex;
+    unsigned int ifindex = -1;
 
-    if (argc != 2)
+    if (argc < 2)
     {
         printf("Provide interface name\n");
         return 1;
     }
-
+	LIBBPF_OPTS(bpf_object_open_opts , opts,
+	);
+	if (argc == 3)
+		opts.btf_custom_path = argv[2];
     ifindex = if_nametoindex(argv[1]);
+    if (ifindex == 0)
+    {
+        fprintf(stderr, "Invalid interface\n");
+        return 1;
+    }
+    libbpf_set_print(libbpf_print_fn);
 
     signal(SIGINT, handle_sigint);
 
-    struct main_bpf *skel = main_bpf__open_and_load();
+    struct main_bpf *skel = main_bpf__open_opts(&opts);
     if (!skel)
     {
         fprintf(stderr, "Failed to open BPF skeleton\n");
         return 1;
     }
 
-    struct bpf_link *link = bpf_program__attach_xdp(skel->progs.xdp_observ_prog, ifindex);
+    err = main_bpf__load(skel);
+    if (err)
+    {
+        fprintf(stderr, "Failed to load and verify BPF skeleton\n");
+        return 1;
+    }
+
+    struct bpf_link *link = bpf_program__attach_xdp(skel->progs.xdp_pass, ifindex);
     if (!link)
     {
         fprintf(stderr, "bpf_program__attach_xdp\n");
