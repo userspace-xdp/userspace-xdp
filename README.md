@@ -25,7 +25,7 @@ From Linux source tree and samples, and alo from hXDP, see [xdp_progs](xdp_progs
 
 - [X] xdp_drop: parse pkt headers up to TCP, and XDP_DROP valid tcp packets
 - [X] xdp_tx: swap the mac address and XDP_TX
-- [ ] xdp_map_access: increment counter for incomping packets in array maps
+- [X] xdp_map_access: increment counter for incomping packets in array maps
 - [X] xdp_csum: calc the csum of ip and record in a hash map
 - [ ] xdping(client): use xdp as ping(ICMP) client
 - [ ] xdping(server): use xdp as ping(ICMP) server
