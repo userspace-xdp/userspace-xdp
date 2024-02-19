@@ -8,7 +8,6 @@ build:
 make -C xdp_progs/
 ```
 
-## xdp_map_access
 
 ## xdp_tx
 
@@ -84,6 +83,42 @@ PING 10.0.0.10 (10.0.0.10) 56(84) bytes of data.
 
 ```sh
 LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum  veth6 xdp-ebpf-new/base.btf
+```
+
+## xdp_map_access
+
+```console
+# LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_map_access  veth6 xdp-ebpf-new/base.btf
+
+[2024-02-19 11:40:13.821] [info] [syscall_context.hpp:86] manager constructed
+....
+libbpf: map 0 is "xdp_map_.bss"
+libbpf: map 'xdp_map_.rodata' (global data): at sec_idx 5, offset 0, flags 80.
+libbpf: map 1 is "xdp_map_.rodata"
+libbpf: sec '.relxdp': collecting relocation for section(3) 'xdp'
+libbpf: sec '.relxdp': relo #0: insn #4 against 'counter'
+libbpf: prog 'xdp_pass': found data map 0 (xdp_map_.bss, sec 4, off 0) for insn 4
+libbpf: sec '.relxdp': relo #1: insn #9 against '.rodata'
+libbpf: prog 'xdp_pass': found data map 1 (xdp_map_.rodata, sec 5, off 0) for insn 9
+libbpf: map 'xdp_map_.bss': created successfully, fd=4
+libbpf: map 'xdp_map_.rodata': created successfully, fd=5
+libbpf: sec 'xdp': found 2 CO-RE relocations
+libbpf: CO-RE relocating [2] struct xdp_md: found target candidate [23] struct xdp_md in [vmlinux]
+libbpf: prog 'xdp_pass': relo #0: <byte_off> [2] struct xdp_md.data_end (0:1 @ offset 4)
+libbpf: prog 'xdp_pass': relo #0: matching candidate #0 <byte_off> [23] struct xdp_md.data_end (0:1 @ offset 8)
+libbpf: prog 'xdp_pass': relo #0: patched insn #0 (LDX/ST/STX) off 4 -> 8
+libbpf: prog 'xdp_pass': relo #0: patched insn #0 (LDX/ST/STX) mem_sz 4 -> 8
+libbpf: prog 'xdp_pass': relo #1: <byte_off> [2] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'xdp_pass': relo #1: matching candidate #0 <byte_off> [23] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'xdp_pass': relo #1: patched insn #1 (LDX/ST/STX) off 0 -> 0
+libbpf: prog 'xdp_pass': relo #1: patched insn #1 (LDX/ST/STX) mem_sz 4 -> 8
+Failed to attach BPF skeleton
+counter 0
+counter 0
+counter 0
+counter 0
+counter 1
+counter 3
 ```
 
 ## remove xdp

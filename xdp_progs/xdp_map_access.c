@@ -29,7 +29,7 @@ static __u32 prog_id;
 
 static void int_exit(int sig)
 {
-	__u32 curr_prog_id = 0;
+	// __u32 curr_prog_id = 0;
 
 	// if (bpf_get_link_xdp_id(ifindex, &curr_prog_id, xdp_flags)) {
 	// 	printf("bpf_get_link_xdp_id failed\n");
@@ -49,32 +49,18 @@ static void int_exit(int sig)
  */
 static void poll_stats(int map_fd, int interval)
 {
-	unsigned int nr_cpus = bpf_num_possible_cpus();
-	__u64 values[nr_cpus], prev[UINT8_MAX] = {0};
-	int i;
+	// unsigned int nr_cpus = bpf_num_possible_cpus();
+	// __u64 values[nr_cpus], prev[UINT8_MAX] = {0};
+	// int i;
 
 	while (1)
 	{
-		struct dummy_key key = {0};
-		struct dummy_key next_key = {0};
+		// struct dummy_key key = {0};
+		// struct dummy_key next_key = {0};
 
 		sleep(interval);
 
-		while (bpf_map_get_next_key(map_fd, &key, &next_key) != -1)
-		{
-			__u64 sum = 0;
-
-			if (bpf_map_lookup_elem(map_fd, &next_key, values) != 0) {
-				return;
-			}
-			for (i = 0; i < nr_cpus; i++)
-				sum += values[i];
-			if (sum > prev[next_key.key])
-				printf("proto %u: %10llu pkt\n",
-					   next_key.key, (sum - prev[next_key.key]));
-			prev[next_key.key] = sum;
-			key = next_key;
-		}
+		printf("counter %d\n", skel->bss->counter);
 	}
 }
 
@@ -88,7 +74,7 @@ static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
 static void usage(const char *prog)
 {
 	fprintf(stderr,
-			"usage: %s [OPTS] IFACE\n\n"
+			"usage: %s [OPTS] IFACE [btf]\n\n"
 			"OPTS:\n"
 			"    -S    use skb-mode\n"
 			"    -N    enforce native mode\n"
@@ -105,9 +91,9 @@ int main(int argc, char **argv)
 	struct bpf_prog_info info = {};
 	__u32 info_len = sizeof(info);
 	const char *optstr = "FSN";
-	int prog_fd, map_fd, opt;
+	int prog_fd, map_fd = 0, opt;
 	// struct bpf_object *obj;
-	struct bpf_map *map;
+	// struct bpf_map *map;
 	// char filename[256];
 	int err;
 
@@ -150,7 +136,14 @@ int main(int argc, char **argv)
 		perror("if_nametoindex");
 		return 1;
 	}
-	skel = xdp_map_access_bpf__open();
+	libbpf_set_print(libbpf_print_fn);
+	LIBBPF_OPTS(bpf_object_open_opts , opts,
+	);
+	if (optind + 2 == argc) 
+		opts.btf_custom_path = argv[optind + 1];
+	// printf("optind %d %d %s\n", optind, argc, opts.btf_custom_path);
+
+	skel = xdp_map_access_bpf__open_opts(&opts);
 	if (!skel)
 	{
 		fprintf(stderr, "Failed to open BPF skeleton\n");
@@ -172,19 +165,19 @@ int main(int argc, char **argv)
 	if (res)
 	{
 		fprintf(stderr, "Failed to attach BPF skeleton\n");
-		return 1;
+		// return 1;
 	}
 
 	// if (bpf_prog_load_attr(&prog_load_attr, &obj, &prog_fd))
 	// 	return 1;
 
-	map = skel->maps.rxcnt;
-	if (!map)
-	{
-		printf("finding a map in obj file failed\n");
-		return 1;
-	}
-	map_fd = bpf_map__fd(map);
+	// map = skel->maps.rxcnt;
+	// if (!map)
+	// {
+	// 	printf("finding a map in obj file failed\n");
+	// 	return 1;
+	// }
+	// map_fd = bpf_map__fd(map);
 	prog_fd = bpf_program__fd(skel->progs.xdp_pass);
 	if (!prog_fd)
 	{

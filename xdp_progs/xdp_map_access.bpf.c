@@ -10,12 +10,7 @@
 #include "xdp_map_access_common.h"
 
 
-struct {
-	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
-	__type(key, struct dummy_key);
-	__type(value, long);
-	__uint(max_entries, 256);
-} rxcnt SEC(".maps");
+int counter = 0;
 
 SEC("xdp")
 int xdp_pass(struct xdp_md *ctx)
@@ -40,12 +35,8 @@ int xdp_pass(struct xdp_md *ctx)
 	h_proto = eth->h_proto;
 	key.key = 23;
 	
-	value = bpf_map_lookup_elem(&rxcnt, &key);
-	if (value){
-		*value += 1;
-	}else{
-		bpf_map_update_elem(&rxcnt, &key, &dummy_value, BPF_ANY);
-	}
+	counter++;
+	bpf_printk("counter %d\n", counter);
 	return rc;
 }
 
