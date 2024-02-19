@@ -42,4 +42,4 @@ From other applications
 
 - [X] [xdp-loadbalancer](xdp-ebpf-new): a simple load balancer using XDP
 - [X] [xdp-observer](https://github.com/hamidrezakhosroabadi/xdp-observer): A simple xdp application to observe tcp connections in userspace. Include parse tcp headers and print the result to userspace with ring buffer. The code is in [xdp-observer](xdp-observer)
-- [ ] [xdp-firewall](https://github.com/acassen/xdp-fw) XDP FW: eXpress Data Path FireWall module
+- [ ] [xdp-firewall](https://github.com/acassen/xdp-fw) XDP firewall: eXpress Data Path FireWall module
