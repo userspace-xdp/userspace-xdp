@@ -4,7 +4,7 @@
  * modify it under the terms of version 2 of the GNU General Public
  * License as published by the Free Software Foundation.
  */
-#include "vmlinux.h"
+#include "def.bpf.h"
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 
@@ -72,7 +72,7 @@ int xdp_pass(struct xdp_md *ctx)
 		return rc;
 
 	iph = data + nh_off;
-	
+	bpf_printk("iph->protocol\n");
 	nh_off +=sizeof(*iph);
 	if (data + nh_off  > data_end)
 		return rc;
@@ -80,6 +80,7 @@ int xdp_pass(struct xdp_md *ctx)
 	for (i = 0; i < LOOP_LEN ;i++){
 		ipv4_csum(iph, sizeof(struct iphdr), &csum);
 		iph->check = csum;
+		// bpf_printk("csum: %d\n", csum);
 		value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
 	}
 	

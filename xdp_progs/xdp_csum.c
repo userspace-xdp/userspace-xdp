@@ -80,6 +80,12 @@ static void usage(const char *prog)
 		prog);
 }
 
+static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
+			   va_list args)
+{
+	return vfprintf(stderr, format, args);
+}
+
 int main(int argc, char **argv)
 {
 	// struct rlimit r = {RLIM_INFINITY, RLIM_INFINITY};
@@ -119,8 +125,14 @@ int main(int argc, char **argv)
 		usage(basename(argv[0]));
 		return 1;
 	}
+    libbpf_set_print(libbpf_print_fn);
+	LIBBPF_OPTS(bpf_object_open_opts , opts,
+	);
+	if (optind == argc + 2)
+		opts.btf_custom_path = argv[optind + 1];
 
-	skel = xdp_csum_bpf__open();
+	// Open and load the BPF program
+	skel = xdp_csum_bpf__open_opts(&opts);
 	if (!skel)
 	{
 		fprintf(stderr, "Failed to open BPF skeleton\n");
@@ -156,7 +168,7 @@ int main(int argc, char **argv)
 	if (res)
 	{
 		fprintf(stderr, "Failed to attach BPF skeleton\n");
-		return 1;
+		// return 1;
 	}
 
 	// if (bpf_prog_load_xattr(&prog_load_attr, &obj, &prog_fd))

@@ -80,6 +80,12 @@ PING 10.0.0.10 (10.0.0.10) 56(84) bytes of data.
 23 packets transmitted, 0 received, 100% packet loss, time 22505ms
 ```
 
+## xdp csum
+
+```sh
+LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum  veth6 xdp-ebpf-new/base.btf
+```
+
 ## remove xdp
 
 ```sh

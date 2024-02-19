@@ -25,8 +25,8 @@ From Linux source tree and samples, and alo from hXDP, see [xdp_progs](xdp_progs
 
 - [X] xdp_drop: parse pkt headers up to TCP, and XDP_DROP valid tcp packets
 - [X] xdp_tx: swap the mac address and XDP_TX
-- [ ] xdp_map_access: increment counter for incomping packets
-- [ ] xdp_csum: calc the csum of ip and record in a hash map
+- [ ] xdp_map_access: increment counter for incomping packets in array maps
+- [X] xdp_csum: calc the csum of ip and record in a hash map
 - [ ] xdping(client): use xdp as ping(ICMP) client
 - [ ] xdping(server): use xdp as ping(ICMP) server
 - [ ] xdp_fw: output pkt from a specified interface (redirect)
@@ -36,6 +36,7 @@ From Linux source tree and samples, and alo from hXDP, see [xdp_progs](xdp_progs
 Prev examples:
 
 - [ ] xdp-acl: use lpm tries to implement a acl list in xdp
+- [X] xdp_maps: use hash map to summary the length of incoming packets
 
 From other applications
 
