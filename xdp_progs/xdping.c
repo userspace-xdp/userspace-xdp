@@ -21,9 +21,11 @@
 #include "bpf/libbpf.h"
 
 #include "xdping.h"
+#include "xdping.skel.h"
 
 static int ifindex;
 static __u32 xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST;
+struct xdping_bpf* skel = NULL;
 
 static void cleanup(int sig)
 {
@@ -83,6 +85,12 @@ static void show_usage(const char *prog)
 		prog, XDPING_DEFAULT_COUNT, XDPING_MAX_COUNT);
 }
 
+static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
+			   va_list args)
+{
+	return vfprintf(stderr, format, args);
+}
+
 int main(int argc, char **argv)
 {
 	__u32 mode_flags = XDP_FLAGS_DRV_MODE | XDP_FLAGS_SKB_MODE;
@@ -93,7 +101,7 @@ int main(int argc, char **argv)
 	struct bpf_program *main_prog;
 	int prog_fd = -1, map_fd = -1;
 	struct sockaddr_in rin;
-	struct bpf_object *obj;
+	struct bpf_object *obj = NULL;
 	struct bpf_map *map;
 	char *ifname = NULL;
 	char filename[256];
@@ -168,17 +176,32 @@ int main(int argc, char **argv)
 	libbpf_set_strict_mode(LIBBPF_STRICT_ALL);
 
 	snprintf(filename, sizeof(filename), "%s", argv[0]);
+	libbpf_set_print(libbpf_print_fn);
+	LIBBPF_OPTS(bpf_object_open_opts , opts,
+	);
+	if (optind + 1 == argc) 
+		opts.btf_custom_path = argv[optind];
+	printf("optind %d %d %s\n", optind, argc, opts.btf_custom_path);
 
-	int res = bpf_object__load(obj);
+	skel = xdping_bpf__open_opts(&opts);
+	if (!skel)
+	{
+		fprintf(stderr, "Failed to open BPF skeleton\n");
+		return 1;
+	}
+	obj = skel->obj;
+	int res = xdping_bpf__load(skel);
 	if (res) {
 		printf("bpf_object__load failed\n");
 		return 1;
 	}
 
 	main_prog = bpf_object__find_program_by_name(obj,
-						     server ? "xdping_server" : "xdping_client");
-	if (main_prog)
+						     server ? "xdp_pass" : "xdping_client");
+	if (main_prog) {
 		prog_fd = bpf_program__fd(main_prog);
+		printf("fd: %d\n", prog_fd);
+	}
 	if (!main_prog || prog_fd < 0) {
 		fprintf(stderr, "could not find xdping program");
 		return 1;
@@ -201,11 +224,11 @@ int main(int argc, char **argv)
 
 	if (bpf_xdp_attach(ifindex, prog_fd, xdp_flags, NULL) < 0) {
 		fprintf(stderr, "Link set xdp fd failed for %s\n", ifname);
-		goto done;
+		// goto done;
 	}
 
 	if (server) {
-		close(prog_fd);
+		// close(prog_fd);
 		close(map_fd);
 		printf("Running server on %s; press Ctrl+C to exit...\n",
 		       ifname);

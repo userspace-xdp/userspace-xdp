@@ -1,16 +1,25 @@
 // SPDX-License-Identifier: GPL-2.0
 /* Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved. */
 
-#define KBUILD_MODNAME "foo"
-#include <stddef.h>
-#include <string.h>
-#include <linux/bpf.h>
-#include <linux/icmp.h>
-#include <linux/in.h>
-#include <linux/if_ether.h>
-#include <linux/if_packet.h>
-#include <linux/if_vlan.h>
-#include <linux/ip.h>
+#include "vmlinux.h"
+
+#define ICMP_ECHOREPLY		0	/* Echo Reply			*/
+#define ICMP_DEST_UNREACH	3	/* Destination Unreachable	*/
+#define ICMP_SOURCE_QUENCH	4	/* Source Quench		*/
+#define ICMP_REDIRECT		5	/* Redirect (change route)	*/
+#define ICMP_ECHO		8	/* Echo Request			*/
+#define ICMP_TIME_EXCEEDED	11	/* Time Exceeded		*/
+#define ICMP_PARAMETERPROB	12	/* Parameter Problem		*/
+#define ICMP_TIMESTAMP		13	/* Timestamp Request		*/
+#define ICMP_TIMESTAMPREPLY	14	/* Timestamp Reply		*/
+#define ICMP_INFO_REQUEST	15	/* Information Request		*/
+#define ICMP_INFO_REPLY		16	/* Information Reply		*/
+#define ICMP_ADDRESS		17	/* Address Mask Request		*/
+#define ICMP_ADDRESSREPLY	18	/* Address Mask Reply		*/
+#define NR_ICMP_TYPES		18
+
+#define ETH_P_IP 0x0800
+#define ETH_P_IPV6 0x86DD
 
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
@@ -69,7 +78,7 @@ static __always_inline int icmp_check(struct xdp_md *ctx, int type)
 
 	if (eth->h_proto != bpf_htons(ETH_P_IP))
 		return XDP_PASS;
-
+	bpf_printk("eth->h_proto\n");
 	iph = data + sizeof(*eth);
 
 	if (iph->protocol != IPPROTO_ICMP)
@@ -79,9 +88,43 @@ static __always_inline int icmp_check(struct xdp_md *ctx, int type)
 		return XDP_PASS;
 
 	icmph = data + sizeof(*eth) + sizeof(*iph);
-
+	bpf_printk("icmph %p", icmph);
+	// return XDP_PASS;
+	// if (&(icmph->type) > data_end) {
+	// 	bpf_printk("XDP_PASS for invalid icmp\n");
+	// 	return XDP_PASS;
+	// }
 	if (icmph->type != type)
 		return XDP_PASS;
+	bpf_printk("XDP_TX icmp\n");
+	return XDP_TX;
+}
+
+SEC("xdp")
+int xdp_pass(struct xdp_md *ctx)
+{
+	void *data = (void *)(long)ctx->data;
+	struct ethhdr *eth = data;
+	struct icmphdr *icmph;
+	struct iphdr *iph;
+	__be32 raddr;
+	int ret;
+	bpf_printk("get data %p %p\n", data, ctx->data_end);
+
+	ret = icmp_check(ctx, ICMP_ECHO);
+	if (ret != XDP_TX)
+		return ret;
+	return XDP_PASS;
+	iph = data + sizeof(*eth);
+	icmph = data + sizeof(*eth) + sizeof(*iph);
+	raddr = iph->saddr;
+	/* Now convert request into echo reply. */
+	swap_src_dst_mac(data);
+	iph->saddr = iph->daddr;
+	iph->daddr = raddr;
+	icmph->type = ICMP_ECHOREPLY;
+	icmph->checksum = 0;
+	icmph->checksum = ipv4_csum(icmph, ICMP_ECHO_LEN);
 
 	return XDP_TX;
 }
@@ -145,36 +188,6 @@ int xdping_client(struct xdp_md *ctx)
 
 	pinginfo->seq = seq;
 	pinginfo->start = bpf_ktime_get_ns();
-
-	return XDP_TX;
-}
-
-SEC("xdp")
-int xdping_server(struct xdp_md *ctx)
-{
-	void *data = (void *)(long)ctx->data;
-	struct ethhdr *eth = data;
-	struct icmphdr *icmph;
-	struct iphdr *iph;
-	__be32 raddr;
-	int ret;
-
-	ret = icmp_check(ctx, ICMP_ECHO);
-
-	if (ret != XDP_TX)
-		return ret;
-
-	iph = data + sizeof(*eth);
-	icmph = data + sizeof(*eth) + sizeof(*iph);
-	raddr = iph->saddr;
-
-	/* Now convert request into echo reply. */
-	swap_src_dst_mac(data);
-	iph->saddr = iph->daddr;
-	iph->daddr = raddr;
-	icmph->type = ICMP_ECHOREPLY;
-	icmph->checksum = 0;
-	icmph->checksum = ipv4_csum(icmph, ICMP_ECHO_LEN);
 
 	return XDP_TX;
 }

@@ -25,6 +25,9 @@
         "bpf_util.h": "c",
         "xdp_fw_common.h": "c",
         "xdp_map_access_common.h": "c",
-        "limits": "c"
+        "limits": "c",
+        "xdping.skel.h": "c",
+        "any": "c",
+        "complex": "c"
     }
 }
