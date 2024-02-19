@@ -49,6 +49,7 @@ static void poll_stats(int map_fd, int interval)
 	unsigned int nr_cpus = bpf_num_possible_cpus();
 	__u64 values[nr_cpus], prev[UINT8_MAX] = { 0 };
 	int i;
+	static bool first = true;
 
 	while (1) {
 		__u32 key = UINT32_MAX;
@@ -61,11 +62,12 @@ static void poll_stats(int map_fd, int interval)
 			assert(bpf_map_lookup_elem(map_fd, &key, values) == 0);
 			for (i = 0; i < nr_cpus; i++)
 				sum += values[i];
-			if (sum > prev[key])
+			if (sum > prev[key] && !first)
 				printf("key %u: %10llu pkt/s\n",
-				       key, (sum - prev[key]) / interval);
+				       key, sum);
 			prev[key] = sum;
 		}
+		first = false;
 	}
 }
 
@@ -128,8 +130,9 @@ int main(int argc, char **argv)
     libbpf_set_print(libbpf_print_fn);
 	LIBBPF_OPTS(bpf_object_open_opts , opts,
 	);
-	if (optind == argc + 2)
+	if (optind + 2 == argc) 
 		opts.btf_custom_path = argv[optind + 1];
+	// printf("optind %d %d %s\n", optind, argc, opts.btf_custom_path);
 
 	// Open and load the BPF program
 	skel = xdp_csum_bpf__open_opts(&opts);

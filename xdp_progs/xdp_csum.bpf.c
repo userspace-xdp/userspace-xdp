@@ -61,7 +61,7 @@ int xdp_pass(struct xdp_md *ctx)
 	u32 dummy_int = 23;
 	__u32 csum = 0;
 	int i = 0;
-	
+	bpf_printk("received packet %p %p\n", data, data_end);
 	nh_off = sizeof(*eth);
 	if (data + nh_off > data_end)
 		return rc;
@@ -80,10 +80,10 @@ int xdp_pass(struct xdp_md *ctx)
 	for (i = 0; i < LOOP_LEN ;i++){
 		ipv4_csum(iph, sizeof(struct iphdr), &csum);
 		iph->check = csum;
-		// bpf_printk("csum: %d\n", csum);
 		value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
 	}
-	
+	bpf_printk("csum: %d\n", csum);
+
 	value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
 	if (value)
 		*value += 1;

@@ -78,6 +78,13 @@ static void poll_stats(int map_fd, int interval)
 	}
 }
 
+
+static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
+			   va_list args)
+{
+	return vfprintf(stderr, format, args);
+}
+
 static void usage(const char *prog)
 {
 	fprintf(stderr,
