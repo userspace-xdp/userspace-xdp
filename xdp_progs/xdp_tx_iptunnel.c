@@ -19,6 +19,7 @@
 #include "bpf_util.h"
 #include <linux/types.h>
 #include "xdp_tx_iptunnel_common.h"
+#include "xdp_tx_iptunnel.skel.h"
 
 #define STATS_INTERVAL_S 2U
 
@@ -96,6 +97,7 @@ static void usage(const char *cmd)
 	printf("    -N enforce native mode\n");
 	printf("    -F Force loading the XDP prog\n");
 	printf("    -h Display this help\n");
+	printf("    -b <btf-file> BTF type file\n");
 }
 
 static int parse_ipstr(const char *ipstr, unsigned int *addr)
@@ -162,9 +164,10 @@ int main(int argc, char **argv)
 	struct bpf_program *prog;
 	struct bpf_object *obj;
 	struct vip vip = {};
-	char filename[256];
+	char btf_filename[256] = {};
 	int opt, prog_fd;
 	int i, err;
+	struct xdp_tx_iptunnel_bpf *skel = NULL;
 
 	tnl.family = AF_UNSPEC;
 	vip.protocol = IPPROTO_TCP;
@@ -233,6 +236,10 @@ int main(int argc, char **argv)
 		case 'F':
 			xdp_flags &= ~XDP_FLAGS_UPDATE_IF_NOEXIST;
 			break;
+		case 'b':
+			snprintf(btf_filename, sizeof(btf_filename), "%s", optarg);
+			printf("btf_filename: %s\n", btf_filename);
+			break;
 		default:
 			usage(argv[0]);
 			return 1;
@@ -255,21 +262,37 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Invalid ifname\n");
 		return 1;
 	}
+	LIBBPF_OPTS(bpf_object_open_opts , opts,
+	);
+	if (btf_filename[0]) 
+		opts.btf_custom_path = btf_filename;
+	// snprintf(filename, sizeof(filename), "%s", argv[0]);
 
-	snprintf(filename, sizeof(filename), "%s", argv[0]);
-
-	obj = bpf_object__open_file(filename, NULL);
-	if (libbpf_get_error(obj))
-		return 1;
-
-	prog = bpf_object__next_program(obj, NULL);
-	bpf_program__set_type(prog, BPF_PROG_TYPE_XDP);
-
-	err = bpf_object__load(obj);
-	if (err) {
-		printf("bpf_object__load(): %s\n", strerror(errno));
+	// obj = bpf_object__open_file(filename, NULL);
+	// if (libbpf_get_error(obj))
+	// 	return 1;
+	skel = xdp_tx_iptunnel_bpf__open_opts(&opts);
+	if (!skel)
+	{
+		fprintf(stderr, "Failed to open BPF skeleton\n");
 		return 1;
 	}
+
+	// bpf_program__set_type(prog, BPF_PROG_TYPE_XDP);
+
+	// err = bpf_object__load(obj);
+	// if (err) {
+	// 	printf("bpf_object__load(): %s\n", strerror(errno));
+	// 	return 1;
+	// }
+	err = xdp_tx_iptunnel_bpf__load(skel);
+	if (err)
+	{
+		fprintf(stderr, "Failed to load BPF skeleton\n");
+		return 1;
+	}
+	obj = skel->obj;
+	prog = bpf_object__next_program(obj, NULL);
 	prog_fd = bpf_program__fd(prog);
 
 	rxcnt_map_fd = bpf_object__find_map_fd_by_name(obj, "rxcnt");

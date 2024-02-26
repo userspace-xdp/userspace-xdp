@@ -15,9 +15,9 @@ make -C xdp_progs/
   - [xdp\_map\_access](#xdp_map_access)
   - [xdping server](#xdping-server)
   - [xdp\_tx\_iptunnel](#xdp_tx_iptunnel)
+  - [xdp\_adjust\_tail](#xdp_adjust_tail)
   - [xdp\_fw](#xdp_fw)
   - [remove xdp](#remove-xdp)
-
 
 ## xdp_tx
 
@@ -159,24 +159,68 @@ afxdp/src# ./af_xdp_user veth6
 
 ## xdp_tx_iptunnel
 
+Usage:
+
+```console
+# xdp_progs/xdp_tx_iptunnel
+Missing argument -i
+Start a XDP prog which encapsulates incoming packets
+in an IPv4/v6 header and XDP_TX it out.  The dst <VIP:PORT>
+is used to select packets to encapsulate
+
+Usage: xdp_progs/xdp_tx_iptunnel [...]
+    -i <ifname|ifindex> Interface
+    -a <vip-service-address> IPv4 or IPv6
+    -p <vip-service-port> A port range (e.g. 433-444) is also allowed
+    -s <source-ip> Used in the IPTunnel header
+    -d <dest-ip> Used in the IPTunnel header
+    -m <dest-MAC> Used in sending the IP Tunneled pkt
+    -T <stop-after-X-seconds> Default: 0 (forever)
+    -P <IP-Protocol> Default is TCP
+    -S use skb-mode
+    -N enforce native mode
+    -F Force loading the XDP prog
+    -h Display this help
+    -b <btf-file> BTF type file
+```
+
+test running in kernel:
+
+```console
+# xdp_progs/xdp_tx_iptunnel -i veth6 -a 10.0.0.10 -p 1-256 -s 10.0.0.1 -d 10.0.0.2 -m DE:AD:BE:EF:00:00
+proto 6: sum:         1 pkts, rate:         0 pkts/s
+proto 6: sum:         2 pkts, rate:         1 pkts/s
+proto 6: sum:         2 pkts, rate:         1 pkts/s
+```
+
+Then you can test it with curl and http server.
+
+Test running in userspace:
+
+```sh
+LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug  xdp_progs/xdp_tx_iptunnel -i veth6 -a 10.0.0.10 -p 1-256 -s 10.0.0.1 -d 10.0.0.2 -m DE:AD:BE:EF:00:00 -b xdp-ebpf-new/base.btf
+```
+
+## xdp_adjust_tail
+
 example application to use the xdp_adjust_tail helper
 
 ```c
 /*
  * bpf_xdp_adjust_tail
  *
- * 	Adjust (move) *xdp_md*\ **->data_end** by *delta* bytes. It is
- * 	possible to both shrink and grow the packet tail.
- * 	Shrink done via *delta* being a negative integer.
+ *  Adjust (move) *xdp_md*\ **->data_end** by *delta* bytes. It is
+ *  possible to both shrink and grow the packet tail.
+ *  Shrink done via *delta* being a negative integer.
  *
- * 	A call to this helper is susceptible to change the underlying
- * 	packet buffer. Therefore, at load time, all checks on pointers
- * 	previously done by the verifier are invalidated and must be
- * 	performed again, if the helper is used in combination with
- * 	direct packet access.
+ *  A call to this helper is susceptible to change the underlying
+ *  packet buffer. Therefore, at load time, all checks on pointers
+ *  previously done by the verifier are invalidated and must be
+ *  performed again, if the helper is used in combination with
+ *  direct packet access.
  *
  * Returns
- * 	0 on success, or a negative error in case of failure.
+ *  0 on success, or a negative error in case of failure.
  */
 static long (*bpf_xdp_adjust_tail)(struct xdp_md *xdp_md, int delta) = (void *) 65;
 ```

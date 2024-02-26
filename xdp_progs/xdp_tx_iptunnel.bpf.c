@@ -212,7 +212,7 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 // 	return XDP_TX;
 // }
 
-SEC("xdp.frags")
+SEC("xdp")
 int xdp_pass(struct xdp_md *xdp)
 {
 	void *data_end = (void *)(long)xdp->data_end;
