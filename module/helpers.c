@@ -34,28 +34,26 @@ typedef __u32 __bitwise __wsum;
 typedef __s64 s64;
 
 #define MAX_BPF_STACK 512
-#define ALIGN(x, a)		__ALIGN_KERNEL((x), (a))
-#define ETH_HLEN                  14
-#define ETH_OVERHEAD              (ETH_HLEN + 8 + 8)
-#define likely(x)		__builtin_expect(!!(x), 1)
-#define unlikely(x)		__builtin_expect(!!(x), 0)
-#define SKB_DATA_ALIGN(X)	ALIGN(X, SMP_CACHE_BYTES)
+#define ALIGN(x, a) __ALIGN_KERNEL((x), (a))
+#define ETH_HLEN 14
+#define ETH_OVERHEAD (ETH_HLEN + 8 + 8)
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#define SKB_DATA_ALIGN(X) ALIGN(X, SMP_CACHE_BYTES)
 
 #ifndef L1_CACHE_ALIGN
 #define L1_CACHE_ALIGN(x) __ALIGN_KERNEL(x, L1_CACHE_BYTES)
 #endif
 
-#define L1_CACHE_SHIFT		5
-#define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
+#define L1_CACHE_SHIFT 5
+#define L1_CACHE_BYTES (1 << L1_CACHE_SHIFT)
 
 #ifndef SMP_CACHE_BYTES
 #define SMP_CACHE_BYTES L1_CACHE_BYTES
 #endif
 
-struct bpf_scratchpad
-{
-	union
-	{
+struct bpf_scratchpad {
+	union {
 		__be32 diff[MAX_BPF_STACK / sizeof(__be32)];
 		__u8 buff[MAX_BPF_STACK];
 	};
@@ -78,8 +76,7 @@ static unsigned int do_csum(const unsigned char *buff, int len)
 	if (len <= 0)
 		goto out;
 	odd = 1 & (unsigned long)buff;
-	if (odd)
-	{
+	if (odd) {
 		// #ifdef __LITTLE_ENDIAN
 		result += (*buff << 8);
 		// #else
@@ -88,20 +85,16 @@ static unsigned int do_csum(const unsigned char *buff, int len)
 		len--;
 		buff++;
 	}
-	if (len >= 2)
-	{
-		if (2 & (unsigned long)buff)
-		{
+	if (len >= 2) {
+		if (2 & (unsigned long)buff) {
 			result += *(unsigned short *)buff;
 			len -= 2;
 			buff += 2;
 		}
-		if (len >= 4)
-		{
+		if (len >= 4) {
 			const unsigned char *end = buff + ((unsigned)len & ~3);
 			unsigned int carry = 0;
-			do
-			{
+			do {
 				unsigned int w = *(unsigned int *)buff;
 				buff += 4;
 				result += carry;
@@ -111,8 +104,7 @@ static unsigned int do_csum(const unsigned char *buff, int len)
 			result += carry;
 			result = (result & 0xffff) + (result >> 16);
 		}
-		if (len & 2)
-		{
+		if (len & 2) {
 			result += *(unsigned short *)buff;
 			buff += 2;
 		}
@@ -142,7 +134,8 @@ static __wsum csum_partial(const void *buff, int len, __wsum wsum)
 	return (__wsum)result;
 }
 
-uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3, uint64_t to_size, uint64_t seed)
+uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3,
+			   uint64_t to_size, uint64_t seed)
 {
 	struct bpf_scratchpad sp_data;
 	struct bpf_scratchpad *sp = &sp_data;
@@ -160,7 +153,7 @@ uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3, uint64_
 	 * Even for diffing, from_size and to_size don't need to be equal.
 	 */
 	if ((((from_size | to_size) & (sizeof(__be32) - 1)) ||
-		 diff_size > sizeof(sp->diff)))
+	     diff_size > sizeof(sp->diff)))
 		return -EINVAL;
 
 	for (i = 0; i < from_size / sizeof(__be32); i++, j++)
@@ -196,11 +189,12 @@ struct skb_shared_hwtstamps {
 	};
 };
 
-#define min_t(type, x, y) ({ \
-    type _x = (x); \
-    type _y = (y); \
-    _x < _y ? _x : _y; \
-})
+#define min_t(type, x, y)                                                      \
+	({                                                                     \
+		type _x = (x);                                                 \
+		type _y = (y);                                                 \
+		_x < _y ? _x : _y;                                             \
+	})
 
 typedef struct {
 	int counter;
@@ -224,7 +218,6 @@ struct skb_shared_info {
 	void *destructor_arg;
 	// skb_frag_t frags[17];
 };
-
 
 // static __always_inline bool xdp_buff_has_frags(struct xdp_buff *xdp)
 // {
@@ -266,7 +259,6 @@ struct skb_shared_info {
 // 		zc_frag->data_end -= shrink;
 // 	}
 // }
-
 
 // struct xdp_mem_info {
 // 	__u32 type;
@@ -334,19 +326,17 @@ struct skb_shared_info {
 // 	return 0;
 // }
 
-
-
 /* Reserve memory area at end-of data area.
  *
  * This macro reserves tailroom in the XDP buffer by limiting the
  * XDP/BPF data access to data_hard_end.  Notice same area (and size)
  * is used for XDP_PASS, when constructing the SKB via build_skb().
  */
-#define xdp_data_hard_end(xdp)				\
-	((xdp)->data_hard_start + (xdp)->frame_sz -	\
+#define xdp_data_hard_end(xdp)                                                 \
+	((xdp)->data_hard_start + (xdp)->frame_sz -                            \
 	 SKB_DATA_ALIGN(sizeof(struct skb_shared_info)))
 
-uint64_t bpftime_xdp_adjust_tail(struct xdp_buff * xdp, int offset)
+uint64_t bpftime_xdp_adjust_tail(struct xdp_buff *xdp, uint64_t offset)
 {
 	void *data_hard_end = xdp_data_hard_end(xdp); /* use xdp->frame_sz */
 	void *data_end = xdp->data_end + offset;
@@ -372,4 +362,24 @@ uint64_t bpftime_xdp_adjust_tail(struct xdp_buff * xdp, int offset)
 	xdp->data_end = data_end;
 
 	return 0;
+}
+
+// ignore map id
+// TODO: fix the map id
+redirect_call_back_func redirect_map_callback = NULL;
+
+void register_redirect_map_callback(int map_id, redirect_call_back_func cb)
+{
+	redirect_map_callback = cb;
+}
+
+uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags)
+{
+	if (redirect_map_callback) {
+		redirect_map_callback(map, key);
+		return XDP_TX;
+	} else {
+		printf("redirect_map_callback is NULL\n");
+		return XDP_DROP;
+	}
 }

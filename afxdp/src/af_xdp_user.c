@@ -674,6 +674,13 @@ bool do_userspace_redirect_demo(uint8_t *pkt)
 	return true;
 }
 
+int redirect_ifindex = -1;
+
+void redirect_call_back(void *data, int ifindex) {
+	printf("redirect_call_back\n");
+	redirect_ifindex = ifindex;
+}
+
 static bool process_packet(struct xsk_socket_info *xsk,
 						   uint64_t addr, uint32_t len)
 {
@@ -995,6 +1002,7 @@ int main(int argc, char **argv)
 	}
 
 	ebpf_module_init();
+	register_redirect_map_callback(0, redirect_call_back);
 	printf("init eBPF runtime success\n");
 
 	/* Allocate memory for NUM_FRAMES of the default XDP frame size */

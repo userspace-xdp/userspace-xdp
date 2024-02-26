@@ -271,6 +271,39 @@ LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/sysca
 
 ## xdp_fw
 
+use `bpf_redirect_map`:
+
+```c
+/*
+ * bpf_redirect_map
+ *
+ *  Redirect the packet to the endpoint referenced by *map* at
+ *  index *key*. Depending on its type, this *map* can contain
+ *  references to net devices (for forwarding packets through other
+ *  ports), or to CPUs (for redirecting XDP frames to another CPU;
+ *  but this is only implemented for native XDP (with driver
+ *  support) as of this writing).
+ *
+ *  The lower two bits of *flags* are used as the return code if
+ *  the map lookup fails. This is so that the return value can be
+ *  one of the XDP program return codes up to **XDP_TX**, as chosen
+ *  by the caller. The higher bits of *flags* can be set to
+ *  BPF_F_BROADCAST or BPF_F_EXCLUDE_INGRESS as defined below.
+ *
+ *  With BPF_F_BROADCAST the packet will be broadcasted to all the
+ *  interfaces in the map, with BPF_F_EXCLUDE_INGRESS the ingress
+ *  interface will be excluded when do broadcasting.
+ *
+ *  See also **bpf_redirect**\ (), which only supports redirecting
+ *  to an ifindex, but doesn't require a map to do so.
+ *
+ * Returns
+ *  **XDP_REDIRECT** on success, or the value of the two lower bits
+ *  of the *flags* argument on error.
+ */
+static long (*bpf_redirect_map)(void *map, __u64 key, __u64 flags) = (void *) 51;
+```
+
 test in kernel
 
 ```sh
