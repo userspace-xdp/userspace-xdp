@@ -30,13 +30,11 @@
 /* bpf_trace_printk() output:
  * /sys/kernel/debug/tracing/trace_pipe
  */
-#define bpf_printk(fmt, ...)				\
-({							\
-	char ____fmt[] = fmt;				\
-	bpf_trace_printk(____fmt, sizeof(____fmt),	\
-		     ##__VA_ARGS__);			\
-})
-
+#define bpf_printk(fmt, ...)                                                   \
+	({                                                                     \
+		char ____fmt[] = fmt;                                          \
+		bpf_trace_printk(____fmt, sizeof(____fmt), ##__VA_ARGS__);     \
+	})
 
 #define ETH_ALEN 6
 #define ETH_P_802_3_MIN 0x0600
@@ -53,7 +51,6 @@
 #define EOPNOTSUPP 95
 #define ENOSPC 28
 
-
 /* linux/if_vlan.h have not exposed this as UAPI, thus mirror some here
  *
  *      struct vlan_hdr - vlan header
@@ -61,34 +58,34 @@
  *      @h_vlan_encapsulated_proto: packet type ID or len
  */
 struct _vlan_hdr {
-	__be16	hvlan_TCI;
-	__be16	h_vlan_encapsulated_proto;
+	__be16 hvlan_TCI;
+	__be16 h_vlan_encapsulated_proto;
 };
 
 struct vrrphdr {
-	__u8	vers_type;
-	__u8	vrid;
-	__u8	priority;
-	__u8	naddr;
+	__u8 vers_type;
+	__u8 vrid;
+	__u8 priority;
+	__u8 naddr;
 	union {
 		struct {
-			__u8	auth_type;
-			__u8	adver_int;
+			__u8 auth_type;
+			__u8 adver_int;
 		} v2;
 		struct {
-			__u16	adver_int;
+			__u16 adver_int;
 		} v3;
 	};
-	__u16	chksum;
-} __attribute__ ((__packed__));
-#define IPPROTO_VRRP	112
+	__u16 chksum;
+} __attribute__((__packed__));
+#define IPPROTO_VRRP 112
 
-#define ICMPV6_ND_NEIGHBOR_SOLICIT	135
-#define ICMPV6_ND_NEIGHBOR_ADVERT	136
+#define ICMPV6_ND_NEIGHBOR_SOLICIT 135
+#define ICMPV6_ND_NEIGHBOR_ADVERT 136
 
 struct parse_pkt {
-	__u16	l3_proto;
-	__u16	l3_offset;
+	__u16 l3_proto;
+	__u16 l3_offset;
 };
 
 struct flow_key {
@@ -96,16 +93,16 @@ struct flow_key {
 		__u32 addr;
 		__u32 addr6[4];
 	};
-	__u32	proto;
-} __attribute__ ((__aligned__(8)));
+	__u32 proto;
+} __attribute__((__aligned__(8)));
 
 struct vrrp_filter {
-	__u32	action;
-	__u64	drop_packets;
-	__u64	total_packets;
-	__u64	drop_bytes;
-	__u64	total_bytes;
-} __attribute__ ((__aligned__(8)));
+	__u32 action;
+	__u64 drop_packets;
+	__u64 total_packets;
+	__u64 drop_bytes;
+	__u64 total_bytes;
+} __attribute__((__aligned__(8)));
 
 struct {
 	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
@@ -130,8 +127,7 @@ struct {
 } vrrp_vrid_filter SEC(".maps");
 
 /* ICMPv6 filtering */
-static __always_inline bool
-icmp6_accept(struct icmp6hdr *icmp6h)
+static __always_inline bool icmp6_accept(struct icmp6hdr *icmp6h)
 {
 	if (icmp6h->icmp6_type == ICMPV6_ND_NEIGHBOR_SOLICIT ||
 	    icmp6h->icmp6_type == ICMPV6_ND_NEIGHBOR_ADVERT)
@@ -140,8 +136,7 @@ icmp6_accept(struct icmp6hdr *icmp6h)
 }
 
 /* VRRP filtering */
-static __always_inline int
-vrrp_filter(struct vrrphdr *vrrph, int len)
+static __always_inline int vrrp_filter(struct vrrphdr *vrrph, int len)
 {
 	struct vrrp_filter *vrrpf;
 	int key = vrrph->vrid;
@@ -161,15 +156,15 @@ vrrp_filter(struct vrrphdr *vrrph, int len)
 }
 
 /* IP filtering */
-static __always_inline int
-layer3_filter(void *data, void *data_end, struct parse_pkt *pkt)
+static __always_inline int layer3_filter(void *data, void *data_end,
+					 struct parse_pkt *pkt)
 {
 	struct iphdr *iph;
 	struct ipv6hdr *ip6h;
 	struct icmp6hdr *icmp6h;
 	struct vrrphdr *vrrph = NULL;
 	struct ip_auth_hdr *ah;
-	struct flow_key key = { };
+	struct flow_key key = {};
 	int offset = 0, tot_len = 0;
 	__u64 *drop_cnt;
 
@@ -194,7 +189,8 @@ layer3_filter(void *data, void *data_end, struct parse_pkt *pkt)
 				return XDP_PASS;
 			offset += sizeof(struct iphdr);
 			if (ah->nexthdr == IPPROTO_VRRP) {
-				vrrph = data + offset + sizeof(struct ip_auth_hdr);
+				vrrph = data + offset +
+					sizeof(struct ip_auth_hdr);
 				if (vrrph + 1 > data_end)
 					return XDP_DROP;
 			}
@@ -243,17 +239,17 @@ layer3_filter(void *data, void *data_end, struct parse_pkt *pkt)
 }
 
 /* Ethernet frame parsing and sanitize */
-static __always_inline bool
-parse_eth_frame(struct ethhdr *eth, void *data_end, struct parse_pkt *pkt)
+static __always_inline bool parse_eth_frame(struct ethhdr *eth, void *data_end,
+					    struct parse_pkt *pkt)
 {
 	struct _vlan_hdr *vlan_hdr;
 	__u16 eth_type;
 	__u8 offset;
 
-	offset = sizeof (*eth);
+	offset = sizeof(*eth);
 
 	/* Make sure packet is large enough for parsing eth */
-	if ((void *) eth + offset > data_end)
+	if ((void *)eth + offset > data_end)
 		return false;
 
 	eth_type = eth->h_proto;
@@ -261,9 +257,9 @@ parse_eth_frame(struct ethhdr *eth, void *data_end, struct parse_pkt *pkt)
 	/* Handle outer VLAN tag */
 	if (eth_type == bpf_htons(ETH_P_8021Q) ||
 	    eth_type == bpf_htons(ETH_P_8021AD)) {
-		vlan_hdr = (void *) eth + offset;
-		offset += sizeof (*vlan_hdr);
-		if ((void *) eth + offset > data_end)
+		vlan_hdr = (void *)eth + offset;
+		offset += sizeof(*vlan_hdr);
+		if ((void *)eth + offset > data_end)
 			return false;
 
 		eth_type = vlan_hdr->h_vlan_encapsulated_proto;
@@ -272,9 +268,9 @@ parse_eth_frame(struct ethhdr *eth, void *data_end, struct parse_pkt *pkt)
 	/* Handle inner (Q-in-Q) VLAN tag */
 	if (eth_type == bpf_htons(ETH_P_8021Q) ||
 	    eth_type == bpf_htons(ETH_P_8021AD)) {
-		vlan_hdr = (void *) eth + offset;
-		offset += sizeof (*vlan_hdr);
-		if ((void *) eth + offset > data_end)
+		vlan_hdr = (void *)eth + offset;
+		offset += sizeof(*vlan_hdr);
+		if ((void *)eth + offset > data_end)
 			return false;
 
 		eth_type = vlan_hdr->h_vlan_encapsulated_proto;
@@ -285,12 +281,11 @@ parse_eth_frame(struct ethhdr *eth, void *data_end, struct parse_pkt *pkt)
 	return true;
 }
 
-SEC("xdp_fw")
-int
-xdp_drop(struct xdp_md *ctx)
+SEC("xdp")
+int xdp_pass(struct xdp_md *ctx)
 {
-	void *data_end = (void *) (long) ctx->data_end;
-	void *data = (void *) (long) ctx->data;
+	void *data_end = (void *)(long)ctx->data_end;
+	void *data = (void *)(long)ctx->data;
 	struct parse_pkt pkt = { 0 };
 
 	if (!parse_eth_frame(data, data_end, &pkt))
