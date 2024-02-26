@@ -102,11 +102,22 @@ static int load_ebpf_programs()
 	}
 }
 
+extern bpftime::bpftime_map_ops dev_map_ops;
+
+static int register_maps()
+{
+	bpftime_register_map_ops(
+		(int)bpftime::bpf_map_type::BPF_MAP_TYPE_DEVMAP, &dev_map_ops);
+  
+	return 0;
+}
+
 extern "C" int ebpf_module_init()
 {
 	bpftime_initialize_global_shm(shm_open_type::SHM_OPEN_ONLY);
 	ctx_holder.init();
 	load_ebpf_programs();
+	register_maps();
 	return -1;
 }
 
