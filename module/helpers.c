@@ -11,7 +11,8 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
+#include <stdbool.h>
+#include <linux/const.h>
 #include <sys/resource.h>
 
 #include <arpa/inet.h>
@@ -20,7 +21,6 @@
 #include "xdp-runtime.h"
 
 #include <net/if_arp.h>
-
 
 typedef __u16 __bitwise __le16;
 typedef __u16 __bitwise __be16;
@@ -31,9 +31,27 @@ typedef __u64 __bitwise __be64;
 
 typedef __u16 __bitwise __sum16;
 typedef __u32 __bitwise __wsum;
-
+typedef __s64 s64;
 
 #define MAX_BPF_STACK 512
+#define ALIGN(x, a)		__ALIGN_KERNEL((x), (a))
+#define ETH_HLEN                  14
+#define ETH_OVERHEAD              (ETH_HLEN + 8 + 8)
+#define likely(x)		__builtin_expect(!!(x), 1)
+#define unlikely(x)		__builtin_expect(!!(x), 0)
+#define SKB_DATA_ALIGN(X)	ALIGN(X, SMP_CACHE_BYTES)
+
+#ifndef L1_CACHE_ALIGN
+#define L1_CACHE_ALIGN(x) __ALIGN_KERNEL(x, L1_CACHE_BYTES)
+#endif
+
+#define L1_CACHE_SHIFT		5
+#define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
+
+#ifndef SMP_CACHE_BYTES
+#define SMP_CACHE_BYTES L1_CACHE_BYTES
+#endif
+
 struct bpf_scratchpad
 {
 	union
@@ -151,4 +169,207 @@ uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3, uint64_
 		sp->diff[j] = to[i];
 
 	return csum_partial(sp->diff, diff_size, seed);
+}
+
+struct xdp_buff {
+	void *data;
+	void *data_end;
+	void *data_meta;
+	void *data_hard_start;
+	struct xdp_rxq_info *rxq;
+	struct xdp_txq_info *txq;
+	__u32 frame_sz;
+	__u32 flags;
+};
+
+enum xdp_buff_flags {
+	XDP_FLAGS_HAS_FRAGS = 1,
+	XDP_FLAGS_FRAGS_PF_MEMALLOC = 2,
+};
+
+typedef s64 ktime_t;
+
+struct skb_shared_hwtstamps {
+	union {
+		ktime_t hwtstamp;
+		void *netdev_data;
+	};
+};
+
+#define min_t(type, x, y) ({ \
+    type _x = (x); \
+    type _y = (y); \
+    _x < _y ? _x : _y; \
+})
+
+typedef struct {
+	int counter;
+} atomic_t;
+
+typedef struct bio_vec skb_frag_t;
+
+struct skb_shared_info {
+	__u8 flags;
+	__u8 meta_len;
+	__u8 nr_frags;
+	__u8 tx_flags;
+	short unsigned int gso_size;
+	short unsigned int gso_segs;
+	struct sk_buff *frag_list;
+	struct skb_shared_hwtstamps hwtstamps;
+	unsigned int gso_type;
+	__u32 tskey;
+	atomic_t dataref;
+	unsigned int xdp_frags_size;
+	void *destructor_arg;
+	// skb_frag_t frags[17];
+};
+
+
+// static __always_inline bool xdp_buff_has_frags(struct xdp_buff *xdp)
+// {
+// 	return !!(xdp->flags & XDP_FLAGS_HAS_FRAGS);
+// }
+
+// static int bpf_xdp_frags_increase_tail(struct xdp_buff *xdp, int offset)
+// {
+// 	struct skb_shared_info *sinfo = xdp_get_shared_info_from_buff(xdp);
+// 	skb_frag_t *frag = &sinfo->frags[sinfo->nr_frags - 1];
+// 	struct xdp_rxq_info *rxq = xdp->rxq;
+// 	unsigned int tailroom;
+
+// 	if (!rxq->frag_size || rxq->frag_size > xdp->frame_sz)
+// 		return -EOPNOTSUPP;
+
+// 	tailroom = rxq->frag_size - skb_frag_size(frag) - skb_frag_off(frag);
+// 	if (unlikely(offset > tailroom))
+// 		return -EINVAL;
+
+// 	memset(skb_frag_address(frag) + skb_frag_size(frag), 0, offset);
+// 	skb_frag_size_add(frag, offset);
+// 	sinfo->xdp_frags_size += offset;
+// 	if (rxq->mem.type == MEM_TYPE_XSK_BUFF_POOL)
+// 		xsk_buff_get_tail(xdp)->data_end += offset;
+
+// 	return 0;
+// }
+
+// static void bpf_xdp_shrink_data_zc(struct xdp_buff *xdp, int shrink,
+// 				   struct xdp_mem_info *mem_info, bool release)
+// {
+// 	struct xdp_buff *zc_frag = xsk_buff_get_tail(xdp);
+
+// 	if (release) {
+// 		xsk_buff_del_tail(zc_frag);
+// 		__xdp_return(NULL, mem_info, false, zc_frag);
+// 	} else {
+// 		zc_frag->data_end -= shrink;
+// 	}
+// }
+
+
+// struct xdp_mem_info {
+// 	__u32 type;
+// 	__u32 id;
+// };
+
+// enum xdp_mem_type {
+// 	MEM_TYPE_PAGE_SHARED = 0,
+// 	MEM_TYPE_PAGE_ORDER0 = 1,
+// 	MEM_TYPE_PAGE_POOL = 2,
+// 	MEM_TYPE_XSK_BUFF_POOL = 3,
+// 	MEM_TYPE_MAX = 4,
+// };
+
+// static bool bpf_xdp_shrink_data(struct xdp_buff *xdp, skb_frag_t *frag,
+// 				int shrink)
+// {
+// 	struct xdp_mem_info *mem_info = &xdp->rxq->mem;
+// 	bool release = skb_frag_size(frag) == shrink;
+
+// 	if (mem_info->type == MEM_TYPE_XSK_BUFF_POOL) {
+// 		bpf_xdp_shrink_data_zc(xdp, shrink, mem_info, release);
+// 		goto out;
+// 	}
+
+// 	if (release) {
+// 		struct page *page = skb_frag_page(frag);
+
+// 		__xdp_return(page_address(page), mem_info, false, NULL);
+// 	}
+
+// out:
+// 	return release;
+// }
+
+// static int bpf_xdp_frags_shrink_tail(struct xdp_buff *xdp, int offset)
+// {
+// 	struct skb_shared_info *sinfo = xdp_get_shared_info_from_buff(xdp);
+// 	int i, n_frags_free = 0, len_free = 0;
+
+// 	if (unlikely(offset > (int)xdp_get_buff_len(xdp) - ETH_HLEN))
+// 		return -EINVAL;
+
+// 	for (i = sinfo->nr_frags - 1; i >= 0 && offset > 0; i--) {
+// 		skb_frag_t *frag = &sinfo->frags[i];
+// 		int shrink = min_t(int, offset, skb_frag_size(frag));
+
+// 		len_free += shrink;
+// 		offset -= shrink;
+// 		if (bpf_xdp_shrink_data(xdp, frag, shrink)) {
+// 			n_frags_free++;
+// 		} else {
+// 			skb_frag_size_sub(frag, shrink);
+// 			break;
+// 		}
+// 	}
+// 	sinfo->nr_frags -= n_frags_free;
+// 	sinfo->xdp_frags_size -= len_free;
+
+// 	if (unlikely(!sinfo->nr_frags)) {
+// 		xdp_buff_clear_frags_flag(xdp);
+// 		xdp->data_end -= offset;
+// 	}
+
+// 	return 0;
+// }
+
+
+
+/* Reserve memory area at end-of data area.
+ *
+ * This macro reserves tailroom in the XDP buffer by limiting the
+ * XDP/BPF data access to data_hard_end.  Notice same area (and size)
+ * is used for XDP_PASS, when constructing the SKB via build_skb().
+ */
+#define xdp_data_hard_end(xdp)				\
+	((xdp)->data_hard_start + (xdp)->frame_sz -	\
+	 SKB_DATA_ALIGN(sizeof(struct skb_shared_info)))
+
+uint64_t bpftime_xdp_adjust_tail(struct xdp_buff * xdp, int offset)
+{
+	void *data_hard_end = xdp_data_hard_end(xdp); /* use xdp->frame_sz */
+	void *data_end = xdp->data_end + offset;
+
+	if (unlikely(xdp_buff_has_frags(xdp))) { /* non-linear xdp buff */
+		if (offset < 0)
+			return bpf_xdp_frags_shrink_tail(xdp, -offset);
+
+		return bpf_xdp_frags_increase_tail(xdp, offset);
+	}
+
+	/* Notice that xdp_data_hard_end have reserved some tailroom */
+	if (unlikely(data_end > data_hard_end))
+		return -EINVAL;
+
+	if (unlikely(data_end < xdp->data + ETH_HLEN))
+		return -EINVAL;
+
+	/* Clear memory area on grow, can contain uninit kernel memory */
+	if (offset > 0)
+		memset(xdp->data_end, 0, offset);
+
+	xdp->data_end = data_end;
+
+	return 0;
 }

@@ -8,6 +8,17 @@ build:
 make -C xdp_progs/
 ```
 
+- [xdp progs](#xdp-progs)
+  - [xdp\_tx](#xdp_tx)
+  - [xdp\_drop](#xdp_drop)
+  - [xdp csum](#xdp-csum)
+  - [xdp\_map\_access](#xdp_map_access)
+  - [xdping server](#xdping-server)
+  - [xdp\_fw](#xdp_fw)
+  - [xdp\_tx\_iptunnel](#xdp_tx_iptunnel)
+  - [remove xdp](#remove-xdp)
+
+
 ## xdp_tx
 
 test with xdp_tx in kernel
@@ -142,9 +153,39 @@ LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/sysca
 
 And start af_xdp:
 
-```sh
-
+```console
+afxdp/src# ./af_xdp_user veth6
 ```
+
+## xdp_fw
+
+aaa
+
+## xdp_tx_iptunnel
+
+example application to use the xdp_adjust_tail helper
+
+```c
+/*
+ * bpf_xdp_adjust_tail
+ *
+ * 	Adjust (move) *xdp_md*\ **->data_end** by *delta* bytes. It is
+ * 	possible to both shrink and grow the packet tail.
+ * 	Shrink done via *delta* being a negative integer.
+ *
+ * 	A call to this helper is susceptible to change the underlying
+ * 	packet buffer. Therefore, at load time, all checks on pointers
+ * 	previously done by the verifier are invalidated and must be
+ * 	performed again, if the helper is used in combination with
+ * 	direct packet access.
+ *
+ * Returns
+ * 	0 on success, or a negative error in case of failure.
+ */
+static long (*bpf_xdp_adjust_tail)(struct xdp_md *xdp_md, int delta) = (void *) 65;
+```
+
+
 
 ## remove xdp
 

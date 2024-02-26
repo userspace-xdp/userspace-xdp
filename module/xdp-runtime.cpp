@@ -7,6 +7,7 @@
 extern "C"
 {
   uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3, uint64_t to_size, uint64_t seed);
+  uint64_t bpftime_xdp_adjust_tail(struct xdp_buff * xdp, int offset);
 }
 #include <cassert>
 #include <cstddef>
@@ -33,7 +34,7 @@ union bpf_attach_ctx_holder
 static bpf_attach_ctx_holder ctx_holder;
 
 bpftime::bpftime_helper_info csum_diff = {.index = 28, .name = "bpftime_csum_diff", .fn = (void *)bpftime_csum_diff};
-
+bpftime::bpftime_helper_info xdp_adjust_tail = {.index = 65, .name = "bpf_xdp_adjust_tail", .fn = (void*)bpftime_xdp_adjust_tail};
 static int load_ebpf_programs()
 {
 
@@ -56,6 +57,7 @@ static int load_ebpf_programs()
       bpftime_helper_group::get_shm_maps_helper_group()
           .add_helper_group_to_prog(new_prog);
       new_prog->bpftime_prog_register_raw_helper(csum_diff);
+      new_prog->bpftime_prog_register_raw_helper(xdp_adjust_tail);
       int res = new_prog->bpftime_prog_load(false);
       if (res < 0)
       {

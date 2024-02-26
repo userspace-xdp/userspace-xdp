@@ -31,7 +31,7 @@ From Linux source tree and samples, and alo from hXDP, see [xdp_progs](xdp_progs
 - [X] xdping(server): use xdp as ping(ICMP) server
 - [ ] xdp_fw: output pkt from a specified interface (redirect)
 - [ ] tx_ip_tunnel: parse pkt up to L4, encapsulate and XDP_TX
-- [ ] xdp_adjust_tail: receive pkt, modify pkt into ICMP pkt and XDP_TX
+- [X] xdp_adjust_tail: receive pkt, modify pkt into ICMP pkt and XDP_TX
 
 Prev examples:
 
