@@ -103,12 +103,14 @@ static int load_ebpf_programs()
 }
 
 extern bpftime::bpftime_map_ops dev_map_ops;
+extern bpftime::bpftime_map_ops lpm_map_ops;
 
 static int register_maps()
 {
 	bpftime_register_map_ops(
 		(int)bpftime::bpf_map_type::BPF_MAP_TYPE_DEVMAP, &dev_map_ops);
-  
+  bpftime_register_map_ops(
+    (int)bpftime::bpf_map_type::BPF_MAP_TYPE_LPM_TRIE, &lpm_map_ops);
 	return 0;
 }
 
