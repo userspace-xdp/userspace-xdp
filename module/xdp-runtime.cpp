@@ -6,18 +6,20 @@
 #include <bpftime_shm.hpp>
 extern "C"
 {
-uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3, uint64_t to_size, uint64_t seed);
+  uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3, uint64_t to_size, uint64_t seed);
 }
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <variant>
+#include <vector>
 
 using namespace bpftime;
 
 static int selected_handler_id = -1;
 
-static bpftime_prog *prog;
+static bpftime_prog *entry_prog = nullptr;
+std::vector<bpftime_prog *> prog_list;
 
 union bpf_attach_ctx_holder
 {
@@ -32,13 +34,12 @@ static bpf_attach_ctx_holder ctx_holder;
 
 bpftime::bpftime_helper_info csum_diff = {.index = 28, .name = "bpftime_csum_diff", .fn = (void *)bpftime_csum_diff};
 
-extern "C" int ebpf_module_init()
+static int load_ebpf_programs()
 {
-  bpftime_initialize_global_shm(shm_open_type::SHM_OPEN_ONLY);
-  ctx_holder.init();
 
   const handler_manager *manager =
       shm_holder.global_shared_memory.get_manager();
+  size_t handler_size = manager->size();
   // TODO: fix load programs
   for (size_t i = 0; i < manager->size(); i++)
   {
@@ -47,31 +48,46 @@ extern "C" int ebpf_module_init()
       const auto &prog = std::get<bpf_prog_handler>(manager->get_handler(i));
       // temp work around: we need to create new attach points in the runtime
       // TODO: fix this hard code name
+      auto new_prog = new bpftime_prog(prog.insns.data(), prog.insns.size(),
+                                       prog.name.c_str());
+      prog_list.push_back(new_prog);
+      bpftime_helper_group::get_kernel_utils_helper_group()
+          .add_helper_group_to_prog(new_prog);
+      bpftime_helper_group::get_shm_maps_helper_group()
+          .add_helper_group_to_prog(new_prog);
+      new_prog->bpftime_prog_register_raw_helper(csum_diff);
+      int res = new_prog->bpftime_prog_load(false);
+      if (res < 0)
+      {
+        fprintf(stderr, "Failed to load eBPF program %s\n", prog.name.c_str());
+        return -1;
+      }
+      printf("load eBPF program %s\n", prog.name.c_str());
       if (prog.name == "xdp_pass")
       {
-        ::prog = new bpftime_prog(prog.insns.data(), prog.insns.size(),
-                                  prog.name.c_str());
-        bpftime_helper_group::get_kernel_utils_helper_group()
-            .add_helper_group_to_prog(::prog);
-        bpftime_helper_group::get_shm_maps_helper_group()
-            .add_helper_group_to_prog(::prog);
-        ::prog->bpftime_prog_register_raw_helper(csum_diff);
-        ::prog->bpftime_prog_load(false);
-        printf("load eBPF program xdp_pass\n");
-        return 0;
+        entry_prog = new_prog;
+        printf("set entry program %s\n", prog.name.c_str());
       }
+      return 0;
     }
   }
+}
+
+extern "C" int ebpf_module_init()
+{
+  bpftime_initialize_global_shm(shm_open_type::SHM_OPEN_ONLY);
+  ctx_holder.init();
+  load_ebpf_programs();
   return -1;
 }
 
 extern "C" int ebpf_module_run_at_handler(void *mem, uint64_t mem_size,
                                           uint64_t *ret)
 {
-  if (!prog)
+  if (!entry_prog)
   {
     fprintf(stderr, "No prog found\n");
     return 0;
   }
-  return prog->bpftime_prog_exec(mem, mem_size, ret);
+  return entry_prog->bpftime_prog_exec(mem, mem_size, ret);
 }

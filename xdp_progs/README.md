@@ -8,7 +8,6 @@ build:
 make -C xdp_progs/
 ```
 
-
 ## xdp_tx
 
 test with xdp_tx in kernel
@@ -121,31 +120,6 @@ counter 1
 counter 3
 ```
 
-## xdping client
-
-run in kernel xdp:
-
-```console
-# xdp_progs/xdping -I veth6  10.0.0.1
-
-Setting up XDP for veth6, please wait...
-XDP setup disrupts network connectivity, hit Ctrl+C to quit
-
-Normal ping RTT data
-[Ignore final RTT; it is distorted by XDP using the reply]
-PING 10.0.0.1 (10.0.0.1) from 10.0.0.10 veth6: 56(84) bytes of data.
-64 bytes from 10.0.0.1: icmp_seq=1 ttl=64 time=0.097 ms
-64 bytes from 10.0.0.1: icmp_seq=2 ttl=64 time=0.223 ms
-64 bytes from 10.0.0.1: icmp_seq=3 ttl=64 time=0.153 ms
-
---- 10.0.0.1 ping statistics ---
-4 packets transmitted, 3 received, 25% packet loss, time 3042ms
-rtt min/avg/max/mdev = 0.097/0.157/0.223/0.051 ms
-
-XDP RTT data:
-Expected 4 samples, got 0
-```
-
 ## xdping server
 
 run in kernel
@@ -164,6 +138,12 @@ run in userspace:
 
 ```sh
 LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdping -s -I veth6 xdp-ebpf-new/base.btf
+```
+
+And start af_xdp:
+
+```sh
+
 ```
 
 ## remove xdp

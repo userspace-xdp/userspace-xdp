@@ -8,15 +8,15 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/xdp-ebpf/loader",
-            "args": ["xdp-ebpf/xdp_lb.bpf.o", "xdp_lb", "veth6"],
+            "program": "${workspaceFolder}/afxdp/src/af_xdp_user",
+            "args": ["veth6"],
             "stopAtEntry": true,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/afxdp/src",
             "environment": [
-                {
-                    "name": "LD_PRELOAD",
-                    "value": "/home/yunwei37/dpdk-startingpoint/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so"
-                },
+                // {
+                //     "name": "LD_PRELOAD",
+                //     "value": "/home/yunwei37/dpdk-startingpoint/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so"
+                // },
 
             ],
             "externalConsole": false,

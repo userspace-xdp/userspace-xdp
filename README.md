@@ -27,8 +27,8 @@ From Linux source tree and samples, and alo from hXDP, see [xdp_progs](xdp_progs
 - [X] xdp_tx: swap the mac address and XDP_TX
 - [X] xdp_map_access: increment counter for incomping packets in array maps
 - [X] xdp_csum: calc the csum of ip and record in a hash map
-- [ ] xdping(client): use xdp as ping(ICMP) client
-- [ ] xdping(server): use xdp as ping(ICMP) server
+<!-- - [ ] xdping(client): use xdp as ping(ICMP) client -->
+- [X] xdping(server): use xdp as ping(ICMP) server
 - [ ] xdp_fw: output pkt from a specified interface (redirect)
 - [ ] tx_ip_tunnel: parse pkt up to L4, encapsulate and XDP_TX
 - [ ] xdp_adjust_tail: receive pkt, modify pkt into ICMP pkt and XDP_TX

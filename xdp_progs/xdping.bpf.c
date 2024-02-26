@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /* Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved. */
-
+#define BPF_NO_GLOBAL_DATA
 #include "vmlinux.h"
 
 #define ICMP_ECHOREPLY		0	/* Echo Reply			*/
@@ -125,69 +125,69 @@ int xdp_pass(struct xdp_md *ctx)
 	icmph->type = ICMP_ECHOREPLY;
 	icmph->checksum = 0;
 	icmph->checksum = ipv4_csum(icmph, ICMP_ECHO_LEN);
-
+	bpf_printk("XDP_TX icmp\n");
 	return XDP_TX;
 }
 
 SEC("xdp")
 int xdping_client(struct xdp_md *ctx)
 {
-	void *data = (void *)(long)ctx->data;
-	struct pinginfo *pinginfo = NULL;
-	struct ethhdr *eth = data;
-	struct icmphdr *icmph;
-	struct iphdr *iph;
-	__u64 recvtime;
-	__be32 raddr;
-	__be16 seq;
-	int ret;
-	__u8 i;
+// 	void *data = (void *)(long)ctx->data;
+// 	struct pinginfo *pinginfo = NULL;
+// 	struct ethhdr *eth = data;
+// 	struct icmphdr *icmph;
+// 	struct iphdr *iph;
+// 	__u64 recvtime;
+// 	__be32 raddr;
+// 	__be16 seq;
+// 	int ret;
+// 	__u8 i;
 
-	ret = icmp_check(ctx, ICMP_ECHOREPLY);
+// 	ret = icmp_check(ctx, ICMP_ECHOREPLY);
 
-	if (ret != XDP_TX)
-		return ret;
+// 	if (ret != XDP_TX)
+// 		return ret;
 
-	iph = data + sizeof(*eth);
-	icmph = data + sizeof(*eth) + sizeof(*iph);
-	raddr = iph->saddr;
+// 	iph = data + sizeof(*eth);
+// 	icmph = data + sizeof(*eth) + sizeof(*iph);
+// 	raddr = iph->saddr;
 
-	/* Record time reply received. */
-	recvtime = bpf_ktime_get_ns();
-	pinginfo = bpf_map_lookup_elem(&ping_map, &raddr);
-	if (!pinginfo || pinginfo->seq != icmph->un.echo.sequence)
-		return XDP_PASS;
+// 	/* Record time reply received. */
+// 	recvtime = bpf_ktime_get_ns();
+// 	pinginfo = bpf_map_lookup_elem(&ping_map, &raddr);
+// 	if (!pinginfo || pinginfo->seq != icmph->un.echo.sequence)
+// 		return XDP_PASS;
 
-	if (pinginfo->start) {
-#pragma clang loop unroll(full)
-		for (i = 0; i < XDPING_MAX_COUNT; i++) {
-			if (pinginfo->times[i] == 0)
-				break;
-		}
-		/* verifier is fussy here... */
-		if (i < XDPING_MAX_COUNT) {
-			pinginfo->times[i] = recvtime -
-					     pinginfo->start;
-			pinginfo->start = 0;
-			i++;
-		}
-		/* No more space for values? */
-		if (i == pinginfo->count || i == XDPING_MAX_COUNT)
-			return XDP_PASS;
-	}
+// 	if (pinginfo->start) {
+// #pragma clang loop unroll(full)
+// 		for (i = 0; i < XDPING_MAX_COUNT; i++) {
+// 			if (pinginfo->times[i] == 0)
+// 				break;
+// 		}
+// 		/* verifier is fussy here... */
+// 		if (i < XDPING_MAX_COUNT) {
+// 			pinginfo->times[i] = recvtime -
+// 					     pinginfo->start;
+// 			pinginfo->start = 0;
+// 			i++;
+// 		}
+// 		/* No more space for values? */
+// 		if (i == pinginfo->count || i == XDPING_MAX_COUNT)
+// 			return XDP_PASS;
+// 	}
 
-	/* Now convert reply back into echo request. */
-	swap_src_dst_mac(data);
-	iph->saddr = iph->daddr;
-	iph->daddr = raddr;
-	icmph->type = ICMP_ECHO;
-	seq = bpf_htons(bpf_ntohs(icmph->un.echo.sequence) + 1);
-	icmph->un.echo.sequence = seq;
-	icmph->checksum = 0;
-	icmph->checksum = ipv4_csum(icmph, ICMP_ECHO_LEN);
+// 	/* Now convert reply back into echo request. */
+// 	swap_src_dst_mac(data);
+// 	iph->saddr = iph->daddr;
+// 	iph->daddr = raddr;
+// 	icmph->type = ICMP_ECHO;
+// 	seq = bpf_htons(bpf_ntohs(icmph->un.echo.sequence) + 1);
+// 	icmph->un.echo.sequence = seq;
+// 	icmph->checksum = 0;
+// 	icmph->checksum = ipv4_csum(icmph, ICMP_ECHO_LEN);
 
-	pinginfo->seq = seq;
-	pinginfo->start = bpf_ktime_get_ns();
+// 	pinginfo->seq = seq;
+// 	pinginfo->start = bpf_ktime_get_ns();
 
 	return XDP_TX;
 }
