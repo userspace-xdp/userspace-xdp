@@ -152,8 +152,8 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 	return XDP_PASS;
 }
 
-SEC("xdp_icmp")
-int _xdp_icmp(struct xdp_md *xdp)
+SEC("xdp")
+int xdp_pass(struct xdp_md *xdp)
 {
 	void *data_end = (void *)(long)xdp->data_end;
 	void *data = (void *)(long)xdp->data;

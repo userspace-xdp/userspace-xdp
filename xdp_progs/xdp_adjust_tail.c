@@ -20,6 +20,7 @@
 #include <time.h>
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
+#include <xdp_adjust_tail.skel.h>
 
 #define STATS_INTERVAL_S 2U
 #define MAX_PCKT_SIZE 600
@@ -79,6 +80,12 @@ static void usage(const char *cmd)
 	printf("    -h Display this help\n");
 }
 
+static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
+			   va_list args)
+{
+	return vfprintf(stderr, format, args);
+}
+
 int main(int argc, char **argv)
 {
 	unsigned char opt_flags[256] = {};
@@ -91,9 +98,9 @@ int main(int argc, char **argv)
 	struct bpf_object *obj;
 	__u32 max_pckt_size = 0;
 	__u32 key = 0;
-	char filename[256];
+	// char filename[256];
 	int err;
-
+    libbpf_set_print(libbpf_print_fn);
 	for (i = 0; i < strlen(optstr); i++)
 		if (optstr[i] != 'h' && 'a' <= optstr[i] && optstr[i] <= 'z')
 			opt_flags[(unsigned char)optstr[i]] = 1;
@@ -144,18 +151,30 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
+	// snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
 
-	obj = bpf_object__open_file(filename, NULL);
-	if (libbpf_get_error(obj))
+	// obj = bpf_object__open_file(filename, NULL);
+	// if (libbpf_get_error(obj))
+	// 	return 1;
+	struct xdp_adjust_tail_bpf* skel = xdp_adjust_tail_bpf__open();
+	if (!skel)
+	{
+		fprintf(stderr, "Failed to open BPF skeleton\n");
 		return 1;
+	}
+	// bpf_program__set_type(prog, BPF_PROG_TYPE_XDP);
 
-	prog = bpf_object__next_program(obj, NULL);
-	bpf_program__set_type(prog, BPF_PROG_TYPE_XDP);
-
-	err = bpf_object__load(obj);
+	// err = bpf_object__load(obj);
+	// if (err)
+	// 	return 1;
+	err = xdp_adjust_tail_bpf__load(skel);
 	if (err)
+	{
+		fprintf(stderr, "Failed to load and verify BPF skeleton\n");
 		return 1;
+	}
+	obj = skel->obj;
+	prog = bpf_object__next_program(obj, NULL);
 
 	prog_fd = bpf_program__fd(prog);
 

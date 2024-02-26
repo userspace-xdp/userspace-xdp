@@ -14,8 +14,8 @@ make -C xdp_progs/
   - [xdp csum](#xdp-csum)
   - [xdp\_map\_access](#xdp_map_access)
   - [xdping server](#xdping-server)
-  - [xdp\_fw](#xdp_fw)
   - [xdp\_tx\_iptunnel](#xdp_tx_iptunnel)
+  - [xdp\_fw](#xdp_fw)
   - [remove xdp](#remove-xdp)
 
 
@@ -157,10 +157,6 @@ And start af_xdp:
 afxdp/src# ./af_xdp_user veth6
 ```
 
-## xdp_fw
-
-aaa
-
 ## xdp_tx_iptunnel
 
 example application to use the xdp_adjust_tail helper
@@ -185,7 +181,59 @@ example application to use the xdp_adjust_tail helper
 static long (*bpf_xdp_adjust_tail)(struct xdp_md *xdp_md, int delta) = (void *) 65;
 ```
 
+run in kernel and test
 
+```console
+# xdp_progs/xdp_adjust_tail
+Missing argument -i
+Start a XDP prog which send ICMP "packet too big" 
+messages if ingress packet is bigger then MAX_SIZE bytes
+Usage: xdp_progs/xdp_adjust_tail [...]
+    -i <ifname|ifindex> Interface
+    -T <stop-after-X-seconds> Default: 0 (forever)
+    -P <MAX_PCKT_SIZE> Default: 600
+    -S use skb-mode
+    -N enforce native mode
+    -F force loading prog
+    -h Display this help
+
+# xdp_progs/xdp_adjust_tail -i veth6 -P 600 -N
+icmp "packet too big" sent:          0 pkts
+icmp "packet too big" sent:          0 pkts
+icmp "packet too big" sent:          0 pkts
+icmp "packet too big" sent:          0 pkts
+icmp "packet too big" sent:          0 pkts
+icmp "packet too big" sent:          0 pkts
+icmp "packet too big" sent:          2 pkts
+icmp "packet too big" sent:          4 pkts
+icmp "packet too big" sent:          6 pkts
+```
+
+use ping to generate trafic:
+
+```console
+# ping -s 650 10.0.0.10
+PING 10.0.0.10 (10.0.0.10) 650(678) bytes of data.
+^C
+--- 10.0.0.10 ping statistics ---
+7 packets transmitted, 0 received, 100% packet loss, time 6121ms
+```
+
+run in userspace:
+
+```sh
+LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_adjust_tail -i veth6 xdp-ebpf-new/base.btf
+```
+
+## xdp_fw
+
+test in kernel
+
+```sh
+xdp_progs/xdp_fw veth6
+```
+
+userpsace is similar.
 
 ## remove xdp
 
