@@ -23,19 +23,9 @@
  */
 
 #define KBUILD_MODNAME "xdp_fw"
-#include <stddef.h>
-#include <stdbool.h>
-#include <string.h>
-#include <linux/bpf.h>
-#include <linux/in.h>
-#include <linux/if_ether.h>
-#include <linux/if_packet.h>
-#include <linux/if_vlan.h>
-#include <linux/ip.h>
-#include <linux/ipv6.h>
-#include <linux/icmpv6.h>
-#include <bpf_endian.h>
-#include <bpf_helpers.h>
+#include "vmlinux.h"
+#include <bpf/bpf_endian.h>
+#include <bpf/bpf_helpers.h>
 
 /* bpf_trace_printk() output:
  * /sys/kernel/debug/tracing/trace_pipe
@@ -47,6 +37,21 @@
 		     ##__VA_ARGS__);			\
 })
 
+
+#define ETH_ALEN 6
+#define ETH_P_802_3_MIN 0x0600
+#define ETH_P_8021Q 0x8100
+#define ETH_P_8021AD 0x88A8
+#define ETH_P_IP 0x0800
+#define ETH_P_IPV6 0x86DD
+#define ETH_P_ARP 0x0806
+#define IPPROTO_ICMPV6 58
+
+#define EINVAL 22
+#define ENETDOWN 100
+#define EMSGSIZE 90
+#define EOPNOTSUPP 95
+#define ENOSPC 28
 
 
 /* linux/if_vlan.h have not exposed this as UAPI, thus mirror some here
@@ -102,22 +107,27 @@ struct vrrp_filter {
 	__u64	total_bytes;
 } __attribute__ ((__aligned__(8)));
 
-struct bpf_map_def SEC("maps") l3_filter = {
-	.type = BPF_MAP_TYPE_PERCPU_HASH,
-	.key_size = sizeof (struct flow_key),
-	.value_size = sizeof (__u64),	/* Drop counter */
-	.max_entries = 32768,
-	.map_flags = BPF_F_NO_PREALLOC,
-};
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
+	__type(key, struct flow_key);
+	__type(value, __u64);
+	__uint(max_entries, 32768);
+	__uint(map_flags, BPF_F_NO_PREALLOC);
+} l3_filter SEC(".maps");
 
-struct bpf_map_def SEC("maps") vrrp_vrid_filter = {
-	.type = BPF_MAP_TYPE_PERCPU_ARRAY,
-	.key_size = sizeof (__u32),
-	.value_size = sizeof (struct vrrp_filter),
-	.max_entries = 256,
-	.map_flags = 0,
-};
-
+// struct bpf_map_def SEC("maps") vrrp_vrid_filter = {
+// 	.type = BPF_MAP_TYPE_PERCPU_ARRAY,
+// 	.key_size = sizeof (__u32),
+// 	.value_size = sizeof (struct vrrp_filter),
+// 	.max_entries = 256,
+// 	.map_flags = 0,
+// };
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+	__type(key, __u32);
+	__type(value, struct vrrp_filter);
+	__uint(max_entries, 256);
+} vrrp_vrid_filter SEC(".maps");
 
 /* ICMPv6 filtering */
 static __always_inline bool
@@ -190,30 +200,32 @@ layer3_filter(void *data, void *data_end, struct parse_pkt *pkt)
 			}
 		}
 	} else if (pkt->l3_proto == ETH_P_IPV6) {
-		ip6h = data + pkt->l3_offset;
-		if (ip6h + 1 > data_end)
-			return XDP_PASS;
+		bpf_printk("only ipv4 is supported\n");
+		// ip6h = data + pkt->l3_offset;
+		// if (ip6h + 1 > data_end)
+		// 	return XDP_PASS;
 
-		/* ICMPv6 filtering */
-		if (ip6h->nexthdr == IPPROTO_ICMPV6) {
-			icmp6h = data + pkt->l3_offset + sizeof(struct ipv6hdr);
-			if (icmp6h + 1 > data_end)
-				return XDP_DROP;
+		// /* ICMPv6 filtering */
+		// if (ip6h->nexthdr == IPPROTO_ICMPV6) {
+		// 	icmp6h = data + pkt->l3_offset + sizeof(struct ipv6hdr);
+		// 	if (icmp6h + 1 > data_end)
+		// 		return XDP_DROP;
 
-			if (icmp6_accept(icmp6h))
-				return XDP_PASS;
-		}
+		// 	if (icmp6_accept(icmp6h))
+		// 		return XDP_PASS;
+		// }
 
-		/* FIXME: fragmentation handling */
-		tot_len = bpf_ntohs(ip6h->payload_len);
-		key.proto = ETH_P_IPV6;
-		__builtin_memcpy(key.addr6, ip6h->daddr.s6_addr32,
-				 sizeof (key.addr6));
-		if (ip6h->nexthdr == IPPROTO_VRRP) {
-			vrrph = data + pkt->l3_offset + sizeof(struct ipv6hdr);
-			if (vrrph + 1 > data_end)
-				return XDP_DROP;
-		}
+		// /* FIXME: fragmentation handling */
+		// tot_len = bpf_ntohs(ip6h->payload_len);
+		// key.proto = ETH_P_IPV6;
+		// __builtin_memcpy(key.addr6, ip6h->daddr.s6_addr32,
+		// 		 sizeof (key.addr6));
+		// if (ip6h->nexthdr == IPPROTO_VRRP) {
+		// 	vrrph = data + pkt->l3_offset + sizeof(struct ipv6hdr);
+		// 	if (vrrph + 1 > data_end)
+		// 		return XDP_DROP;
+		// }
+		return XDP_DROP;
 	} else {
 		return XDP_PASS;
 	}

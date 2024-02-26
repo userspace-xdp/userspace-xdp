@@ -5,7 +5,7 @@
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
 
-#include <csignal>
+#include <signal.h>
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <unistd.h>
