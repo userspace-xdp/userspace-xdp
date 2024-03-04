@@ -1,8 +1,8 @@
 # bpftime load
 
 ```console
-$ cd /home/yunwei37/dpdk-startingpoint/xdp-tutorial/basic01-xdp-pass
-$ sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei37/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so /home/yunwei37/dpdk-startingpoint/xdp-tutorial/basic01-xdp-pass/xdp_pass_user  --dev lo
+$ cd /home/yunwei37/ebpf-xdp-dpdk/xdp-tutorial/basic01-xdp-pass
+$ sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei37/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so /home/yunwei37/ebpf-xdp-dpdk/xdp-tutorial/basic01-xdp-pass/xdp_pass_user  --dev lo
 [2024-01-28 21:44:59.153] [info] [syscall_context.hpp:84] manager constructed
 [2024-01-28 21:44:59.154] [info] [syscall_server_utils.cpp:24] Initialize syscall server
 [2024-01-28 21:44:59][info][142964] Global shm constructed. shm_open_type 0 for bpftime_maps_shm
@@ -16,7 +16,7 @@ libbpf: elf: skipping unrecognized data section(7) xdp_metadata
 libxdp: couldn't get program info: Unknown error -1libxdp: couldn't get program info: Unknown error -1Couldn't attach XDP program on iface 'lo' : Operation not permitted (1)
 INFO [142964]: Global shm destructed
 yunwei37@yunwei-server:~/dpdk-startingpoint/xdp-tutorial/basic01-xdp-pass$ sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yu
-nwei37/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so /home/yunwei37/dpdk-startingpoint/xdp-tutoria
+nwei37/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so /home/yunwei37/ebpf-xdp-dpdk/xdp-tutoria
 l/basic01-xdp-pass/xdp_pass_user  --dev lo
 [2024-01-28 21:45:43.701] [info] [syscall_context.hpp:84] manager constructed
 [2024-01-28 21:45:43.701] [info] [syscall_server_utils.cpp:24] Initialize syscall server

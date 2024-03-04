@@ -44,9 +44,9 @@ static int elem_get_next_key_static(int id, const void *key, void *next_key, boo
 }
 
 bpftime::bpftime_map_ops dev_map_ops{
-    .elem_delete = elem_delete_static,
 	.elem_lookup = elem_lookup_static,
 	.elem_update = elem_update_static,
+    .elem_delete = elem_delete_static,
     .map_get_next_key = elem_get_next_key_static,
 };
 
@@ -79,8 +79,8 @@ long lpm_elem_update(int id, const void *key, const void *value, uint64_t flags,
 
 bpftime::bpftime_map_ops lpm_map_ops{
     .alloc_map = lpm_alloc_map,
-    .elem_delete = lpm_elem_delete,
 	.elem_lookup = lpm_elem_lookup,
 	.elem_update = lpm_elem_update,
+    .elem_delete = lpm_elem_delete,
     .map_get_next_key = nullptr,
 };

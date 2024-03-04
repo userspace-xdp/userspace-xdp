@@ -175,8 +175,14 @@ Before running Pktgen-DPDK, make sure that the Ethernet device (02:01.0) is boun
 
 ## run
 
-```sh
-sudo -E Builddir/app/pktgen -l 0-3 -n 3 -- -P -m "[1:2].0"
+```console
+# sudo -E ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socket-mem 1024 --file-prefix pg --vdev=net_tap0,iface=tapdpdk -- -P -m "[1:2].0"
+
+*** Copyright(c) <2010-2023>, Intel Corporation. All rights reserved.
+*** Pktgen  created by: Keith Wiles -- >>> Powered by DPDK <<<
+
+EAL: Detected CPU lcores: 4
+EAL: Detected NUMA nodes: 1
 ```
 
 ## fix compile error

@@ -31,7 +31,7 @@ $ sudo cat /sys/kernel/debug/tracing/trace_pipe
 load into userspace:
 
 ```console
-$ sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
+$ sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei37/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
 [2024-01-29 00:36:14.781] [info] [syscall_context.hpp:84] manager constructed
 [2024-01-29 00:36:14.782] [info] [syscall_server_utils.cpp:24] Initialize syscall server
 ...
@@ -45,13 +45,13 @@ Expected the progs for eBPF, see `documents/xdp_basic.json`.
 
 ```sh
 cd xdp-basic
-sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
+sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei37/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
 ```
 
 and start the dpdk server
 
 ```sh
-$ sudo SPDLOG_LEVEL=Debug  /home/yunwei37/dpdk-startingpoint/build/base-server  -l 0 --vdev=net_tap0,iface=tapdpdk
+$ sudo SPDLOG_LEVEL=Debug  /home/yunwei37/ebpf-xdp-dpdk/build/base-server  -l 0 --vdev=net_tap0,iface=tapdpdk
 Hello world
 [2024-01-29 14:17:54.060] [info] [bpftime_shm_internal.cpp:617] Global shm constructed. shm_open_type 1 for bpftime_maps_shm
 ...
@@ -71,13 +71,13 @@ received packet, send data to eBPF module
 
 ```sh
 cd xdp-maps
-sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei37/dpdk-startingpoint/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
+sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei37/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
 ```
 
 and start the dpdk server
 
 ```sh
-$ sudo SPDLOG_LEVEL=Debug  /home/yunwei37/dpdk-startingpoint/build/base-server  -l 0 --vdev=net_tap0,iface=tapdpdk
+$ sudo SPDLOG_LEVEL=Debug  /home/yunwei37/ebpf-xdp-dpdk/build/base-server  -l 0 --vdev=net_tap0,iface=tapdpdk
 ...
 recived packet
 already recived 0 packets for size 90
@@ -100,7 +100,7 @@ These examples are using libbpf-rs to develop and load into kernel or userspace.
 libxdp requires a xdp dispatch program, which is more difficult to load into userspace.
 
 ```console
-$ sudo strace /home/yunwei37/dpdk-startingpoint/xdp-tutorial/basic01-xdp-pass/xdp_pass_user  --dev lo 2>syscall.txt
+$ sudo strace /home/yunwei37/ebpf-xdp-dpdk/xdp-tutorial/basic01-xdp-pass/xdp_pass_user  --dev lo 2>syscall.txt
 Success: Loading XDP prog name:xdp_prog_simple(id:192) on device:lo(ifindex:1)
 ```
 
@@ -159,5 +159,5 @@ sudo build-bpftime/bpftime/tools/bpftimetool/bpftimetool remove
 For 2MB page, you can activate hugepages while booting or at anytime after system is booted. Define hugepages setting in /etc/default/grub to activate it while booting, or overwrite the number of 2MB hugepages as following.
 
 ```sh
-$ echo 1024 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+echo 1024 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
 ```
