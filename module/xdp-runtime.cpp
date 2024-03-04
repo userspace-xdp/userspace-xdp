@@ -100,6 +100,7 @@ static int load_ebpf_programs()
 			return 0;
 		}
 	}
+	return 0;
 }
 
 extern bpftime::bpftime_map_ops dev_map_ops;
