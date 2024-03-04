@@ -4,6 +4,13 @@
 
 - [examples and test-bed](#examples-and-test-bed)
   - [Table of Contents](#table-of-contents)
+  - [experiments1: 2 machines](#experiments1-2-machines)
+    - [Testbed Configuration for NF Benchmarking](#testbed-configuration-for-nf-benchmarking)
+    - [System Settings](#system-settings)
+    - [Experiment Procedure](#experiment-procedure)
+  - [experiments2: 3 machine](#experiments2-3-machine)
+    - [Testbed Configuration](#testbed-configuration)
+    - [Network Setup Details](#network-setup-details)
   - [examples list](#examples-list)
     - [1. **xdp\_drop**](#1-xdp_drop)
     - [2. **xdp\_tx**](#2-xdp_tx)
@@ -19,10 +26,88 @@
     - [xdp-observer](#xdp-observer)
     - [xdp-firewall](#xdp-firewall)
 
+There are 2 possible setups maybe used for running the examples:
+
+## experiments1: 2 machines
+
+exp1: with 2 machines, one for the traffic generator and the other for the device under test (DUT).
+
+### Testbed Configuration for NF Benchmarking
+
+To benchmark the Network Functions (NFs), a standard testbed topology was employed, connecting a traffic generator (TG) and a device under test (DUT), with the following setup:
+
+```txt
++--------+    +-----+    +--------+
+|  DUT   |----| TOR |----|   TG   |
+|   NF   |----|     |----| Pktgen |
++--------+    +-----+    +--------+
+              #rx, #tx
+```
+
+- **DUT NF**: Device Under Test with Network Functionality.
+- **TOR**: Top-Of-Rack switch.
+- **TG Pktgen**: Traffic Generator using Pktgen software.
+
+Both the TG and DUT are connected through the TOR switch. Packet counters are collected from the TOR at the end of each experiment to measure packet loss and throughput.
+
+### System Settings
+
+Maybe: Turbo Boost, Hyper-Threading, and power-saving features were disabled for optimal performance, following DPDK recommendations.
+
+### Experiment Procedure
+
+- The Traffic Generator (TG) replays a traffic sample (a PCAP file) in a loop at a predetermined rate for 10 seconds per experiment through the outbound cable.
+- The Device Under Test (DUT) processes this incoming traffic and sends it back through the return cable, enabling the TG to measure latency.
+- Packet loss at the DUT is inferred via the TOR switch, with additional checks to identify any packet loss within the TG itself.
+- DPDK-Pktgen on the TG is used to determine the maximum traffic rate that results in less than 0.1% packet loss.
+- Runs where loss occurred within the TG, rather than the DUT, were excluded and repeated.
+- Scalability tests involve varying the number of CPU cores the NF can utilize, with 10 measurements taken per experimental condition to ensure statistical relevance.
+- Error bars indicating minimum and maximum values were used to represent variability.
+- All experiments accounted for NUMA considerations and indirection table rebalancing.
+
+## experiments2: 3 machine
+
+In our network function (NF) benchmarking setup, we utilized 3 machines, 2 acting as a traffic generator and the other as the device under test (DUT).
+
+### Testbed Configuration
+
+The configuration is as follows:
+
+```plaintext
++------------+          +------------+
+|            |          |            |
+|   Machine  |          |  Machine   |
+|     1      |          |     2      |
+|            |          |            |
+|  MoonGen   |          |  MoonGen   |
+|            |          |            |
+| TX packets |---+  +---| RX packets |
++------------+   |  |   +------------+
+                 |  |
+                 |  |
+            +------------+
+            |            |
+            |  Machine   |
+            |     3      |
+            |    DUT     |
+            |  Firewall  |
+            +------------+
+```
+
+- **Machine 1**: Equipped with MoonGen, generates and sends packets, collecting transmission (TX) statistics.
+- **Machine 2**: Equipped with MoonGen, receives packets and collects reception (RX) statistics.
+- **Machine 3 (DUT)**: The device under test, running a firewall network function.
+
+### Network Setup Details
+
+- Machine 1 uses MoonGen to generate packets and collect TX statistics.
+- Machine 2 uses MoonGen server to receive packets and collect RX statistics.
+- Machine 3, the DUT, processes the packets based on the NFs rules and forwards them to Machine 2.
+- The testbed is designed to measure the throughput and efficiency of the DUT in a controlled environment with specific packet sizes and ACL rules.
 
 ## examples list
 
-In the context of eXpress Data Path (XDP) and the Linux kernel's BPF (Berkeley Packet Filter) capabilities, each of these example applications serves to illustrate different aspects and potential uses of XDP for high-performance packet processing directly on the network driver level. 
+In the context of eXpress Data Path (XDP) and the Linux kernel's BPF (Berkeley Packet Filter) capabilities, each of these example applications serves to illustrate different aspects and potential uses of XDP for high-performance packet processing directly on the network driver level.
 
 Here's a detailed description of each Linux example application:
 
