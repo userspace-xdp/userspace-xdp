@@ -1,4 +1,4 @@
-.PHONY: build
+.PHONY: build dpdk
 
 ROOTDIR=$(shell git rev-parse --show-toplevel)
 DPDK_DIR=$(ROOTDIR)/external/dpdk

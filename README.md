@@ -21,6 +21,8 @@ See [documents/af-xdp-ebpf.md](documents/af-xdp-ebpf.md)
 
 ## examples
 
+For the details of each example, see the README.md in each directory and [examples.md](documents/examples.md)
+
 From Linux source tree and samples, and alo from hXDP, see [xdp_progs](xdp_progs)
 
 - [X] xdp_drop: parse pkt headers up to TCP, and XDP_DROP valid tcp packets

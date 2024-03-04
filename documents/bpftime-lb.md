@@ -166,7 +166,7 @@ make dpdk-ebpf
 Set up the testbed
 
 ```sh
-sudo ./hugepages.sh
+sudo scripts/hugepages.sh
 scripts/testbed-setup.sh 
 ```
 
