@@ -176,13 +176,52 @@ Before running Pktgen-DPDK, make sure that the Ethernet device (02:01.0) is boun
 ## run
 
 ```console
-# sudo -E ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socket-mem 1024 --file-prefix pg --vdev=net_tap0,iface=tapdpdk -- -P -m "[1:2].0"
+sudo scripts/hugepages.sh
+scripts/testbed-setup.sh 
+sudo -E ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socket-mem 512 --file-prefix pg --vdev=net_tap0,iface=tapdpdk -- -P -m "[1:2].0"
+```
 
-*** Copyright(c) <2010-2023>, Intel Corporation. All rights reserved.
-*** Pktgen  created by: Keith Wiles -- >>> Powered by DPDK <<<
+result:
 
-EAL: Detected CPU lcores: 4
-EAL: Detected NUMA nodes: 1
+```console
+root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK# sudo -E ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socket-mem 512 --file-prefix pg --vdev=net_tap0,iface=tapdpdk -- -P -m "[1:2].0"
+- Ports 0-0 of 1   <Main Page>  Copyright(c) <2010-2023>, Intel Corporation
+  Port:Flags        : 0:P------      Single
+\ink State          :         <UP-10000-FD>     ---Total Rate---
+Pkts/s Rx           : 0:P------      Single                    0
+/      Tx           :         <UP-10000-FD>                    0
+MBits/s Rx/Tx       : 0:P------      Single                    0
+/kts/s Rx Max       :         <UP-10000-FD>                    0
+- Ports 0-0 of 1   <Main Page>  Copyright(c) <2010-2023>, Intel Corporation
+  Port:Flags        : 0:P------      Single
+-ink State          :         <UP-10000-FD>     ---Total Rate---
+\ Ports 0-0 of 1   <Main Page>  Copyright(c) <2010-2023>, Intel Corporation
+- Port:Flags        : 0:P------      Single
+Link State          : 0:P------      Single     ---Total Rate---
+Pkts/s Rx           :         <UP-10000-FD>                    0
+       Tx           :                     0                    0
+MBits/s Rx/Tx       :                     0                    0
+Pkts/s Rx Max       :                   0/0                  0/0
+       Tx Max       :                     5                    5
+Broadcast           :                     0                    0
+Multicast           :                     0
+Sizes 64            :                     0
+      65-127        :                     0
+      128-255       :                   576
+      256-511       :                     0
+      512-1023      :                     0
+      1024-1518     :                     0
+Runts/Jumbos        :                     0
+ARP/ICMP Pkts       :                   0/0
+Errors Rx/Tx        :                   0/0
+Total Rx Pkts       :                   0/0
+      Tx Pkts       :                     9
+      Rx/Tx MBs     :                     0
+TCP Flags           :                   0/0
+TCP Seq/Ack         :           74616/74640
+Pattern Type        :               abcd...
+Pktgen:/> 
+Pktgen:/> quit
 ```
 
 ## fix compile error

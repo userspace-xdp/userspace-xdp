@@ -106,3 +106,9 @@ rtt min/avg/max/mdev = 0.659/0.866/1.074/0.209 ms
 ```
 
 ## run moongen
+
+```sh
+sudo ./bind-interfaces.sh
+sudo ./setup-hugetlbfs.sh
+sudo ./build/MoonGen examples/l3-load-latency.lua 0 1
+```
