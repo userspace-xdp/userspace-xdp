@@ -70,6 +70,16 @@ Disassembly of section .text:
   29:   c3                      ret
 ```
 
+Seems the compiler didn't generate SIMD instructions directly in this approach.
+
+Analysis:
+
+```console
+root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/documents/simd-poc# clang -O3 -mavx
+ -Rpass-analysis=loop-vectorize  -c bpf-jit-opt.ll
+remark: <unknown>:0:0: loop not vectorized: cannot identify array bounds [-Rpass-analysis=loop-vectorize]
+```
+
 ## error on clang
 
 ```c

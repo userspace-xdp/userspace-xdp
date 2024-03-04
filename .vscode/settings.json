@@ -102,6 +102,7 @@
         "xdp_adjust_tail.skel.h": "c",
         "stdlib.h": "c",
         "bpf_endian.h": "c",
-        "bpf_helpers.h": "c"
+        "bpf_helpers.h": "c",
+        "*.ipp": "cpp"
     }
 }

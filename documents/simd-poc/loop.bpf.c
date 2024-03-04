@@ -1,7 +1,14 @@
 #define SIZE 1024
 
-void add_arrays(int *a, int *b, int *result) {
-    for (int i = 0; i < SIZE; ++i) {
-        result[i] = a[i] + b[i];
+struct data {
+    int a[SIZE];
+    int b[SIZE];
+    int c[SIZE];
+};
+
+void add_arrays(struct data* d, int size) {
+    // test vectorization
+    for (int i = 0; i < SIZE; i++) {
+        d->c[i] = d->a[i] + d->b[i];
     }
 }

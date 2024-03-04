@@ -1,7 +1,8 @@
 all: loop.bpf.o loop.c.S
 
 loop.bpf.o: loop.bpf.c
-	clang -O3 -target bpf -c loop.bpf.c -o loop.bpf.o
+	clang -O3 -target bpf -g -c loop.bpf.c -o loop.bpf.o
+	clang -S -emit-llvm -O3 -c loop.bpf.c -o loop.bpf.ll
 
 loop.o: loop.bpf.c
 	clang -O3 -c loop.bpf.c -o loop.o
