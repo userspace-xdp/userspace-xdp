@@ -1,6 +1,3 @@
-[submodule "external/dpdk"]
-	path = external/dpdk
-	url = git@github.com:DPDK/dpdk.git
 [submodule "afxdp/lib/libbpf"]
 	path = afxdp/lib/libbpf
 	url = https://github.com/libbpf/libbpf/
@@ -17,3 +14,6 @@
 [submodule "af_xdp_simple/libbpf"]
 	path = af_xdp_simple/libbpf
 	url = https://github.com/libbpf/libbpf/
+[submodule "Pktgen-DPDK"]
+	path = Pktgen-DPDK
+	url = https://github.com/pktgen/Pktgen-DPDK
