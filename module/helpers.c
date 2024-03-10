@@ -384,3 +384,14 @@ uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags)
 		return XDP_DROP;
 	}
 }
+
+int bpf_get_link_xdp_id(int ifindex, __u32 *prog_id, __u32 flags)
+{
+	return -1;
+}
+
+int bpf_get_link_xdp_info(int ifindex, struct xdp_link_info *info,
+			  size_t info_size, __u32 flags)
+{
+	return -1;
+}
