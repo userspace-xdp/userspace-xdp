@@ -28,7 +28,7 @@
 
 There are 2 possible setups maybe used for running the examples:
 
-## experiments1: 2 machines
+## proposal experiments1: 2 machines
 
 exp1: with 2 machines, one for the traffic generator and the other for the device under test (DUT).
 
@@ -65,7 +65,7 @@ Maybe: Turbo Boost, Hyper-Threading, and power-saving features were disabled for
 - Error bars indicating minimum and maximum values were used to represent variability.
 - All experiments accounted for NUMA considerations and indirection table rebalancing.
 
-## experiments2: 3 machine
+## proposal experiments2: 3 machine
 
 In our network function (NF) benchmarking setup, we utilized 3 machines, 2 acting as a traffic generator and the other as the device under test (DUT).
 
