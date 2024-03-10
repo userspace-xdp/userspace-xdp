@@ -4,11 +4,11 @@
 
 - [examples and test-bed](#examples-and-test-bed)
   - [Table of Contents](#table-of-contents)
-  - [experiments1: 2 machines](#experiments1-2-machines)
+  - [proposal experiments1: 2 machines](#proposal-experiments1-2-machines)
     - [Testbed Configuration for NF Benchmarking](#testbed-configuration-for-nf-benchmarking)
     - [System Settings](#system-settings)
     - [Experiment Procedure](#experiment-procedure)
-  - [experiments2: 3 machine](#experiments2-3-machine)
+  - [proposal experiments2: 3 machine](#proposal-experiments2-3-machine)
     - [Testbed Configuration](#testbed-configuration)
     - [Network Setup Details](#network-setup-details)
   - [examples list](#examples-list)
