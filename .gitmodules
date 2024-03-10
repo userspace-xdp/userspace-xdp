@@ -17,3 +17,6 @@
 [submodule "Pktgen-DPDK"]
 	path = Pktgen-DPDK
 	url = https://github.com/pktgen/Pktgen-DPDK
+[submodule "external/dpdk"]
+	path = external/dpdk
+	url = https://github.com/DPDK/dpdk
