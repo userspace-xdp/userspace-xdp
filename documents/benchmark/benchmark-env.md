@@ -229,3 +229,9 @@ default via 146.179.4.1 dev eno8303 proto dhcp src 146.179.4.14 metric 100
 192.168.1.0/24 dev enp24s0f1np1 proto kernel scope link src 192.168.1.13 
 ```
 
+## Test running
+
+```sh
+sudo /home/yunwei/ebpf-xdp-dpdk/external/dpdk/usertools/dpdk-devbind.py --bind=vfio-pci 0000:18:00.1
+sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen  -l 0-4 -n 3 --proc-type auto --socket-mem 256 --file-prefix pg -- -P -m "[1:3].0, [2:4].1"
+```
