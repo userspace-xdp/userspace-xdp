@@ -41,7 +41,7 @@ make -C  build-bpftime -j
 compile `loop.bpf.o` with bpftime-vm AOT cli:
 
 ```sh
-documents/simd-poc# /home/yunwei37/ebpf-xdp-dpdk/build-bpftime/bpftime/vm/cli/bpftime-vm build loop.bpf.o
+documents/simd-poc# /home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/vm/cli/bpftime-vm build loop.bpf.o
 ```
 
 it will generate `add_arrays.o`.
@@ -75,7 +75,7 @@ Seems the compiler didn't generate SIMD instructions directly in this approach.
 Analysis:
 
 ```console
-root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/documents/simd-poc# clang -O3 -mavx
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/documents/simd-poc# clang -O3 -mavx
  -Rpass-analysis=loop-vectorize  -c bpf-jit-opt.ll
 remark: <unknown>:0:0: loop not vectorized: cannot identify array bounds [-Rpass-analysis=loop-vectorize]
 ```
@@ -96,14 +96,14 @@ void add_arrays(float *a, float *b, float *result) {
 will result in the following error:
 
 ```console
-root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/documents/simd-poc# make
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/documents/simd-poc# make
 clang -O3 -target bpf -c loop.bpf.c -o loop.bpf.o
 loop.bpf.c:3:6: error: A call to built-in function '__addsf3' is not supported.
 void add_arrays(float *a, float *b, float *result) {
      ^
 1 error generated.
 make: *** [Makefile:4: loop.bpf.o] Error 1
-root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/documents/simd-poc# make
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/documents/simd-poc# make
 clang -O3 -target bpf -c loop.bpf.c -o loop.bpf.o
 clang -O3 -c loop.bpf.c -o loop.o
 ```

@@ -1,4 +1,4 @@
-execve("/home/yunwei37/ebpf-xdp-dpdk/xdp-tutorial/basic01-xdp-pass/xdp_pass_user", ["/home/yunwei37/dpdk-startingpoin"..., "--dev", "lo"], 0x7ffdf12dcb50 /* 14 vars */) = 0
+execve("/home/yunwei/ebpf-xdp-dpdk/xdp-tutorial/basic01-xdp-pass/xdp_pass_user", ["/home/yunwei37/dpdk-startingpoin"..., "--dev", "lo"], 0x7ffdf12dcb50 /* 14 vars */) = 0
 brk(NULL)                               = 0x55bdbe6c1000
 arch_prctl(0x3001 /* ARCH_??? */, 0x7fff00abca10) = -1 EINVAL (Invalid argument)
 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fae90d9a000

@@ -17,9 +17,9 @@ make
 ## list all information
 
 ```console
-root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK# lspci | grep Ethernet
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK# lspci | grep Ethernet
 02:01.0 Ethernet controller: Intel Corporation 82545EM Gigabit Ethernet Controller (Copper) (rev 01)
-root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK# lscpu
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK# lscpu
 Architecture:            x86_64
   CPU op-mode(s):        32-bit, 64-bit
   Address sizes:         45 bits physical, 48 bits virtual
@@ -76,7 +76,7 @@ Vulnerabilities:
                          BRS Not affected
   Srbds:                 Not affected
   Tsx async abort:       Not affected
-root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK# 
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK# 
 ```
 
 ## config
@@ -163,7 +163,7 @@ Before running Pktgen-DPDK, make sure that the Ethernet device (02:01.0) is boun
 ```console
 # ./scripts/hugepages.sh
 # tools/run.py -s default
->>> sdk '/home/yunwei37/ebpf-xdp-dpdk/external/dpdk/install-dir', target 'x86_64-native-linux-gcc'
+>>> sdk '/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir', target 'x86_64-native-linux-gcc'
 <module 'cfg' from 'cfg/default.cfg'>
 Setup DPDK to run 'pktgen' application from cfg/default.cfg file
 ```
@@ -184,7 +184,6 @@ export LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/
 
 Then, go to the Pktgen-DPDK directory and run:
 
-
 ```console
 sudo scripts/hugepages.sh
 scripts/testbed-setup.sh 
@@ -194,7 +193,7 @@ sudo -E ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socke
 result:
 
 ```console
-root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK# sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socket-mem 512 --file-prefix pg -- -P -m "[1:2].0"
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK# sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socket-mem 512 --file-prefix pg -- -P -m "[1:2].0"
 - Ports 0-0 of 1   <Main Page>  Copyright(c) <2010-2023>, Intel Corporation
   Port:Flags        : 0:P------      Single
 \ink State          :         <UP-10000-FD>     ---Total Rate---
@@ -237,27 +236,27 @@ Pktgen:/> quit
 ## fix compile error
 
 ```console
-root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK# make
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK# make
 >>> Use 'make help' for more commands
 
 ./tools/pktgen-build.sh build
 >>  SDK Path          : /home/yunwei37/ebpf-xdp-dpdk
->>  Install Path      : /home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK
->>  Build Directory   : /home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir
+>>  Install Path      : /home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK
+>>  Build Directory   : /home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir
 >>  Target Directory  : usr/local
->>  Build Path        : /home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir
->>  Target Path       : /home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK/usr/local
+>>  Build Path        : /home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir
+>>  Target Path       : /home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK/usr/local
 
  Build and install values:
    lua_enabled       : -Denable_lua=false
    gui_enabled       : -Denable_gui=false
 
->>> Ninja build in '/home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir' buildtype=release
-meson setup -Dbuildtype=release -Denable_lua=false -Denable_gui=false /home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir
+>>> Ninja build in '/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir' buildtype=release
+meson setup -Dbuildtype=release -Denable_lua=false -Denable_gui=false /home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir
 The Meson build system
 Version: 1.2.1
-Source dir: /home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK
-Build dir: /home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir
+Source dir: /home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK
+Build dir: /home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir
 Build type: native build
 Program cat found: YES (/usr/bin/cat)
 Project name: pktgen
@@ -300,7 +299,7 @@ pktgen 23.10.2
     enable_lua: false
 
 Found ninja-1.11.1 at /usr/bin/ninja
-ninja: Entering directory `/home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir'                                                               
+ninja: Entering directory `/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK/Builddir'                                                               
 [42/69] Compiling C object app/pktgen.p/pktgen-cmds.c.o
 FAILED: app/pktgen.p/pktgen-cmds.c.o 
 cc -Iapp/pktgen.p -Iapp -I../app -Ilib/common -I../lib/common -Ilib/utils -I../lib/utils -Ilib/vec -I../lib/vec -Ilib/plugin -I../lib/plugin -Ilib/cli -I../lib/cli -Ilib/lua -I../lib/lua -I/usr/include/dpdk -I/usr/include/dpdk/../x86_64-linux-gnu/dpdk -I/usr/include/libnl3 -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -Wextra -Wpedantic -Werror -O3 -march=native -mavx -mavx2 -DALLOW_EXPERIMENTAL_API -D_GNU_SOURCE -Wno-pedantic -Wno-format-truncation -pthread -include rte_config.h -march=corei7 '-D__PROJECT_VERSION="23.10.2"' -MD -MQ app/pktgen.p/pktgen-cmds.c.o -MF app/pktgen.p/pktgen-cmds.c.o.d -o app/pktgen.p/pktgen-cmds.c.o -c ../app/pktgen-cmds.c
@@ -328,7 +327,7 @@ cc1: all warnings being treated as errors
 [47/69] Compiling C object app/pktgen.p/cli-functions.c.o
 ninja: build stopped: subcommand failed.
 make: *** [Makefile:15: build] Error 1
-root@yunwei-server:/home/yunwei37/ebpf-xdp-dpdk/Pktgen-DPDK# gcc -v
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK# gcc -v
 Using built-in specs.
 COLLECT_GCC=gcc
 COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper
