@@ -59,3 +59,4 @@ unloader
 .output
 xdp_lb
 main
+*.bin

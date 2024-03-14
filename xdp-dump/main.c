@@ -22,7 +22,7 @@ int handle_event(void *ctx, void *data, size_t len)
     struct event *e = (struct event *)data;
     printf("Got pkt len: %u\n", e->len);
     char fname_buffer[100];
-    sprintf(fname_buffer, "pkt_%d.bin", count);
+    sprintf(fname_buffer, "pkt_%d_%d.bin", count++, e->len);
     FILE *f = fopen(fname_buffer, "w");
     fwrite(e->data, e->len, 1, f);
     fclose(f);

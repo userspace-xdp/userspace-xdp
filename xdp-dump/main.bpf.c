@@ -14,11 +14,10 @@ int xdp_pass(struct xdp_md *ctx)
 {
 	void *data = (void *)(long)ctx->data;
 	void *data_end = (void *)(long)ctx->data_end;
-
-	struct event e;
+	struct event e = {0};
 
 	e.len = data_end - data;
-	bpf_probe_read(&e.data, e.len, data);
+	bpf_xdp_load_bytes(ctx, 0, e.data, 256);
 
 	bpf_ringbuf_output(&ringbuf, &e, sizeof(e), 0);
 
