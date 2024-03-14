@@ -43,7 +43,7 @@ int xdp_pass(struct xdp_md *ctx)
 	rc = XDP_TX;
 
 	h_proto = eth->h_proto;
-	return rc;
+	return XDP_TX;
 }
 
 char _license[] SEC("license") = "GPL";
