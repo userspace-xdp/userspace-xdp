@@ -23,7 +23,8 @@ int handle_event(void *ctx, void *data, size_t len)
     printf("Got pkt len: %u\n", e->len);
     char fname_buffer[100];
     sprintf(fname_buffer, "pkt_%d_%d.bin", count++, e->len);
-    FILE *f = fopen(fname_buffer, "w");
+    FILE *f = fopen(fname_buffer, "wb");
+
     fwrite(e->data, e->len, 1, f);
     fclose(f);
     return 0;

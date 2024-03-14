@@ -4,7 +4,7 @@
 struct event
 {
     unsigned int len;
-    unsigned char data[256];
+    unsigned char data[400];
 };
 
 #endif

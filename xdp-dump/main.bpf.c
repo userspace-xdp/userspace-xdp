@@ -17,7 +17,10 @@ int xdp_pass(struct xdp_md *ctx)
 	struct event e = {0};
 
 	e.len = data_end - data;
-	bpf_xdp_load_bytes(ctx, 0, e.data, 256);
+	unsigned int load_size = e.len > 256 ? 256 : e.len;
+	if (load_size < 14)
+		return XDP_PASS;
+	bpf_xdp_load_bytes(ctx, 0, e.data, load_size);
 
 	bpf_ringbuf_output(&ringbuf, &e, sizeof(e), 0);
 
