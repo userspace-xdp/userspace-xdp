@@ -14,6 +14,10 @@
 struct rte_mempool *pktmbuf_pool;
 static uint8_t port_id = 0;
 
+uint16_t test_callback(uint16_t port_id, uint16_t queue,
+		       struct rte_mbuf *pkts[], uint16_t nb_pkts,
+		       uint16_t max_pkts, void *user_param);
+
 void dpdk_init(int *argc, char ***argv)
 {
 	int ret, nb_ports, i;
@@ -27,17 +31,18 @@ void dpdk_init(int *argc, char ***argv)
 		.rxmode =
 			{
 				/* Disable next 2 fields for debugging on the tap interface */
-				//.mtu = RTE_ETHER_MAX_LEN,
-				//.offloads = DEV_RX_OFFLOAD_IPV4_CKSUM |
+				.mtu = RTE_ETHER_MAX_LEN,
+				// .offloads = DEV_RX_OFFLOAD_IPV4_CKSUM |
 				// DEV_RX_OFFLOAD_KEEP_CRC,
-				.mq_mode = RTE_ETH_MQ_RX_RSS,
+				.mq_mode = RTE_ETH_MQ_RX_NONE,
 			},
 		.rx_adv_conf =
 			{
 				.rss_conf =
 					{
 						.rss_hf = RTE_ETH_RSS_NONFRAG_IPV4_TCP |
-								  RTE_ETH_RSS_NONFRAG_IPV4_UDP,
+								  RTE_ETH_RSS_NONFRAG_IPV4_UDP |
+								  RTE_ETH_RSS_NONFRAG_IPV4_OTHER,
 					},
 			},
 		.txmode =
@@ -53,9 +58,10 @@ void dpdk_init(int *argc, char ***argv)
 	*argv += ret;
 
 	/* create the mbuf pool */
-	pktmbuf_pool =
-		rte_pktmbuf_pool_create("mbuf_pool", NB_MBUF, MEMPOOL_CACHE_SIZE, 0,
-								RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
+	pktmbuf_pool = rte_pktmbuf_pool_create("mbuf_pool", NB_MBUF,
+					       MEMPOOL_CACHE_SIZE, 0,
+					       RTE_MBUF_DEFAULT_BUF_SIZE,
+					       rte_socket_id());
 	if (pktmbuf_pool == NULL)
 		rte_exit(EXIT_FAILURE, "Cannot init mbuf pool\n");
 
@@ -75,6 +81,7 @@ void dpdk_init(int *argc, char ***argv)
 			printf("I found the tap driver\n");
 			break;
 		}
+		// rte_eth_promiscuous_enable(i);
 	}
 
 	nb_rx_q = rte_lcore_count();
@@ -86,23 +93,29 @@ void dpdk_init(int *argc, char ***argv)
 	for (i = 0; i < nb_rx_q; i++) {
 		printf("setting up RX queues...\n");
 		ret = rte_eth_rx_queue_setup(port_id, i, nb_rx_desc,
-									 rte_eth_dev_socket_id(port_id), NULL,
-									 pktmbuf_pool);
+					     rte_eth_dev_socket_id(port_id),
+					     NULL, pktmbuf_pool);
 
 		if (ret < 0)
-			rte_exit(EXIT_FAILURE, "rte_eth_rx_queue_setup:err=%d, port=%u\n",
-					 ret, (unsigned)port_id);
+			rte_exit(EXIT_FAILURE,
+				 "rte_eth_rx_queue_setup:err=%d, port=%u\n",
+				 ret, (unsigned)port_id);
+		// rte_eth_add_rx_callback(port_id, i, test_callback, NULL);
 	}
 
 	for (i = 0; i < nb_tx_q; i++) {
 		printf("setting up TX queues...\n");
 		ret = rte_eth_tx_queue_setup(port_id, i, nb_tx_desc,
-									 rte_eth_dev_socket_id(port_id), NULL);
+					     rte_eth_dev_socket_id(port_id),
+					     NULL);
 
 		if (ret < 0)
-			rte_exit(EXIT_FAILURE, "rte_eth_tx_queue_setup:err=%d, port=%u\n",
-					 ret, (unsigned)port_id);
+			rte_exit(EXIT_FAILURE,
+				 "rte_eth_tx_queue_setup:err=%d, port=%u\n",
+				 ret, (unsigned)port_id);
 	}
+
+	rte_eth_promiscuous_enable(port_id);
 
 	/* start the device */
 	ret = rte_eth_dev_start(port_id);
@@ -117,10 +130,18 @@ void dpdk_init(int *argc, char ***argv)
 	if (!link.link_status)
 		printf("eth:\tlink appears to be down, check connection.\n");
 	else
-		printf("eth:\tlink up - speed %u Mbps, %s\n", (uint32_t)link.link_speed,
-			   (link.link_duplex == RTE_ETH_LINK_FULL_DUPLEX)
-				   ? ("full-duplex")
-				   : ("half-duplex\n"));
+		printf("eth:\tlink up - speed %u Mbps, %s\n",
+		       (uint32_t)link.link_speed,
+		       (link.link_duplex == RTE_ETH_LINK_FULL_DUPLEX) ?
+			       ("full-duplex") :
+			       ("half-duplex\n"));
+	int promiscuous = rte_eth_promiscuous_get(port_id);
+	if (promiscuous == 1) {
+		printf("Promiscuous mode is enabled on port %u.\n", port_id);
+	} else {
+		printf("Promiscuous mode is not enabled on port %u.\n",
+		       port_id);
+	}
 }
 
 void dpdk_terminate(void)
@@ -130,16 +151,42 @@ void dpdk_terminate(void)
 	rte_eth_dev_close(port_id);
 }
 
+uint16_t test_callback(uint16_t port_id, uint16_t queue,
+		       struct rte_mbuf *pkts[], uint16_t nb_pkts,
+		       uint16_t max_pkts, void *user_param)
+{
+	if (nb_pkts == 0)
+		return 0;
+	printf("receive nb_pkts %i\n", (int)nb_pkts);
+	return 0;
+}
+
 void dpdk_poll(void)
 {
 	int ret = 0;
+	static int count = 0;
 	struct rte_mbuf *rx_pkts[BATCH_SIZE];
 
-	ret =
-		rte_eth_rx_burst(port_id, RTE_PER_LCORE(queue_id), rx_pkts, BATCH_SIZE);
-	if (!ret)
-		return;
+	ret = rte_eth_rx_burst(port_id, RTE_PER_LCORE(queue_id), rx_pkts,
+			       BATCH_SIZE);
+	if (count > 100000000) {
+		struct rte_eth_stats stats;
+		rte_eth_stats_get(port_id, &stats);
+		struct rte_eth_xstat xstats;
+		rte_eth_xstats_get(port_id,  &stats, 1);
+		printf("\nReceived %lu packets\n", stats.ipackets);
+		printf("Transmitted %lu packets\n", stats.opackets);
 
+		printf("imissed %lu packets\n", stats.imissed);
+		printf("ierrors %lu packets\n", stats.ierrors);
+		printf("oerrors %lu packets\n", stats.oerrors);
+		printf("rx_nombuf %lu packets\n", stats.rx_nombuf);
+		count = 0;
+	}
+	count++;
+	if (ret != 0) {
+		printf("Received %d packets\n", ret);
+	}
 	for (int i = 0; i < ret; i++)
 		eth_in(rx_pkts[i]);
 }
@@ -149,7 +196,8 @@ void dpdk_out(struct rte_mbuf *pkt)
 	int ret = 0;
 
 	while (1) {
-		ret = rte_eth_tx_burst(port_id, RTE_PER_LCORE(queue_id), &pkt, 1);
+		ret = rte_eth_tx_burst(port_id, RTE_PER_LCORE(queue_id), &pkt,
+				       1);
 		if (ret == 1)
 			break;
 	}

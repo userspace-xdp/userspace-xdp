@@ -248,6 +248,25 @@ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficge
 
 in octopus1:
 
+```console
+$ sudo /home/yunwei/ebpf-xdp-dpdk/external/dpdk/usertools/dpdk-devbind.py --status
+
+Network devices using kernel driver
+===================================
+0000:04:00.0 'NetXtreme BCM5720 Gigabit Ethernet PCIe 165f' if=eno8303 drv=tg3 unused= *Active*
+0000:04:00.1 'NetXtreme BCM5720 Gigabit Ethernet PCIe 165f' if=eno8403 drv=tg3 unused= 
+0000:18:00.0 'MT2892 Family [ConnectX-6 Dx] 101d' if=enp24s0f0np0 drv=mlx5_core unused= 
+0000:18:00.1 'MT2892 Family [ConnectX-6 Dx] 101d' if=enp24s0f1np1 drv=mlx5_core unused= *Active*
+```
+
+and run:
+
 ```sh
-sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:$LD_LIBRARY_PATH  ./build/base-server
+sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:$LD_LIBRARY_PATH  ./build/base-server -l 0 -a 0000:18:00.1
+```
+
+start l2fw
+
+```sh
+sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/: /home/yunwei/ebpf-xdp-dpdk/external/dpdk/examples/l2fwd/build/l2fwd  --socket-mem=512 -a  0000:18:00.1 -- -p 0x1
 ```

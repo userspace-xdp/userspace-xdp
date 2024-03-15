@@ -140,6 +140,7 @@ void eth_in(struct rte_mbuf *pkt_buf)
 	{
 	case XDP_DROP:
 		// TODO
+		rte_pktmbuf_free(pkt_buf);
 		return;
 	case XDP_TX:
 		printf("send packet to dpdk_out\n");
@@ -149,6 +150,7 @@ void eth_in(struct rte_mbuf *pkt_buf)
 			lb_in(pkt_buf);
 		}
 		dpdk_out(pkt_buf);
+		rte_pktmbuf_free(pkt_buf);
 		return;
 	case XDP_PASS:
 		// TODO
