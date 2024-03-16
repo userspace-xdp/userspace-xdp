@@ -37,6 +37,12 @@
 #include <rte_mempool.h>
 #include <rte_mbuf.h>
 #include <rte_string_fns.h>
+#include <xdp-runtime.h>
+
+#define DEBUG_OUTPUT 0
+
+#define DEBUG_PRINT(fmt, args...) \
+    do { if (DEBUG_OUTPUT) fprintf(stderr, fmt, ##args); } while (0)
 
 static volatile bool force_quit;
 
@@ -105,6 +111,8 @@ struct l2fwd_port_statistics {
 	uint64_t tx;
 	uint64_t rx;
 	uint64_t dropped;
+	uint64_t xdp_pass;
+	uint64_t xdp_drop;
 } __rte_cache_aligned;
 struct l2fwd_port_statistics port_statistics[RTE_MAX_ETHPORTS];
 
@@ -117,11 +125,14 @@ static void
 print_stats(void)
 {
 	uint64_t total_packets_dropped, total_packets_tx, total_packets_rx;
+	uint64_t total_xdp_pass, total_xdp_drop;
 	unsigned portid;
 
 	total_packets_dropped = 0;
 	total_packets_tx = 0;
 	total_packets_rx = 0;
+	total_xdp_pass = 0;
+	total_xdp_drop = 0;
 
 	const char clr[] = { 27, '[', '2', 'J', '\0' };
 	const char topLeft[] = { 27, '[', '1', ';', '1', 'H','\0' };
@@ -143,10 +154,16 @@ print_stats(void)
 			   port_statistics[portid].tx,
 			   port_statistics[portid].rx,
 			   port_statistics[portid].dropped);
+		printf("\nXDP pass: %30"PRIu64
+			   "\nXDP drop: %30"PRIu64,
+			   port_statistics[portid].xdp_pass,
+			   port_statistics[portid].xdp_drop);
 
 		total_packets_dropped += port_statistics[portid].dropped;
 		total_packets_tx += port_statistics[portid].tx;
 		total_packets_rx += port_statistics[portid].rx;
+		total_xdp_pass += port_statistics[portid].xdp_pass;
+		total_xdp_drop += port_statistics[portid].xdp_drop;
 	}
 	printf("\nAggregate statistics ==============================="
 		   "\nTotal packets sent: %18"PRIu64
@@ -155,6 +172,10 @@ print_stats(void)
 		   total_packets_tx,
 		   total_packets_rx,
 		   total_packets_dropped);
+	printf("\nTotal XDP pass: %24"PRIu64
+		   "\nTotal XDP drop: %24"PRIu64,
+		   total_xdp_pass,
+		   total_xdp_drop);
 	printf("\n====================================================\n");
 
 	fflush(stdout);
@@ -192,6 +213,18 @@ static void swap_src_dst_mac(void *data)
 	p[5] = dst[2];
 }
 
+// here we use a sightly different one than kernel
+// BTF can help us
+struct xdp_md_userspace
+{
+	uint64_t data;
+	uint64_t data_end;
+	uint32_t data_meta;
+	uint32_t ingress_ifindex;
+	uint32_t rx_queue_index;
+	uint32_t egress_ifindex;
+};
+
 /* Simple forward. 8< */
 static void
 l2fwd_simple_forward(struct rte_mbuf *m, unsigned portid)
@@ -211,7 +244,37 @@ l2fwd_simple_forward(struct rte_mbuf *m, unsigned portid)
 	}
 	unsigned char *payload = rte_pktmbuf_mtod(m, unsigned char *);
 	struct rte_ether_hdr *hdr = (struct rte_ether_hdr *)payload;
-	swap_src_dst_mac(payload);
+
+	// swap_src_dst_mac(payload);
+	uint64_t bpf_ret = 0;
+	struct xdp_md_userspace data;
+	data.data = (uint64_t)payload;
+	data.data_end = data.data + m->data_len;
+	DEBUG_PRINT("\n\nreceived packet, send data to eBPF module %"PRIu64" len: %d\n", data.data, m->data_len);
+
+	/* FIXME: Start your logic from here */
+	ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
+	switch (bpf_ret)
+	{
+	case XDP_DROP:
+		// drop and unhandle the packet
+		port_statistics[dst_port].xdp_drop++;
+		return;
+	case XDP_TX:
+		DEBUG_PRINT("send packet to dpdk_out\n");
+		// give them for tx
+		break;
+	case XDP_PASS:
+		// drop and unhandle the packet
+		port_statistics[dst_port].xdp_pass++;
+		return;
+	case XDP_REDIRECT:
+		// give them for redirect
+		break;
+	default:
+		return;
+	}
+
 	buffer = tx_buffer[dst_port];
 	sent = rte_eth_tx_buffer(dst_port, 0, buffer, m);
 	if (sent)
@@ -681,6 +744,9 @@ main(int argc, char **argv)
 	unsigned nb_ports_in_mask = 0;
 	unsigned int nb_lcores = 0;
 	unsigned int nb_mbufs;
+
+	ebpf_module_init();
+	printf("init eBPF runtime success\n");
 
 	/* Init EAL. 8< */
 	ret = rte_eal_init(argc, argv);

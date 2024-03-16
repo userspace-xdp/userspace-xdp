@@ -17,6 +17,7 @@ static void signal_handler(int signum)
 	}
 }
 
+
 static int thread_main(void *arg)
 {
 	uint32_t thread_id = (int)(long)(arg);

@@ -7,6 +7,7 @@
 #include <base.h>
 #include <net-config.h>
 #include <xdp-runtime.h>
+#include "config.h"
 
 static int eth_out(struct rte_mbuf *pkt_buf, uint16_t h_proto,
 				   struct rte_ether_addr *dst_haddr, uint16_t iplen)
@@ -132,7 +133,7 @@ void eth_in(struct rte_mbuf *pkt_buf)
 	struct xdp_md_userspace data;
 	data.data = (uint64_t)payload;
 	data.data_end = data.data + pkt_buf->data_len;
-	printf("\n\nreceived packet, send data to eBPF module %p len: %d\n", data.data, pkt_buf->data_len);
+	DEBUG_PRINT("\n\nreceived packet, send data to eBPF module %p len: %d\n", data.data, pkt_buf->data_len);
 
 	/* FIXME: Start your logic from here */
 	ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
@@ -143,7 +144,7 @@ void eth_in(struct rte_mbuf *pkt_buf)
 		rte_pktmbuf_free(pkt_buf);
 		return;
 	case XDP_TX:
-		printf("send packet to dpdk_out\n");
+		DEBUG_PRINT("send packet to dpdk_out\n");
 		// eth_out(pkt_buf);
 		if (hdr->ether_type == rte_cpu_to_be_16(RTE_ETHER_TYPE_IPV4))
 		{
@@ -172,7 +173,7 @@ void eth_in(struct rte_mbuf *pkt_buf)
 	}
 	else
 	{
-		printf("Unknown ether type: %" PRIu16 "\n",
+		DEBUG_PRINT("Unknown ether type: %" PRIu16 "\n",
 			   rte_be_to_cpu_16(hdr->ether_type));
 		rte_pktmbuf_free(pkt_buf);
 	}

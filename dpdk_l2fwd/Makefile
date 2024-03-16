@@ -14,7 +14,7 @@ ifneq ($(shell $(PKGCONF) --exists libdpdk && echo 0),0)
 $(error "no installation of DPDK found")
 endif
 
-all: shared
+all: static
 .PHONY: shared static
 shared: build/$(APP)-shared
 	ln -sf $(APP)-shared build/$(APP)
@@ -22,11 +22,29 @@ static: build/$(APP)-static
 	ln -sf $(APP)-static build/$(APP)
 
 PC_FILE := $(shell $(PKGCONF) --path libdpdk 2>/dev/null)
-CFLAGS += -O3 $(shell $(PKGCONF) --cflags libdpdk)
+CFLAGS += -O3 $(shell $(PKGCONF) --cflags libdpdk) -I$(ROOTDIR)/module
 # Add flag to allow experimental API as l2fwd uses rte_ethdev_set_ptype API
 CFLAGS += -DALLOW_EXPERIMENTAL_API
-LDFLAGS_SHARED = $(shell $(PKGCONF) --libs libdpdk)
-LDFLAGS_STATIC = $(shell $(PKGCONF) --static --libs libdpdk)
+ROOTDIR=$(shell git rev-parse --show-toplevel)
+LD_FLAGS_EBPF = -L$(ROOTDIR)/build-bpftime/bpftime/runtime  \
+			-L$(ROOTDIR)/build-bpftime \
+			-L$(ROOTDIR)/build-bpftime/bpftime/vm \
+			-L$(ROOTDIR)/build-bpftime/bpftime/third_party/spdlog \
+			-L$(ROOTDIR)/build-bpftime/bpftime/FridaGum-prefix/src/FridaGum/ \
+			-L$(ROOTDIR)/build-bpftime/bpftime/attach/base_attach_impl \
+			-L$(ROOTDIR)/build-bpftime/bpftime/attach/frida_uprobe_attach_impl \
+			-L$(ROOTDIR)/build-bpftime/bpftime/attach/syscall_trace_attach_impl \
+			-L$(ROOTDIR)/build-bpftime/bpftime/libbpf \
+			-L$(ROOTDIR)/afxdp/lib/xdp-tools/lib/libxdp \
+			-lruntime -lxdp-bpftime  -lxdp \
+			-lpthread -lm -ldl -lconfig -lnuma -lgcov -lstdc++ -lruntime \
+			-lbpftime_base_attach_impl \
+			-lbpftime_frida_uprobe_attach_impl \
+			-lbpftime_syscall_trace_attach_impl \
+			-lvm-bpf -lspdlogd -lbpf \
+			-lfrida-gum -lpthread -lm -ldl -lz -lelf 
+LDFLAGS_SHARED = $(shell $(PKGCONF) --libs libdpdk) $(LD_FLAGS_EBPF)
+LDFLAGS_STATIC = $(shell $(PKGCONF) --static --libs libdpdk) $(LD_FLAGS_EBPF)
 
 ifeq ($(MAKECMDGOALS),static)
 # check for broken pkg-config

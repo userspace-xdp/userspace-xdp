@@ -14,10 +14,6 @@
 struct rte_mempool *pktmbuf_pool;
 static uint8_t port_id = 0;
 
-uint16_t test_callback(uint16_t port_id, uint16_t queue,
-		       struct rte_mbuf *pkts[], uint16_t nb_pkts,
-		       uint16_t max_pkts, void *user_param);
-
 void dpdk_init(int *argc, char ***argv)
 {
 	int ret, nb_ports, i;
@@ -34,7 +30,7 @@ void dpdk_init(int *argc, char ***argv)
 				.mtu = RTE_ETHER_MAX_LEN,
 				// .offloads = DEV_RX_OFFLOAD_IPV4_CKSUM |
 				// DEV_RX_OFFLOAD_KEEP_CRC,
-				.mq_mode = RTE_ETH_MQ_RX_NONE,
+				.mq_mode = RTE_ETH_MQ_RX_RSS,
 			},
 		.rx_adv_conf =
 			{
@@ -115,8 +111,6 @@ void dpdk_init(int *argc, char ***argv)
 				 ret, (unsigned)port_id);
 	}
 
-	rte_eth_promiscuous_enable(port_id);
-
 	/* start the device */
 	ret = rte_eth_dev_start(port_id);
 	if (ret < 0)
@@ -135,13 +129,6 @@ void dpdk_init(int *argc, char ***argv)
 		       (link.link_duplex == RTE_ETH_LINK_FULL_DUPLEX) ?
 			       ("full-duplex") :
 			       ("half-duplex\n"));
-	int promiscuous = rte_eth_promiscuous_get(port_id);
-	if (promiscuous == 1) {
-		printf("Promiscuous mode is enabled on port %u.\n", port_id);
-	} else {
-		printf("Promiscuous mode is not enabled on port %u.\n",
-		       port_id);
-	}
 }
 
 void dpdk_terminate(void)
@@ -169,24 +156,9 @@ void dpdk_poll(void)
 
 	ret = rte_eth_rx_burst(port_id, RTE_PER_LCORE(queue_id), rx_pkts,
 			       BATCH_SIZE);
-	if (count > 100000000) {
-		struct rte_eth_stats stats;
-		rte_eth_stats_get(port_id, &stats);
-		struct rte_eth_xstat xstats;
-		rte_eth_xstats_get(port_id,  &stats, 1);
-		printf("\nReceived %lu packets\n", stats.ipackets);
-		printf("Transmitted %lu packets\n", stats.opackets);
-
-		printf("imissed %lu packets\n", stats.imissed);
-		printf("ierrors %lu packets\n", stats.ierrors);
-		printf("oerrors %lu packets\n", stats.oerrors);
-		printf("rx_nombuf %lu packets\n", stats.rx_nombuf);
-		count = 0;
-	}
-	count++;
-	if (ret != 0) {
-		printf("Received %d packets\n", ret);
-	}
+	if (!ret)
+		return;
+	DEBUG_PRINT("Received %d packets\n", ret);
 	for (int i = 0; i < ret; i++)
 		eth_in(rx_pkts[i]);
 }
