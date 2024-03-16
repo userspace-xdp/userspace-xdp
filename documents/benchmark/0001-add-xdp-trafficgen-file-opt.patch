@@ -1,0 +1,196 @@
+From 139da1919de5f5229bc05fa3b5231ee257449e65 Mon Sep 17 00:00:00 2001
+From: yunwei37 <yunwei356@gmail.com>
+Date: Thu, 14 Mar 2024 23:36:27 +0000
+Subject: [PATCH] add xdp-trafficgen file opt
+
+---
+ xdp-trafficgen/icmp.bin         | Bin 0 -> 98 bytes
+ xdp-trafficgen/xdp-trafficgen.c | 146 ++++++++++++++++++++++++++++++++
+ 2 files changed, 146 insertions(+)
+ create mode 100644 xdp-trafficgen/icmp.bin
+
+diff --git a/xdp-trafficgen/icmp.bin b/xdp-trafficgen/icmp.bin
+new file mode 100644
+index 0000000000000000000000000000000000000000..be986b4fc1100df8551e5b3185acd619fe2a691d
+GIT binary patch
+literal 98
+zcmdmCe@W}9;0_@9Jd=aLm4PAT@iGSn2gb`Y53FG11!8UvhRM?y*csjCc6?4{00N$9
+wb`ZrNASfg(A}S^>At@y-BP%Dbps1v*qN=8@p{b><qpPQHU}$7)Vrpg%0GApUBme*a
+
+literal 0
+HcmV?d00001
+
+diff --git a/xdp-trafficgen/xdp-trafficgen.c b/xdp-trafficgen/xdp-trafficgen.c
+index 293e416..03e3492 100644
+--- a/xdp-trafficgen/xdp-trafficgen.c
++++ b/xdp-trafficgen/xdp-trafficgen.c
+@@ -467,6 +467,150 @@ out:
+         return err;
+ }
+ 
++static const struct fileopt {
++	__u32 num_pkts;
++	struct iface iface;
++	char *file_name;
++	__u16 threads;
++	__u16 interval;
++} defaults_file = {
++	.interval = 1,
++	.threads = 1,
++};
++
++
++static struct prog_option file_options[] = {
++	DEFINE_OPTION("num-packets", OPT_U32, struct fileopt, num_pkts,
++		      .short_opt = 'n',
++		      .metavar = "<port>",
++		      .help = "Number of packets to send"),
++	DEFINE_OPTION("threads", OPT_U16, struct fileopt, threads,
++		      .short_opt = 't',
++		      .metavar = "<threads>",
++		      .help = "Number of simultaneous threads to transmit from"),
++	DEFINE_OPTION("interval", OPT_U16, struct fileopt, interval,
++		      .short_opt = 'I',
++		      .metavar = "<s>",
++		      .help = "Output statistics with this interval"),
++	DEFINE_OPTION("interface", OPT_IFNAME, struct fileopt, iface,
++		      .positional = true,
++		      .metavar = "<ifname>",
++		      .required = true,
++		      .help = "Load on device <ifname>"),
++	DEFINE_OPTION("file_name", OPT_STRING, struct fileopt, file_name,
++		      .positional = true,
++		      .metavar = "<file_name>",
++		      .required = true,
++		      .help = "use file as packet <file_name>"),
++	END_OPTIONS
++};
++
++unsigned char file_pkt[1500];
++
++int do_file(const void *opt, __unused const char *pin_root_path)
++{
++	const struct fileopt *cfg = opt;
++
++	DECLARE_LIBXDP_OPTS(xdp_program_opts, opts);
++	struct thread_config *t = NULL, tcfg = {
++		.pkt = file_pkt,
++		.pkt_size = sizeof(pkt_udp),
++		.num_pkts = cfg->num_pkts,
++	};
++	struct trafficgen_state bpf_state = {};
++	struct xdp_trafficgen *skel = NULL;
++	pthread_t *runner_threads = NULL;
++	struct xdp_program *prog = NULL;
++	int err = 0, i;
++	char buf[100];
++	__u32 key = 0;
++
++	err = probe_kernel_support();
++	if (err)
++		return err;
++
++	FILE *file = fopen(cfg->file_name, "r");
++	if (!file) {
++		err = -errno;
++		pr_warn("Couldn't open file: %s\n", strerror(-err));
++		return err;
++	}
++	int size = fread(file_pkt, 1, sizeof(file_pkt), file);
++	if (size < 0) {
++		err = -errno;
++		pr_warn("Couldn't read file: %s\n", strerror(-err));
++		return err;
++	}
++	printf("read %d bytes from file as packet\n", size);
++	tcfg.pkt_size = size;
++
++	skel = xdp_trafficgen__open();
++	if (!skel) {
++		err = -errno;
++		pr_warn("Couldn't open XDP program: %s\n", strerror(-err));
++		goto out;
++	}
++
++	err = sample_init_pre_load(skel, cfg->iface.ifname);
++	if (err < 0) {
++		pr_warn("Failed to sample_init_pre_load: %s\n", strerror(-err));
++		goto out;
++	}
++
++	skel->rodata->config.ifindex_out = cfg->iface.ifindex;
++
++	opts.prog_name = "xdp_redirect_notouch";
++	opts.obj = skel->obj;
++
++	prog = xdp_program__create(&opts);
++	if (!prog) {
++		err = -errno;
++		libxdp_strerror(err, buf, sizeof(buf));
++		pr_warn("Couldn't open BPF file: %s\n", buf);
++		goto out;
++	}
++
++	err = xdp_trafficgen__load(skel);
++	if (err)
++		goto out;
++
++	err = bpf_map_update_elem(bpf_map__fd(skel->maps.state_map),
++				  &key, &bpf_state, BPF_EXIST);
++	if (err) {
++		err = -errno;
++		pr_warn("Couldn't set initial state map value: %s\n", strerror(-err));
++		goto out;
++	}
++
++	err = sample_init(skel, mask, IFINDEX_LO, cfg->iface.ifindex);
++	if (err < 0) {
++		pr_warn("Failed to initialize sample: %s\n", strerror(-err));
++		goto out;
++	}
++
++	err = create_runners(&runner_threads, &t, cfg->threads, &tcfg, prog);
++	if (err)
++		goto out;
++
++	pr_info("Transmitting on %s (ifindex %d)\n",
++	       cfg->iface.ifname, cfg->iface.ifindex);
++
++	err = sample_run(cfg->interval, NULL, NULL);
++	status_exited = true;
++
++	for (i = 0; i < cfg->threads; i++) {
++		pthread_join(runner_threads[i], NULL);
++		xdp_program__close(t[i].prog);
++	}
++
++out:
++	xdp_program__close(prog);
++	xdp_trafficgen__destroy(skel);
++	free(runner_threads);
++	free(t);
++        return err;
++}
++
+ struct tcp_packet {
+ 	struct ethhdr eth;
+ 	struct ipv6hdr iph;
+@@ -913,6 +1057,7 @@ int do_help(__unused const void *cfg, __unused const char *pin_root_path)
+ 		"COMMAND can be one of:\n"
+ 		"       udp         - run in UDP mode\n"
+ 		"       tcp         - run in TCP mode\n"
++		"       file         - run in no-touch mode, use a file as pkt\n"
+ 		"       help        - show this help message\n"
+ 		"\n"
+ 		"Use 'xdp-trafficgen COMMAND --help' to see options for each command\n");
+@@ -922,6 +1067,7 @@ int do_help(__unused const void *cfg, __unused const char *pin_root_path)
+ static const struct prog_command cmds[] = {
+ 	DEFINE_COMMAND(udp, "Run in UDP mode"),
+ 	DEFINE_COMMAND(tcp, "Run in TCP mode"),
++	DEFINE_COMMAND(file, "Run in no-touch mode"),
+ 	DEFINE_COMMAND(probe, "Probe kernel support"),
+ 	{ .name = "help", .func = do_help, .no_cfg = true },
+ 	END_COMMANDS
+-- 
+2.34.1
+

@@ -301,3 +301,5 @@ LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-serv
 measure with nload on octopus3, by redirecting the traffic from octopus1 back to octopus3:
 
 - kernel xdp: Avg: 943.58 MBit/s (Open the BPF_ENABLE_STATS will reduce the performance to 893.64 MBit/s)
+
+
