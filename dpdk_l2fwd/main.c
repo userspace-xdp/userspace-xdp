@@ -176,6 +176,22 @@ l2fwd_mac_updating(struct rte_mbuf *m, unsigned dest_portid)
 	rte_ether_addr_copy(&l2fwd_ports_eth_addr[dest_portid], &eth->src_addr);
 }
 
+static void swap_src_dst_mac(void *data)
+{
+	unsigned short *p = data;
+	unsigned short dst[3];
+
+	dst[0] = p[0];
+	dst[1] = p[1];
+	dst[2] = p[2];
+	p[0] = p[3];
+	p[1] = p[4];
+	p[2] = p[5];
+	p[3] = dst[0];
+	p[4] = dst[1];
+	p[5] = dst[2];
+}
+
 /* Simple forward. 8< */
 static void
 l2fwd_simple_forward(struct rte_mbuf *m, unsigned portid)
@@ -184,11 +200,18 @@ l2fwd_simple_forward(struct rte_mbuf *m, unsigned portid)
 	int sent;
 	struct rte_eth_dev_tx_buffer *buffer;
 
-	dst_port = l2fwd_dst_ports[portid];
+	// dst_port = l2fwd_dst_ports[portid];
 
-	if (mac_updating)
-		l2fwd_mac_updating(m, dst_port);
-
+	// if (mac_updating)
+	// 	l2fwd_mac_updating(m, dst_port);
+	if (!m)
+	{
+		printf("skip empty packet\n");
+		return;
+	}
+	unsigned char *payload = rte_pktmbuf_mtod(m, unsigned char *);
+	struct rte_ether_hdr *hdr = (struct rte_ether_hdr *)payload;
+	swap_src_dst_mac(payload);
 	buffer = tx_buffer[dst_port];
 	sent = rte_eth_tx_buffer(dst_port, 0, buffer, m);
 	if (sent)
@@ -768,6 +791,9 @@ main(int argc, char **argv)
 		nb_lcores * MEMPOOL_CACHE_SIZE), 8192U);
 
 	/* Create the mbuf pool. 8< */
+	printf("Creating mbuf pool '%s' [%u mbufs] ...\n",
+	       "mbuf_pool", nb_mbufs);
+	printf("mbuf_size: %u\n", RTE_MBUF_DEFAULT_BUF_SIZE);
 	l2fwd_pktmbuf_pool = rte_pktmbuf_pool_create("mbuf_pool", nb_mbufs,
 		MEMPOOL_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE,
 		rte_socket_id());
