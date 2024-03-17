@@ -6,8 +6,6 @@
 #include <libgen.h>
 #include <linux/types.h>
 #include <linux/bpf.h>
-typedef __u16 __sum16;
-typedef __u32 __wsum;
 #include <linux/err.h>
 #include <linux/if_link.h>
 #include <linux/if_xdp.h>
@@ -43,7 +41,7 @@ typedef __u32 __wsum;
 #include <bpf/libbpf.h>
 #include <bpf/bpf.h>
 #include "xdpsock.h"
-
+#include <xdp-runtime.h>
 #ifndef SOL_XDP
 #define SOL_XDP 283
 #endif
@@ -672,9 +670,6 @@ static void hex_dump(void *pkt, size_t length, u64 addr)
 	unsigned char c;
 	char buf[32];
 	int i = 0;
-
-	if (!DEBUG_HEXDUMP)
-		return;
 
 	sprintf(buf, "addr=%llu", addr);
 	printf("length = %zu\n", length);
@@ -1761,7 +1756,8 @@ static void l2fwd(struct xsk_socket_info *xsk)
 		if (!nb_frags++)
 			swap_mac_addresses(pkt);
 
-		hex_dump(pkt, len, addr);
+		if (DEBUG_HEXDUMP)
+			hex_dump(pkt, len, addr);
 
 		struct xdp_desc *tx_desc = xsk_ring_prod__tx_desc(&xsk->tx, idx_tx++);
 
@@ -2029,6 +2025,9 @@ int main(int argc, char **argv)
 	pthread_t pt;
 	int i, ret;
 	void *bufs;
+
+	ebpf_module_init();
+	printf("init eBPF runtime success\n");
 
 	parse_command_line(argc, argv);
 
