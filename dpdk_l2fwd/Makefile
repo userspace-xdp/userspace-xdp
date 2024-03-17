@@ -38,10 +38,13 @@ LD_FLAGS_EBPF = -L$(ROOTDIR)/build-bpftime/bpftime/runtime  \
 			-L$(ROOTDIR)/afxdp/lib/xdp-tools/lib/libxdp \
 			-lruntime -lxdp-bpftime  -lxdp \
 			-lpthread -lm -ldl -lconfig -lnuma -lgcov -lstdc++ -lruntime \
-			-lbpftime_base_attach_impl \
 			-lbpftime_frida_uprobe_attach_impl \
 			-lbpftime_syscall_trace_attach_impl \
-			-lvm-bpf -lspdlogd -lbpf \
+			-lvm-bpf \
+			$(shell /usr/bin/llvm-config-15 --ldflags --link-static) \
+			$(shell /usr/bin/llvm-config-15 --libs --link-static) \
+			$(shell /usr/bin/llvm-config-15 --system-libs --link-static) \
+			-lspdlog -lbpf \
 			-lfrida-gum -lpthread -lm -ldl -lz -lelf 
 LDFLAGS_SHARED = $(shell $(PKGCONF) --libs libdpdk) $(LD_FLAGS_EBPF)
 LDFLAGS_STATIC = $(shell $(PKGCONF) --static --libs libdpdk) $(LD_FLAGS_EBPF)

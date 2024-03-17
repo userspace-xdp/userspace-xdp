@@ -3,7 +3,9 @@
 build bpftime library
 
 ```sh
-cmake -B build-bpftime .  -DBUILD_BPFTIME_DAEMON=0
+cmake -B build-bpftime .  -DBUILD_BPFTIME_DAEMON=0 -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
+## with llvm jit:
+cmake -B build-bpftime .  -DBUILD_BPFTIME_DAEMON=0 -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo -DBPFTIME_LLVM_JIT=1
 make -C  build-bpftime -j
 ```
 

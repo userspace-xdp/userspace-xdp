@@ -21,6 +21,9 @@ We have machine octopus1 and octopus3
   - [generated traffic config](#generated-traffic-config)
   - [if calculate on octopus1, overhead](#if-calculate-on-octopus1-overhead)
   - [xdp tx](#xdp-tx)
+    - [Generate traffic with 1 thread, udp traffic for ipv6](#generate-traffic-with-1-thread-udp-traffic-for-ipv6)
+    - [Generate traffic with 1 thread, icmp traffic for ipv4](#generate-traffic-with-1-thread-icmp-traffic-for-ipv4)
+  - [csum](#csum)
 
 ## steup
 
@@ -249,6 +252,7 @@ default via 146.179.4.1 dev eno8303 proto dhcp src 146.179.4.14 metric 100
 diable xdp for enp24s0f1np1:
 
 ```sh
+sudo ip link set dev enp24s0f1np1 xdp off
 sudo ip link set dev enp24s0f1np1 xdpgeneric off
 ```
 
@@ -287,6 +291,9 @@ sudo ./xdpsock --l2fwd -i enp24s0f1np1
 start l2fw in dpdk:
 
 ```sh
+export PKG_CONFIG_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig
+make -C dpdk_l2fwd/
+
 sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/: /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 ```
 
@@ -298,7 +305,7 @@ nload enp24s0f1np1
 
 ## generated traffic config
 
-thread1:
+thread 1:
 
 ```sh
 $ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen file enp24s0f1np1 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin -t 1
@@ -307,6 +314,28 @@ Transmitting on enp24s0f1np1 (ifindex 6)
 lo->enp24s0f1np1                0 err/s         3,654,912 xmit/s       
 lo->enp24s0f1np1                0 err/s         5,175,504 xmit/s       
 lo->enp24s0f1np1                0 err/s         5,267,649 xmit/s 
+```
+
+thread 4:
+
+```sh
+$ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769 -t 4
+Transmitting on enp24s0f1np1 (ifindex 6)
+lo->enp24s0f1np1                0 err/s        19,610,944 xmit/s       
+lo->enp24s0f1np1                0 err/s        19,738,552 xmit/s       
+lo->enp24s0f1np1                0 err/s        19,920,749 xmit/s       
+lo->enp24s0f1np1                0 err/s        19,553,015 xmit/s       
+lo->enp24s0f1np1                0 err/s        20,085,613 xmit/s   
+```
+
+thread 10:
+
+```sh
+$ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769 -t 10
+Transmitting on enp24s0f1np1 (ifindex 6)
+lo->enp24s0f1np1                0 err/s        30,041,242 xmit/s       
+lo->enp24s0f1np1                0 err/s        29,960,434 xmit/s       
+lo->enp24s0f1np1                0 err/s        30,305,261 xmit/s 
 ```
 
 ## if calculate on octopus1, overhead
@@ -327,16 +356,60 @@ LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-serv
 
 measure with nload on octopus3, by redirecting the traffic from octopus1 back to octopus3. test with 10 seconds and get the average.
 
-Generate traffic with 1 thread, udp traffic for ipv6
+### Generate traffic with 1 thread, udp traffic for ipv6
 
 kernel XDP:
 
-- default config, interpreter: Avg: 960.72 MBit/s Min: 950.74 MBit/s Max: 965.38 MBit/
+- SKB_MODE: Avg: 960.72 MBit/s Min: 950.74 MBit/s Max: 965.38 MBit/
+- DRV_MODE: Avg: 993.19 MBit/s  Min: 945.41 MBit/s Max: 1003.83 MBit/s
 
 AF_XDP:
 
 - `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, interpreter: Avg: 572.23 MBit/s  Min: 565.92 MBit/s  Max: 576.62 MBit/s
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, ubpf jit:  Avg: 778.46 MBit/s  Min: 774.47 MBit/s  Max: 781.60 MBit/s
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit: Avg: Avg: 825.15 MBit/s  Min: 810.29 MBit/s  Max: 830.69 MBit/s
   
 dpdk xdp:  
 
-- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, interpreter: Avg: Avg: 1002.87 MBit/s Min: 982.67 MBit/s Max: 1015.69 MBit/s
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, interpreter: Avg: 985.05 MBit/s Min: 924.11 Max: 1004.02 MBit/s
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, ubpf jit: Avg: 1000.35 MBit/s Min: 987.45 MBit/s Max: 1010.49 MBit/s
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit: Avg: 1002.87 MBit/s Min: 982.67 MBit/s Max: 1015.69 MBit/s
+
+### Generate traffic with 1 thread, icmp traffic for ipv4
+
+kernel XDP:
+
+- Native mode: AVG: 1.27 GBit/s Min: 857.31 MBit/s  Max: 1.30 GBit/s
+
+AF_XDP:
+
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit: Avg: 1.17 GBit/s Min: 1.13 GBit/s Max: 1.20 GBit/s
+
+DPDK:
+
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit: Avg: 1.29 GBit/s Min: 1.26 GBit/s Max: 1.31 GBit/s
+
+## csum
+
+```sh
+LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum enp24s0f1np1 xdp-ebpf-new/base.btf
+```
+
+Generate traffic with 1 thread, icmp traffic for ipv4.
+
+kernel XDP:
+
+```sh
+sudo /home/yunwei/ebpf-xdp-dpdk/xdp_progs/xdp_csum enp24s0f1np1
+```
+
+- Native mode: Avg: 1.22 GBit/s  Min: 1.19 GBit/s Max: 1.25 GBit/s
+- SKB mode: Avg: 726.06 MBit/s Min: 715.02 MBit/s Max: 733.82 MBit/s
+
+AF_XDP:
+
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit: Avg: 1.13 GBit/s Min: 1.09 GBit/s  Max: 1.16 GBit/s
+
+DPDK:
+
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit: Avg: Avg: 1.29 GBit/s  Min: 1.20 GBit/s Max: 1.31 GBit/s

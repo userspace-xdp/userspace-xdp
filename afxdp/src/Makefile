@@ -13,7 +13,6 @@ LDLIBS+= -lpthread  -L$(ROOTDIR)/build-bpftime/bpftime/runtime  \
 			-L$(ROOTDIR)/build-bpftime/bpftime/attach/syscall_trace_attach_impl \
 			-lruntime -lxdp-bpftime $(DPDK_LIBS) \
 			-lpthread -lm -ldl -lconfig -lnuma -lgcov -lstdc++ -lruntime \
-			-lbpftime_base_attach_impl \
 			-lbpftime_frida_uprobe_attach_impl \
 			-lbpftime_syscall_trace_attach_impl \
 			-lvm-bpf -lspdlogd -lbpf \

@@ -61,7 +61,7 @@ int xdp_pass(struct xdp_md *ctx)
 	u32 dummy_int = 23;
 	__u32 csum = 0;
 	int i = 0;
-	bpf_printk("received packet %p %p\n", data, data_end);
+	// bpf_printk("received packet %p %p\n", data, data_end);
 	nh_off = sizeof(*eth);
 	if (data + nh_off > data_end)
 		return rc;
@@ -72,7 +72,7 @@ int xdp_pass(struct xdp_md *ctx)
 		return rc;
 
 	iph = data + nh_off;
-	bpf_printk("iph->protocol\n");
+	// bpf_printk("iph->protocol\n");
 	nh_off +=sizeof(*iph);
 	if (data + nh_off  > data_end)
 		return rc;
@@ -82,12 +82,13 @@ int xdp_pass(struct xdp_md *ctx)
 		iph->check = csum;
 		value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
 	}
-	bpf_printk("csum: %d\n", csum);
+	// bpf_printk("csum: %d\n", csum);
 
 	value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
 	if (value)
 		*value += 1;
-
+	swap_src_dst_mac(data);
+	rc = XDP_TX;
 	return rc;
 }
 
