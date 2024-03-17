@@ -222,6 +222,54 @@ struct xsk_socket_info {
 	u32 outstanding_tx;
 };
 
+// here we use a sightly different one than kernel
+// BTF can help us
+struct xdp_md_userspace
+{
+	__u64 data;
+	__u64 data_end;
+	__u32 data_meta;
+	__u32 ingress_ifindex;
+	__u32 rx_queue_index;
+	__u32 egress_ifindex;
+};
+
+#define DEBUG_OUTPUT 0
+
+#define DEBUG_PRINT(fmt, args...) \
+    do { if (DEBUG_OUTPUT) fprintf(stderr, fmt, ##args); } while (0)
+
+static bool ebpf_process_packet(void *pkt, uint32_t len)
+{
+
+	DEBUG_PRINT("\nreceived packet %p, len %d\n", pkt, len);
+
+	uint64_t bpf_ret = 0;
+	struct xdp_md_userspace data;
+	data.data = (uintptr_t)pkt;
+	data.data_end = data.data + len;
+	// /* FIXME: Start your logic from here */
+	ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
+	DEBUG_PRINT("bpf_ret: %lu\n", bpf_ret);
+	switch (bpf_ret)
+	{
+	case XDP_DROP:
+		// TODO
+		return false;
+	case XDP_PASS:
+		// TODO
+		return true;
+	case XDP_TX:
+		// continue sending packet out
+		return true;
+	case XDP_REDIRECT:
+		// TODO
+		return true;
+	default:
+		return false;
+	}
+}
+
 static const struct clockid_map {
 	const char *name;
 	clockid_t clockid;
@@ -650,7 +698,7 @@ static void xdpsock_cleanup(void)
 		remove_xdp_program();
 }
 
-static void swap_mac_addresses(void *data)
+void swap_mac_addresses(void *data)
 {
 	struct ether_header *eth = (struct ether_header *)data;
 	struct ether_addr *src_addr = (struct ether_addr *)&eth->ether_shost;
@@ -1753,8 +1801,10 @@ static void l2fwd(struct xsk_socket_info *xsk)
 		addr = xsk_umem__add_offset_to_addr(addr);
 		char *pkt = xsk_umem__get_data(xsk->umem->buffer, addr);
 
-		if (!nb_frags++)
-			swap_mac_addresses(pkt);
+		if (!nb_frags++) {
+			// swap_mac_addresses(pkt);
+			ebpf_process_packet(pkt, len);
+		}
 
 		if (DEBUG_HEXDUMP)
 			hex_dump(pkt, len, addr);

@@ -708,32 +708,32 @@ static bool process_packet(struct xsk_socket_info *xsk,
 	// print_mac(eth->h_dest);
 	// printf("h_source ");
 	// print_mac(eth->h_source);
-	// uint64_t bpf_ret = 0;
-	// struct xdp_md_userspace data;
-	// data.data = (uintptr_t)pkt;
-	// data.data_end = data.data + len;
+	uint64_t bpf_ret = 0;
+	struct xdp_md_userspace data;
+	data.data = (uintptr_t)pkt;
+	data.data_end = data.data + len;
 	// /* FIXME: Start your logic from here */
-	// ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
-	// DEBUG_PRINT("bpf_ret: %lu\n", bpf_ret);
-	// switch (bpf_ret)
-	// {
-	// case XDP_DROP:
-	// 	// TODO
-	// 	return false;
-	// case XDP_PASS:
-	// 	// TODO
-	// 	// return true;
-	// 	// in the load balance case, we will send the packet out
-	// 	do_userspace_redirect_demo(pkt);
-	// case XDP_TX:
-	// 	// continue sending packet out
-	// 	break;
-	// case XDP_REDIRECT:
-	// 	// TODO
-	// 	return true;
-	// default:
-	// 	return false;
-	// }
+	ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
+	DEBUG_PRINT("bpf_ret: %lu\n", bpf_ret);
+	switch (bpf_ret)
+	{
+	case XDP_DROP:
+		// TODO
+		return false;
+	case XDP_PASS:
+		// TODO
+		// return true;
+		// in the load balance case, we will send the packet out
+		do_userspace_redirect_demo(pkt);
+	case XDP_TX:
+		// continue sending packet out
+		break;
+	case XDP_REDIRECT:
+		// TODO
+		return true;
+	default:
+		return false;
+	}
 
 	// print_ip_info(pkt, pkt + len);
 	// printf("h_dest ");
@@ -979,7 +979,7 @@ int main(int argc, char **argv)
 	struct xsk_socket_info *xsk_socket;
 	pthread_t stats_poll_thread;
 
-	verbose = 0;
+	verbose = 1;
 
 	/* Global shutdown handler */
 	signal(SIGINT, exit_application);

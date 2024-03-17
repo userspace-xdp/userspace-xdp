@@ -3,34 +3,33 @@ source_filename = "xdpsock_kern.c"
 target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n32:64-S128"
 target triple = "bpf"
 
-%struct.anon = type { [17 x i32]*, [4 x i32]*, [4 x i32]*, [4 x i32]* }
-%struct.xdp_md = type { i32, i32, i32, i32, i32, i32 }
+%struct.anon = type { ptr, ptr, ptr, ptr }
 
 @num_socks = dso_local local_unnamed_addr global i32 0, align 4, !dbg !0
 @rr = internal unnamed_addr global i32 0, align 4, !dbg !32
 @xsks_map = dso_local global %struct.anon zeroinitializer, section ".maps", align 8, !dbg !15
-@llvm.compiler.used = appending global [2 x i8*] [i8* bitcast (i32 (%struct.xdp_md*)* @xdp_sock_prog to i8*), i8* bitcast (%struct.anon* @xsks_map to i8*)], section "llvm.metadata"
+@llvm.compiler.used = appending global [2 x ptr] [ptr @xdp_sock_prog, ptr @xsks_map], section "llvm.metadata"
 
 ; Function Attrs: nounwind
-define dso_local i32 @xdp_sock_prog(%struct.xdp_md* nocapture readnone %0) #0 section "xdp_sock" !dbg !50 {
-  call void @llvm.dbg.value(metadata %struct.xdp_md* undef, metadata !64, metadata !DIExpression()), !dbg !65
-  %2 = load i32, i32* @rr, align 4, !dbg !66, !tbaa !67
+define dso_local i32 @xdp_sock_prog(ptr nocapture readnone %0) #0 section "xdp_sock" !dbg !50 {
+  call void @llvm.dbg.value(metadata ptr poison, metadata !64, metadata !DIExpression()), !dbg !65
+  %2 = load i32, ptr @rr, align 4, !dbg !66, !tbaa !67
   %3 = add i32 %2, 1, !dbg !71
-  %4 = load i32, i32* @num_socks, align 4, !dbg !72, !tbaa !67
+  %4 = load i32, ptr @num_socks, align 4, !dbg !72, !tbaa !67
   %5 = add nsw i32 %4, -1, !dbg !73
   %6 = and i32 %5, %3, !dbg !74
-  store i32 %6, i32* @rr, align 4, !dbg !75, !tbaa !67
+  store i32 %6, ptr @rr, align 4, !dbg !75, !tbaa !67
   %7 = zext i32 %6 to i64, !dbg !76
-  %8 = tail call i64 inttoptr (i64 51 to i64 (i8*, i64, i64)*)(i8* noundef bitcast (%struct.anon* @xsks_map to i8*), i64 noundef %7, i64 noundef 1) #2, !dbg !77
+  %8 = tail call i64 inttoptr (i64 51 to ptr)(ptr noundef nonnull @xsks_map, i64 noundef %7, i64 noundef 1) #2, !dbg !77
   %9 = trunc i64 %8 to i32, !dbg !77
   ret i32 %9, !dbg !78
 }
 
-; Function Attrs: nofree nosync nounwind readnone speculatable willreturn
+; Function Attrs: nocallback nofree nosync nounwind readnone speculatable willreturn
 declare void @llvm.dbg.value(metadata, metadata, metadata) #1
 
 attributes #0 = { nounwind "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
-attributes #1 = { nofree nosync nounwind readnone speculatable willreturn }
+attributes #1 = { nocallback nofree nosync nounwind readnone speculatable willreturn }
 attributes #2 = { nounwind }
 
 !llvm.dbg.cu = !{!2}
@@ -39,7 +38,7 @@ attributes #2 = { nounwind }
 
 !0 = !DIGlobalVariableExpression(var: !1, expr: !DIExpression())
 !1 = distinct !DIGlobalVariable(name: "num_socks", scope: !2, file: !3, line: 17, type: !22, isLocal: false, isDefinition: true)
-!2 = distinct !DICompileUnit(language: DW_LANG_C99, file: !3, producer: "Ubuntu clang version 14.0.0-1ubuntu1.1", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !4, globals: !14, splitDebugInlining: false, nameTableKind: None)
+!2 = distinct !DICompileUnit(language: DW_LANG_C99, file: !3, producer: "Ubuntu clang version 15.0.7", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !4, globals: !14, splitDebugInlining: false, nameTableKind: None)
 !3 = !DIFile(filename: "xdpsock_kern.c", directory: "/home/yunwei/ebpf-xdp-dpdk/afxdp/l2fwd", checksumkind: CSK_MD5, checksum: "e847cac90822b2a31d5a4186de8572f4")
 !4 = !{!5}
 !5 = !DICompositeType(tag: DW_TAG_enumeration_type, name: "xdp_action", file: !6, line: 4363, baseType: !7, size: 32, elements: !8)
@@ -86,7 +85,7 @@ attributes #2 = { nounwind }
 !46 = !{i32 2, !"Debug Info Version", i32 3}
 !47 = !{i32 1, !"wchar_size", i32 4}
 !48 = !{i32 7, !"frame-pointer", i32 2}
-!49 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
+!49 = !{!"Ubuntu clang version 15.0.7"}
 !50 = distinct !DISubprogram(name: "xdp_sock_prog", scope: !3, file: !3, line: 20, type: !51, scopeLine: 21, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !2, retainedNodes: !63)
 !51 = !DISubroutineType(types: !52)
 !52 = !{!22, !53}

@@ -18,6 +18,8 @@ We have machine octopus1 and octopus3
     - [octopus3 setup](#octopus3-setup)
     - [test connection](#test-connection)
   - [helper commands](#helper-commands)
+  - [generated traffic config](#generated-traffic-config)
+  - [if calculate on octopus1, overhead](#if-calculate-on-octopus1-overhead)
   - [xdp tx](#xdp-tx)
 
 ## steup
@@ -257,6 +259,12 @@ sudo /home/yunwei/ebpf-xdp-dpdk/external/dpdk/usertools/dpdk-devbind.py --bind=v
 sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen  -l 0-4 -n 3 --proc-type auto --socket-mem 256 --file-prefix pg -- -P -m "[1:3].0, [2:4].1"
 ```
 
+combined the AF_XDP queue:
+
+```sh
+sudo ethtool -L enp24s0f1np1 combined 1
+```
+
 generate icmp traffic for ipv4:
 
 ```sh
@@ -272,8 +280,8 @@ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficge
 start af_xdp_user:
 
 ```sh
-cd ebpf-xdp-dpdk/afxdp/src
-sudo ./af_xdp_user enp24s0f1np1
+cd ebpf-xdp-dpdk/afxdp/l2fwd
+sudo ./xdpsock --l2fwd -i enp24s0f1np1
 ```
 
 start l2fw in dpdk:
@@ -288,6 +296,25 @@ test with nload on octopus3:
 nload enp24s0f1np1
 ```
 
+## generated traffic config
+
+thread1:
+
+```sh
+$ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen file enp24s0f1np1 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin -t 1
+read 98 bytes from file as packet
+Transmitting on enp24s0f1np1 (ifindex 6)
+lo->enp24s0f1np1                0 err/s         3,654,912 xmit/s       
+lo->enp24s0f1np1                0 err/s         5,175,504 xmit/s       
+lo->enp24s0f1np1                0 err/s         5,267,649 xmit/s 
+```
+
+## if calculate on octopus1, overhead
+
+1 thread
+
+kernel xdp: Avg: 943.58 MBit/s (Open the BPF_ENABLE_STATS will reduce the performance to 893.64 MBit/s)
+
 ## xdp tx
 
 ```sh
@@ -298,8 +325,18 @@ sudo xdp_progs/xdp_tx xdp_progs/.output/xdp_tx.bpf.o enp24s0f1np1
 LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_tx xdp_progs/.output/xdp_tx.bpf.o enp24s0f1np1 xdp-ebpf-new/base.btf
 ```
 
-measure with nload on octopus3, by redirecting the traffic from octopus1 back to octopus3:
+measure with nload on octopus3, by redirecting the traffic from octopus1 back to octopus3. test with 10 seconds and get the average.
 
-- kernel xdp: Avg: 943.58 MBit/s (Open the BPF_ENABLE_STATS will reduce the performance to 893.64 MBit/s)
+Generate traffic with 1 thread, udp traffic for ipv6
 
+kernel XDP:
 
+- default config, interpreter: Avg: 960.72 MBit/s Min: 950.74 MBit/s Max: 965.38 MBit/
+
+AF_XDP:
+
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, interpreter: Avg: 572.23 MBit/s  Min: 565.92 MBit/s  Max: 576.62 MBit/s
+  
+dpdk xdp:  
+
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, interpreter: Avg: Avg: 1002.87 MBit/s Min: 982.67 MBit/s Max: 1015.69 MBit/s
