@@ -23,6 +23,7 @@ We have machine octopus1 and octopus3
   - [xdp tx](#xdp-tx)
     - [Generate traffic with 1 thread, udp traffic for ipv6](#generate-traffic-with-1-thread-udp-traffic-for-ipv6)
     - [Generate traffic with 1 thread, icmp traffic for ipv4](#generate-traffic-with-1-thread-icmp-traffic-for-ipv4)
+  - [array map access](#array-map-access)
   - [csum](#csum)
 
 ## steup
@@ -388,6 +389,29 @@ AF_XDP:
 DPDK:
 
 - `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit: Avg: 1.29 GBit/s Min: 1.26 GBit/s Max: 1.31 GBit/s
+
+## array map access
+
+```sh
+LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_map_access  enp24s0f1np1 xdp-ebpf-new/base.btf
+```
+
+kernel eBPF:
+
+```sh
+sudo xdp_progs/xdp_map_access  enp24s0f1np1 -N
+```
+
+- Native mode: Avg: 1.29 GBit/s Min: 1.26 GBit/s  Max: 1.31 GBit/s
+- SKB mode: Avg: 1.29 GBit/s Min: 1.27 GBit/s Max: 1.30 GBit/s
+
+AF_XDP:
+
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit: Avg: 1.07 GBit/s Min: 1.06 GBit/s Max: 1.08 GBit/s
+
+DPDK:
+
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit: Avg: 1.30 GBit/s  Min: 1.26 GBit/s  Max: 1.31 GBit/s
 
 ## csum
 
