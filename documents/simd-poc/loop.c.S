@@ -5,37 +5,59 @@ loop.o:     file format elf64-x86-64
 Disassembly of section .text:
 
 0000000000000000 <add_arrays>:
-   0:	48 c7 c0 00 fc ff ff 	mov    $0xfffffffffffffc00,%rax
-   7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
-   e:	00 00 
-  10:	f3 0f 6f 84 87 00 20 	movdqu 0x2000(%rdi,%rax,4),%xmm0
-  17:	00 00 
-  19:	f3 0f 6f 8c 87 10 20 	movdqu 0x2010(%rdi,%rax,4),%xmm1
-  20:	00 00 
-  22:	f3 0f 6f 94 87 00 10 	movdqu 0x1000(%rdi,%rax,4),%xmm2
-  29:	00 00 
-  2b:	66 0f fe d0          	paddd  %xmm0,%xmm2
-  2f:	f3 0f 6f 84 87 10 10 	movdqu 0x1010(%rdi,%rax,4),%xmm0
-  36:	00 00 
-  38:	66 0f fe c1          	paddd  %xmm1,%xmm0
-  3c:	f3 0f 6f 8c 87 20 10 	movdqu 0x1020(%rdi,%rax,4),%xmm1
-  43:	00 00 
-  45:	f3 0f 6f 9c 87 30 10 	movdqu 0x1030(%rdi,%rax,4),%xmm3
-  4c:	00 00 
-  4e:	f3 0f 7f 94 87 00 30 	movdqu %xmm2,0x3000(%rdi,%rax,4)
-  55:	00 00 
-  57:	f3 0f 7f 84 87 10 30 	movdqu %xmm0,0x3010(%rdi,%rax,4)
-  5e:	00 00 
-  60:	f3 0f 6f 84 87 20 20 	movdqu 0x2020(%rdi,%rax,4),%xmm0
-  67:	00 00 
-  69:	66 0f fe c1          	paddd  %xmm1,%xmm0
-  6d:	f3 0f 6f 8c 87 30 20 	movdqu 0x2030(%rdi,%rax,4),%xmm1
-  74:	00 00 
-  76:	66 0f fe cb          	paddd  %xmm3,%xmm1
-  7a:	f3 0f 7f 84 87 20 30 	movdqu %xmm0,0x3020(%rdi,%rax,4)
-  81:	00 00 
-  83:	f3 0f 7f 8c 87 30 30 	movdqu %xmm1,0x3030(%rdi,%rax,4)
-  8a:	00 00 
-  8c:	48 83 c0 10          	add    $0x10,%rax
-  90:	0f 85 7a ff ff ff    	jne    10 <add_arrays+0x10>
-  96:	c3                   	ret
+   0:	48 8b 07             	mov    (%rdi),%rax
+   3:	48 8b 57 08          	mov    0x8(%rdi),%rdx
+   7:	48 29 c2             	sub    %rax,%rdx
+   a:	85 d2                	test   %edx,%edx
+   c:	0f 8e a9 00 00 00    	jle    bb <add_arrays+0xbb>
+  12:	89 d1                	mov    %edx,%ecx
+  14:	48 83 f9 08          	cmp    $0x8,%rcx
+  18:	73 07                	jae    21 <add_arrays+0x21>
+  1a:	31 f6                	xor    %esi,%esi
+  1c:	e9 8f 00 00 00       	jmp    b0 <add_arrays+0xb0>
+  21:	83 f9 20             	cmp    $0x20,%ecx
+  24:	73 04                	jae    2a <add_arrays+0x2a>
+  26:	31 f6                	xor    %esi,%esi
+  28:	eb 48                	jmp    72 <add_arrays+0x72>
+  2a:	41 89 d0             	mov    %edx,%r8d
+  2d:	41 83 e0 1f          	and    $0x1f,%r8d
+  31:	48 89 ce             	mov    %rcx,%rsi
+  34:	4c 29 c6             	sub    %r8,%rsi
+  37:	31 ff                	xor    %edi,%edi
+  39:	66 0f 76 c0          	pcmpeqd %xmm0,%xmm0
+  3d:	0f 1f 00             	nopl   (%rax)
+  40:	f3 0f 6f 0c 38       	movdqu (%rax,%rdi,1),%xmm1
+  45:	f3 0f 6f 54 38 10    	movdqu 0x10(%rax,%rdi,1),%xmm2
+  4b:	66 0f f8 c8          	psubb  %xmm0,%xmm1
+  4f:	66 0f f8 d0          	psubb  %xmm0,%xmm2
+  53:	f3 0f 7f 0c 38       	movdqu %xmm1,(%rax,%rdi,1)
+  58:	f3 0f 7f 54 38 10    	movdqu %xmm2,0x10(%rax,%rdi,1)
+  5e:	48 83 c7 20          	add    $0x20,%rdi
+  62:	48 39 fe             	cmp    %rdi,%rsi
+  65:	75 d9                	jne    40 <add_arrays+0x40>
+  67:	4d 85 c0             	test   %r8,%r8
+  6a:	74 4f                	je     bb <add_arrays+0xbb>
+  6c:	41 83 f8 08          	cmp    $0x8,%r8d
+  70:	72 3e                	jb     b0 <add_arrays+0xb0>
+  72:	48 89 f7             	mov    %rsi,%rdi
+  75:	83 e2 07             	and    $0x7,%edx
+  78:	48 89 ce             	mov    %rcx,%rsi
+  7b:	48 29 d6             	sub    %rdx,%rsi
+  7e:	66 0f 76 c0          	pcmpeqd %xmm0,%xmm0
+  82:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+  89:	1f 84 00 00 00 00 00 
+  90:	f3 0f 7e 0c 38       	movq   (%rax,%rdi,1),%xmm1
+  95:	66 0f f8 c8          	psubb  %xmm0,%xmm1
+  99:	66 0f d6 0c 38       	movq   %xmm1,(%rax,%rdi,1)
+  9e:	48 83 c7 08          	add    $0x8,%rdi
+  a2:	48 39 fe             	cmp    %rdi,%rsi
+  a5:	75 e9                	jne    90 <add_arrays+0x90>
+  a7:	48 85 d2             	test   %rdx,%rdx
+  aa:	74 0f                	je     bb <add_arrays+0xbb>
+  ac:	0f 1f 40 00          	nopl   0x0(%rax)
+  b0:	fe 04 30             	incb   (%rax,%rsi,1)
+  b3:	48 ff c6             	inc    %rsi
+  b6:	48 39 f1             	cmp    %rsi,%rcx
+  b9:	75 f5                	jne    b0 <add_arrays+0xb0>
+  bb:	31 c0                	xor    %eax,%eax
+  bd:	c3                   	ret    

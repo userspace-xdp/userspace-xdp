@@ -1,14 +1,17 @@
-#define SIZE 1024
-
-struct data {
-    int a[SIZE];
-    int b[SIZE];
-    int c[SIZE];
+struct xdp_md
+{
+	void* data;
+	void* data_end;
 };
 
-void add_arrays(struct data* d, int size) {
+
+int add_arrays(struct xdp_md *ctx) {
+    char *data_end = ctx->data_end;
+	char *data = ctx->data;
+    int size = data_end - data;
     // test vectorization
-    for (int i = 0; i < SIZE; i++) {
-        d->c[i] = d->a[i] + d->b[i];
+    for (int i = 0; i < size; i++) {
+        data[i] = data[i] + 1;
     }
+    return 0;
 }

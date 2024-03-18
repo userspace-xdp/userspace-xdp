@@ -41,7 +41,7 @@ make -C  build-bpftime -j
 compile `loop.bpf.o` with bpftime-vm AOT cli:
 
 ```sh
-documents/simd-poc# /home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/vm/cli/bpftime-vm build loop.bpf.o
+/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/vm/cli/bpftime-vm build loop.bpf.o
 ```
 
 it will generate `add_arrays.o`.
@@ -79,6 +79,79 @@ root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/documents/simd-poc# clang -O3 -mav
  -Rpass-analysis=loop-vectorize  -c bpf-jit-opt.ll
 remark: <unknown>:0:0: loop not vectorized: cannot identify array bounds [-Rpass-analysis=loop-vectorize]
 ```
+
+## can be vectorized in clang C but not in eBPF case 1: loop
+
+```c
+struct xdp_md
+{
+	void* data;
+	void* data_end;
+};
+
+
+int add_arrays(struct xdp_md *ctx) {
+    char *data_end = ctx->data_end;
+	char *data = ctx->data;
+    int size = data_end - data;
+    // test vectorization
+    for (int i = 0; i < size; i++) {
+        data[i] = data[i] + 1;
+    }
+    return 0;
+}
+```
+
+will result in:
+
+```console
+$ clang -O3 -mavx -Rpass-analysis=loop-vectorize  -c  loop.bpf.ll
+remark: <unknown>:0:0: loop not vectorized: unsafe dependent memory operations in loop. Use #pragma loop distribute(enable) to allow loop distribution to attempt to isolate the offending operations into a separate loop
+Unknown data dependence. [-Rpass-analysis=loop-vectorize]
+```
+
+
+## can be vectorized in clang C but not in eBPF case 2: loop1
+
+```c
+struct xdp_md
+{
+	void* data;
+	void* data_end;
+};
+
+#define BUFFER_SIZE 64
+
+int add_arrays(struct xdp_md *ctx) {
+    char *data_end = ctx->data_end;
+	char *data = ctx->data;
+    char buffer[BUFFER_SIZE];
+    int size = data_end - data;
+    if (size < BUFFER_SIZE) {
+        return -1;
+    }
+    // test vectorization
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        buffer[i] = data[i] + 1;
+    }
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        data[i] = buffer[i];
+    }
+    return 0;
+}
+
+```
+
+will result in:
+
+```console
+$ clang -O3 -mavx -Rpass-analysis=loop-vectorize  -c  loop1.bpf.ll
+remark: <unknown>:0:0: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+remark: <unknown>:0:0: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+yunwei@octopus1:~/ebpf-xdp-dpdk/documents/simd-poc$ 
+```
+
+```c
 
 ## error on clang
 
