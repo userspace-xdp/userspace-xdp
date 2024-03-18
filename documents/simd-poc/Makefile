@@ -15,7 +15,7 @@ loop1.bpf.o: loop1.bpf.c
 loop2.bpf.o: loop2.bpf.c
 	clang -target bpf -g -c loop2.bpf.c -o loop2.bpf.o
 	clang -O3 -c loop2.bpf.c -o loop2.o
-	clang -S -emit-llvm -O3 -c loop2.bpf.c -o loop2.ll
+	clang -S -emit-llvm -c loop2.bpf.c -o loop2.ll
 	objdump -S loop2.o > loop2.c.S
 
 xdp_tx.bpf.o: xdp_tx.bpf.c

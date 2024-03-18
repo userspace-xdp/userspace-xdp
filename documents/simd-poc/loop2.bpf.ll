@@ -4,7 +4,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 target triple = "x86_64-pc-linux-gnu"
 
 ; Function Attrs: nofree norecurse nosync nounwind
-define i64 @bpf_main(ptr %0, i64 %1) local_unnamed_addr #0 {
+define i64 @bpf_main(ptr noundef %0, i64 %1) #0 {
 setupBlock:
   %2 = ptrtoint ptr %0 to i64
   br label %bb_inst_9
