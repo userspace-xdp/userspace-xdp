@@ -40,9 +40,9 @@ inline int xdp_pass(struct xdp_md *ctx)
 	return XDP_TX;
 }
 
-int batch_xdp_pass(struct xdp_md *ctx_array[], int array_size) {
+int batch_xdp_pass(struct xdp_md *ctx_array[]) {
 	// test vectorization
-	for (int i = 0; i < array_size; i++) {
+	for (int i = 0; i < 16; i++) {
 		xdp_pass(ctx_array[i]);
 	}
 	return XDP_TX;

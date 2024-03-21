@@ -7,7 +7,7 @@
 extern "C" {
 uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3,
 			   uint64_t to_size, uint64_t seed);
-uint64_t bpftime_xdp_adjust_tail(struct xdp_buff *xdp, int offset);
+uint64_t bpftime_xdp_adjust_tail(struct xdp_buff *xdp, __u64 offset);
 uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags);
 }
 #include <cassert>

@@ -20,8 +20,8 @@ LDLIBS += -lpthread -L$(ROOTDIR)/build-bpftime/bpftime/runtime  \
 			$(shell /usr/bin/llvm-config-15 --libs --link-static) \
 			$(shell /usr/bin/llvm-config-15 --system-libs --link-static) \
 			-lspdlog -lbpf \
-			-lfrida-gum -lpthread -lm -ldl -lz -lelf
-CFLAGS += -I$(ROOTDIR)/ -I$(ROOTDIR)/module $(shell /usr/bin/llvm-config-15 --cflags)
+			-lfrida-gum -lpthread -lm -ldl -lz -lelf -flto
+CFLAGS += -I$(ROOTDIR)/ -I$(ROOTDIR)/module $(shell /usr/bin/llvm-config-15 --cflags) -g -O3 -flto
 LIB_DIR = ../lib
 
 include $(LIB_DIR)/common.mk
