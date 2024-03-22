@@ -61,6 +61,9 @@ bpftime::bpftime_helper_info bpf_redirect_map = {
 
 static bool if_enable_jit() {
 	char *env = getenv("DISABLE_JIT");
+	if (env != nullptr) {
+		printf("disable JIT\n");
+	}
 	return env == nullptr;
 }
 
@@ -81,6 +84,7 @@ static int load_ebpf_programs()
 			auto new_prog = new bpftime_prog(prog.insns.data(),
 							 prog.insns.size(),
 							 prog.name.c_str());
+			printf("find eBPF program %s   %d\n", prog.name.c_str(), prog.insns.size());
 			prog_list.push_back(new_prog);
 			bpftime_helper_group::get_kernel_utils_helper_group()
 				.add_helper_group_to_prog(new_prog);

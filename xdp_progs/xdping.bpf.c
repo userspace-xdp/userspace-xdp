@@ -115,7 +115,6 @@ int xdp_pass(struct xdp_md *ctx)
 	ret = icmp_check(ctx, ICMP_ECHO);
 	if (ret != XDP_TX)
 		return ret;
-	return XDP_PASS;
 	iph = data + sizeof(*eth);
 	icmph = data + sizeof(*eth) + sizeof(*iph);
 	raddr = iph->saddr;

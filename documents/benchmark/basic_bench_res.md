@@ -492,8 +492,8 @@ run in kernel:
 sudo xdp_progs/xdping -s -I enp24s0f1np1 -N
 ```
 
-- Native mode: Avg: 491.63 MBit/s Min: 490.81 MBit/s Max: 492.15 MBit/s
-- SKB mode: Avg: 461.23 MBit/s Min: 460.68 MBit/s Max: 461.66 MBit/s
+- Native mode: Avg: 1.31 GBit/s Min: 1.28 GBit/s Max: 1.34 GBit/s
+- SKB mode: Avg: Avg: 1.33 GBit/s Min: 1.29 GBit/s Max: 1.35 GBit/s
 
 In userspace:
 
