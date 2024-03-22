@@ -26,6 +26,7 @@ We have machine octopus1 and octopus3
     - [Generate traffic with 1 thread, icmp traffic for ipv4](#generate-traffic-with-1-thread-icmp-traffic-for-ipv4)
   - [array map access](#array-map-access)
   - [csum](#csum)
+  - [xdping](#xdping)
 
 ## steup
 
@@ -482,3 +483,23 @@ DPDK:
 
 - `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(Without LTO):  Avg: 733.70 MBit/s Min: 732.48 MBit/s Max: 734.27 MBit/s
 - `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(With LTO): Avg: 932.87 MBit/s Min: 930.36 MBit/s Max: 934.84 MBit/s
+
+## xdping
+
+run in kernel:
+
+```sh
+sudo xdp_progs/xdping -s -I enp24s0f1np1 -N
+```
+
+- Native mode: Avg: 491.63 MBit/s Min: 490.81 MBit/s Max: 492.15 MBit/s
+- SKB mode: Avg: 461.23 MBit/s Min: 460.68 MBit/s Max: 461.66 MBit/s
+
+In userspace:
+
+```sh
+LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdping -s -I enp24s0f1np1 xdp-ebpf-new/base.btf
+```
+
+Run with AF_XDP:
+

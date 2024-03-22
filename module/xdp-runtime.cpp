@@ -59,6 +59,11 @@ bpftime::bpftime_helper_info bpf_redirect_map = {
 	.fn = (void *)bpftime_redirect_map
 };
 
+static bool if_enable_jit() {
+	char *env = getenv("DISABLE_JIT");
+	return env == nullptr;
+}
+
 static int load_ebpf_programs()
 {
 	const handler_manager *manager =
@@ -84,7 +89,7 @@ static int load_ebpf_programs()
 			new_prog->bpftime_prog_register_raw_helper(csum_diff);
 			new_prog->bpftime_prog_register_raw_helper(
 				xdp_adjust_tail);
-			int res = new_prog->bpftime_prog_load(true);
+			int res = new_prog->bpftime_prog_load(if_enable_jit());
 			if (res < 0) {
 				fprintf(stderr,
 					"Failed to load eBPF program %s\n",

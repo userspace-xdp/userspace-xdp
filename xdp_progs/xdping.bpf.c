@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /* Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved. */
 #define BPF_NO_GLOBAL_DATA
-#include "vmlinux.h"
+
+#include "def.bpf.h"
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_endian.h>
 
 #define ICMP_ECHOREPLY		0	/* Echo Reply			*/
 #define ICMP_DEST_UNREACH	3	/* Destination Unreachable	*/
@@ -21,8 +24,6 @@
 #define ETH_P_IP 0x0800
 #define ETH_P_IPV6 0x86DD
 
-#include <bpf/bpf_helpers.h>
-#include <bpf/bpf_endian.h>
 
 #include "xdping.h"
 
@@ -78,7 +79,7 @@ static __always_inline int icmp_check(struct xdp_md *ctx, int type)
 
 	if (eth->h_proto != bpf_htons(ETH_P_IP))
 		return XDP_PASS;
-	bpf_printk("eth->h_proto\n");
+	// bpf_printk("eth->h_proto\n");
 	iph = data + sizeof(*eth);
 
 	if (iph->protocol != IPPROTO_ICMP)
@@ -88,7 +89,7 @@ static __always_inline int icmp_check(struct xdp_md *ctx, int type)
 		return XDP_PASS;
 
 	icmph = data + sizeof(*eth) + sizeof(*iph);
-	bpf_printk("icmph %p", icmph);
+	// bpf_printk("icmph %p", icmph);
 	// return XDP_PASS;
 	// if (&(icmph->type) > data_end) {
 	// 	bpf_printk("XDP_PASS for invalid icmp\n");
@@ -96,7 +97,7 @@ static __always_inline int icmp_check(struct xdp_md *ctx, int type)
 	// }
 	if (icmph->type != type)
 		return XDP_PASS;
-	bpf_printk("XDP_TX icmp\n");
+	// bpf_printk("XDP_TX icmp\n");
 	return XDP_TX;
 }
 
@@ -109,7 +110,7 @@ int xdp_pass(struct xdp_md *ctx)
 	struct iphdr *iph;
 	__be32 raddr;
 	int ret;
-	bpf_printk("get data %p %p\n", data, ctx->data_end);
+	// bpf_printk("get data %p %p\n", data, ctx->data_end);
 
 	ret = icmp_check(ctx, ICMP_ECHO);
 	if (ret != XDP_TX)
@@ -125,7 +126,7 @@ int xdp_pass(struct xdp_md *ctx)
 	icmph->type = ICMP_ECHOREPLY;
 	icmph->checksum = 0;
 	icmph->checksum = ipv4_csum(icmph, ICMP_ECHO_LEN);
-	bpf_printk("XDP_TX icmp\n");
+	// bpf_printk("XDP_TX icmp\n");
 	return XDP_TX;
 }
 
