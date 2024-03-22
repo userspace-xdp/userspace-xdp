@@ -176,8 +176,27 @@ enum bpf_map_type {
 	__MAX_BPF_MAP_TYPE = 33,
 };
 
+struct icmphdr {
+	__u8 type;
+	__u8 code;
+	__sum16 checksum;
+	union {
+		struct {
+			__be16 id;
+			__be16 sequence;
+		} echo;
+		__be32 gateway;
+		struct {
+			__be16 __unused;
+			__be16 mtu;
+		} frag;
+		__u8 reserved[4];
+	} un;
+};
+
 struct iphdr* _iphdr_ptr;
 struct tcphdr* tcphdr_ptr;
+struct icmphdr *icmphdr_ptr;
 
 int main() {
     return 0;
