@@ -152,10 +152,17 @@ static int parse_ports(const char *port_str, int *min_port, int *max_port)
 	return 0;
 }
 
+static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
+			   va_list args)
+{
+	return vfprintf(stderr, format, args);
+}
+
+
 int main(int argc, char **argv)
 {
 	int min_port = 0, max_port = 0, vip2tnl_map_fd;
-	const char *optstr = "i:a:p:s:d:m:T:P:FSNh";
+	const char *optstr = "i:a:b:p:s:d:m:T:P:FSNh";
 	unsigned char opt_flags[256] = {};
 	struct bpf_prog_info info = {};
 	__u32 info_len = sizeof(info);
@@ -257,7 +264,7 @@ int main(int argc, char **argv)
 			return 1;
 		}
 	}
-
+    libbpf_set_print(libbpf_print_fn);
 	if (!ifindex) {
 		fprintf(stderr, "Invalid ifname\n");
 		return 1;
@@ -315,8 +322,7 @@ int main(int argc, char **argv)
 	}
 
 	if (bpf_xdp_attach(ifindex, prog_fd, xdp_flags, NULL) < 0) {
-		printf("link set xdp fd failed\n");
-		return 1;
+		printf("link set xdp fd failed, is it in userspace?\n");
 	}
 
 	err = bpf_prog_get_info_by_fd(prog_fd, &info, &info_len);

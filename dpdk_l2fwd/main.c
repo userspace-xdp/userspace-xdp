@@ -213,18 +213,6 @@ static void swap_src_dst_mac(void *data)
 	p[5] = dst[2];
 }
 
-// here we use a sightly different one than kernel
-// BTF can help us
-struct xdp_md_userspace
-{
-	uint64_t data;
-	uint64_t data_end;
-	uint32_t data_meta;
-	uint32_t ingress_ifindex;
-	uint32_t rx_queue_index;
-	uint32_t egress_ifindex;
-};
-
 /* Simple forward. 8< */
 static void
 l2fwd_simple_forward(struct rte_mbuf *m, unsigned portid)

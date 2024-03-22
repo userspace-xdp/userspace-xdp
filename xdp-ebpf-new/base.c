@@ -194,9 +194,18 @@ struct icmphdr {
 	} un;
 };
 
+
+struct udphdr {
+	__be16 source;
+	__be16 dest;
+	__be16 len;
+	__sum16 check;
+};
+
 struct iphdr* _iphdr_ptr;
 struct tcphdr* tcphdr_ptr;
 struct icmphdr *icmphdr_ptr;
+struct udphdr *udphdr_ptr;
 
 int main() {
     return 0;

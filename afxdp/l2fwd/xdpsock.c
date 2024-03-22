@@ -222,18 +222,6 @@ struct xsk_socket_info {
 	u32 outstanding_tx;
 };
 
-// here we use a sightly different one than kernel
-// BTF can help us
-struct xdp_md_userspace
-{
-	__u64 data;
-	__u64 data_end;
-	__u32 data_meta;
-	__u32 ingress_ifindex;
-	__u32 rx_queue_index;
-	__u32 egress_ifindex;
-};
-
 #define DEBUG_OUTPUT 0
 
 #define DEBUG_PRINT(fmt, args...) \

@@ -9,6 +9,7 @@ uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3,
 			   uint64_t to_size, uint64_t seed);
 uint64_t bpftime_xdp_adjust_tail(struct xdp_buff *xdp, __u64 offset);
 uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags);
+uint64_t bpftime_xdp_adjust_head(struct xdp_md_userspace * xdp, int offset);
 }
 #include <cassert>
 #include <cstddef>
@@ -59,6 +60,12 @@ bpftime::bpftime_helper_info bpf_redirect_map = {
 	.fn = (void *)bpftime_redirect_map
 };
 
+bpftime::bpftime_helper_info xdp_adjust_head = {
+	.index = 44,
+	.name = "bpf_xdp_adjust_head",
+	.fn = (void *)bpftime_xdp_adjust_head
+};
+
 static bool if_enable_jit() {
 	char *env = getenv("DISABLE_JIT");
 	if (env != nullptr) {
@@ -93,6 +100,10 @@ static int load_ebpf_programs()
 			new_prog->bpftime_prog_register_raw_helper(csum_diff);
 			new_prog->bpftime_prog_register_raw_helper(
 				xdp_adjust_tail);
+			new_prog->bpftime_prog_register_raw_helper(
+				bpf_redirect_map);
+			new_prog->bpftime_prog_register_raw_helper(
+				xdp_adjust_head);
 			int res = new_prog->bpftime_prog_load(if_enable_jit());
 			if (res < 0) {
 				fprintf(stderr,

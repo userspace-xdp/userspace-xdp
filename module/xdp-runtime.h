@@ -8,6 +8,16 @@
 extern "C" {
 #endif
 
+struct xdp_md_userspace
+{
+	__u64 data;
+	__u64 data_end;
+	__u32 data_meta;
+	__u32 ingress_ifindex;
+	__u32 rx_queue_index;
+	__u32 egress_ifindex;
+};
+
 typedef void (*redirect_call_back_func)(void *data, int ifindex);
 
 // run the eBPF program(s) for xdp

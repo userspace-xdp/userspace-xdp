@@ -27,6 +27,7 @@ We have machine octopus1 and octopus3
   - [array map access](#array-map-access)
   - [csum](#csum)
   - [xdping](#xdping)
+  - [xdp\_tx\_iptunnel](#xdp_tx_iptunnel)
   - [trouble shooting](#trouble-shooting)
 
 ## steup
@@ -509,6 +510,23 @@ Run with AF_XDP:
 Run with DPDK:
 
 - `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(With LTO): Avg: 1.31 GBit/s Min: 1.28  Max: 1.34 GBit/s
+
+## xdp_tx_iptunnel
+
+Run in kernel:
+
+```sh
+sudo  xdp_progs/xdp_tx_iptunnel -i enp24s0f1np1 -a 192.168.1.11 -s 192.168.1.13 -d 192.168.1.13 -m b8:3f:d2:2a:e7:69  -p 1-255 -S
+```
+
+- Native mode: Avg: 484.49 MBit/s Min: 484.08 MBit/s  Max: 484.98 MBit/s
+- SKB mode: Avg: 458.56 MBit/s  Min: 456.89 MBit/s  Max: 460.06 MBit/s
+
+Run in userspace:
+
+```sh
+LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug    xdp_progs/xdp_tx_iptunnel -i enp24s0f1np1 -a 192.168.1.11 -s 192.168.1.13 -d 192.168.1.13 -m b8:3f:d2:2a:e7:69  -p 1-255 -b xdp-ebpf-new/base.btf
+```
 
 ## trouble shooting
 

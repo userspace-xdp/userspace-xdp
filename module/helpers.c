@@ -385,6 +385,13 @@ uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags)
 	}
 }
 
+uint64_t bpftime_xdp_adjust_head(struct xdp_md_userspace* xdp, int offset) {
+	// Do nothing because we don't use xdp meta data
+	void *data = xdp->data + offset;
+	xdp->data = data;
+	return 0;
+}
+
 int bpf_get_link_xdp_id(int ifindex, __u32 *prog_id, __u32 flags)
 {
 	return -1;
