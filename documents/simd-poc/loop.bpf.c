@@ -4,7 +4,6 @@ struct xdp_md
 	void* data_end;
 };
 
-
 int add_arrays(struct xdp_md *ctx) {
     char *data_end = ctx->data_end;
 	char *data = ctx->data;

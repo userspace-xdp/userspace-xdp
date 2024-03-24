@@ -186,3 +186,15 @@ Dump llvm IR:
 ```console
 /home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/vm/cli/bpftime-vm build loop.bpf.o
 ```
+
+## llvm cbe
+
+```sh
+/home/yunwei/llvm-project/llvm/build/bin/llvm-cbe loop.ll
+```
+
+## Run the native code
+
+```sh
+
+```
