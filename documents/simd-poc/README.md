@@ -180,3 +180,9 @@ root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/documents/simd-poc# make
 clang -O3 -target bpf -c loop.bpf.c -o loop.bpf.o
 clang -O3 -c loop.bpf.c -o loop.o
 ```
+
+Dump llvm IR:
+
+```console
+/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/vm/cli/bpftime-vm build loop.bpf.o
+```

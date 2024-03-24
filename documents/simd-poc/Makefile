@@ -3,7 +3,7 @@ all: loop.bpf.o xdp_tx.bpf.o loop1.bpf.o loop2.bpf.o
 loop.bpf.o: loop.bpf.c
 	clang -O3 -target bpf -g -c loop.bpf.c -o loop.bpf.o
 	clang -O3 -c loop.bpf.c -o loop.o
-	clang -S -emit-llvm -O3 -c loop.bpf.c -o loop.ll
+	clang -S -emit-llvm -c loop.bpf.c -o loop.ll
 	objdump -S loop.o > loop.c.S
 
 loop1.bpf.o: loop1.bpf.c
