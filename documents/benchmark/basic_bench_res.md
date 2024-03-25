@@ -22,12 +22,11 @@ We have machine octopus1 and octopus3
   - [test config](#test-config)
   - [Test with tcp4 traffic](#test-with-tcp4-traffic)
     - [xdp tx](#xdp-tx)
-    - [Generate traffic with 1 thread, udp traffic for ipv6](#generate-traffic-with-1-thread-udp-traffic-for-ipv6)
-    - [Generate traffic with 1 thread, icmp traffic for ipv4](#generate-traffic-with-1-thread-icmp-traffic-for-ipv4)
-  - [array map access](#array-map-access)
-  - [csum](#csum)
-  - [xdping](#xdping)
+    - [array map access](#array-map-access)
+  - [csum with map access helper](#csum-with-map-access-helper)
   - [xdp\_tx\_iptunnel](#xdp_tx_iptunnel)
+  - [ICMP traffic](#icmp-traffic)
+    - [xdping](#xdping)
   - [trouble shooting](#trouble-shooting)
 
 ## steup
@@ -244,19 +243,17 @@ measure with nload on octopus3, by redirecting the traffic from octopus1 back to
 
 Instruction count 20.
 
-### Generate traffic with 1 thread, udp traffic for ipv6
-
 kernel XDP:
 
-- SKB_MODE:  Pkt/s Rx 2,164,583  Tx  48,403,200
+- SKB_MODE: Pkts/s Rx 2,164,583  Tx  48,403,200
 - DRV_MODE: Pkts/s Rx 13,742,371 Tx  48,638,848
 
 AF_XDP:
 
 - `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, interpreter(Without LTO): 
 - `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, ubpf jit(Without LTO): 
-- `sudo ./xdpsock --l2fwd -i enp24s0f1np1 -N`, llvm jit(Without LTO), native mode: RX 1,854,719
-- `sudo ./xdpsock --l2fwd -i enp24s0f1np1 -S`, llvm jit(Without LTO), skb mode: RX 1,385,468
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1 -N`, llvm jit(Without LTO), native mode: RX 1,854,719 Tx  48,638,848
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1 -S`, llvm jit(Without LTO), skb mode: RX 1,385,468  Tx  48,638,848
   
 dpdk xdp:  
 
@@ -264,21 +261,8 @@ dpdk xdp:
 - `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, ubpf jit(Without LTO): 
 - `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(Without LTO): Rx 33,432,764 Tx 33,447,040
 
-### Generate traffic with 1 thread, icmp traffic for ipv4
 
-kernel XDP:
-
-- Native mode: AVG: 1.27 GBit/s Min: 857.31 MBit/s  Max: 1.30 GBit/s
-
-AF_XDP:
-
-- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit(Without LTO): Avg: 1.17 GBit/s Min: 1.13 GBit/s Max: 1.20 GBit/s
-
-DPDK:
-
-- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(Without LTO): Avg: 1.29 GBit/s Min: 1.26 GBit/s Max: 1.31 GBit/s
-
-## array map access
+### array map access
 
 ```sh
 LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_map_access  enp24s0f1np1 xdp-ebpf-new/base.btf
@@ -290,18 +274,18 @@ kernel eBPF:
 sudo xdp_progs/xdp_map_access  enp24s0f1np1 -N
 ```
 
-- Native mode: Avg: 1.29 GBit/s Min: 1.26 GBit/s  Max: 1.31 GBit/s
-- SKB mode: Avg: 1.29 GBit/s Min: 1.27 GBit/s Max: 1.30 GBit/s
+- Native mode: Rx 13,827,390  Tx 48,695,424
+- SKB mode: Rx 2,148,225 Tx 48,432,000
 
 AF_XDP:
 
-- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit(Without LTO): Avg: 1.07 GBit/s Min: 1.06 GBit/s Max: 1.08 GBit/s
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1 -N`, llvm jit(With LTO), native mode: Rx 1,701,698 Tx 47,885,696
 
 DPDK:
 
-- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(Without LTO): Avg: 1.30 GBit/s  Min: 1.26 GBit/s  Max: 1.31 GBit/s
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(With LTO): Rx 20,563,882 Tx 37,582,336
 
-## csum
+## csum with map access helper
 
 ```sh
 LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum enp24s0f1np1 xdp-ebpf-new/base.btf
@@ -315,48 +299,39 @@ kernel XDP:
 sudo /home/yunwei/ebpf-xdp-dpdk/xdp_progs/xdp_csum enp24s0f1np1
 ```
 
-- Native mode: Avg: 1.22 GBit/s  Min: 1.19 GBit/s Max: 1.25 GBit/s
-- SKB mode: Avg: 726.06 MBit/s Min: 715.02 MBit/s Max: 733.82 MBit/s
+- Native mode: Rx 1,031,770 Tx 47,924,864
+- SKB mode: Rx 1,732,224 Tx 47,519,104
 
 AF_XDP:
 
-- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit(Without LTO): Avg 355.79 MBit/s Min: 351.04 MBit/s Max: 360.46 MBit/s
-- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit(With LTO): Avg: 488.49 MBit/s Min: 487.46 MBit/s Max: 490.21 MBit/s
-  
-Why AF_XDP so slow?
-
-- AF XDP config
-- bpftime_csum_diff can be optimized
-- map_lookup_elem can be optimized
-
-```txt
-+   40.92%     0.01%  xdpsock  [kernel.kallsyms]     [k] entry_SYSCALL_64_after_hwframe
-+   40.92%     0.06%  xdpsock  libc.so.6             [.] __libc_sendto
-+   40.91%     0.01%  xdpsock  [kernel.kallsyms]     [k] do_syscall_64
-+   40.75%     0.00%  xdpsock  [kernel.kallsyms]     [k] __x64_sys_sendto
-+   40.73%     0.05%  xdpsock  [kernel.kallsyms]     [k] __sys_sendto
-+   40.60%     0.01%  xdpsock  [kernel.kallsyms]     [k] sock_sendmsg
-+   40.55%     0.01%  xdpsock  [kernel.kallsyms]     [k] xsk_sendmsg
-+   40.53%     0.10%  xdpsock  [kernel.kallsyms]     [k] __xsk_sendmsg.constprop.0.isra.0
-+   39.98%     4.84%  xdpsock  [kernel.kallsyms]     [k] __xsk_generic_xmit
-+   21.56%     0.00%  xdpsock  [JIT] tid 755845      [.] 0x00007fca9f84c0ce
-+   19.56%    18.12%  xdpsock  xdpsock               [.] bpftime_csum_diff
-+   19.25%    13.19%  xdpsock  xdpsock               [.] bpftime::bpf_map_handler::map_lookup_elem(void const
-+   12.68%     1.68%  xdpsock  [kernel.kallsyms]     [k] sock_alloc_send_pskb
-+   10.69%     0.78%  xdpsock  [kernel.kallsyms]     [k] __dev_direct_xmit
-+    7.92%     0.33%  xdpsock  [kernel.kallsyms]     [k] alloc_skb_with_frags
-+    7.54%     7.13%  xdpsock  [kernel.kallsyms]     [k] __raw_spin_lock_irqsave
-+    7.53%     0.06%  xdpsock  [kernel.kallsyms]     [k] _raw_spin_lock_irqsave
-+    7.29%     5.83%  xdpsock  xdpsock               [.] map_ptr_by_fd
-+    7.01%     1.21%  xdpsock  [kernel.kallsyms]     [k] __alloc_skb
-```
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit(Without LTO): 
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1 -N`, llvm jit(With LTO): Rx 762,048 Tx 48,282,112
 
 DPDK:
 
-- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(Without LTO):  Avg: 733.70 MBit/s Min: 732.48 MBit/s Max: 734.27 MBit/s
-- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(With LTO): Avg: 932.87 MBit/s Min: 930.36 MBit/s Max: 934.84 MBit/s
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(Without LTO): 
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(With LTO): Rx  1,310,560 Tx 46,579,712
 
-## xdping
+## xdp_tx_iptunnel
+
+Run in kernel:
+
+```sh
+sudo  xdp_progs/xdp_tx_iptunnel -i enp24s0f1np1 -a 192.168.1.11 -s 192.168.1.13 -d 192.168.1.13 -m b8:3f:d2:2a:e7:69  -p 1-255 -S
+```
+
+- Native mode: 
+- SKB mode: 
+
+Run in userspace:
+
+```sh
+LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug    xdp_progs/xdp_tx_iptunnel -i enp24s0f1np1 -a 192.168.1.11 -s 192.168.1.13 -d 192.168.1.13 -m b8:3f:d2:2a:e7:69  -p 1-255 -b xdp-ebpf-new/base.btf
+```
+
+## ICMP traffic
+
+### xdping
 
 run in kernel:
 
@@ -381,22 +356,6 @@ Run with DPDK:
 
 - `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(With LTO): Avg: 1.31 GBit/s Min: 1.28  Max: 1.34 GBit/s
 
-## xdp_tx_iptunnel
-
-Run in kernel:
-
-```sh
-sudo  xdp_progs/xdp_tx_iptunnel -i enp24s0f1np1 -a 192.168.1.11 -s 192.168.1.13 -d 192.168.1.13 -m b8:3f:d2:2a:e7:69  -p 1-255 -S
-```
-
-- Native mode: Avg: 484.49 MBit/s Min: 484.08 MBit/s  Max: 484.98 MBit/s
-- SKB mode: Avg: 458.56 MBit/s  Min: 456.89 MBit/s  Max: 460.06 MBit/s
-
-Run in userspace:
-
-```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug    xdp_progs/xdp_tx_iptunnel -i enp24s0f1np1 -a 192.168.1.11 -s 192.168.1.13 -d 192.168.1.13 -m b8:3f:d2:2a:e7:69  -p 1-255 -b xdp-ebpf-new/base.btf
-```
 
 ## trouble shooting
 
