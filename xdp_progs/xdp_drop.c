@@ -49,9 +49,22 @@ int main(int argc, char **argv)
 		printf("failed to if_nametoindex\n");
 		return 1;
 	}
+	int xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST;
+	if (getenv("SKBMODE")) {
+		printf("skb mode\n");
+		xdp_flags |= XDP_FLAGS_SKB_MODE;
+	} else if (getenv("DRVMODE")) {
+		printf("DRV mode\n");
+		xdp_flags |= XDP_FLAGS_DRV_MODE;
+	} else if (getenv("HWMODE")) {
+		printf("HWMODE mode\n");
+		xdp_flags |= XDP_FLAGS_HW_MODE;
+	} else {
+		printf("XDP native mode\n");
+	}
 
 	int err = bpf_xdp_attach(ifindex, prog_fd,
-							 XDP_FLAGS_UPDATE_IF_NOEXIST | XDP_FLAGS_SKB_MODE,
+							 xdp_flags,
 							 nullptr);
 	if (err) {
 		printf("attach maybe error\n");

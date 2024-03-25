@@ -18,10 +18,10 @@ We have machine octopus1 and octopus3
     - [octopus3 setup](#octopus3-setup)
     - [test connection](#test-connection)
   - [helper commands](#helper-commands)
-  - [generated traffic config](#generated-traffic-config)
   - [if calculate on octopus1, overhead](#if-calculate-on-octopus1-overhead)
   - [test config](#test-config)
-  - [xdp tx](#xdp-tx)
+  - [Test with tcp4 traffic](#test-with-tcp4-traffic)
+    - [xdp tx](#xdp-tx)
     - [Generate traffic with 1 thread, udp traffic for ipv6](#generate-traffic-with-1-thread-udp-traffic-for-ipv6)
     - [Generate traffic with 1 thread, icmp traffic for ipv4](#generate-traffic-with-1-thread-icmp-traffic-for-ipv4)
   - [array map access](#array-map-access)
@@ -36,40 +36,6 @@ We have machine octopus1 and octopus3
 
 ```consoel
 yunwei@octopus1:~$ ifconfig
-br0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet6 fe80::c0d0:78ff:feb2:aa23  prefixlen 64  scopeid 0x20<link>
-        ether 9e:00:f3:84:d8:02  txqueuelen 1000  (Ethernet)
-        RX packets 12916  bytes 723840 (723.8 KB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 3229  bytes 226190 (226.1 KB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-eno8303: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 146.179.4.8  netmask 255.255.254.0  broadcast 146.179.5.255
-        inet6 2a0c:5bc0:80:102:ce96:e5ff:fef4:465a  prefixlen 64  scopeid 0x0<global>
-        inet6 fe80::ce96:e5ff:fef4:465a  prefixlen 64  scopeid 0x20<link>
-        ether cc:96:e5:f4:46:5a  txqueuelen 1000  (Ethernet)
-        RX packets 139944125  bytes 42304973281 (42.3 GB)
-        RX errors 0  dropped 1157  overruns 0  frame 0
-        TX packets 35698541  bytes 28237492404 (28.2 GB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-        device interrupt 17  
-
-eno8403: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
-        ether cc:96:e5:f4:46:5b  txqueuelen 1000  (Ethernet)
-        RX packets 0  bytes 0 (0.0 B)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 0  bytes 0 (0.0 B)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-        device interrupt 18  
-
-enp24s0f0np0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
-        ether b8:3f:d2:2a:e5:10  txqueuelen 1000  (Ethernet)
-        RX packets 0  bytes 0 (0.0 B)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 0  bytes 0 (0.0 B)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
 enp24s0f1np1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet6 fe80::ba3f:d2ff:fe2a:e511  prefixlen 64  scopeid 0x20<link>
         ether b8:3f:d2:2a:e5:11  txqueuelen 1000  (Ethernet)
@@ -77,67 +43,6 @@ enp24s0f1np1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         RX errors 0  dropped 0  overruns 0  frame 0
         TX packets 302807  bytes 99698562 (99.6 MB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
-        inet 127.0.0.1  netmask 255.0.0.0
-        inet6 ::1  prefixlen 128  scopeid 0x10<host>
-        loop  txqueuelen 1000  (Local Loopback)
-        RX packets 678436  bytes 2344018056 (2.3 GB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 678436  bytes 2344018056 (2.3 GB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-veth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 10.0.0.1  netmask 255.255.255.0  broadcast 10.0.0.255
-        inet6 fe80::dcad:beff:feef:1  prefixlen 64  scopeid 0x20<link>
-        ether de:ad:be:ef:00:01  txqueuelen 1000  (Ethernet)
-        RX packets 16139  bytes 1130434 (1.1 MB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 3230  bytes 226196 (226.1 KB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-veth1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet6 fe80::5c73:edff:fef5:f9ed  prefixlen 64  scopeid 0x20<link>
-        ether 5e:73:ed:f5:f9:ed  txqueuelen 1000  (Ethernet)
-        RX packets 3230  bytes 226196 (226.1 KB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 16139  bytes 1130434 (1.1 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-veth3: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet6 fe80::b8b8:a5ff:feb7:cc7  prefixlen 64  scopeid 0x20<link>
-        ether ba:b8:a5:b7:0c:c7  txqueuelen 1000  (Ethernet)
-        RX packets 3225  bytes 225846 (225.8 KB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 16142  bytes 1130584 (1.1 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-veth5: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet6 fe80::f030:55ff:fec6:507e  prefixlen 64  scopeid 0x20<link>
-        ether f2:30:55:c6:50:7e  txqueuelen 1000  (Ethernet)
-        RX packets 3225  bytes 225846 (225.8 KB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 16141  bytes 1130494 (1.1 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-veth7: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet6 fe80::d8b7:3fff:fe6b:4bdc  prefixlen 64  scopeid 0x20<link>
-        ether da:b7:3f:6b:4b:dc  txqueuelen 1000  (Ethernet)
-        RX packets 3236  bytes 226776 (226.7 KB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 16132  bytes 1129684 (1.1 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-veth-basic02: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet6 fc00:dead:cafe:1::1  prefixlen 64  scopeid 0x0<global>
-        inet6 fe80::a056:29ff:fe15:df4f  prefixlen 64  scopeid 0x20<link>
-        ether a2:56:29:15:df:4f  txqueuelen 1000  (Ethernet)
-        RX packets 115  bytes 12034 (12.0 KB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 91  bytes 10482 (10.4 KB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-yunwei@octopus1:~$ 
 ```
 
 Add config for ipv4:
@@ -150,25 +55,6 @@ sudo ip addr add 192.168.1.11/24 dev enp24s0f1np1
 
 ```console
 yunwei@octopus3:~$ ifconfig
-eno8303: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 146.179.4.14  netmask 255.255.254.0  broadcast 146.179.5.255
-        inet6 fe80::ce96:e5ff:fef4:4af2  prefixlen 64  scopeid 0x20<link>
-        inet6 2a0c:5bc0:80:102:ce96:e5ff:fef4:4af2  prefixlen 64  scopeid 0x0<global>
-        ether cc:96:e5:f4:4a:f2  txqueuelen 1000  (Ethernet)
-        RX packets 50588110  bytes 12278958812 (12.2 GB)
-        RX errors 0  dropped 469  overruns 0  frame 0
-        TX packets 2029384  bytes 222146283 (222.1 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-        device interrupt 17  
-
-eno8403: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
-        ether cc:96:e5:f4:4a:f3  txqueuelen 1000  (Ethernet)
-        RX packets 0  bytes 0 (0.0 B)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 0  bytes 0 (0.0 B)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-        device interrupt 18  
-
 enp24s0f0np0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
         ether b8:3f:d2:2a:e7:68  txqueuelen 1000  (Ethernet)
         RX packets 0  bytes 0 (0.0 B)
@@ -182,15 +68,6 @@ enp24s0f1np1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         RX packets 274072  bytes 53074048 (53.0 MB)
         RX errors 0  dropped 0  overruns 0  frame 0
         TX packets 122343  bytes 40295058 (40.2 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
-        inet 127.0.0.1  netmask 255.0.0.0
-        inet6 ::1  prefixlen 128  scopeid 0x10<host>
-        loop  txqueuelen 1000  (Local Loopback)
-        RX packets 128443  bytes 34020629 (34.0 MB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 128443  bytes 34020629 (34.0 MB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 ```
 
@@ -261,6 +138,16 @@ sudo ip link set dev enp24s0f1np1 xdp off
 sudo ip link set dev enp24s0f1np1 xdpgeneric off
 ```
 
+Run with DPDK-pktgen
+
+```sh
+sudo /home/yunwei/Pktgen-DPDK/usr/local/bin/pktgen  -l 0-1 -n 4 -a 18:00.1 -- -P -m "[1].0"
+sudo /home/yunwei/Pktgen-DPDK/usr/local/bin/pktgen -l 0-2 -n 4 -a 18:00.1 -- -P -m "[1-2].0"
+set 0 dst mac b8:3f:d2:2a:e5:11
+set 0 rate 5%
+start 0
+```
+
 bind DPDK
 
 ```console
@@ -272,18 +159,6 @@ combined the AF_XDP queue:
 
 ```sh
 sudo ethtool -L enp24s0f1np1 combined 1
-```
-
-generate icmp traffic for ipv4:
-
-```sh
-sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen file enp24s0f1np1 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin
-```
-
-generate udp traffic for ipv6:
-
-```sh
-sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769
 ```
 
 start af_xdp_user:
@@ -310,41 +185,6 @@ test with nload on octopus3:
 nload enp24s0f1np1
 ```
 
-## generated traffic config
-
-thread 1:
-
-```sh
-$ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen file enp24s0f1np1 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin -t 1
-read 98 bytes from file as packet
-Transmitting on enp24s0f1np1 (ifindex 6)
-lo->enp24s0f1np1                0 err/s         3,654,912 xmit/s       
-lo->enp24s0f1np1                0 err/s         5,175,504 xmit/s       
-lo->enp24s0f1np1                0 err/s         5,267,649 xmit/s 
-```
-
-thread 4:
-
-```sh
-$ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769 -t 4
-Transmitting on enp24s0f1np1 (ifindex 6)
-lo->enp24s0f1np1                0 err/s        19,610,944 xmit/s       
-lo->enp24s0f1np1                0 err/s        19,738,552 xmit/s       
-lo->enp24s0f1np1                0 err/s        19,920,749 xmit/s       
-lo->enp24s0f1np1                0 err/s        19,553,015 xmit/s       
-lo->enp24s0f1np1                0 err/s        20,085,613 xmit/s   
-```
-
-thread 10:
-
-```sh
-$ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769 -t 10
-Transmitting on enp24s0f1np1 (ifindex 6)
-lo->enp24s0f1np1                0 err/s        30,041,242 xmit/s       
-lo->enp24s0f1np1                0 err/s        29,960,434 xmit/s       
-lo->enp24s0f1np1                0 err/s        30,305,261 xmit/s 
-```
-
 ## if calculate on octopus1, overhead
 
 1 thread
@@ -363,7 +203,34 @@ make -C  build-bpftime -j
 
 Using LTO. LTO is powerful.
 
-## xdp tx
+## Test with tcp4 traffic
+
+generated with pktgen on octopus3:
+
+```txt
+TCP Seq/Ack         :           74616/74640
+Pattern Type        :               abcd...
+Tx Count/% Rate     :         Forever /100%
+Pkt Size/Rx:Tx Burst:           64 / 64: 64
+TTL/Port Src/Dest   :        64/ 1234/ 5678
+Pkt Type:VLAN ID    :       IPv4 / TCP:0001
+802.1p CoS/DSCP/IPP :             0/  0/  0
+VxLAN Flg/Grp/vid   :      0000/    0/    0
+IP  Destination     :           192.168.1.1
+    Source          :        192.168.0.1/24
+MAC Destination     :     b8:3f:d2:2a:e5:11
+    Source          :     b8:3f:d2:2a:e7:69
+NUMA/Vend:ID/PCI    :   0/15b3:101d/18:00.1
+```
+
+The basic rate is:
+
+```txt
+Pkts/s Rx           :                     0                    0
+       Tx           :            47,932,160           47,932,160
+```
+
+### xdp tx
 
 ```sh
 # load in kernel
@@ -375,24 +242,27 @@ LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-serv
 
 measure with nload on octopus3, by redirecting the traffic from octopus1 back to octopus3. test with 10 seconds and get the average.
 
+Instruction count 20.
+
 ### Generate traffic with 1 thread, udp traffic for ipv6
 
 kernel XDP:
 
-- SKB_MODE: Avg: 960.72 MBit/s Min: 950.74 MBit/s Max: 965.38 MBit/
-- DRV_MODE: Avg: 993.19 MBit/s  Min: 945.41 MBit/s Max: 1003.83 MBit/s
+- SKB_MODE:  Pkt/s Rx 2,164,583  Tx  48,403,200
+- DRV_MODE: Pkts/s Rx 13,742,371 Tx  48,638,848
 
 AF_XDP:
 
-- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, interpreter(Without LTO): Avg: 572.23 MBit/s  Min: 565.92 MBit/s  Max: 576.62 MBit/s
-- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, ubpf jit(Without LTO):  Avg: 778.46 MBit/s  Min: 774.47 MBit/s  Max: 781.60 MBit/s
-- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, llvm jit(Without LTO): Avg: Avg: 825.15 MBit/s  Min: 810.29 MBit/s  Max: 830.69 MBit/s
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, interpreter(Without LTO): 
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1`, ubpf jit(Without LTO): 
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1 -N`, llvm jit(Without LTO), native mode: RX 1,854,719
+- `sudo ./xdpsock --l2fwd -i enp24s0f1np1 -S`, llvm jit(Without LTO), skb mode: RX 1,385,468
   
 dpdk xdp:  
 
-- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, interpreter(Without LTO): Avg: 985.05 MBit/s Min: 924.11 Max: 1004.02 MBit/s
-- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, ubpf jit(Without LTO): Avg: 1000.35 MBit/s Min: 987.45 MBit/s Max: 1010.49 MBit/s
-- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(Without LTO): Avg: 1002.87 MBit/s Min: 982.67 MBit/s Max: 1015.69 MBit/s
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, interpreter(Without LTO): 
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, ubpf jit(Without LTO): 
+- `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(Without LTO): Rx 33,432,764 Tx 33,447,040
 
 ### Generate traffic with 1 thread, icmp traffic for ipv4
 

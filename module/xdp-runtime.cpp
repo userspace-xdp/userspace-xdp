@@ -104,6 +104,7 @@ static int load_ebpf_programs()
 				bpf_redirect_map);
 			new_prog->bpftime_prog_register_raw_helper(
 				xdp_adjust_head);
+
 			int res = new_prog->bpftime_prog_load(if_enable_jit());
 			if (res < 0) {
 				fprintf(stderr,
