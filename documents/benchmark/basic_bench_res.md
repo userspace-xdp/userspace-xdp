@@ -300,7 +300,7 @@ sudo /home/yunwei/ebpf-xdp-dpdk/xdp_progs/xdp_csum enp24s0f1np1
 ```
 
 - Native mode: Rx 1,031,770 Tx 47,924,864
-- SKB mode: Rx 1,732,224 Tx 47,519,104
+- Native mode: Rx 1,732,224 Tx 47,519,104
 
 AF_XDP:
 
