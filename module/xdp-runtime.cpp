@@ -74,11 +74,44 @@ static bool if_enable_jit() {
 	return env == nullptr;
 }
 
+int get_aot_object(std::vector<uint8_t> &buf)
+{
+	if (getenv("AOT_OBJECT_NAME") == nullptr) {
+		fprintf(stderr, "No AOT object found\n");
+		return -1;
+	}
+	const char *name = getenv("AOT_OBJECT_NAME");
+	FILE *fp = fopen(name, "rb");
+	if (!fp) {
+		fprintf(stderr, "Failed to open file %s\n", name);
+		return -1;
+	}
+	fseek(fp, 0, SEEK_END);
+	size_t size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	buf.resize(size);
+	size_t read_size = fread(buf.data(), 1, size, fp);
+	if (read_size != size) {
+		fprintf(stderr, "Failed to read file %s\n", name);
+		return -1;
+	}
+	fclose(fp);
+	return 0;
+}
+
 static int load_ebpf_programs()
 {
 	const handler_manager *manager =
 		shm_holder.global_shared_memory.get_manager();
 	size_t handler_size = manager->size();
+
+	bool using_aot;
+	std::vector<uint8_t> aot_buf;
+	if (get_aot_object(aot_buf) == 0) {
+		using_aot = true;
+	} else {
+		using_aot = false;
+	}
 	// TODO: fix load programs
 	for (size_t i = 0; i < manager->size(); i++) {
 		if (std::holds_alternative<bpf_prog_handler>(
@@ -104,14 +137,24 @@ static int load_ebpf_programs()
 				bpf_redirect_map);
 			new_prog->bpftime_prog_register_raw_helper(
 				xdp_adjust_head);
-
-			int res = new_prog->bpftime_prog_load(if_enable_jit());
-			if (res < 0) {
-				fprintf(stderr,
-					"Failed to load eBPF program %s\n",
-					prog.name.c_str());
-				return -1;
+			if (using_aot) {
+				int res = new_prog->load_aot_object(aot_buf);
+				if (res < 0) {
+					fprintf(stderr,
+						"Failed to load aot object %s\n",
+						prog.name.c_str());
+					return -1;
+				}
+			} else {
+				int res = new_prog->bpftime_prog_load(if_enable_jit());
+				if (res < 0) {
+					fprintf(stderr,
+						"Failed to load eBPF program %s\n",
+						prog.name.c_str());
+					return -1;
+				}
 			}
+
 			printf("load eBPF program %s\n", prog.name.c_str());
 			if (prog.name == "xdp_pass") {
 				entry_prog = new_prog;

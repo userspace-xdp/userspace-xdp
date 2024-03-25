@@ -21,7 +21,7 @@ INCLUDES := -I$(OUTPUT) -I../bpftime/third_party/libbpf/include/uapi -I$(dir $(V
 CFLAGS := -g -Wall
 ALL_LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
 
-APPS = xdp_csum xdp_fw xdp_map_access xdp_tx_iptunnel xdping xdp_tx xdp_drop xdp_adjust_tail # minimal minimal_legacy uprobe kprobe fentry usdt sockfilter tc ksyscall
+APPS = xdp_csum xdp_csum_only xdp_fw xdp_map_access xdp_tx_iptunnel xdping xdp_tx xdp_drop xdp_adjust_tail # minimal minimal_legacy uprobe kprobe fentry usdt sockfilter tc ksyscall
 
 CARGO ?= $(shell which cargo)
 ifeq ($(strip $(CARGO)),)

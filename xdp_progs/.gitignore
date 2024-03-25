@@ -69,3 +69,4 @@ xdp_tx
 xdp2
 xdp1
 xdp_adjust_tail
+xdp_csum_only
