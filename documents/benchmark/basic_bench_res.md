@@ -151,7 +151,7 @@ bind DPDK
 
 ```console
 sudo /home/yunwei/ebpf-xdp-dpdk/external/dpdk/usertools/dpdk-devbind.py --bind=vfio-pci 0000:18:00.1
-sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen  -l 0-4 -n 3 --proc-type auto --socket-mem 256 --file-prefix pg -- -P -m "[1:3].0, [2:4].1"
+sudo -E LD_LIBRARY_PATH=/home/yunwei/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH Pktgen-DPDK/Builddir/app/pktgen  -l 0-2 -n 4 -a 18:00.1 -- -P -m "[1-2].0" -f /home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK/scripts/traffic-profile.lua
 ```
 
 combined the AF_XDP queue:

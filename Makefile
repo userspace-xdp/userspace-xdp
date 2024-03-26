@@ -51,6 +51,13 @@ dpdk_l2fwd/dpdk_l2fwd_llvm: $(BPFTIME_DIR_LLVM) dpdk
 	make -C dpdk_l2fwd
 	mv dpdk_l2fwd/build/l2fwd-static dpdk_l2fwd/dpdk_l2fwd_llvm
 
+pktgen:
+	# need to download dpdk v23.11 and build in $(ROOTDIR)/../install-dir/
+	PKG_CONFIG_PATH=$(ROOTDIR)/../install-dir/lib/x86_64-linux-gnu/pkgconfig \
+	make -C Pktgen-DPDK clean && \
+	PKG_CONFIG_PATH=$(ROOTDIR)/../install-dir/lib/x86_64-linux-gnu/pkgconfig \
+	make -C Pktgen-DPDK  buildlua 
+
 bench-clean:
 	rm -rf $(BPFTIME_DIR_UBPF) $(BPFTIME_DIR_LLVM)
 	rm -f $(BENCH_EXEC)
