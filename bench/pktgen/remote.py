@@ -1,11 +1,21 @@
 import subprocess
 import time
+import argparse
 import re
+
+# Setup command-line argument parsing
+parser = argparse.ArgumentParser(description="Run pktgen with specified packet size and save SOC output.")
+parser.add_argument("pkt_size", type=int, help="The desired packet size for pktgen.")
+parser.add_argument("output_file", type=str, help="The file to save SOC output.")
+args = parser.parse_args()
+
+# The other script will be executed on the remote machine with 10 seconds
+wait_seconds = 20
 
 def extract_pkt_size():
     find_pkt_size_cmd = [
         "ssh", "yunwei@octopus1.doc.res.ic.ac.uk", "-i", "/home/yunwei/.ssh/id_rsa1",
-        "grep 'pkt_size\\s*=' /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/traffic-profile-basic.lua | awk -F '=' '{print $2}' | tr -d '; \\t\\n' | head -n 1"
+        "grep -m 1 'pkt_size\\s*=' /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/traffic-profile-basic.lua | awk -F '=' '{print $2}' | tr -d '; \\t\\n'"
     ]
 
     try:
@@ -34,7 +44,8 @@ def modify_pkt_size(new_size):
 pkt_size = extract_pkt_size()
 print(f"Extracted pkt_size: {pkt_size}")
 
-want_pkt_size = 128
+# Use the command-line argument for packet size
+want_pkt_size = args.pkt_size
 
 # Example modification (change the value as needed):
 modify_pkt_size(want_pkt_size)
@@ -56,7 +67,7 @@ socat_cmd = [
 ssh_process = subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 # Wait for 10 seconds
-time.sleep(10)
+time.sleep(wait_seconds)
 
 # Run the socat command in another subprocess
 # Note: The input redirection ("<") won't work directly in subprocess.Popen.
@@ -67,5 +78,8 @@ with open('/home/yunwei/ebpf-xdp-dpdk/bench/pktgen/show.lua', 'rb') as file_cont
 
 # Optional: Check outputs or errors
 print("SOCAT Output:", socat_output.decode())
+# save the output to a file
+with open(args.output_file, 'wb') as f:
+    f.write(socat_output)
 if socat_errors:
     print("SOCAT Errors:", socat_errors.decode())
