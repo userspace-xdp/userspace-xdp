@@ -9,6 +9,8 @@ cmake -B build-bpftime .  -DBUILD_BPFTIME_DAEMON=0 -DCMAKE_BUILD_TYPE:STRING=Rel
 make -C  build-bpftime -j
 ```
 
+The scripts and graphs used to benchmark the performance of the XDP programs implemented in this project are written in Makefile.
+
 ## bpftime load balanth
 
 See [documents/bpftime-lb.md](documents/bpftime-lb.md)

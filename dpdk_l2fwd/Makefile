@@ -9,6 +9,8 @@ SRCS-y := main.c
 
 PKGCONF ?= pkg-config
 
+BPFTIME_LIB_DIR ?= $(ROOTDIR)/build-bpftime/
+
 # Build using pkg-config variables if possible
 ifneq ($(shell $(PKGCONF) --exists libdpdk && echo 0),0)
 $(error "no installation of DPDK found")
@@ -26,15 +28,15 @@ CFLAGS += -O3 $(shell $(PKGCONF) --cflags libdpdk) -I$(ROOTDIR)/module
 # Add flag to allow experimental API as l2fwd uses rte_ethdev_set_ptype API
 CFLAGS += -DALLOW_EXPERIMENTAL_API  -flto
 ROOTDIR=$(shell git rev-parse --show-toplevel)
-LD_FLAGS_EBPF = -L$(ROOTDIR)/build-bpftime/bpftime/runtime  \
-			-L$(ROOTDIR)/build-bpftime \
-			-L$(ROOTDIR)/build-bpftime/bpftime/vm \
-			-L$(ROOTDIR)/build-bpftime/bpftime/third_party/spdlog \
-			-L$(ROOTDIR)/build-bpftime/bpftime/FridaGum-prefix/src/FridaGum/ \
-			-L$(ROOTDIR)/build-bpftime/bpftime/attach/base_attach_impl \
-			-L$(ROOTDIR)/build-bpftime/bpftime/attach/frida_uprobe_attach_impl \
-			-L$(ROOTDIR)/build-bpftime/bpftime/attach/syscall_trace_attach_impl \
-			-L$(ROOTDIR)/build-bpftime/bpftime/libbpf \
+LD_FLAGS_EBPF = -L$(BPFTIME_LIB_DIR)bpftime/runtime  \
+			-L$(BPFTIME_LIB_DIR) \
+			-L$(BPFTIME_LIB_DIR)bpftime/vm \
+			-L$(BPFTIME_LIB_DIR)bpftime/third_party/spdlog \
+			-L$(BPFTIME_LIB_DIR)bpftime/FridaGum-prefix/src/FridaGum/ \
+			-L$(BPFTIME_LIB_DIR)bpftime/attach/base_attach_impl \
+			-L$(BPFTIME_LIB_DIR)bpftime/attach/frida_uprobe_attach_impl \
+			-L$(BPFTIME_LIB_DIR)bpftime/attach/syscall_trace_attach_impl \
+			-L$(BPFTIME_LIB_DIR)bpftime/libbpf \
 			-L$(ROOTDIR)/afxdp/lib/xdp-tools/lib/libxdp \
 			-lruntime -lxdp-bpftime  -lxdp \
 			-lpthread -lm -ldl -lconfig -lnuma -lgcov -lstdc++ -lruntime \

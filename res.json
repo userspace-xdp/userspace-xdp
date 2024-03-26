@@ -1,0 +1,30 @@
+{
+    "3": {
+        "attr": {
+            "cnt": 2,
+            "insns": "b7000000000000009500000000000000",
+            "type": 1046
+        },
+        "name": "do_uprobe_trace",
+        "type": "bpf_prog_handler"
+    },
+    "4": {
+        "attr": {
+            "_module_name": "./victim",
+            "data_type": "uprobe_perf_event_data",
+            "offset": 4521,
+            "pid": -1,
+            "ref_ctr_off": 0,
+            "type": 6
+        },
+        "enabled": true,
+        "type": "bpf_perf_event_handler"
+    },
+    "5": {
+        "attr": {
+            "prog_fd": 3,
+            "target_fd": 4
+        },
+        "type": "bpf_link_handler"
+    }
+}
