@@ -7,7 +7,7 @@ root_dir = '/home/yunwei/ebpf-xdp-dpdk/bench/xdp_tx'
 name = 'afxdp_llvm_jit_copy'
 dpdk_interpreter_dir = os.path.join(root_dir, name)
 
-seconds = 10
+run_seconds = 10
 
 def parse_file(file_path):
     """
@@ -21,7 +21,7 @@ def parse_file(file_path):
             ipackets = int(match.group(1))
         else:
             ipackets = 0  # Default to 0 if not found
-        ipackets = ipackets / seconds
+        ipackets = ipackets / run_seconds
         print(ipackets)
     return ipackets
 

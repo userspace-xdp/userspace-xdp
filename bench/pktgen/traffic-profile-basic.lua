@@ -12,7 +12,7 @@ pkt_size = 64;
 local dstip = "192.168.1.13";
 local srcip = "192.168.1.11";
 local netmask = "/24";
-local total_time = 2;
+local total_time = 60;
 
 -- Stop the port sending and reset to
 pktgen.stop(sendport);
@@ -24,7 +24,6 @@ pktgen.set_mac(sendport, "dst", "b8:3f:d2:2a:e7:69")
 pktgen.set_proto(sendport .. "," .. recvport, "tcp");
 -- v is the table to values created by the Set(x,y) functio
 
-pkt_size	= 64;
 pktgen.set(sendport, "size", pkt_size);
 
 printf("   Percent 100 load  %d seconds\n", total_time);

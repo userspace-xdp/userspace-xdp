@@ -21,16 +21,16 @@ tmp-pktgen-res:
 	python3 pktgen/remote.py 1024 ./tmp-pktgen-res/size-1024.txt
 
 ################################################################################################
-BASIC_XDP_NAME ?= xdp_tx
-RUN_XDP_BASIC_COMMAND ?= $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(ROOTDIR)/xdp_progs/.output/$(BASIC_XDP_NAME).bpf.o $(NETDEV)
-RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
-RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
-RUN_XDP_USERSPACE_COMMAND ?= $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+# BASIC_XDP_NAME ?= xdp_tx
+# RUN_XDP_BASIC_COMMAND ?= $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(ROOTDIR)/xdp_progs/.output/$(BASIC_XDP_NAME).bpf.o $(NETDEV)
+# RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
+# RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
+# RUN_XDP_USERSPACE_COMMAND ?= $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
 
 
 # BASIC_XDP_NAME = xdp_map_access
-BASIC_XDP_NAME = xdp_csum
-# BASIC_XDP_NAME = xdp_csum_only
+# BASIC_XDP_NAME = xdp_csum
+BASIC_XDP_NAME = xdp_csum_only
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
 RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
@@ -102,6 +102,7 @@ $(BASIC_XDP_NAME)/dpdk_ubpf_jit: $(BASIC_XDP_NAME)
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_ubpf_jit
 	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'dpdk_l2fwd_ubpf' | xargs kill || true
+	sudo pgrep -f 'dpdk_l2fwd_ubpf' | xargs kill || true
 
 $(BASIC_XDP_NAME)/dpdk_llvm_jit: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
@@ -115,7 +116,8 @@ $(BASIC_XDP_NAME)/dpdk_llvm_jit: $(BASIC_XDP_NAME)
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_llvm_jit
 	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
-	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill || true
+	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9 || true
+	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9  || true
 
 $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
@@ -127,7 +129,8 @@ $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy: $(BASIC_XDP_NAME)
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy
 	sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
-	sudo pgrep -f 'xdpsock_llvm' -9 | xargs kill || true
+	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true
+	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true
 
 $(BASIC_XDP_NAME)/afxdp_llvm_jit_copy: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
@@ -139,7 +142,8 @@ $(BASIC_XDP_NAME)/afxdp_llvm_jit_copy: $(BASIC_XDP_NAME)
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_jit_copy
 	sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
-	sudo pgrep -f 'xdpsock_llvm' -9 | xargs kill || true
+	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9  || true
+	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9  || true
 
 $(BASIC_XDP_NAME)/afxdp_ubpf_jit: $(BASIC_XDP_NAME)
 	mkdir -p $(BASIC_XDP_NAME)
@@ -151,5 +155,6 @@ $(BASIC_XDP_NAME)/afxdp_ubpf_jit: $(BASIC_XDP_NAME)
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_ubpf --l2fwd -i enp24s0f1np1 &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_ubpf_jit
-	pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
-	sudo pgrep -f 'xdpsock_ubpf' | xargs kill || true
+	sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
+	sudo pgrep -f 'xdpsock_ubpf' | xargs kill -9 || true
+	sudo pgrep -f 'xdpsock_ubpf' | xargs kill -9 || true

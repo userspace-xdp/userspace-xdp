@@ -7,7 +7,7 @@ root_dir = '/home/yunwei/ebpf-xdp-dpdk/bench/xdp_csum/'
 target_file = 'size-64.txt'
 save_name = 'ipackets.png'
 
-seconds = 10
+run_seconds = 10
 
 def parse_file(file_path):
     """
@@ -21,7 +21,7 @@ def parse_file(file_path):
             ipackets = int(match.group(1))
         else:
             ipackets = 0  # Default to 0 if not found
-        ipackets = ipackets / seconds
+        ipackets = ipackets / run_seconds
     return ipackets
 
 def collect_data(root_dir, target_file):

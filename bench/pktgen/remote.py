@@ -10,8 +10,8 @@ parser.add_argument("output_file", type=str, help="The file to save SOC output."
 args = parser.parse_args()
 
 # The other script will be executed on the remote machine with 10 seconds
-wait_seconds = 20
-run_seconds = 10
+wait_seconds = 70
+run_seconds = 60
 
 def extract_pkt_size():
     find_pkt_size_cmd = [
