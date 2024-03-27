@@ -46,3 +46,6 @@ target_include_directories(xdp-bpftime PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/bpftime/third_party/spdlog/include
 )
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
+
+add_executable(xdp-bpftime-runner module/runner.cpp)
+target_link_libraries(xdp-bpftime-runner PRIVATE xdp-bpftime)

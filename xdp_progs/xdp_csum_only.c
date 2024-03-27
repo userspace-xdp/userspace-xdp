@@ -17,12 +17,12 @@
 #include "bpf_util.h"
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
-#include <xdp_csum.skel.h>
+#include <xdp_csum_only.skel.h>
 
 static int ifindex;
 static __u32 xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST;
 static __u32 prog_id;
-struct xdp_csum_bpf* skel;
+struct xdp_csum_only_bpf *skel;
 
 static void int_exit(int sig)
 {
@@ -38,7 +38,7 @@ static void int_exit(int sig)
 	// 	printf("couldn't find a prog id on a given interface\n");
 	// else
 	// 	printf("program on interface changed, not removing\n");
-	xdp_csum_bpf__destroy(skel);
+	xdp_csum_only_bpf__destroy(skel);
 	exit(0);
 }
 
@@ -127,17 +127,15 @@ int main(int argc, char **argv)
 		usage(basename(argv[0]));
 		return 1;
 	}
-    libbpf_set_print(libbpf_print_fn);
-	LIBBPF_OPTS(bpf_object_open_opts , opts,
-	);
-	if (optind + 2 == argc) 
+	libbpf_set_print(libbpf_print_fn);
+	LIBBPF_OPTS(bpf_object_open_opts, opts, );
+	if (optind + 2 == argc)
 		opts.btf_custom_path = argv[optind + 1];
 	// printf("optind %d %d %s\n", optind, argc, opts.btf_custom_path);
 
 	// Open and load the BPF program
-	skel = xdp_csum_bpf__open_opts(&opts);
-	if (!skel)
-	{
+	skel = xdp_csum_only_bpf__open_opts(&opts);
+	if (!skel) {
 		fprintf(stderr, "Failed to open BPF skeleton\n");
 		return 1;
 	}
@@ -158,18 +156,17 @@ int main(int argc, char **argv)
 
 	// snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
 	// prog_load_attr.file = filename;
-	
-	int res = xdp_csum_bpf__load(skel);
-	if (res)
-	{
+
+	int res = xdp_csum_only_bpf__load(skel);
+	if (res) {
 		fprintf(stderr, "Failed to load and verify BPF skeleton\n");
 		return 1;
 	}
 
 	// attach
-	res = bpf_xdp_attach(ifindex, bpf_program__fd(skel->progs.xdp_pass), xdp_flags, NULL);
-	if (res)
-	{
+	res = bpf_xdp_attach(ifindex, bpf_program__fd(skel->progs.xdp_pass),
+			     xdp_flags, NULL);
+	if (res) {
 		fprintf(stderr, "Failed to attach BPF skeleton\n");
 		// return 1;
 	}
