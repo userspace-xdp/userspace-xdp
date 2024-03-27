@@ -3,7 +3,7 @@ import re
 import matplotlib.pyplot as plt
 
 # Directory to traverse
-root_dir = '/home/yunwei/ebpf-xdp-dpdk/bench/xdp_tx/'
+root_dir = '/home/yunwei/ebpf-xdp-dpdk/bench/xdp_csum/'
 target_file = 'size-64.txt'
 save_name = 'ipackets.png'
 
@@ -48,7 +48,7 @@ def plot_data(data):
     plt.bar(labels, values, color='skyblue')
     plt.xlabel('Configuration')
     plt.ylabel('Ipackets')
-    plt.title('Ipackets by Configuration for size-64')
+    plt.title('Ipackets by Configuration for size-64 in ' + root_dir)
     plt.xticks(rotation=45)
     plt.tight_layout()  # Adjust layout to not cut off labels
     plt.savefig(root_dir + save_name)

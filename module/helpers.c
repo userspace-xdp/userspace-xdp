@@ -67,6 +67,8 @@ static inline unsigned short from32to16(unsigned int x)
 	return x;
 }
 
+#define USING_OLD_CSUM
+
 #ifdef USING_OLD_CSUM
 static unsigned int do_csum(const unsigned char *buff, int len)
 {

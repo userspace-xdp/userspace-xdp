@@ -62,7 +62,7 @@ def plot_data(data, title='Data Plot', xlabel='X-axis', ylabel='Y-axis'):
 # Function to plot ipackets for all sizes in dpdk_interpreter
 def plot_dpdk_interpreter():
     data = collect_data_single_directory(dpdk_interpreter_dir)
-    plot_data(data, title='Ipackets by Packet Size in ' + name,
+    plot_data(data, title='Ipackets by Packet Size in ' + root_dir + ' ' + name,
               xlabel='Packet Size (Bytes)', ylabel='Ipackets')
 
 plot_dpdk_interpreter()
