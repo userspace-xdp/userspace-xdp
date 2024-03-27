@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 
 # Base directory and specific subdirectory to analyze
 root_dir = '/home/yunwei/ebpf-xdp-dpdk/bench/xdp_tx'
-dpdk_interpreter_dir = os.path.join(root_dir, 'afxdp_llvm_jit_copy')
+name = 'afxdp_llvm_jit_copy'
+dpdk_interpreter_dir = os.path.join(root_dir, name)
 
 seconds = 10
 
@@ -61,7 +62,7 @@ def plot_data(data, title='Data Plot', xlabel='X-axis', ylabel='Y-axis'):
 # Function to plot ipackets for all sizes in dpdk_interpreter
 def plot_dpdk_interpreter():
     data = collect_data_single_directory(dpdk_interpreter_dir)
-    plot_data(data, title='Ipackets by Packet Size',
+    plot_data(data, title='Ipackets by Packet Size in ' + name,
               xlabel='Packet Size (Bytes)', ylabel='Ipackets')
 
 plot_dpdk_interpreter()
