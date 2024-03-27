@@ -63,5 +63,8 @@ bench-clean:
 	rm -f $(BENCH_EXEC)
 	make clean
 
+bench-examples:
+	make -C xdp_progs
+
 clean:
 	make -C build distclean

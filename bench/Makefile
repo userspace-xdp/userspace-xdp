@@ -1,7 +1,10 @@
 NETDEV ?= enp24s0f1np1
 
 ROOTDIR=$(shell git rev-parse --show-toplevel)
-
+BPFTIME_DIR_UBPF=$(ROOTDIR)/build-bpftime-ubpf/
+BPFTIME_DIR_LLVM=$(ROOTDIR)/build-bpftime-llvm/
+DPDK_DIR=$(ROOTDIR)/external/dpdk
+LIBXDP_PATH=$(ROOTDIR)/afxdp/lib/xdp-tools/lib/libxdp
 NETDEV ?= enp24s0f1np1
 
 # commands
@@ -45,4 +48,44 @@ xdp-tx/dpdk_intepreter:
 	mkdir -p xdp_tx
 	$(MAKE) remove-xdp
 	# Start the process in the background
-	
+	LD_PRELOAD=$(BPFTIME_DIR_UBPF)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
+	$(RUN_XDP_TX_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf &
+	rm -rf ./tmp-pktgen-res
+	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_UBPF)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_UBPF)/bpftime/libbpf/libbpf \
+	DISABLE_JIT=1 \
+	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_ubpf \
+	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
+	$(MAKE) tmp-pktgen-res
+	mv ./tmp-pktgen-res xdp_tx/dpdk_intepreter
+	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	pgrep -f 'dpdk_l2fwd_ubpf' | xargs kill || true
+
+xdp-tx/dpdk_ubpf_jit:
+	mkdir -p xdp_tx
+	$(MAKE) remove-xdp
+	# Start the process in the background
+	LD_PRELOAD=$(BPFTIME_DIR_UBPF)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
+	$(RUN_XDP_TX_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf &
+	rm -rf ./tmp-pktgen-res
+	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_UBPF)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_UBPF)/bpftime/libbpf/libbpf \
+	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_ubpf \
+	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
+	$(MAKE) tmp-pktgen-res
+	mv ./tmp-pktgen-res xdp_tx/dpdk_ubpf_jit
+	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	pgrep -f 'dpdk_l2fwd_ubpf' | xargs kill || true
+
+xdp-tx/dpdk_llvm_jit:
+	mkdir -p xdp_tx
+	$(MAKE) remove-xdp
+	# Start the process in the background
+	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
+	$(RUN_XDP_TX_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf &
+	rm -rf ./tmp-pktgen-res
+	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_LLVM)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_LLVM)/bpftime/libbpf/libbpf \
+	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_llvm \
+	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
+	$(MAKE) tmp-pktgen-res
+	mv ./tmp-pktgen-res xdp_tx/dpdk_llvm_jit
+	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	pgrep -f 'dpdk_l2fwd_llvm' | xargs kill || true
