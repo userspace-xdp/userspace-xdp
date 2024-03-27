@@ -19,7 +19,6 @@
 #include <net/if.h>
 #include <netinet/tcp.h>
 #include "xdp-runtime.h"
-
 #include <net/if_arp.h>
 
 typedef __u16 __bitwise __le16;
@@ -68,6 +67,7 @@ static inline unsigned short from32to16(unsigned int x)
 	return x;
 }
 
+#ifdef USING_OLD_CSUM
 static unsigned int do_csum(const unsigned char *buff, int len)
 {
 	int odd;
@@ -133,6 +133,130 @@ static __wsum csum_partial(const void *buff, int len, __wsum wsum)
 		result += 1;
 	return (__wsum)result;
 }
+
+#else
+/**
+ * ror64 - rotate a 64-bit value right
+ * @word: value to rotate
+ * @shift: bits to roll
+ */
+static inline __u64 ror64(__u64 word, unsigned int shift)
+{
+	return (word >> (shift & 63)) | (word << ((-shift) & 63));
+}
+
+static inline __wsum csum_finalize_sum(uint64_t temp64)
+{
+	return (__wsum)((temp64 + ror64(temp64, 32)) >> 32);
+}
+
+static inline unsigned long update_csum_40b(unsigned long sum, const unsigned long m[5])
+{
+	asm("addq %1,%0\n\t"
+	     "adcq %2,%0\n\t"
+	     "adcq %3,%0\n\t"
+	     "adcq %4,%0\n\t"
+	     "adcq %5,%0\n\t"
+	     "adcq $0,%0"
+		:"+r" (sum)
+		:"m" (m[0]), "m" (m[1]), "m" (m[2]),
+		 "m" (m[3]), "m" (m[4]));
+	return sum;
+}
+
+/*
+ * Load an unaligned word from kernel space.
+ *
+ * In the (very unlikely) case of the word being a page-crosser
+ * and the next page not being mapped, take the exception and
+ * return zeroes in the non-existing part.
+ */
+static inline unsigned long load_unaligned_zeropad(const void *addr)
+{
+	return *(const unsigned long *)addr;
+}
+
+/*
+ * Do a checksum on an arbitrary memory area.
+ * Returns a 32bit checksum.
+ *
+ * This isn't as time critical as it used to be because many NICs
+ * do hardware checksumming these days.
+ *
+ * Still, with CHECKSUM_COMPLETE this is called to compute
+ * checksums on IPv6 headers (40 bytes) and other small parts.
+ * it's best to have buff aligned on a 64-bit boundary
+ */
+__wsum csum_partial(const void *buff, int len, __wsum sum)
+{
+	uint64_t temp64 = (uint64_t)sum;
+
+	/* Do two 40-byte chunks in parallel to get better ILP */
+	if (likely(len >= 80)) {
+		uint64_t temp64_2 = 0;
+		do {
+			temp64 = update_csum_40b(temp64, buff);
+			temp64_2 = update_csum_40b(temp64_2, buff + 40);
+			buff += 80;
+			len -= 80;
+		} while (len >= 80);
+
+		asm("addq %1,%0\n\t"
+		    "adcq $0,%0"
+		    :"+r" (temp64): "r" (temp64_2));
+	}
+
+	/*
+	 * len == 40 is the hot case due to IPv6 headers, so return
+	 * early for that exact case without checking the tail bytes.
+	 */
+	if (len >= 40) {
+		temp64 = update_csum_40b(temp64, buff);
+		len -= 40;
+		if (!len)
+			return csum_finalize_sum(temp64);
+		buff += 40;
+	}
+
+	if (len & 32) {
+		asm("addq 0*8(%[src]),%[res]\n\t"
+		    "adcq 1*8(%[src]),%[res]\n\t"
+		    "adcq 2*8(%[src]),%[res]\n\t"
+		    "adcq 3*8(%[src]),%[res]\n\t"
+		    "adcq $0,%[res]"
+		    : [res] "+r"(temp64)
+		    : [src] "r"(buff), "m"(*(const char(*)[32])buff));
+		buff += 32;
+	}
+	if (len & 16) {
+		asm("addq 0*8(%[src]),%[res]\n\t"
+		    "adcq 1*8(%[src]),%[res]\n\t"
+		    "adcq $0,%[res]"
+		    : [res] "+r"(temp64)
+		    : [src] "r"(buff), "m"(*(const char(*)[16])buff));
+		buff += 16;
+	}
+	if (len & 8) {
+		asm("addq 0*8(%[src]),%[res]\n\t"
+		    "adcq $0,%[res]"
+		    : [res] "+r"(temp64)
+		    : [src] "r"(buff), "m"(*(const char(*)[8])buff));
+		buff += 8;
+	}
+	if (len & 7) {
+		unsigned int shift = (-len << 3) & 63;
+		unsigned long trail;
+
+		trail = (load_unaligned_zeropad(buff) << shift) >> shift;
+
+		asm("addq %[trail],%[res]\n\t"
+		    "adcq $0,%[res]"
+		    : [res] "+r"(temp64)
+		    : [trail] "r"(trail));
+	}
+	return csum_finalize_sum(temp64);
+}
+#endif
 
 uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3,
 			   uint64_t to_size, uint64_t seed)

@@ -61,6 +61,9 @@ pktgen:
 bench-clean:
 	rm -rf $(BPFTIME_DIR_UBPF) $(BPFTIME_DIR_LLVM)
 	rm -f $(BENCH_EXEC)
+	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig \
+	make -C dpdk_l2fwd/  clean
+	make -C afxdp/l2fwd/ clean
 	make clean
 
 bench-examples:

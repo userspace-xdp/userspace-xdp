@@ -7,9 +7,6 @@ DPDK_DIR=$(ROOTDIR)/external/dpdk
 LIBXDP_PATH=$(ROOTDIR)/afxdp/lib/xdp-tools/lib/libxdp
 NETDEV ?= enp24s0f1np1
 
-# commands
-RUN_XDP_TX_COMMAND = $(ROOTDIR)/xdp_progs/xdp_tx $(ROOTDIR)/xdp_progs/.output/xdp_tx.bpf.o $(NETDEV)
-
 .PHONY: remove-xdp
 remove-xdp:
 	sudo ip link set dev $(NETDEV) xdp off
@@ -23,108 +20,131 @@ tmp-pktgen-res:
 	python3 pktgen/remote.py 512 ./tmp-pktgen-res/size-512.txt
 	python3 pktgen/remote.py 1024 ./tmp-pktgen-res/size-1024.txt
 
-xdp-tx/drv_mode:
-	mkdir -p xdp_tx
+################################################################################################
+BASIC_XDP_NAME ?= xdp_tx
+RUN_XDP_BASIC_COMMAND ?= $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(ROOTDIR)/xdp_progs/.output/$(BASIC_XDP_NAME).bpf.o $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_USERSPACE_COMMAND ?= $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+
+
+BASIC_XDP_NAME = xdp_map_access
+RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
+RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
+RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+
+# BASIC_XDP_NAME = xdp_csum
+# RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
+# RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
+# RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
+# RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) xdp-ebpf-new/base.btf
+################################################################################################
+
+$(BASIC_XDP_NAME):
+	mkdir -p $(BASIC_XDP_NAME)
+
+.PHONY: all_kernel_test
+all_kernel_test: $(BASIC_XDP_NAME)/drv_mode $(BASIC_XDP_NAME)/skb_mode
+
+.PHONY: all_dpdk_test
+all_dpdk_test: $(BASIC_XDP_NAME)/dpdk_intepreter $(BASIC_XDP_NAME)/dpdk_ubpf_jit $(BASIC_XDP_NAME)/dpdk_llvm_jit
+
+$(BASIC_XDP_NAME)/drv_mode: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
 	# Start the process in the background
-	sudo -E DRVMODE=1 $(RUN_XDP_TX_COMMAND) &
+	sudo -E $(RUN_XDP_KERNEL_DRV_COMMAND) &
 	rm -rf ./tmp-pktgen-res
 	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res xdp_tx/drv_mode
-	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/drv_mode
+	sudo pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 
 
-xdp-tx/skb_mode:
-	mkdir -p xdp_tx
+$(BASIC_XDP_NAME)/skb_mode: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
 	# Start the process in the background
-	sudo -E SKBMODE=1 $(RUN_XDP_TX_COMMAND) &
+	sudo -E $(RUN_XDP_KERNEL_SKB_COMMAND) &
 	rm -rf ./tmp-pktgen-res
 	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res xdp_tx/skb_mode
-	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/skb_mode
+	sudo pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 
-xdp-tx/dpdk_intepreter:
-	mkdir -p xdp_tx
+$(BASIC_XDP_NAME)/dpdk_intepreter: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
 	# Start the process in the background
 	LD_PRELOAD=$(BPFTIME_DIR_UBPF)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
-	$(RUN_XDP_TX_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf &
+	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_UBPF)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_UBPF)/bpftime/libbpf/libbpf \
 	DISABLE_JIT=1 \
 	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_ubpf \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
 	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res xdp_tx/dpdk_intepreter
-	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_intepreter
+	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'dpdk_l2fwd_ubpf' | xargs kill || true
 
-xdp-tx/dpdk_ubpf_jit:
-	mkdir -p xdp_tx
+$(BASIC_XDP_NAME)/dpdk_ubpf_jit: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
 	# Start the process in the background
 	LD_PRELOAD=$(BPFTIME_DIR_UBPF)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
-	$(RUN_XDP_TX_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf &
+	$(RUN_XDP_USERSPACE_COMMAND)
 	rm -rf ./tmp-pktgen-res
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_UBPF)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_UBPF)/bpftime/libbpf/libbpf \
 	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_ubpf \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
 	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res xdp_tx/dpdk_ubpf_jit
-	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_ubpf_jit
+	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'dpdk_l2fwd_ubpf' | xargs kill || true
 
-xdp-tx/dpdk_llvm_jit:
-	mkdir -p xdp_tx
+$(BASIC_XDP_NAME)/dpdk_llvm_jit: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
 	# Start the process in the background
 	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
-	$(RUN_XDP_TX_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf &
+	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_LLVM)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_LLVM)/bpftime/libbpf/libbpf \
 	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_llvm \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
 	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res xdp_tx/dpdk_llvm_jit
-	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_llvm_jit
+	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill || true
 
-xdp-tx/afxdp_llvm_jit_zero_copy:
-	mkdir -p xdp_tx
+$(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
 	# Start the process in the background
 	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
-	$(RUN_XDP_TX_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf &
+	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1 -z &
 	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res xdp_tx/afxdp_llvm_jit_zero_copy
-	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy
+	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'xdpsock_llvm' | xargs kill || true
 
-xdp-tx/afxdp_llvm_jit_copy:
-	mkdir -p xdp_tx
+$(BASIC_XDP_NAME)/afxdp_llvm_jit_copy: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
 	# Start the process in the background
 	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
-	$(RUN_XDP_TX_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf &
+	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1 -c &
 	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res xdp_tx/afxdp_llvm_jit_copy
-	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_jit_copy
+	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'xdpsock_llvm' | xargs kill || true
 
-xdp-tx/afxdp_ubpf_jit:
-	mkdir -p xdp_tx
+$(BASIC_XDP_NAME)/afxdp_ubpf_jit: $(BASIC_XDP_NAME)
+	mkdir -p $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
 	# Start the process in the background
 	LD_PRELOAD=$(BPFTIME_DIR_UBPF)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
-	$(RUN_XDP_TX_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf &
+	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_ubpf --l2fwd -i enp24s0f1np1 &
 	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res xdp_tx/afxdp_ubpf_jit
-	pgrep -f '$(ROOTDIR)/xdp_progs/xdp_tx' | xargs kill || true
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_ubpf_jit
+	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'xdpsock_ubpf' | xargs kill || true

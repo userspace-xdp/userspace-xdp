@@ -11,6 +11,7 @@ args = parser.parse_args()
 
 # The other script will be executed on the remote machine with 10 seconds
 wait_seconds = 20
+run_seconds = 10
 
 def extract_pkt_size():
     find_pkt_size_cmd = [
@@ -77,9 +78,29 @@ with open('/home/yunwei/ebpf-xdp-dpdk/bench/pktgen/show.lua', 'rb') as file_cont
     socat_output, socat_errors = socat_process.communicate(input=file_content.read())
 
 # Optional: Check outputs or errors
-print("SOCAT Output:", socat_output.decode())
+# print("SOCAT Output:", socat_output.decode())
 # save the output to a file
 with open(args.output_file, 'wb') as f:
     f.write(socat_output)
-if socat_errors:
-    print("SOCAT Errors:", socat_errors.decode())
+
+def parse_file(file_path):
+    """
+    Parse the given file to extract the 'ipackets' metric.
+    """
+    ipackets_pattern = re.compile(r'\["ipackets"\]\s*=\s*(\d+)')
+    with open(file_path, 'r') as file:
+        content = file.read()
+        match = ipackets_pattern.search(content)
+        if match:
+            ipackets = int(match.group(1))
+        else:
+            ipackets = 0  # Default to 0 if not found
+        ipackets = ipackets / run_seconds
+    return ipackets
+
+print("Output saved to:", args.output_file)
+print("pkt_size:", pkt_size)
+print("parse_file ipackets:", parse_file(args.output_file))
+
+# if socat_errors:
+#     print("SOCAT Errors:", socat_errors.decode())
