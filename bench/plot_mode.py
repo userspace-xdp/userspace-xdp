@@ -3,11 +3,14 @@ import re
 import matplotlib.pyplot as plt
 
 # Directory to traverse
-root_dir = '/home/yunwei/ebpf-xdp-dpdk/bench/xdp_csum/'
+name = os.environ.get('NAME', 'xdp_csum')
+root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench", name)
 target_file = 'size-64.txt'
 save_name = 'ipackets.png'
 
-run_seconds = 10
+print("root_dir: %s\n" % root_dir)
+
+run_seconds = 60
 
 def parse_file(file_path):
     """
@@ -51,7 +54,7 @@ def plot_data(data):
     plt.title('Ipackets by Configuration for size-64 in ' + root_dir)
     plt.xticks(rotation=45)
     plt.tight_layout()  # Adjust layout to not cut off labels
-    plt.savefig(root_dir + save_name)
+    plt.savefig(os.path.join(root_dir, save_name))
 
 # Collect the data
 data = collect_data(root_dir, target_file)

@@ -7,7 +7,7 @@ root_dir = '/home/yunwei/ebpf-xdp-dpdk/bench/xdp_tx'
 name = 'afxdp_llvm_jit_copy'
 dpdk_interpreter_dir = os.path.join(root_dir, name)
 
-run_seconds = 10
+run_seconds = 60
 
 def parse_file(file_path):
     """

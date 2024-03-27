@@ -21,20 +21,30 @@ tmp-pktgen-res:
 	python3 pktgen/remote.py 1024 ./tmp-pktgen-res/size-1024.txt
 
 ################################################################################################
-# BASIC_XDP_NAME ?= xdp_tx
-# RUN_XDP_BASIC_COMMAND ?= $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(ROOTDIR)/xdp_progs/.output/$(BASIC_XDP_NAME).bpf.o $(NETDEV)
-# RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
-# RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
-# RUN_XDP_USERSPACE_COMMAND ?= $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
-
-
-# BASIC_XDP_NAME = xdp_map_access
-# BASIC_XDP_NAME = xdp_csum
-BASIC_XDP_NAME = xdp_csum_only
+BASIC_XDP_NAME ?= xdp_tx
+RUN_XDP_BASIC_COMMAND ?= $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(ROOTDIR)/xdp_progs/.output/$(BASIC_XDP_NAME).bpf.o $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_USERSPACE_COMMAND ?= $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+ifeq ($(BASIC_XDP_NAME),xdp_tx)
+else ifeq ($(BASIC_XDP_NAME),xdp_map_access)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
 RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+else ifeq ($(BASIC_XDP_NAME),xdp_csum)
+RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
+RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
+RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+else ifeq ($(BASIC_XDP_NAME),xdp_csum_only)
+RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
+RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
+RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+else
+$(error Unsupported BASIC_XDP_NAME)
+endif
 ################################################################################################
 
 $(BASIC_XDP_NAME):
