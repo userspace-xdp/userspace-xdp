@@ -50,8 +50,9 @@ static __always_inline void ipv4_csum(void *data_start, int data_size,
 	*csum = csum_fold_helper(*csum);
 }
 
-int bpf_main(struct xdp_md *ctx)
+int bpf_main(void *ctx_base)
 {
+	struct xdp_md *ctx = (struct xdp_md *)ctx_base;
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	struct ethhdr *eth = data;

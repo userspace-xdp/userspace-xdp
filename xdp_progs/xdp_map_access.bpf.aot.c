@@ -4,11 +4,10 @@
  * modify it under the terms of version 2 of the GNU General Public
  * License as published by the Free Software Foundation.
  */
-#include "vmlinux.h"
-#include <bpf/bpf_helpers.h>
-
-#include "xdp_map_access_common.h"
-
+// #include "vmlinux.h"
+// #include <bpf/bpf_helpers.h>
+#include "def.bpf.h"
+// #include "xdp_map_access_common.h"
 
 int counter = 0;
 
@@ -28,12 +27,12 @@ static void swap_src_dst_mac(void *data)
 	p[5] = dst[2];
 }
 
-int bpf_main(struct xdp_md *ctx)
+int bpf_main(void *ctx_base)
 {
+	struct xdp_md *ctx = (struct xdp_md *)ctx_base;
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	struct ethhdr *eth = data;
-	struct dummy_key key = {0};
 	int rc = XDP_PASS;
 	long *value;
 	u16 h_proto;
@@ -45,7 +44,6 @@ int bpf_main(struct xdp_md *ctx)
 		return rc;
 
 	h_proto = eth->h_proto;
-	key.key = 23;
 	
 	counter++;
 	// bpf_printk("counter %d\n", counter);
@@ -53,5 +51,3 @@ int bpf_main(struct xdp_md *ctx)
 	rc = XDP_TX;
 	return rc;
 }
-
-char _license[] SEC("license") = "GPL";

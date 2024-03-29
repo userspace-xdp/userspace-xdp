@@ -138,15 +138,15 @@ $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 
 $(OUTPUT)/xdp_csum_only.aot.o: xdp_csum_only.bpf.aot.c
 	$(call msg,CC,$@)
-	$(Q)$(CC) $(CFLAGS) -o3 $(INCLUDES) -c $< -o $@
+	$(Q)$(CC) -O3 $(INCLUDES) -c $< -o $@
 
 $(OUTPUT)/xdp_csum.aot.o: xdp_csum.bpf.aot.c
 	$(call msg,CC,$@)
-	$(Q)$(CC) $(CFLAGS) -o3 $(INCLUDES) -c $< -o $@
+	$(Q)$(CC) -O3 $(INCLUDES) -c $< -o $@
 
 $(OUTPUT)/xdp_map_access.aot.o: xdp_map_access.bpf.aot.c
 	$(call msg,CC,$@)
-	$(Q)$(CC) $(CFLAGS) -o3 $(INCLUDES) -c $< -o $@
+	$(Q)$(CC) -O3 $(INCLUDES) -c $< -o $@
 
 # delete failed targets
 .DELETE_ON_ERROR:
