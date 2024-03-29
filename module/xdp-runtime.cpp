@@ -9,7 +9,7 @@ uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3,
 			   uint64_t to_size, uint64_t seed);
 uint64_t bpftime_xdp_adjust_tail(struct xdp_buff *xdp, __u64 offset);
 uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags);
-uint64_t bpftime_xdp_adjust_head(struct xdp_md_userspace * xdp, int offset);
+uint64_t bpftime_xdp_adjust_head(struct xdp_md_userspace *xdp, int offset);
 }
 #include <cassert>
 #include <cstddef>
@@ -49,7 +49,8 @@ bpftime::bpftime_helper_info xdp_adjust_head = {
 	.fn = (void *)bpftime_xdp_adjust_head
 };
 
-static bool if_enable_jit() {
+static bool if_enable_jit()
+{
 	char *env = getenv("DISABLE_JIT");
 	if (env != nullptr) {
 		printf("disable JIT\n");
@@ -82,6 +83,22 @@ int get_aot_object(std::vector<uint8_t> &buf)
 	return 0;
 }
 
+int read_file(const std::string &file, std::vector<uint8_t> &data)
+{
+	std::ifstream in(file, std::ios::binary);
+	if (!in) {
+		cerr << "Failed to open file " << file << endl;
+		return 1;
+	}
+	in.seekg(0, std::ios::end);
+	size_t size = in.tellg();
+	in.seekg(0, std::ios::beg);
+	data.resize(size);
+	in.read((char *)data.data(), size);
+	in.close();
+	return 0;
+}
+
 static int load_ebpf_programs()
 {
 	const handler_manager *manager =
@@ -107,7 +124,8 @@ static int load_ebpf_programs()
 			auto new_prog = new bpftime_prog(prog.insns.data(),
 							 prog.insns.size(),
 							 prog.name.c_str());
-			printf("find eBPF program %s   %d\n", prog.name.c_str(), prog.insns.size());
+			printf("find eBPF program %s   %d\n", prog.name.c_str(),
+			       prog.insns.size());
 			bpftime_helper_group::get_kernel_utils_helper_group()
 				.add_helper_group_to_prog(new_prog);
 			bpftime_helper_group::get_shm_maps_helper_group()
@@ -120,6 +138,7 @@ static int load_ebpf_programs()
 			new_prog->bpftime_prog_register_raw_helper(
 				xdp_adjust_head);
 			if (using_aot) {
+				// load aot object from share memory
 				int res = new_prog->load_aot_object(aot_buf);
 				if (res < 0) {
 					fprintf(stderr,
@@ -127,8 +146,12 @@ static int load_ebpf_programs()
 						prog.name.c_str());
 					return -1;
 				}
+				printf("load aot object %s\n",
+				       prog.name.c_str());
+
 			} else {
-				int res = new_prog->bpftime_prog_load(if_enable_jit());
+				int res = new_prog->bpftime_prog_load(
+					if_enable_jit());
 				if (res < 0) {
 					fprintf(stderr,
 						"Failed to load eBPF program %s\n",
@@ -156,8 +179,9 @@ static int register_maps()
 {
 	bpftime_register_map_ops(
 		(int)bpftime::bpf_map_type::BPF_MAP_TYPE_DEVMAP, &dev_map_ops);
-  bpftime_register_map_ops(
-    (int)bpftime::bpf_map_type::BPF_MAP_TYPE_LPM_TRIE, &lpm_map_ops);
+	bpftime_register_map_ops(
+		(int)bpftime::bpf_map_type::BPF_MAP_TYPE_LPM_TRIE,
+		&lpm_map_ops);
 	return 0;
 }
 
@@ -179,10 +203,12 @@ extern "C" int ebpf_module_run_at_handler(void *mem, uint64_t mem_size,
 	return entry_prog->bpftime_prog_exec(mem, mem_size, ret);
 }
 
-int run_xdp_and_measure(bpftime_prog& prog, std::vector<uint8_t>& data_in, int repeat_N) {
+int run_xdp_and_measure(bpftime_prog &prog, std::vector<uint8_t> &data_in,
+			int repeat_N)
+{
 	// Tes the program
 	uint64_t return_val;
-	void* memory = data_in.data();
+	void *memory = data_in.data();
 	size_t memory_size = data_in.size();
 	struct xdp_md_userspace xdp;
 	xdp.data = (__u64)memory;
@@ -198,29 +224,24 @@ int run_xdp_and_measure(bpftime_prog& prog, std::vector<uint8_t>& data_in, int r
 	// end timer
 	clock_gettime(CLOCK_MONOTONIC, &end);
 	// get avg time in ns
-	uint64_t time_ns = (end.tv_sec - start.tv_sec) * 1000000000 + (end.tv_nsec - start.tv_nsec);
+	uint64_t time_ns = (end.tv_sec - start.tv_sec) * 1000000000 +
+			   (end.tv_nsec - start.tv_nsec);
 	time_ns /= repeat_N;
 	cout << "Time taken: " << time_ns << " ns" << endl;
 	cout << "Return value: " << return_val << endl;
 	return 0;
 }
 
-int bpftime_run_xdp_program(int id,
-			     const std::string &data_in_file, int repeat_N, const std::string &run_type)
+int bpftime_run_xdp_program(int id, const std::string &data_in_file,
+			    int repeat_N, const std::string &run_type)
 {
-	cout << "Running eBPF program with id " << id << " and data in file " << data_in_file << endl;
-	cout << "Repeat N: " << repeat_N << " with run type " << run_type << endl;
+	cout << "Running eBPF program with id " << id << " and data in file "
+	     << data_in_file << endl;
+	cout << "Repeat N: " << repeat_N << " with run type " << run_type
+	     << endl;
 	std::vector<uint8_t> data_in;
-	std::ifstream ifs(data_in_file, std::ios::binary | std::ios::ate);
-	if (!ifs.is_open()) {
-		cerr << "Unable to open data in file" << endl;
-		return 1;
-	}
-	std::streamsize size = ifs.tellg();
-	ifs.seekg(0, std::ios::beg);
-	data_in.resize(size);
-	if (!ifs.read((char *)data_in.data(), size)) {
-		cerr << "Unable to read data in file" << endl;
+	if (read_file(data_in_file, data_in) != 0) {
+		cerr << "Failed to read data in file" << endl;
 		return 1;
 	}
 	bpftime_initialize_global_shm(shm_open_type::SHM_OPEN_ONLY);
@@ -232,35 +253,33 @@ int bpftime_run_xdp_program(int id,
 		return 1;
 	}
 	if (std::holds_alternative<bpf_prog_handler>(
-			    manager->get_handler(id))) {
-			const auto &prog = std::get<bpf_prog_handler>(
-				manager->get_handler(id));
-			auto new_prog = bpftime_prog(prog.insns.data(),
-							 prog.insns.size(),
-							 prog.name.c_str());
-					bpftime::bpftime_helper_group::get_kernel_utils_helper_group()
+		    manager->get_handler(id))) {
+		const auto &prog =
+			std::get<bpf_prog_handler>(manager->get_handler(id));
+		auto new_prog =
+			bpftime_prog(prog.insns.data(), prog.insns.size(),
+				     prog.name.c_str());
+		bpftime::bpftime_helper_group::get_kernel_utils_helper_group()
 			.add_helper_group_to_prog(&new_prog);
-			bpftime::bpftime_helper_group::get_shm_maps_helper_group()
-				.add_helper_group_to_prog(&new_prog);
-			new_prog.bpftime_prog_register_raw_helper(csum_diff);
-			new_prog.bpftime_prog_register_raw_helper(
-				xdp_adjust_tail);
-			new_prog.bpftime_prog_register_raw_helper(
-				bpf_redirect_map);
-			new_prog.bpftime_prog_register_raw_helper(
-				xdp_adjust_head);
-			if (run_type == "JIT") {
-				new_prog.bpftime_prog_load(true);
-			} else if (run_type == "AOT") {
-				if (prog.aot_insns.size() == 0) {
-					cerr << "AOT instructions not found" << endl;
-					return 1;
-				}
-				new_prog.load_aot_object(std::vector<uint8_t>(prog.aot_insns.begin(), prog.aot_insns.end()));
-			} else if (run_type == "INTERPRET") {
-				new_prog.bpftime_prog_load(false);
+		bpftime::bpftime_helper_group::get_shm_maps_helper_group()
+			.add_helper_group_to_prog(&new_prog);
+		new_prog.bpftime_prog_register_raw_helper(csum_diff);
+		new_prog.bpftime_prog_register_raw_helper(xdp_adjust_tail);
+		new_prog.bpftime_prog_register_raw_helper(bpf_redirect_map);
+		new_prog.bpftime_prog_register_raw_helper(xdp_adjust_head);
+		if (run_type == "JIT") {
+			new_prog.bpftime_prog_load(true);
+		} else if (run_type == "AOT") {
+			if (prog.aot_insns.size() == 0) {
+				cerr << "AOT instructions not found" << endl;
+				return 1;
 			}
-			return run_xdp_and_measure(new_prog, data_in, repeat_N);
+			new_prog.load_aot_object(std::vector<uint8_t>(
+				prog.aot_insns.begin(), prog.aot_insns.end()));
+		} else if (run_type == "INTERPRET") {
+			new_prog.bpftime_prog_load(false);
+		}
+		return run_xdp_and_measure(new_prog, data_in, repeat_N);
 	} else {
 		cerr << "Invalid id " << id << " not a bpf program" << endl;
 		return 1;

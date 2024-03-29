@@ -3,7 +3,7 @@ import re
 import matplotlib.pyplot as plt
 
 # Directory to traverse
-name = os.environ.get('NAME', 'xdp_csum')
+name = os.environ.get('NAME', 'xdp_csum_only')
 root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench", name)
 target_file = 'size-64.txt'
 save_name = 'ipackets.png'

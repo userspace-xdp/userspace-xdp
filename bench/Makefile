@@ -32,18 +32,22 @@ RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
 RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/xdp_map_access.aot.o
 else ifeq ($(BASIC_XDP_NAME),xdp_csum)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
 RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/xdp_csum.aot.o
 else ifeq ($(BASIC_XDP_NAME),xdp_csum_only)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
 RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/xdp_csum_only.aot.o
+
 else
-$(error Unsupported BASIC_XDP_NAME)
+$(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))
 endif
 ################################################################################################
 
@@ -121,6 +125,22 @@ $(BASIC_XDP_NAME)/dpdk_llvm_jit: $(BASIC_XDP_NAME)
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_LLVM)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_LLVM)/bpftime/libbpf/libbpf \
+	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_llvm \
+	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
+	$(MAKE) tmp-pktgen-res
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_llvm_jit
+	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
+	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9 || true
+	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9  || true
+
+$(BASIC_XDP_NAME)/dpdk_llvm_aot: $(BASIC_XDP_NAME)
+	$(MAKE) remove-xdp
+	# Start the process in the background
+	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
+	$(RUN_XDP_USERSPACE_COMMAND) &
+	rm -rf ./tmp-pktgen-res
+	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_LLVM)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_LLVM)/bpftime/libbpf/libbpf \
+	AOT_OBJECT_NAME=$(BASIC_XDP_AOT_RES_NAME) \
 	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_llvm \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
 	$(MAKE) tmp-pktgen-res
