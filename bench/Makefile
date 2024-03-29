@@ -144,7 +144,7 @@ $(BASIC_XDP_NAME)/dpdk_llvm_aot: $(BASIC_XDP_NAME)
 	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_llvm \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
 	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_llvm_jit
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_llvm_aot
 	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9 || true
 	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9  || true
