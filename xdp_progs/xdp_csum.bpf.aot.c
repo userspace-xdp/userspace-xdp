@@ -12,13 +12,6 @@
 #define ETH_P_IP 0x0800
 #define ETH_P_IPV6 0x86DD
 
-struct {
-	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
-	__type(key, u32);
-	__type(value, long);
-	__uint(max_entries, 256);
-} rxcnt SEC(".maps");
-
 static void swap_src_dst_mac(void *data)
 {
 	unsigned short *p = data;
@@ -41,7 +34,7 @@ static __always_inline __u16 csum_fold_helper(__u32 csum)
 }
 
 __s64 _bpf_helper_ext_0028();
-void* _bpf_helper_ext_0001();
+void * _bpf_helper_ext_0001();
 
 static __always_inline void ipv4_csum(void *data_start, int data_size,
 				      __u32 *csum)
@@ -83,11 +76,11 @@ int bpf_main(void *ctx_base)
 	for (i = 0; i < LOOP_LEN ;i++){
 		ipv4_csum(iph, sizeof(struct iphdr), &csum);
 		iph->check = csum;
-		value = _bpf_helper_ext_0001(&rxcnt, &dummy_int);
+		value = _bpf_helper_ext_0001(4, &dummy_int);
 	}
 	// bpf_printk("csum: %d\n", csum);
 
-	value = _bpf_helper_ext_0001(&rxcnt, &dummy_int);
+	value = _bpf_helper_ext_0001(4, &dummy_int);
 	if (value)
 		*value += 1;
 	swap_src_dst_mac(data);

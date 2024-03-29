@@ -67,7 +67,7 @@ $(call allow-override,CXX,$(CROSS_COMPILE)g++)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
 .PHONY: all 
-all: $(APPS) $(OUTPUT)/xdp_csum.aot.o $(OUTPUT)/xdp_csum_only.aot.o  $(OUTPUT)/xdp_map_access.aot.o 
+all: $(APPS) $(OUTPUT)/xdp_csum.aot.o $(OUTPUT)/xdp_csum_only.aot.o  $(OUTPUT)/xdp_map_access.aot.o $(OUTPUT)/xdp_csum_only_inline.aot.o
 
 .PHONY: clean
 clean:
@@ -140,9 +140,13 @@ $(OUTPUT)/xdp_csum_only.aot.o: xdp_csum_only.bpf.aot.c
 	$(call msg,CC,$@)
 	$(Q)$(CC) -O3 $(INCLUDES) -c $< -o $@
 
-$(OUTPUT)/xdp_csum.aot.o: xdp_csum.bpf.aot.c
+$(OUTPUT)/xdp_csum_only_inline.aot.o: xdp_csum_only.bpf.aot.c ../module/helpers.c  inline_helpers.c 
 	$(call msg,CC,$@)
 	$(Q)$(CC) -O3 $(INCLUDES) -c $< -o $@
+
+$(OUTPUT)/xdp_csum.aot.o: xdp_csum.bpf.aot.c
+	$(call msg,CC,$@)
+	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
 
 $(OUTPUT)/xdp_map_access.aot.o: xdp_map_access.bpf.aot.c
 	$(call msg,CC,$@)

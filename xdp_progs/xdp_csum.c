@@ -150,12 +150,6 @@ int main(int argc, char **argv)
 	// 	return 1;
 	// }
 
-	ifindex = if_nametoindex(argv[optind]);
-	if (!ifindex) {
-		perror("if_nametoindex");
-		return 1;
-	}
-
 	// snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
 	// prog_load_attr.file = filename;
 	
@@ -165,7 +159,11 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Failed to load and verify BPF skeleton\n");
 		return 1;
 	}
-
+	ifindex = if_nametoindex(argv[optind]);
+	if (!ifindex) {
+		perror("if_nametoindex");
+		return 1;
+	}
 	// attach
 	res = bpf_xdp_attach(ifindex, bpf_program__fd(skel->progs.xdp_pass), xdp_flags, NULL);
 	if (res)
