@@ -7,6 +7,7 @@ import re
 parser = argparse.ArgumentParser(description="Run pktgen with specified packet size and save SOC output.")
 parser.add_argument("pkt_size", type=int, help="The desired packet size for pktgen.")
 parser.add_argument("output_file", type=str, help="The file to save SOC output.")
+parser.add_argument("type", type=str, help="The type of traffic profile to use.")
 args = parser.parse_args()
 
 # The other script will be executed on the remote machine with 10 seconds
@@ -51,11 +52,16 @@ want_pkt_size = args.pkt_size
 # Example modification (change the value as needed):
 modify_pkt_size(want_pkt_size)
 
+if args.type == "icmp":
+    traffic_profile = "traffic-profile-basic-icmp.lua"
+else:
+    traffic_profile = "traffic-profile-basic.lua"
 # Command to run pktgen via SSH
 ssh_cmd = [
     "ssh", "-t", "yunwei@octopus1.doc.res.ic.ac.uk", "-i", "/home/yunwei/.ssh/id_rsa1",
-    "cd ~/ebpf-xdp-dpdk/Pktgen-DPDK && sudo -E LD_LIBRARY_PATH=/home/yunwei/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen -l 0-2 -n 4 -a 18:00.1 -- -P -m \"[1-2].0\" -f /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/traffic-profile-basic.lua -g 146.179.4.8:0x5606"
+    f"cd ~/ebpf-xdp-dpdk/Pktgen-DPDK && sudo -E LD_LIBRARY_PATH=/home/yunwei/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen -l 0-2 -n 4 -a 18:00.1 -- -P -m \"[1-2].0\" -f /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/{traffic_profile} -g 146.179.4.8:0x5606"
 ]
+print(ssh_cmd)
 
 # Command to run socat after waiting
 socat_cmd = [

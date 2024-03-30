@@ -12,13 +12,23 @@ remove-xdp:
 	sudo ip link set dev $(NETDEV) xdp off
 	sudo ip link set dev $(NETDEV) xdpgeneric off
 
-tmp-pktgen-res:
-	mkdir -p ./tmp-pktgen-res
+TRAFFICGEN ?= remote64to1024tcp
+
+.PHONY: remote64to1024tcp
+remote64to1024tcp:
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt
 	python3 pktgen/remote.py 128 ./tmp-pktgen-res/size-128.txt
 	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt
 	python3 pktgen/remote.py 512 ./tmp-pktgen-res/size-512.txt
 	python3 pktgen/remote.py 1024 ./tmp-pktgen-res/size-1024.txt
+
+.PHONY: remote256icmp
+remote256icmp:
+	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt icmp
+
+tmp-pktgen-res:
+	mkdir -p ./tmp-pktgen-res
+	$(MAKE) $(TRAFFICGEN)
 
 ################################################################################################
 BASIC_XDP_NAME ?= xdp_tx
@@ -45,7 +55,13 @@ RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
 RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
 BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/xdp_csum_only.aot.o
-
+else ifeq ($(BASIC_XDP_NAME),xdping)
+RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) -s -I  $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
+RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
+RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+BASIC_XDP_AOT_RES_NAME = .
+TRAFFICGEN = remote256icmp
 else
 $(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))
 endif

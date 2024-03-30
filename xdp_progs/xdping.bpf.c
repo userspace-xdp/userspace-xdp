@@ -65,6 +65,8 @@ static __always_inline __u16 ipv4_csum(void *data_start, int data_size)
 }
 
 #define ICMP_ECHO_LEN		64
+#define ICMP_TEST_TYPE		99
+
 
 static __always_inline int icmp_check(struct xdp_md *ctx, int type)
 {
@@ -73,10 +75,10 @@ static __always_inline int icmp_check(struct xdp_md *ctx, int type)
 	struct ethhdr *eth = data;
 	struct icmphdr *icmph;
 	struct iphdr *iph;
-
+	// bpf_printk("icmp_check\n");
 	if (data + sizeof(*eth) + sizeof(*iph) + ICMP_ECHO_LEN > data_end)
 		return XDP_PASS;
-
+	// bpf_printk("icmp_check ICMP_ECHO_LEN > data_end\n");
 	if (eth->h_proto != bpf_htons(ETH_P_IP))
 		return XDP_PASS;
 	// bpf_printk("eth->h_proto\n");
@@ -84,19 +86,20 @@ static __always_inline int icmp_check(struct xdp_md *ctx, int type)
 
 	if (iph->protocol != IPPROTO_ICMP)
 		return XDP_PASS;
-
-	if (bpf_ntohs(iph->tot_len) - sizeof(*iph) != ICMP_ECHO_LEN)
-		return XDP_PASS;
-
+	// bpf_printk("iph->protocol\n");
+	// if (bpf_ntohs(iph->tot_len) - sizeof(*iph) != ICMP_ECHO_LEN)
+	// 	return XDP_PASS;
+	// bpf_printk("iph->tot_len\n");
 	icmph = data + sizeof(*eth) + sizeof(*iph);
 	// bpf_printk("icmph %p", icmph);
 	// return XDP_PASS;
-	// if (&(icmph->type) > data_end) {
-	// 	bpf_printk("XDP_PASS for invalid icmp\n");
-	// 	return XDP_PASS;
-	// }
-	if (icmph->type != type)
+	if (&(icmph->type) > data_end) {
+		bpf_printk("XDP_PASS for invalid icmp\n");
 		return XDP_PASS;
+	}
+	// bpf_printk("icmph->type %d\n", icmph->type);
+	// if (icmph->type != type)
+	// 	return XDP_PASS;
 	// bpf_printk("XDP_TX icmp\n");
 	return XDP_TX;
 }
