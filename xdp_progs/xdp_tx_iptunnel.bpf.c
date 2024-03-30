@@ -105,8 +105,8 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 	tnl = bpf_map_lookup_elem(&vip2tnl, &vip);
 	bpf_printk("tnl: %p\n", tnl);
 	/* It only does v4-in-v4 */
-	// if (!tnl || tnl->family != AF_INET)
-	// 	return XDP_PASS;
+	if (!tnl || tnl->family != AF_INET)
+		return XDP_PASS;
 	bpf_printk("map lookup\n");
 	/* The vip key is found.  Add an IP header and send it out */
 
