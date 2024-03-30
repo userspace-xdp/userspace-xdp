@@ -66,8 +66,10 @@ $(call allow-override,CC,$(CROSS_COMPILE)cc)
 $(call allow-override,CXX,$(CROSS_COMPILE)g++)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
+AOT_OBJECTS = $(OUTPUT)/xdp_csum.aot.o $(OUTPUT)/xdp_csum_only.aot.o  $(OUTPUT)/xdp_map_access.aot.o $(OUTPUT)/xdp_csum_only.inline.aot.o
+
 .PHONY: all 
-all: $(APPS) $(OUTPUT)/xdp_csum.aot.o $(OUTPUT)/xdp_csum_only.aot.o  $(OUTPUT)/xdp_map_access.aot.o $(OUTPUT)/xdp_csum_only_inline.aot.o
+all: $(APPS) $(AOT_OBJECTS)
 
 .PHONY: clean
 clean:
@@ -136,21 +138,16 @@ $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 	$(call msg,BINARY,$@)
 	$(Q)$(CXX) $(CFLAGS) $^ $(ALL_LDFLAGS) -lelf -lz -o $@
 
-$(OUTPUT)/xdp_csum_only.aot.o: xdp_csum_only.bpf.aot.c
-	$(call msg,CC,$@)
-	$(Q)$(CC) -O3 $(INCLUDES) -c $< -o $@
-
-$(OUTPUT)/xdp_csum_only_inline.aot.o: xdp_csum_only.bpf.aot.c ../module/helpers.c  inline_helpers.c 
-	$(call msg,CC,$@)
-	$(Q)$(CC) -O3 $(INCLUDES) -c $< -o $@
-
-$(OUTPUT)/xdp_csum.aot.o: xdp_csum.bpf.aot.c
+$(OUTPUT)/%.aot.o: %.bpf.aot.c
 	$(call msg,CC,$@)
 	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
 
-$(OUTPUT)/xdp_map_access.aot.o: xdp_map_access.bpf.aot.c
+$(OUTPUT)/%.inline.aot.o: %.bpf.inline.aot.c
 	$(call msg,CC,$@)
-	$(Q)$(CC) -O3 $(INCLUDES) -c $< -o $@
+	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
+
+clean-aot:
+	rm -f $(AOT_OBJECTS)
 
 # delete failed targets
 .DELETE_ON_ERROR:

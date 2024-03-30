@@ -16,11 +16,11 @@ TRAFFICGEN ?= remote64to1024tcp
 
 .PHONY: remote64to1024tcp
 remote64to1024tcp:
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt
-	python3 pktgen/remote.py 128 ./tmp-pktgen-res/size-128.txt
-	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt
-	python3 pktgen/remote.py 512 ./tmp-pktgen-res/size-512.txt
-	python3 pktgen/remote.py 1024 ./tmp-pktgen-res/size-1024.txt
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt tcp
+	python3 pktgen/remote.py 128 ./tmp-pktgen-res/size-128.txt tcp
+	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt tcp
+	python3 pktgen/remote.py 512 ./tmp-pktgen-res/size-512.txt tcp
+	python3 pktgen/remote.py 1024 ./tmp-pktgen-res/size-1024.txt tcp
 
 .PHONY: remote256icmp
 remote256icmp:
@@ -62,6 +62,12 @@ RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
 BASIC_XDP_AOT_RES_NAME = .
 TRAFFICGEN = remote256icmp
+else ifeq ($(BASIC_XDP_NAME),xdp_lb)
+RUN_XDP_BASIC_COMMAND = BASIC_TEST_BENCH_CONFIG=1 $(ROOTDIR)/xdp-ebpf-new/xdp_lb $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND = DRV_MODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_SKB_COMMAND = SKB_MODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+BASIC_XDP_AOT_RES_NAME = .
 else
 $(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))
 endif
@@ -174,7 +180,7 @@ $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy: $(BASIC_XDP_NAME)
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1 -z &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy
-	sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
+	# sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true
 	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true
 
@@ -187,7 +193,7 @@ $(BASIC_XDP_NAME)/afxdp_llvm_jit_copy: $(BASIC_XDP_NAME)
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1 -c &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_jit_copy
-	sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
+	# sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9  || true
 	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9  || true
 
@@ -201,6 +207,6 @@ $(BASIC_XDP_NAME)/afxdp_ubpf_jit: $(BASIC_XDP_NAME)
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_ubpf --l2fwd -i enp24s0f1np1 &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_ubpf_jit
-	sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
+	# sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'xdpsock_ubpf' | xargs kill -9 || true
 	sudo pgrep -f 'xdpsock_ubpf' | xargs kill -9 || true

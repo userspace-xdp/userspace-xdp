@@ -349,7 +349,7 @@ int xdp_pass(struct xdp_md *ctx)
 {
 	void *data_end = (void *)ctx->data_end;
 	void *data = (void *)ctx->data;
-	bpf_printk("received packet %p %p\n", data, data_end);
+	// bpf_printk("received packet %p %p\n", data, data_end);
 
 	struct ethhdr *eth = data;
 	if (CHECK_OUT_OF_BOUNDS(data, sizeof(struct ethhdr), data_end))
@@ -370,7 +370,7 @@ int xdp_pass(struct xdp_md *ctx)
 	if (ip->protocol == IPPROTO_TCP)
 	{
 		struct tcphdr *tcp = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
-		bpf_printk("received tcp packet\n");
+		// bpf_printk("received tcp packet\n");
 
 		if (CHECK_OUT_OF_BOUNDS(tcp, sizeof(struct tcphdr), data_end))
 		{
@@ -428,11 +428,11 @@ int xdp_pass(struct xdp_md *ctx)
 		//   /* FIX TCP chksum */
 		// if (compute_tcp_csum(ip, (unsigned short *)tcp, data_end))
 		// 	return XDP_DROP;
-		bpf_printk("No tcp checksum\n");
-		bpf_printk("sending packet to %d\n", key);
+		// bpf_printk("No tcp checksum\n");
+		// bpf_printk("sending packet to %d\n", key);
 		return XDP_TX;
 	}
-	bpf_printk("pass\n");
+	// bpf_printk("pass\n");
 	return XDP_PASS;
 }
 
