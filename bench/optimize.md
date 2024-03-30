@@ -48,6 +48,20 @@ The AOT process will do:
 
 - Compile with `-O3 -fno-stack-protector` and make sure the stack layout is correct.
 - Replace the entrance of the eBPF program with function name `bpf_main`.
-- All the helpers
+- All the helpers are replace with corresponding type info and name like `_bpf_helper_ext_0028`
+
+There are three possible optimizaions in AOT:
+
+- Add Type information and allow the LLVM to do better optimization.
+    - Observe: The eBPF bytecode is typeless, so if we JIT from the bytecode only, the LLVM will not be able to do some optimization, such as inlining, loop unrolling, SIMD, etc. With the type information, the LLVM can do better optimization.
+    - Approach: Add type information to the LLVM IR or from the source code.
+- inline helpers.
+    - Observe: Some helpers, such as copy data, strcmp, calc csum, generated random value, are very simple and Don't interact with other maps. They exist because the limitation of verifier. Inline them will avoid the cost of function call and enabled better optimizaion from LLVM.
+    - Approach: Prepare a helper implementations in C or LLVM IR, which can be compile and linked with the AOT eBPF res.
+    - We could also use better and specific implementation for the helpers.
+- inline maps.
+    - Observe: some maps are for configurations only, once they are loaded, they will not be read by userspace programs. They are also not shared between different eBPF programs. For example, the `target_pid` filtter in the tracing programs, or some config maps in network programs. Inline them will avoid the cost of map lookup and enabled better optimizaion from LLVM, since the eBPF inst will need helpers or something like `__lddw_helper_map_by_fd` to access them.
+    - Approach: inline the maps as global variables in the native code, so that it can be process by the AOT linker. The linker will allocate this `global variables` as the real global variables in the runtime instead of maps, and replace the map access with the address of the global variable directly.
+
 
 

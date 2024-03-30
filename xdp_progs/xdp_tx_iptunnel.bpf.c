@@ -88,10 +88,10 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 	int dport;
 	u32 csum = 0;
 	int i;
-
+	bpf_printk("handle_ipv4\n");
 	if (iph + 1 > data_end)
 		return XDP_DROP;
-
+	bpf_printk("handle_ipv4 1, valid\n");
 	dport = get_dport(iph + 1, data_end, iph->protocol);
 	if (dport == -1)
 		return XDP_DROP;
@@ -101,17 +101,18 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 	vip.daddr.v4 = iph->daddr;
 	vip.dport = dport;
 	payload_len = bpf_ntohs(iph->tot_len);
-
+	bpf_printk("start map lookup\n");
 	tnl = bpf_map_lookup_elem(&vip2tnl, &vip);
+	bpf_printk("tnl: %p\n", tnl);
 	/* It only does v4-in-v4 */
-	if (!tnl || tnl->family != AF_INET)
-		return XDP_PASS;
-
+	// if (!tnl || tnl->family != AF_INET)
+	// 	return XDP_PASS;
+	bpf_printk("map lookup\n");
 	/* The vip key is found.  Add an IP header and send it out */
 
 	if (bpf_xdp_adjust_head(xdp, 0 - (int)sizeof(struct iphdr)))
 		return XDP_DROP;
-
+	bpf_printk("adjust head\n");
 	data = (void *)(long)xdp->data;
 	data_end = (void *)(long)xdp->data_end;
 
@@ -123,7 +124,7 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 	    old_eth + 1 > data_end ||
 	    iph + 1 > data_end)
 		return XDP_DROP;
-
+	bpf_printk("handle_ipv4 2, not too small\n");
 	set_ethhdr(new_eth, old_eth, tnl, bpf_htons(ETH_P_IP));
 
 	iph->version = 4;
@@ -145,7 +146,7 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 	iph->check = ~((csum & 0xffff) + (csum >> 16));
 
 	count_tx(vip.protocol);
-
+	bpf_printk("handle_ipv4 XDP_TX\n");
 	return XDP_TX;
 }
 

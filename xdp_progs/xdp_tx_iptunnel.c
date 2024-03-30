@@ -246,6 +246,11 @@ int main(int argc, char **argv)
 		case 'b':
 			snprintf(btf_filename, sizeof(btf_filename), "%s", optarg);
 			printf("btf_filename: %s\n", btf_filename);
+			if (access(btf_filename, R_OK)) {
+				fprintf(stderr, "BTF file %s not found\n",
+					btf_filename);
+				btf_filename[0] = 0;
+			}
 			break;
 		default:
 			usage(argv[0]);
@@ -314,6 +319,7 @@ int main(int argc, char **argv)
 
 	while (min_port <= max_port) {
 		vip.dport = htons(min_port++);
+		printf("Adding VIP ");
 		if (bpf_map_update_elem(vip2tnl_map_fd, &vip, &tnl,
 					BPF_NOEXIST)) {
 			perror("bpf_map_update_elem(&vip2tnl)");

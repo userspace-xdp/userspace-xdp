@@ -44,6 +44,8 @@ def plot_data(data):
     """
     Plot the collected data in a bar plot.
     """
+    # sort the data
+    data = dict(sorted(data.items(), key=lambda item: item[1], reverse=True))
     labels = list(data.keys())
     values = list(data.values())
 

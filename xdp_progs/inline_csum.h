@@ -81,6 +81,11 @@ static inline __wsum csum_partial(const void *buff, int len, __wsum wsum)
 }
 
 #else
+
+#ifndef likely
+# define likely(X)		__builtin_expect(!!(X), 1)
+#endif
+
 /**
  * ror64 - rotate a 64-bit value right
  * @word: value to rotate
