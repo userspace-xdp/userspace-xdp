@@ -40,13 +40,33 @@ static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
 static int add_to_map(int fd, int key, int suf)
 {
 	int err;
-	ip_mac_pair tp = {0};
+	ip_mac_pair tp = { 0 };
 
 	tp.ip = 0xa000000;
-	tp.mac = {0xde, 0xad, 0xbe, 0xef, 0x0, 0x0};
+	tp.mac = { 0xde, 0xad, 0xbe, 0xef, 0x0, 0x0 };
 
 	tp.ip += suf;
 	tp.mac.addr[5] = suf;
+
+	err = bpf_map_update_elem(fd, &key, &tp, 0);
+	if (err) {
+		std::cerr << "Error while adding to map\n";
+		return 1;
+	}
+
+	return 0;
+}
+
+static int add_to_map_test_bench(int fd, int key, int suf)
+{
+	int err;
+	ip_mac_pair tp = { 0 };
+	// 192.168.1.0
+	tp.ip = 0xc0a80100;
+	// b8:3f:d2:2a:e5:11
+	tp.mac = { 0xb8, 0x3f, 0xd2, 0x2a, 0xe5, 0x11 };
+
+	tp.ip += suf;
 
 	err = bpf_map_update_elem(fd, &key, &tp, 0);
 	if (err) {
@@ -61,8 +81,8 @@ int main(int argc, char **argv)
 {
 	if (argc < 2) {
 		std::cerr << "ERROR - Usage is: " << argv[0]
-				  << " <INTERFACE>"
-				  << "\n";
+			  << " <INTERFACE> <BTF>"
+			  << "\n";
 		return 1;
 	}
 
@@ -83,12 +103,11 @@ int main(int argc, char **argv)
 	// // std::cout << "Loaded XDP prog with fd " << progFd << " and name "
 	// // 		  << progName << '\n';
 
-	LIBBPF_OPTS(bpf_object_open_opts , opts,
-	);
+	LIBBPF_OPTS(bpf_object_open_opts, opts, );
 	if (argc == 3)
 		opts.btf_custom_path = argv[2];
 
-	xdp_lb_bpf* skel = xdp_lb_bpf__open_opts(&opts);
+	xdp_lb_bpf *skel = xdp_lb_bpf__open_opts(&opts);
 	int res = xdp_lb_bpf__load(skel);
 	if (res < 0) {
 		std::cout << "load failed" << '\n';
@@ -112,34 +131,52 @@ int main(int argc, char **argv)
 	if (targets_map_fd < 0)
 		return 1;
 
-	/*
-	 * Manually populate the targets by hardcoding the MAC and IPs
-	 */
-	for (int i = 0; i < 2; i++) {
-		if (add_to_map(targets_map_fd, i, 2 + i))
+	if (getenv("BASIC_TEST_BENCH_CONFIG")) {
+		printf("Running basic test bench config\n");
+		for (int i = 0; i < 2; i++) {
+			if (add_to_map_test_bench(targets_map_fd, i, 2 + i))
+				return 1;
+		}
+		if (add_to_map_test_bench(config_map_fd, 0, 11))
+			return 1;
+
+		if (add_to_map_test_bench(config_map_fd, 1, 13))
+			return 1;
+	} else {
+		/*
+		 * Manually populate the targets by hardcoding the MAC and IPs
+		 */
+		for (int i = 0; i < 2; i++) {
+			if (add_to_map(targets_map_fd, i, 2 + i))
+				return 1;
+		}
+
+		/*
+		 * Similarly manually hardcode the local and client config
+		 */
+		if (add_to_map(config_map_fd, 0, 10))
+			return 1;
+
+		if (add_to_map(config_map_fd, 1, 1))
 			return 1;
 	}
-
-	/*
-	 * Similarly manually hardcode the local and client config
-	 */
-	if (add_to_map(config_map_fd, 0, 10))
-		return 1;
-
-	if (add_to_map(config_map_fd, 1, 1))
-		return 1;
 
 	// Attach the XDP program to the interface
 	int ifindex = ::if_nametoindex(argv[1]);
 	if (!ifindex) {
-		std::cerr << "Cannot resolve ifindex for interface name '" << argv[1]
-				  << "'\n";
+		std::cerr << "Cannot resolve ifindex for interface name '"
+			  << argv[1] << "'\n";
 		return 1;
 	}
 
-	int err = bpf_xdp_attach(ifindex, progFd,
-							 XDP_FLAGS_UPDATE_IF_NOEXIST | XDP_FLAGS_SKB_MODE,
-							 nullptr);
+	int flag = XDP_FLAGS_UPDATE_IF_NOEXIST;
+	if (getenv("SKB_MODE")) {
+		flag |= XDP_FLAGS_SKB_MODE;
+	} else if (getenv ("DRV_MODE")) {
+		flag |= XDP_FLAGS_DRV_MODE;
+	}
+
+	int err = bpf_xdp_attach(ifindex, progFd, flag, nullptr);
 	if (err) {
 		std::cerr << "Error while attaching bpf program\n";
 		return 1;
