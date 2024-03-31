@@ -90,13 +90,17 @@ static __always_inline int send_icmp4_too_big(struct xdp_md *xdp)
 {
 	int headroom = (int)sizeof(struct iphdr) + (int)sizeof(struct icmphdr);
 
-	if (bpf_xdp_adjust_head(xdp, 0 - headroom))
+	if (bpf_xdp_adjust_head(xdp, 0 - headroom)) {
+		bpf_printk("xdp_adjust_head failed\n");
 		return XDP_DROP;
+	}
 	void *data = (void *)(long)xdp->data;
 	void *data_end = (void *)(long)xdp->data_end;
 
-	if (data + (ICMP_TOOBIG_SIZE + headroom) > data_end)
+	if (data + (ICMP_TOOBIG_SIZE + headroom) > data_end) {
+		bpf_printk("Invalid packet data + ICMP_TOOBIG_SIZE + headroom > data_end\n");
 		return XDP_DROP;
+	}
 
 	struct iphdr *iph, *orig_iph;
 	struct icmphdr *icmp_hdr;
@@ -145,8 +149,9 @@ static __always_inline int handle_ipv4(struct xdp_md *xdp)
 
 	if (pckt_size > max(max_pcktsz, ICMP_TOOBIG_SIZE)) {
 		offset = pckt_size - ICMP_TOOBIG_SIZE;
-		if (bpf_xdp_adjust_tail(xdp, 0 - offset))
-			return XDP_PASS;
+		// if (bpf_xdp_adjust_tail(xdp, 0 - offset))
+			// return XDP_PASS;
+		bpf_xdp_adjust_tail(xdp, 0 - offset);
 		return send_icmp4_too_big(xdp);
 	}
 	return XDP_PASS;
@@ -160,11 +165,13 @@ int xdp_pass(struct xdp_md *xdp)
 	struct ethhdr *eth = data;
 	__u16 h_proto;
 
-	if (eth + 1 > data_end)
+	if (eth + 1 > data_end) {
+		bpf_printk("Invalid packet eth + 1 > data_end\n");
 		return XDP_DROP;
+	}
 
 	h_proto = eth->h_proto;
-
+	// bpf_printk("h_proto: %d\n", h_proto);
 	if (h_proto == bpf_htons(ETH_P_IP))
 		return handle_ipv4(xdp);
 	else

@@ -345,11 +345,6 @@ struct skb_shared_info {
 	// skb_frag_t frags[17];
 };
 
-static __always_inline bool xdp_buff_has_frags(struct xdp_buff *xdp)
-{
-	return !!(xdp->flags & XDP_FLAGS_HAS_FRAGS);
-}
-
 // static int bpf_xdp_frags_increase_tail(struct xdp_buff *xdp, int offset)
 // {
 // 	struct skb_shared_info *sinfo = xdp_get_shared_info_from_buff(xdp);
@@ -467,13 +462,14 @@ uint64_t bpftime_xdp_adjust_tail(struct xdp_buff *xdp, uint64_t offset)
 	void *data_hard_end = xdp_data_hard_end(xdp); /* use xdp->frame_sz */
 	void *data_end = xdp->data_end + offset;
 
-	if (unlikely(xdp_buff_has_frags(xdp))) { /* non-linear xdp buff */
-		if (offset < 0)
-			return bpf_xdp_frags_shrink_tail(xdp, -offset);
-		printf("offset: %lu\n bpf_xdp_frags_increase_tail not supported", offset);
-		return -EINVAL;
-		// return bpf_xdp_frags_increase_tail(xdp, offset);
-	}
+	// In dpdk or afxdp, we don't use frags
+	// if (unlikely(xdp_buff_has_frags(xdp))) { /* non-linear xdp buff */
+	// 	if (offset < 0)
+	// 		return bpf_xdp_frags_shrink_tail(xdp, -offset);
+	// 	printf("offset: %lu\n bpf_xdp_frags_increase_tail not supported\n", offset);
+	// 	return -EINVAL;
+	// 	// return bpf_xdp_frags_increase_tail(xdp, offset);
+	// }
 
 	/* Notice that xdp_data_hard_end have reserved some tailroom */
 	if (unlikely(data_end > data_hard_end))

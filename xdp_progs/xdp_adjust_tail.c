@@ -156,7 +156,11 @@ int main(int argc, char **argv)
 	// obj = bpf_object__open_file(filename, NULL);
 	// if (libbpf_get_error(obj))
 	// 	return 1;
-	struct xdp_adjust_tail_bpf* skel = xdp_adjust_tail_bpf__open();
+	LIBBPF_OPTS(bpf_object_open_opts, opts, );
+	if (getenv("CUSTOM_BTF_PATH")) {
+		opts.btf_custom_path = getenv("CUSTOM_BTF_PATH");
+	}
+	struct xdp_adjust_tail_bpf* skel = xdp_adjust_tail_bpf__open_opts(&opts);
 	if (!skel)
 	{
 		fprintf(stderr, "Failed to open BPF skeleton\n");
@@ -200,7 +204,7 @@ int main(int argc, char **argv)
 
 	if (bpf_xdp_attach(ifindex, prog_fd, xdp_flags, NULL) < 0) {
 		printf("link set xdp fd failed\n");
-		return 1;
+		// return 1;
 	}
 
 	err = bpf_prog_get_info_by_fd(prog_fd, &info, &info_len);

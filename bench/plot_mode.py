@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 name = os.environ.get('NAME', 'xdp_csum_only')
 root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench", name)
 target_file = 'size-64.txt'
-if name == "xdping":
+if name == "xdping" or name == "xdp_adjust_tail":
     target_file = 'size-256.txt'
 save_name = 'ipackets.png'
 
