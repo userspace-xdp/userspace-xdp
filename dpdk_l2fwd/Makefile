@@ -8,7 +8,7 @@ APP = l2fwd
 SRCS-y := main.c
 
 PKGCONF ?= pkg-config
-
+LTO_FLAG ?=  -flto
 BPFTIME_LIB_DIR ?= $(ROOTDIR)/build-bpftime/
 
 # Build using pkg-config variables if possible
@@ -26,7 +26,7 @@ static: build/$(APP)-static
 PC_FILE := $(shell $(PKGCONF) --path libdpdk 2>/dev/null)
 CFLAGS += -O3 $(shell $(PKGCONF) --cflags libdpdk) -I$(ROOTDIR)/module
 # Add flag to allow experimental API as l2fwd uses rte_ethdev_set_ptype API
-CFLAGS += -DALLOW_EXPERIMENTAL_API  -flto
+CFLAGS += -DALLOW_EXPERIMENTAL_API  $(LTO_FLAG)
 ROOTDIR=$(shell git rev-parse --show-toplevel)
 LD_FLAGS_EBPF = -L$(BPFTIME_LIB_DIR)bpftime/runtime  \
 			-L$(BPFTIME_LIB_DIR) \
@@ -47,7 +47,7 @@ LD_FLAGS_EBPF = -L$(BPFTIME_LIB_DIR)bpftime/runtime  \
 			$(shell /usr/bin/llvm-config-15 --libs --link-static) \
 			$(shell /usr/bin/llvm-config-15 --system-libs --link-static) \
 			-lspdlog -lbpf \
-			-lfrida-gum -lpthread -lm -ldl -lz -lelf -flto
+			-lfrida-gum -lpthread -lm -ldl -lz -lelf $(LTO_FLAG)
 LDFLAGS_SHARED = $(shell $(PKGCONF) --libs libdpdk) $(LD_FLAGS_EBPF)
 LDFLAGS_STATIC = $(shell $(PKGCONF) --static --libs libdpdk) $(LD_FLAGS_EBPF)
 

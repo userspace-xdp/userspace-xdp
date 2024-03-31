@@ -19,6 +19,8 @@ build-bench-lib: dpdk $(BPFTIME_DIR_LLVM) $(BPFTIME_DIR_UBPF)
 
 bench-bin: $(BENCH_EXEC)
 
+LTO_FLAG ?= -flto
+
 $(BPFTIME_DIR_UBPF):
 	cmake -B $(BPFTIME_DIR_UBPF) .  -DBUILD_BPFTIME_DAEMON=0 -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo  -DBPFTIME_LLVM_JIT=0
 	make -C  $(BPFTIME_DIR_UBPF) -j
@@ -29,25 +31,25 @@ $(BPFTIME_DIR_LLVM):
 
 afxdp/l2fwd/xdpsock_ubpf: $(BPFTIME_DIR_UBPF)
 	rm -f afxdp/l2fwd/xdpsock
-	BPFTIME_LIB_DIR=$(BPFTIME_DIR_UBPF) make -C afxdp/l2fwd
+	BPFTIME_LIB_DIR=$(BPFTIME_DIR_UBPF) LTO_FLAG=$(LTO_FLAG) make -C afxdp/l2fwd
 	mv afxdp/l2fwd/xdpsock afxdp/l2fwd/xdpsock_ubpf
 
 afxdp/l2fwd/xdpsock_llvm: $(BPFTIME_DIR_LLVM)
 	rm -f afxdp/l2fwd/xdpsock
-	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) make -C afxdp/l2fwd
+	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) LTO_FLAG=$(LTO_FLAG) make -C afxdp/l2fwd
 	mv afxdp/l2fwd/xdpsock afxdp/l2fwd/xdpsock_llvm
 
 dpdk_l2fwd/dpdk_l2fwd_ubpf: $(BPFTIME_DIR_UBPF) dpdk
 	rm -rf dpdk_l2fwd/build
 	BPFTIME_LIB_DIR=$(BPFTIME_DIR_UBPF) \
-	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig \
+	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig LTO_FLAG=$(LTO_FLAG) \
 	make -C dpdk_l2fwd
 	mv dpdk_l2fwd/build/l2fwd-static dpdk_l2fwd/dpdk_l2fwd_ubpf
 
 dpdk_l2fwd/dpdk_l2fwd_llvm: $(BPFTIME_DIR_LLVM) dpdk
 	rm -rf dpdk_l2fwd/build
 	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) \
-	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig \
+	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig LTO_FLAG=$(LTO_FLAG) \
 	make -C dpdk_l2fwd
 	mv dpdk_l2fwd/build/l2fwd-static dpdk_l2fwd/dpdk_l2fwd_llvm
 

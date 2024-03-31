@@ -3,6 +3,7 @@ BPFTIME_LIB_DIR ?= $(ROOTDIR)/build-bpftime/
 USER_TARGETS   := xdpsock
 BPF_TARGETS    := xdpsock_kern
 ROOTDIR=$(shell git rev-parse --show-toplevel)
+LTO_FLAG ?=  -flto
 LDLIBS += -lpthread -L$(BPFTIME_LIB_DIR)bpftime/runtime/  \
 			-L$(BPFTIME_LIB_DIR) \
 			-L$(BPFTIME_LIB_DIR)bpftime/vm \
@@ -20,8 +21,8 @@ LDLIBS += -lpthread -L$(BPFTIME_LIB_DIR)bpftime/runtime/  \
 			$(shell /usr/bin/llvm-config-15 --libs --link-static) \
 			$(shell /usr/bin/llvm-config-15 --system-libs --link-static) \
 			-lspdlog -lbpf \
-			-lfrida-gum -lpthread -lm -ldl -lz -lelf -flto
-CFLAGS += -I$(ROOTDIR)/ -I$(ROOTDIR)/module $(shell /usr/bin/llvm-config-15 --cflags) -g -O3 -flto
+			-lfrida-gum -lpthread -lm -ldl -lz -lelf $(LTO_FLAG)
+CFLAGS += -I$(ROOTDIR)/ -I$(ROOTDIR)/module $(shell /usr/bin/llvm-config-15 --cflags) -g -O3 $(LTO_FLAG)
 LIB_DIR = ../lib
 
 include $(LIB_DIR)/common.mk
