@@ -80,7 +80,7 @@ RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp-firewall/xdp_firewall $(ROOTDIR)/xdp-fire
 RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
-BASIC_XDP_AOT_RES_NAME = .
+BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp-firewall/.output/xdp_firewall.aot.o
 TRAFFICGEN = remote64to1024tcp
 else
 $(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))
@@ -194,6 +194,21 @@ $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy: $(BASIC_XDP_NAME)
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1 -z &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy
+	# sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
+	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true
+	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true
+
+$(BASIC_XDP_NAME)/afxdp_llvm_aot: $(BASIC_XDP_NAME)
+	$(MAKE) remove-xdp
+	# Start the process in the background
+	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
+	$(RUN_XDP_USERSPACE_COMMAND) &
+	rm -rf ./tmp-pktgen-res
+	cd $(ROOTDIR)/afxdp/l2fwd && \
+	sudo -E AOT_OBJECT_NAME=$(BASIC_XDP_AOT_RES_NAME) \
+	./xdpsock_llvm --l2fwd -i enp24s0f1np1 -z &
+	$(MAKE) tmp-pktgen-res
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_aot
 	# sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
 	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true
 	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true

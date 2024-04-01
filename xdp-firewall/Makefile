@@ -67,7 +67,7 @@ $(call allow-override,CXX,$(CROSS_COMPILE)g++)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
 .PHONY: all 
-all: $(APPS)
+all: $(APPS) $(OUTPUT)/xdp_firewall.aot.o
 
 .PHONY: clean
 clean:
@@ -122,6 +122,10 @@ $(patsubst %,$(OUTPUT)/%.o,$(APPS)): %.o: %.skel.h
 $(OUTPUT)/%.o: %.c $(wildcard %.h) | $(OUTPUT)
 	$(call msg,CXX,$@)
 	$(Q)$(CXX) $(CFLAGS) $(INCLUDES) -c $(filter %.c,$^) -o $@
+
+$(OUTPUT)/%.aot.o: %.bpf.aot.c
+	$(call msg,CC,$@)
+	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
 
 $(patsubst %,$(OUTPUT)/%.o,$(BZS_APPS)): $(LIBBLAZESYM_HEADER)
 

@@ -198,6 +198,8 @@ bpf_prog_034a2390f7a2b578_xdp_pass:
 
 ## xdp firewall
 
+llvm jit:
+
 ```sh
 /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build /home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.bpf.o
 objdump -S /home/yunwei/xdp_pass.o
@@ -364,4 +366,174 @@ Disassembly of section .text:
  24b:   48 ff 40 08             incq   0x8(%rax)
  24f:   48 01 48 18             add    %rcx,0x18(%rax)
  253:   e9 d7 fe ff ff          jmp    12f <bpf_main+0x12f>
+```
+
+native:
+
+```sh
+objdump -S /home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.aot.o
+
+/home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.aot.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <bpf_main>:
+   0:   f3 0f 1e fa             endbr64 
+   4:   41 54                   push   %r12
+   6:   41 b8 02 00 00 00       mov    $0x2,%r8d
+   c:   55                      push   %rbp
+   d:   53                      push   %rbx
+   e:   48 83 ec 40             sub    $0x40,%rsp
+  12:   48 8b 1f                mov    (%rdi),%rbx
+  15:   48 8b 4f 08             mov    0x8(%rdi),%rcx
+  19:   48 8d 43 0e             lea    0xe(%rbx),%rax
+  1d:   48 39 c1                cmp    %rax,%rcx
+  20:   0f 82 80 00 00 00       jb     a6 <bpf_main+0xa6>
+  26:   0f b7 53 0c             movzwl 0xc(%rbx),%edx
+  2a:   66 81 fa 81 00          cmp    $0x81,%dx
+  2f:   0f 84 83 00 00 00       je     b8 <bpf_main+0xb8>
+  35:   41 b8 2e 00 00 00       mov    $0x2e,%r8d
+  3b:   be 22 00 00 00          mov    $0x22,%esi
+  40:   66 81 fa 88 a8          cmp    $0xa888,%dx
+  45:   74 71                   je     b8 <bpf_main+0xb8>
+  47:   48 c7 44 24 10 00 00    movq   $0x0,0x10(%rsp)
+  4e:   00 00 
+  50:   89 d7                   mov    %edx,%edi
+  52:   66 0f ef c0             pxor   %xmm0,%xmm0
+  56:   66 c1 c7 08             rol    $0x8,%di
+  5a:   0f 29 04 24             movaps %xmm0,(%rsp)
+  5e:   66 83 fa 08             cmp    $0x8,%dx
+  62:   0f 84 f8 00 00 00       je     160 <bpf_main+0x160>
+  68:   66 81 ff dd 86          cmp    $0x86dd,%di
+  6d:   0f 84 85 00 00 00       je     f8 <bpf_main+0xf8>
+  73:   0f b7 03                movzwl (%rbx),%eax
+  76:   0f b7 4b 0a             movzwl 0xa(%rbx),%ecx
+  7a:   41 b8 03 00 00 00       mov    $0x3,%r8d
+  80:   8b 53 02                mov    0x2(%rbx),%edx
+  83:   48 c1 e0 10             shl    $0x10,%rax
+  87:   48 09 c8                or     %rcx,%rax
+  8a:   0f b7 4b 08             movzwl 0x8(%rbx),%ecx
+  8e:   89 53 08                mov    %edx,0x8(%rbx)
+  91:   48 c1 e0 10             shl    $0x10,%rax
+  95:   48 09 c8                or     %rcx,%rax
+  98:   0f b7 4b 06             movzwl 0x6(%rbx),%ecx
+  9c:   48 c1 e0 10             shl    $0x10,%rax
+  a0:   48 09 c8                or     %rcx,%rax
+  a3:   48 89 03                mov    %rax,(%rbx)
+  a6:   48 83 c4 40             add    $0x40,%rsp
+  aa:   44 89 c0                mov    %r8d,%eax
+  ad:   5b                      pop    %rbx
+  ae:   5d                      pop    %rbp
+  af:   41 5c                   pop    %r12
+  b1:   c3                      ret    
+  b2:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
+  b8:   48 8d 43 12             lea    0x12(%rbx),%rax
+  bc:   41 b8 02 00 00 00       mov    $0x2,%r8d
+  c2:   48 39 c1                cmp    %rax,%rcx
+  c5:   72 df                   jb     a6 <bpf_main+0xa6>
+  c7:   0f b7 53 10             movzwl 0x10(%rbx),%edx
+  cb:   66 81 fa 81 00          cmp    $0x81,%dx
+  d0:   75 6e                   jne    140 <bpf_main+0x140>
+  d2:   48 8d 43 16             lea    0x16(%rbx),%rax
+  d6:   41 b8 02 00 00 00       mov    $0x2,%r8d
+  dc:   48 39 c1                cmp    %rax,%rcx
+  df:   72 c5                   jb     a6 <bpf_main+0xa6>
+  e1:   0f b7 53 14             movzwl 0x14(%rbx),%edx
+  e5:   41 b8 36 00 00 00       mov    $0x36,%r8d
+  eb:   be 2a 00 00 00          mov    $0x2a,%esi
+  f0:   e9 52 ff ff ff          jmp    47 <bpf_main+0x47>
+  f5:   0f 1f 00                nopl   (%rax)
+  f8:   48 8d 7c 24 20          lea    0x20(%rsp),%rdi
+  fd:   be 18 00 00 00          mov    $0x18,%esi
+ 102:   ba 06 00 00 00          mov    $0x6,%edx
+ 107:   66 0f 6f 05 00 00 00    movdqa 0x0(%rip),%xmm0        # 10f <bpf_main+0x10f>
+ 10e:   00 
+ 10f:   48 b8 70 6f 72 74 65    movabs $0xa646574726f70,%rax
+ 116:   64 0a 00 
+ 119:   48 89 44 24 30          mov    %rax,0x30(%rsp)
+ 11e:   31 c0                   xor    %eax,%eax
+ 120:   0f 29 44 24 20          movaps %xmm0,0x20(%rsp)
+ 125:   ff d2                   call   *%rdx
+ 127:   48 83 c4 40             add    $0x40,%rsp
+ 12b:   41 b8 01 00 00 00       mov    $0x1,%r8d
+ 131:   5b                      pop    %rbx
+ 132:   44 89 c0                mov    %r8d,%eax
+ 135:   5d                      pop    %rbp
+ 136:   41 5c                   pop    %r12
+ 138:   c3                      ret    
+ 139:   0f 1f 80 00 00 00 00    nopl   0x0(%rax)
+ 140:   66 81 fa 88 a8          cmp    $0xa888,%dx
+ 145:   74 8b                   je     d2 <bpf_main+0xd2>
+ 147:   41 b8 32 00 00 00       mov    $0x32,%r8d
+ 14d:   be 26 00 00 00          mov    $0x26,%esi
+ 152:   e9 f0 fe ff ff          jmp    47 <bpf_main+0x47>
+ 157:   66 0f 1f 84 00 00 00    nopw   0x0(%rax,%rax,1)
+ 15e:   00 00 
+ 160:   48 8d 50 14             lea    0x14(%rax),%rdx
+ 164:   48 39 d1                cmp    %rdx,%rcx
+ 167:   0f 82 06 ff ff ff       jb     73 <bpf_main+0x73>
+ 16d:   44 0f b7 60 02          movzwl 0x2(%rax),%r12d
+ 172:   8b 50 10                mov    0x10(%rax),%edx
+ 175:   c7 44 24 10 00 08 00    movl   $0x800,0x10(%rsp)
+ 17c:   00 
+ 17d:   0f b6 40 09             movzbl 0x9(%rax),%eax
+ 181:   89 14 24                mov    %edx,(%rsp)
+ 184:   3c 70                   cmp    $0x70,%al
+ 186:   74 38                   je     1c0 <bpf_main+0x1c0>
+ 188:   3c 33                   cmp    $0x33,%al
+ 18a:   0f 84 b0 00 00 00       je     240 <bpf_main+0x240>
+ 190:   31 c0                   xor    %eax,%eax
+ 192:   48 89 e6                mov    %rsp,%rsi
+ 195:   bf 04 00 00 00          mov    $0x4,%edi
+ 19a:   e8 00 00 00 00          call   19f <bpf_main+0x19f>
+ 19f:   48 85 c0                test   %rax,%rax
+ 1a2:   0f 84 cb fe ff ff       je     73 <bpf_main+0x73>
+ 1a8:   48 83 00 01             addq   $0x1,(%rax)
+ 1ac:   41 b8 01 00 00 00       mov    $0x1,%r8d
+ 1b2:   e9 ef fe ff ff          jmp    a6 <bpf_main+0xa6>
+ 1b7:   66 0f 1f 84 00 00 00    nopw   0x0(%rax,%rax,1)
+ 1be:   00 00 
+ 1c0:   48 8d 2c 33             lea    (%rbx,%rsi,1),%rbp
+ 1c4:   48 8d 45 08             lea    0x8(%rbp),%rax
+ 1c8:   48 39 c1                cmp    %rax,%rcx
+ 1cb:   0f 82 56 ff ff ff       jb     127 <bpf_main+0x127>
+ 1d1:   31 c0                   xor    %eax,%eax
+ 1d3:   48 89 e6                mov    %rsp,%rsi
+ 1d6:   bf 04 00 00 00          mov    $0x4,%edi
+ 1db:   e8 00 00 00 00          call   1e0 <bpf_main+0x1e0>
+ 1e0:   48 85 c0                test   %rax,%rax
+ 1e3:   75 c3                   jne    1a8 <bpf_main+0x1a8>
+ 1e5:   0f b6 45 01             movzbl 0x1(%rbp),%eax
+ 1e9:   48 8d 74 24 20          lea    0x20(%rsp),%rsi
+ 1ee:   bf 05 00 00 00          mov    $0x5,%edi
+ 1f3:   89 44 24 20             mov    %eax,0x20(%rsp)
+ 1f7:   31 c0                   xor    %eax,%eax
+ 1f9:   e8 00 00 00 00          call   1fe <bpf_main+0x1fe>
+ 1fe:   48 85 c0                test   %rax,%rax
+ 201:   0f 84 6c fe ff ff       je     73 <bpf_main+0x73>
+ 207:   8b 10                   mov    (%rax),%edx
+ 209:   66 41 c1 c4 08          rol    $0x8,%r12w
+ 20e:   48 83 40 10 01          addq   $0x1,0x10(%rax)
+ 213:   45 0f b7 e4             movzwl %r12w,%r12d
+ 217:   4c 01 60 20             add    %r12,0x20(%rax)
+ 21b:   85 d2                   test   %edx,%edx
+ 21d:   0f 85 50 fe ff ff       jne    73 <bpf_main+0x73>
+ 223:   48 83 40 08 01          addq   $0x1,0x8(%rax)
+ 228:   41 b8 01 00 00 00       mov    $0x1,%r8d
+ 22e:   4c 01 60 18             add    %r12,0x18(%rax)
+ 232:   e9 6f fe ff ff          jmp    a6 <bpf_main+0xa6>
+ 237:   66 0f 1f 84 00 00 00    nopw   0x0(%rax,%rax,1)
+ 23e:   00 00 
+ 240:   48 01 de                add    %rbx,%rsi
+ 243:   48 8d 46 0c             lea    0xc(%rsi),%rax
+ 247:   48 39 c1                cmp    %rax,%rcx
+ 24a:   0f 82 23 fe ff ff       jb     73 <bpf_main+0x73>
+ 250:   80 3e 70                cmpb   $0x70,(%rsi)
+ 253:   0f 85 37 ff ff ff       jne    190 <bpf_main+0x190>
+ 259:   4a 8d 2c 03             lea    (%rbx,%r8,1),%rbp
+ 25d:   48 8d 45 08             lea    0x8(%rbp),%rax
+ 261:   48 39 c1                cmp    %rax,%rcx
+ 264:   0f 83 67 ff ff ff       jae    1d1 <bpf_main+0x1d1>
+ 26a:   e9 b8 fe ff ff          jmp    127 <bpf_main+0x127>
 ```
