@@ -281,6 +281,24 @@ static __always_inline bool parse_eth_frame(struct ethhdr *eth, void *data_end,
 	return true;
 }
 
+
+static void swap_src_dst_mac(void *data)
+{
+	unsigned short *p = data;
+	unsigned short dst[3];
+
+	dst[0] = p[0];
+	dst[1] = p[1];
+	dst[2] = p[2];
+	p[0] = p[3];
+	p[1] = p[4];
+	p[2] = p[5];
+	p[3] = dst[0];
+	p[4] = dst[1];
+	p[5] = dst[2];
+}
+
+
 SEC("xdp")
 int xdp_pass(struct xdp_md *ctx)
 {
@@ -291,7 +309,13 @@ int xdp_pass(struct xdp_md *ctx)
 	if (!parse_eth_frame(data, data_end, &pkt))
 		return XDP_PASS;
 
-	return layer3_filter(data, data_end, &pkt);
+	int ret = layer3_filter(data, data_end, &pkt);
+	if (ret == XDP_PASS) {
+		// here we sent out the packet
+		swap_src_dst_mac(data);
+		return XDP_TX;
+	}
+	return ret;
 }
 
 char _license[] SEC("license") = "GPL";

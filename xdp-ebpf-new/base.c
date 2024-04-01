@@ -202,10 +202,22 @@ struct udphdr {
 	__sum16 check;
 };
 
+struct ip_auth_hdr {
+	__u8 nexthdr;
+	__u8 hdrlen;
+	__be16 reserved;
+	__be32 spi;
+	__be32 seq_no;
+	__u8 auth_data[0];
+};
+
+
 struct iphdr* _iphdr_ptr;
 struct tcphdr* tcphdr_ptr;
 struct icmphdr *icmphdr_ptr;
 struct udphdr *udphdr_ptr;
+struct ethhdr *ethhdr_ptr;
+struct ip_auth_hdr *ip_auth_hdr_ptr;
 
 int main() {
     return 0;
