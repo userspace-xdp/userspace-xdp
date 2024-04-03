@@ -38,8 +38,16 @@ int main(int argc, char **argv)
 	}
 
 	bpf_program* prog = bpf_object__find_program_by_name(obj, "xdp_pass");
+	if (!prog) {
+		printf("Failed to find program\n");
+		return 1;
+	}
 	bpf_program__set_type(prog, BPF_PROG_TYPE_XDP);
 	int prog_fd = bpf_program__fd(prog);
+	if (prog_fd < 0) {
+		printf("Failed to get prog FD\n");
+		return 1;
+	}
 	const char* progName = bpf_program__name(prog);
 	printf("load prog %s", progName);
 
