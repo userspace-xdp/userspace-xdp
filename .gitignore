@@ -5,3 +5,4 @@ build/
 build-bpftime/
 build-bpftime-ubpf/
 build-bpftime-llvm/
+res.json
