@@ -238,7 +238,7 @@ Exec time(repeat 100000000 times):
 - kernel JIT time: `12` ns
 - llvm JIT time: `9` ns
 
-If the pkt/s is 2*10^7 in dpdk-llvm-jit, the time for each pkt is `50` ns. This can also help explain why the performance drop is about 50% when using intepretation mode. Let's calc the transmit overhead for the other modes:
+If the pkt/s is 2*10^7 in dpdk-llvm-jit, the time for each pkt is `50` ns. This can also help explain why the performance drop is about 50% when using intepretation mode. Let's calc the transmit overhead on each pkt for the other modes:
 
 - dpdk: `40ns`
 - xdp drv mode: `60ns`
@@ -308,7 +308,17 @@ If we disable the LTO optimization, the results are:
 
 ### Take aways
 
-- LTO 
+<!-- Run time:
+
+- kernel JIT time: `12` ns
+- llvm AOT time: `5` ns
+- llvm JIT time: `25` ns -->
+
+Take aways:
+
+- LTO can contribute greatly on dpdk, which is about `15-20%` performance improvement. (2.0 vs 1.6) For AF_XDP, the improvement is about `5-10%` (1.2 vs 1.1).
+- Add a array map in global variable will have slight performance drop, about 5-10%.
+- inline the global variable array map may reduce most of the performance drop for array map, by eliminating the function `__lddw_helper_map_by_fd` overhead. For a single map access, the 
 
 ## Case: xdp_csum
 
@@ -533,16 +543,25 @@ sudo BASIC_XDP_NAME=xdp_csum make xdp_csum/dpdk_llvm_aot
 measure the exec time:
 
 ```sh
-# load
+# load xdp_tx
 sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_tx xdp_progs/.output/xdp_tx.bpf.o enp24s0f1np1 xdp-ebpf-new/base.btf
+# load xdp_map_access
+sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/b
+pftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_map_
+access enp24s0f1np1 xdp-ebpf-new/base.btf
+
 # find id
 sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/bpftimetool/bpftimetool export res.json
 # run
 sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-ubpf/xdp-bpftime-runner 4 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin 100000000 INTERPRET
+
+# AOT
+sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot load /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.aot.o 5
+sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/xdp-bpftime-runner 5 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin 100000000 AOT
 ```
 
 measure the exec time in kernel:
 
 ```sh
-sudo bpftool prog run id 2729 data_in /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin repeat 100000000
+sudo bpftool prog run id 2729 data_in /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin repeat 1000000000
 ```
