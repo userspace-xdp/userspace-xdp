@@ -421,6 +421,8 @@ Take aways:
 
 Calc the sum for the fist 60 bytes of the packet, andcalc the xxhash value for the sum. This is a comman patern, and the hash code is from paper `Fast In-kernel Traffic Sketching in eBPF`.
 
+- instruction count: 257
+
 ```c
 	// calc the add sum
 	hash_and_sum_res.sum = calculate_checksum(data, 60);
@@ -463,7 +465,8 @@ The results for different configurations are:
 
 ### Take aways
 
-- SIMD instructions can be generated for the hash calculation or sum calculation in one packet.
+- SIMD instructions can be generated for the hash calculation or sum calculation in one packet. AOT and SIMD can have great performance improvement for this case, about 2x speed up
+- Less helpers, more improvement for runtime.
 
 ## Case: xdping
 
