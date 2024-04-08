@@ -6,6 +6,7 @@ BPFTIME_DIR_LLVM=$(ROOTDIR)/build-bpftime-llvm/
 DPDK_DIR=$(ROOTDIR)/external/dpdk
 LIBXDP_PATH=$(ROOTDIR)/afxdp/lib/xdp-tools/lib/libxdp
 NETDEV ?= enp24s0f1np1
+IFINDEX = $(shell ip link show $(NETDEV) | awk '{print $1}' | grep -oE '^[0-9]+')
 
 .PHONY: remove-xdp
 remove-xdp:
@@ -43,6 +44,17 @@ RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
 RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) -S
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
 BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/xdp_map_access.aot.o
+else ifeq ($(BASIC_XDP_NAME),xdp_hash_sum)
+RURUN_XDP_BASIC_COMMAND ?= $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(ROOTDIR)/xdp_progs/.output/$(BASIC_XDP_NAME).bpf.o $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_USERSPACE_COMMAND ?= $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/xdp_hash_sum.aot.o
+else ifeq ($(BASIC_XDP_NAME),xdp_map)
+RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp-maps/target/release/xdp $(IFINDEX)
+RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) N
+RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) S
+RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_KERNEL_SKB_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
 else ifeq ($(BASIC_XDP_NAME),xdp_csum)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
@@ -251,6 +263,7 @@ plot_all_config:
 	NAME=xdp_adjust_tail python3 plot_mode.py
 	NAME=xdp_firewall python3 plot_mode.py
 	NAME=xdping python3 plot_mode.py
+	NAME=xdp_map python3 plot_mode.py
 
 .PHONY: plot_all_size
 plot_all_size:
@@ -263,4 +276,5 @@ plot_all_size:
 	NAME=xdp_adjust_tail python3 plot_size.py
 	NAME=xdp_firewall python3 plot_size.py
 	NAME=xdping python3 plot_size.py
+	NAME=xdp_map python3 plot_size.py
 

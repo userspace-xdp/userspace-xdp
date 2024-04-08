@@ -1,31 +1,23 @@
 # test framework and results
 
-<!-- TOC -->
-
 - [test framework and results](#test-framework-and-results)
-    - [test setup](#test-setup)
-    - [Test configurations](#test-configurations)
-        - [DPDK](#dpdk)
-        - [af_xdp](#af_xdp)
-        - [LLVM JIT](#llvm-jit)
-        - [ubpf JIT](#ubpf-jit)
-        - [LLVM AOT](#llvm-aot)
-    - [Case: xdp_tx](#case-xdp_tx)
-        - [For different configurations](#for-different-configurations)
-        - [For different size](#for-different-size)
-    - [Case: xdp_map_access](#case-xdp_map_access)
-        - [Take aways](#take-aways)
-    - [Case: xdp_csum](#case-xdp_csum)
-        - [Take aways](#take-aways)
-    - [Case: xdp_firewall](#case-xdp_firewall)
-    - [Case: xdp_ping](#case-xdp_ping)
-    - [Case: xdp_adjust_tail](#case-xdp_adjust_tail)
-    - [Case: xdp_lb](#case-xdp_lb)
-    - [commands to run the test](#commands-to-run-the-test)
+	- [test setup](#test-setup)
+	- [Test configurations](#test-configurations)
+		- [DPDK](#dpdk)
+		- [af\_xdp](#af_xdp)
+		- [For different configurations](#for-different-configurations)
+		- [For different size](#for-different-size)
+	- [Case: xdp\_map\_access](#case-xdp_map_access)
+		- [Take aways](#take-aways)
+	- [Case: xdp\_csum](#case-xdp_csum)
+		- [Take aways](#take-aways-1)
+	- [Case: xdping](#case-xdping)
+	- [Case: xdp\_map](#case-xdp_map)
+	- [Case: xdp\_firewall](#case-xdp_firewall)
+	- [Case: xdp\_adjust\_tail](#case-xdp_adjust_tail)
+	- [Case: xdp\_lb](#case-xdp_lb)
+	- [commands to run the test](#commands-to-run-the-test)
 
-<!-- /TOC -->
-
-<!-- /TOC -->
 
 ## test setup
 
@@ -100,28 +92,52 @@ SEC("xdp_sock") int xdp_sock_prog(struct xdp_md *ctx)
 The default configuration is:
 
 ```txt
-  Options:
-  -q, --queue=n Use queue n (default 0)
-  -f, --frame-size=n   Set the frame size (must be a power of two in aligned mode, default is 4096).
-  -d, --duration=n      Duration in secs to run command.
-                        Default: forever.
-  -b, --batch-size=n    Batch size for sending or receiving
-                        packets. Default: 64
-  -W, --policy=POLICY  Schedule policy. Default: SCHED_OTHER
-  -U, --schpri=n       Schedule priority. Default: 0
-  -B, --busy-poll      Busy poll.
-  -R, --reduce-cap      Use reduced capabilities (cannot be used with -M)
-  -F, --frags           Enable frags (multi-buffer) support
-```
+<!-- TOC -->
 
-It will run on single core, the kernel will default using zero copy mode and xdp-native mode.
+- [test framework and results](#test-framework-and-results)
+    - [test setup](#test-setup)
+    - [Test configurations](#test-configurations)
+        - [DPDK](#dpdk)
+        - [af_xdp](#af_xdp)
+        - [LLVM JIT](#llvm-jit)
+        - [ubpf JIT](#ubpf-jit)
+        - [LLVM AOT](#llvm-aot)
+    - [Case: xdp_tx](#case-xdp_tx)
+        - [For different configurations](#for-different-configurations)
+        - [For different size](#for-different-size)
+    - [Case: xdp_map_access](#case-xdp_map_access)
+        - [Take aways](#take-aways)
+    - [Case: xdp_csum](#case-xdp_csum)
+        - [Take aways](#take-aways)
+    - [Case: xdping](#case-xdping)
+    - [Case: xdp_map](#case-xdp_map)
+    - [Case: xdp_firewall](#case-xdp_firewall)
+    - [Case: xdp_adjust_tail](#case-xdp_adjust_tail)
+    - [Case: xdp_lb](#case-xdp_lb)
+    - [commands to run the test](#commands-to-run-the-test)
 
-### LLVM JIT
+<!-- /TOC -->p](#test-setup)
+	- [Test configurations](#test-configurations)
+		- [DPDK](#dpdk)
+		- [af\_xdp](#af_xdp)
+		- [LLVM JIT](#llvm-jit)
+		- [ubpf JIT](#ubpf-jit)
+		- [LLVM AOT](#llvm-aot)
+	- [Case: xdp\_tx](#case-xdp_tx)
+		- [For different configurations](#for-different-configurations)
+		- [For different size](#for-different-size)
+	- [Case: xdp\_map\_access](#case-xdp_map_access)
+		- [Take aways](#take-aways)
+	- [Case: xdp\_csum](#case-xdp_csum)
+		- [Take aways](#take-aways-1)
+	- [Case: xdping](#case-xdping)
+	- [Case: xdp\_map](#case-xdp_map)
+	- [Case: xdp\_firewall](#case-xdp_firewall)
+	- [Case: xdp\_adjust\_tail](#case-xdp_adjust_tail)
+	- [Case: xdp\_lb](#case-xdp_lb)
+	- [commands to run the test](#commands-to-run-the-test)
 
-The baseline configuration for LLVM based JIT.
-
-- Generated LLVM IR from eBPF bytecode. We don't add type information to the IR at this level, so some constraints amybe missing, such as the type of the function, loop bounds, pointer layout, etc.
-- Optimized with `-O3` level in the JIT compiled.
+<!-- /TOC -->
 - load with the same linker as the AOT runtime.
 
 See https://github.com/eunomia-bpf/bpftime/tree/master/vm/llvm-jit
@@ -419,6 +435,46 @@ Take aways:
 - In AOT, inline the `bpf_csum_diff` helper does not have a big improvement. Seems compile cannot do more optimization when inline this. Maybe we should tried more simple helper to inline.
 - The pkt size does not have a big impact on this example.
 
+## Case: xdping
+
+(Kernel example)
+
+use xdp as ping(ICMP) server.
+
+- instruction count: 79
+
+The results for different configurations are:
+
+![xdp_ping](xdping/ipackets.png)
+
+## Case: xdp_map
+
+Using BPF_MAP_TYPE_HASH to summarize the incoming packets length.
+
+```c
+struct
+{
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__uint(max_entries, 8192);
+	__type(key, int);
+	__type(value, int);
+} packet_size_distribute SEC(".maps");
+
+int xdp_pass(struct xdp_md *ctx)
+{
+	.....
+	int *value = bpf_map_lookup_elem(&packet_size_distribute, &pkt_sz);
+	if (value)
+		count = *value + 1;
+	bpf_map_update_elem(&packet_size_distribute, &pkt_sz, &count, BPF_ANY);
+	.....
+}
+```
+
+The results for different configurations are:
+
+![xdp_map](xdp_map/ipackets.png)
+
 ## Case: xdp_firewall
 
 A xdp based FireWall, include parsing the protos, using a `per_cpu_hash_map` to store the blacklist ip address. It also has a VRRP filtering.
@@ -458,18 +514,6 @@ int xdp_firewall(struct xdp_md *ctx)
 The results for different configurations are:
 
 ![xdp_firewall](xdp_firewall/ipackets.png)
-
-## Case: xdp_ping
-
-(Kernel example)
-
-use xdp as ping(ICMP) server.
-
-- instruction count: 79
-
-The results for different configurations are:
-
-![xdp_ping](xdping/ipackets.png)
 
 ## Case: xdp_adjust_tail
 

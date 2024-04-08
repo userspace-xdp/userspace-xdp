@@ -1,0 +1,13 @@
+DEBUG portStats = {
+  [0] = {
+    ["imissed"] = 0,
+    ["ipackets"] = 466173400,
+    ["rx_nombuf"] = 0,
+    ["ierrors"] = 0,
+    ["obytes"] = 575170539776,
+    ["oerrors"] = 0,
+    ["ibytes"] = 236816085754,
+    ["opackets"] = 1132225472,
+  },
+  ["n"] = 1,
+}
