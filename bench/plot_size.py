@@ -38,7 +38,7 @@ def collect_data_single_directory(directory, file_pattern='size-\d+\.txt'):
                 data[str(size)] = ipackets
             print(f"File: {filename}, Packet Size: {size}, Ipackets: {ipackets}")
     # sort data by values
-    # data = dict(sorted(data.items(), key=lambda item: item[1]))
+    data = dict(sorted(data.items(), key=lambda item: int(item[0])))
     print(f"Aggregated Data: {data}")
     return data
 
