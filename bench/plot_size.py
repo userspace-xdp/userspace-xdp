@@ -3,9 +3,8 @@ import re
 import matplotlib.pyplot as plt
 
 # Base directory and specific subdirectory to analyze
-root_dir = '/home/yunwei/ebpf-xdp-dpdk/bench/xdp_tx'
-name = 'afxdp_llvm_jit_copy'
-dpdk_interpreter_dir = os.path.join(root_dir, name)
+name = os.environ.get('NAME', 'xdp_tx')
+root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench", name)
 
 run_seconds = 60
 
@@ -43,7 +42,7 @@ def collect_data_single_directory(directory, file_pattern='size-\d+\.txt'):
     print(f"Aggregated Data: {data}")
     return data
 
-def plot_data(data, title='Data Plot', xlabel='X-axis', ylabel='Y-axis'):
+def plot_data(data, dirname, title='Data Plot', xlabel='X-axis', ylabel='Y-axis'):
     """
     Plot the collected data in a bar plot.
     """
@@ -57,12 +56,19 @@ def plot_data(data, title='Data Plot', xlabel='X-axis', ylabel='Y-axis'):
     plt.title(title)
     plt.xticks(labels, rotation=45)
     plt.tight_layout()  # Adjust layout to not cut off labels
-    plt.savefig(dpdk_interpreter_dir + '/ipackets.png')
+    plt.savefig(dirname + '/ipackets.png')
 
-# Function to plot ipackets for all sizes in dpdk_interpreter
-def plot_dpdk_interpreter():
-    data = collect_data_single_directory(dpdk_interpreter_dir)
-    plot_data(data, title='Ipackets by Packet Size in ' + root_dir + ' ' + name,
+def collect_data(root_dir):
+    """
+    Traverse the directory, collect and aggregate data from target files.
+    """
+    data = {}
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        for dirname in dirnames:
+            dir_full_path = os.path.join(dirpath, dirname)
+            print(f"Processing directory: {dir_full_path}")
+            data = collect_data_single_directory(dir_full_path)
+            plot_data(data, dir_full_path, title='Ipackets by Packet Size in ' + root_dir + ' ' + name,
               xlabel='Packet Size (Bytes)', ylabel='Ipackets')
 
-plot_dpdk_interpreter()
+collect_data(root_dir)
