@@ -177,6 +177,7 @@ For more details:
 
 - https://github.com/eunomia-bpf/bpftime/tree/master/tools/aot
 - https://github.com/eunomia-bpf/bpftime/tree/master/vm/llvm-jit
+- [documents/optimize.md](../documents/optimize.md)
 
 ## Case: xdp_tx
 

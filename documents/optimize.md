@@ -19,7 +19,7 @@ Solutions:
 - Find some ways to add type informations to llvm IR code. Maybe working because the type like `xdp_md` is fixed. We can simpilfy it and don't directly work from BTF.
   - C -> eBPF bytecode -> LLVM IR -> LLVM IR with type information -> Native code(SIMD) ELF -> Load with AOT runtime
 - Another approach is after verfying the LLVM IR code, we transform and relocated the original eBPF C code, and directly compile it with clang.
-  - C -> eBPF bytecode -> verified -> C with some changes for relocation -> clang -> Native code ELF(SIMD) -> Load with AOT runtime. This is used by eBPF for windows(They have a bpf2c tool), and can be easily implemented and SIMDed.
+  - C -> eBPF bytecode -> verified -> C with some changes for relocation on AST level -> clang -> Native code ELF(SIMD) -> Load with AOT runtime. This is used by eBPF for windows(They have a bpf2c tool), and can be easily implemented and SIMDed.
   - We have example of this, it is working(See `sumd-poc`)
   - We can also verified and make some code into native library, like the hash function.
 
