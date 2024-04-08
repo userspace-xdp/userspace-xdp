@@ -16,6 +16,20 @@
     - [Case: xdp_firewall](#case-xdp_firewall)
     - [Case: xdp_ping](#case-xdp_ping)
     - [Case: xdp_adjust_tail](#case-xdp_adjust_tail)
+    - [Case: xdp_lb](#case-xdp_lb)
+    - [commands to run the test](#commands-to-run-the-test)
+
+<!-- /TOC -->
+        - [LLVM JIT](#llvm-jit)
+        - [ubpf JIT](#ubpf-jit)
+        - [LLVM AOT](#llvm-aot)
+    - [Case: xdp_tx](#case-xdp_tx)
+    - [Case: xdp_map_access](#case-xdp_map_access)
+    - [Case: xdp_csum](#case-xdp_csum)
+    - [Case: xdp_firewall](#case-xdp_firewall)
+    - [Case: xdp_ping](#case-xdp_ping)
+    - [Case: xdp_adjust_tail](#case-xdp_adjust_tail)
+    - [Case: xdp_lb](#case-xdp_lb)
     - [commands to run the test](#commands-to-run-the-test)
 
 <!-- /TOC -->
@@ -172,6 +186,8 @@ There are three possible optimizaions in AOT:
 
 A very simple xdp program, swap the source and destination mac address and return `XDP_TX`. This is the based struct of all the other xdp programs we are measuring.
 
+- instruction count: 19
+
 ```c
 static void swap_src_dst_mac(void *data)
 {
@@ -241,13 +257,165 @@ The results for different pkt sizes, on dpdk_llvm_jit mode:
 
 ## Case: xdp_map_access
 
+(Example from the hXDP paper)
+
+increment counter for incomping packets in array map
+
+It's very similar to the `xdp_tx` example, but with a map counter
+
+- instruction count: 24
+
+```c
+
+int counter = 0;
+
+SEC("xdp")
+int xdp_pass(struct xdp_md *ctx)
+{
+	.......
+	counter++;
+    .......
+}
+```
+
+The results for different configurations are(The ubpf jit in bpftime seems to have some bug, so the data is missing):
+
+![xdp_map_access](xdp_map_access/ipackets.png)
+
 ## Case: xdp_csum
+
+(Example from the hXDP paper)
+
+- instruction count: 64
+
+calc the csum of ip and record in a per_cpu_array_map. The code structure is like:
+
+```c
+#define LOOP_LEN 32
+
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+	__type(key, u32);
+	__type(value, long);
+	__uint(max_entries, 256);
+} rxcnt SEC(".maps");
+
+static __always_inline __u16 csum_fold_helper(__u32 csum)
+{
+	return ~((csum & 0xffff) + (csum >> 16));
+}
+
+static __always_inline void ipv4_csum(void *data_start, int data_size,
+				      __u32 *csum)
+{
+	*csum = bpf_csum_diff(0, 0, data_start, data_size, *csum);
+	*csum = csum_fold_helper(*csum);
+}
+
+SEC("xdp")
+int xdp_pass(struct xdp_md *ctx)
+{
+	.......
+	for (i = 0; i < LOOP_LEN ;i++){
+		ipv4_csum(iph, sizeof(struct iphdr), &csum);
+		iph->check = csum;
+		value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
+	}
+
+	value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
+	if (value)
+		*value += 1;
+    ......
+}
+```
+
+The `ipv4_csum` is calculated by the `bpf_csum_diff` helper, and the result is stored in the `rxcnt` map. The ipv4_csum is calculated for 32 times in a loop.
+
+The results for different configurations are:
+
+![xdp_csum](xdp_csum/ipackets.png)
+
+If we do not update the map(`xdp_csum_only` example), which is commented out the `bpf_map_lookup_elem` lines, the results are:
+
+![xdp_csum](xdp_csum_only/ipackets.png)
+
+The results for different pkt sizes, on drv mode:
+
+![xdp_csum_pkt_size](xdp_csum/drv_mode/ipackets.png)
+
+The results for different pkt sizes, on dpdk_llvm_jit mode:
+
+![xdp_csum_pkt_size](xdp_csum/dpdk_llvm_jit/ipackets.png)
 
 ## Case: xdp_firewall
 
+A xdp based FireWall, include parsing the protos, using a `per_cpu_hash_map` to store the blacklist ip address. It also has a VRRP filtering.
+
+- instruction count: 128
+
+```c
+struct flow_key {
+	union {
+		__u32 addr;
+		__u32 addr6[4];
+	};
+	__u32 proto;
+} __attribute__((__aligned__(8)));
+
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
+	__type(key, struct flow_key);
+	__type(value, __u64);
+	__uint(max_entries, 32768);
+	__uint(map_flags, BPF_F_NO_PREALLOC);
+} l3_filter SEC(".maps");
+
+SEC("xdp")
+int xdp_firewall(struct xdp_md *ctx)
+{
+    .......
+    drop_cnt = bpf_map_lookup_elem(&l3_filter, &key);
+	if (drop_cnt) {
+		*drop_cnt += 1;
+		return XDP_DROP;
+	}
+    .......
+}
+```
+
+The results for different configurations are:
+
+![xdp_firewall](xdp_firewall/ipackets.png)
+
 ## Case: xdp_ping
 
+use xdp as ping(ICMP) server.
+
+- instruction count: 79
+
+The results for different configurations are:
+
+![xdp_ping](xdp_ping/ipackets.png)
+
 ## Case: xdp_adjust_tail
+
+receive pkt, modify pkt into ICMP pkt and XDP_TX.
+
+- instruction count: 151
+
+The results for different configurations are:
+
+![xdp_adjust_tail](xdp_adjust_tail/ipackets.png)
+
+## Case: xdp_lb
+
+a simple load balancer using XDP. It will get the mac address and ip address from the map and redirect the packet to the corresponding address.
+
+- instruction count: 167
+
+The results for different configurations are:
+
+![xdp_lb](xdp_lb/ipackets.png)
 
 ## commands to run the test
 
