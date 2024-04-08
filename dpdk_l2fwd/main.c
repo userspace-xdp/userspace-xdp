@@ -366,7 +366,7 @@ l2fwd_main_loop(void)
 #warning "process batch packet"
 			int dst_port = l2fwd_dst_ports[portid];
 			for (j = 0; j < nb_rx; j++) {
-		m = pkts_burst[j];
+				m = pkts_burst[j];
 				struct rte_ether_hdr *eth;
 				eth = rte_pktmbuf_mtod(m, struct rte_ether_hdr *);
 				swap_src_dst_mac(eth);

@@ -1,12 +1,12 @@
 # some questions:
 
-<!-- TOC -->
+## Why llvm jit is slower than ubpf jit?
 
-- [some questions:](#some-questions)
-    - [Why llvm jit is slower than ubpf jit?](#why-llvm-jit-is-slower-than-ubpf-jit)
-    - [xdp firewall](#xdp-firewall)
+It does slower.
 
-<!-- /TOC -->ta in file /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin
+```console
+$ sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/xdp-bpftime-runner 5 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin 1000000 JIT
+Running eBPF program with id 5 and data in file /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin
 Repeat N: 1000000 with run type JIT
 [2024-03-27 22:23:51.801] [info] [bpftime_shm_internal.cpp:628] Global shm constructed. shm_open_type 1 for bpftime_maps_shm
 [2024-03-27 22:23:51.801] [info] [bpftime_shm_internal.cpp:28] Global shm initialized

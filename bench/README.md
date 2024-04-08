@@ -11,20 +11,10 @@
         - [ubpf JIT](#ubpf-jit)
         - [LLVM AOT](#llvm-aot)
     - [Case: xdp_tx](#case-xdp_tx)
+        - [For different configurations](#for-different-configurations)
+        - [For different size](#for-different-size)
     - [Case: xdp_map_access](#case-xdp_map_access)
-    - [Case: xdp_csum](#case-xdp_csum)
-    - [Case: xdp_firewall](#case-xdp_firewall)
-    - [Case: xdp_ping](#case-xdp_ping)
-    - [Case: xdp_adjust_tail](#case-xdp_adjust_tail)
-    - [Case: xdp_lb](#case-xdp_lb)
-    - [commands to run the test](#commands-to-run-the-test)
-
-<!-- /TOC -->
-        - [LLVM JIT](#llvm-jit)
-        - [ubpf JIT](#ubpf-jit)
-        - [LLVM AOT](#llvm-aot)
-    - [Case: xdp_tx](#case-xdp_tx)
-    - [Case: xdp_map_access](#case-xdp_map_access)
+        - [Take aways](#take-aways)
     - [Case: xdp_csum](#case-xdp_csum)
     - [Case: xdp_firewall](#case-xdp_firewall)
     - [Case: xdp_ping](#case-xdp_ping)
@@ -231,12 +221,33 @@ int xdp_pass(struct xdp_md *ctx)
 char _license[] SEC("license") = "GPL";
 ```
 
-The results for different configurations are:
+### For different configurations
 
 ![xdp_tx](xdp_tx/ipackets.png)
 
+Take aways:
+
 - The general trend is: dpdk > drv_mode > afxdp_zero_copy > skb_mode > afxdp_copy
 - Intepretation is far slower than the JIT
+
+Some more detail analysis:
+
+Exec time(repeat 100000000 times):
+
+- Intepretation time: `76` ns
+- kernel JIT time: `12` ns
+- llvm JIT time: `9` ns
+
+If the pkt/s is 2*10^7 in dpdk-llvm-jit, the time for each pkt is `50` ns. This can also help explain why the performance drop is about 50% when using intepretation mode. Let's calc the transmit overhead for the other modes:
+
+- dpdk: `40ns`
+- xdp drv mode: `60ns`
+- af-xdp zero copied: `75ns`
+- xdp skb mode or af-xdp copied: `400ns`
+
+We can see the dpdk prepare each packet is abou `40ns`. If the eBPF runing time is more than 100ns, the userspace eBPF runtime will be the bottleneck.
+
+### For different size
 
 The results for different pkt sizes, on drv mode:
 
@@ -257,6 +268,12 @@ The results for different pkt sizes, on afxdp_llvm_jit_zero_copy mode:
 The results for different pkt sizes, on dpdk_llvm_jit mode:
 
 ![xdp_tx_pkt_size](xdp_tx/dpdk_llvm_jit/ipackets.png)
+
+Take aways:
+
+- since dpdk and xdp driver mode is the fastest, the pkt size will have greater impact on them.
+- pkt size overhead for dpdk, from 64-1024 is about `50ns` for each pkt.
+- 256 is the fastest pkt size for most of the configurations, maybe due to the cache line size?
 
 ## Case: xdp_map_access
 
@@ -284,6 +301,14 @@ int xdp_pass(struct xdp_md *ctx)
 The results for different configurations are(The ubpf jit in bpftime seems to have some bug, so the data is missing):
 
 ![xdp_map_access](xdp_map_access/ipackets.png)
+
+If we disable the LTO optimization, the results are:
+
+![xdp_map_access](xdp_map_access_no_lto/ipackets.png)
+
+### Take aways
+
+- LTO 
 
 ## Case: xdp_csum
 
@@ -503,4 +528,21 @@ make to run a single test case
 
 ```sh
 sudo BASIC_XDP_NAME=xdp_csum make xdp_csum/dpdk_llvm_aot
+```
+
+measure the exec time:
+
+```sh
+# load
+sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_tx xdp_progs/.output/xdp_tx.bpf.o enp24s0f1np1 xdp-ebpf-new/base.btf
+# find id
+sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/bpftimetool/bpftimetool export res.json
+# run
+sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-ubpf/xdp-bpftime-runner 4 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin 100000000 INTERPRET
+```
+
+measure the exec time in kernel:
+
+```sh
+sudo bpftool prog run id 2729 data_in /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin repeat 100000000
 ```
