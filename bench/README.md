@@ -663,7 +663,7 @@ sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/sy
 # find id
 sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/bpftimetool/bpftimetool export res.json
 # run
-sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-ubpf/xdp-bpftime-runner 4 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin 100000000 INTERPRET
+sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-ubpf/xdp-bpftime-runner 5 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin 100000000 INTERPRET
 
 # AOT
 sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot load /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.aot.o 5
@@ -675,3 +675,4 @@ measure the exec time in kernel:
 ```sh
 sudo bpftool prog run id 2729 data_in /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin repeat 1000000000
 ```
+
