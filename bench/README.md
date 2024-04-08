@@ -5,12 +5,18 @@
 	- [Test configurations](#test-configurations)
 		- [DPDK](#dpdk)
 		- [af\_xdp](#af_xdp)
+		- [LLVM JIT](#llvm-jit)
+		- [ubpf JIT](#ubpf-jit)
+		- [LLVM AOT](#llvm-aot)
+	- [Case: xdp\_tx](#case-xdp_tx)
 		- [For different configurations](#for-different-configurations)
 		- [For different size](#for-different-size)
 	- [Case: xdp\_map\_access](#case-xdp_map_access)
 		- [Take aways](#take-aways)
 	- [Case: xdp\_csum](#case-xdp_csum)
 		- [Take aways](#take-aways-1)
+	- [Case: xdp\_hash\_sum](#case-xdp_hash_sum)
+		- [Take aways](#take-aways-2)
 	- [Case: xdping](#case-xdping)
 	- [Case: xdp\_map](#case-xdp_map)
 	- [Case: xdp\_firewall](#case-xdp_firewall)
@@ -92,52 +98,28 @@ SEC("xdp_sock") int xdp_sock_prog(struct xdp_md *ctx)
 The default configuration is:
 
 ```txt
-<!-- TOC -->
+  Options:
+  -q, --queue=n Use queue n (default 0)
+  -f, --frame-size=n   Set the frame size (must be a power of two in aligned mode, default is 4096).
+  -d, --duration=n      Duration in secs to run command.
+                        Default: forever.
+  -b, --batch-size=n    Batch size for sending or receiving
+                        packets. Default: 64
+  -W, --policy=POLICY  Schedule policy. Default: SCHED_OTHER
+  -U, --schpri=n       Schedule priority. Default: 0
+  -B, --busy-poll      Busy poll.
+  -R, --reduce-cap      Use reduced capabilities (cannot be used with -M)
+  -F, --frags           Enable frags (multi-buffer) support
+```
 
-- [test framework and results](#test-framework-and-results)
-    - [test setup](#test-setup)
-    - [Test configurations](#test-configurations)
-        - [DPDK](#dpdk)
-        - [af_xdp](#af_xdp)
-        - [LLVM JIT](#llvm-jit)
-        - [ubpf JIT](#ubpf-jit)
-        - [LLVM AOT](#llvm-aot)
-    - [Case: xdp_tx](#case-xdp_tx)
-        - [For different configurations](#for-different-configurations)
-        - [For different size](#for-different-size)
-    - [Case: xdp_map_access](#case-xdp_map_access)
-        - [Take aways](#take-aways)
-    - [Case: xdp_csum](#case-xdp_csum)
-        - [Take aways](#take-aways)
-    - [Case: xdping](#case-xdping)
-    - [Case: xdp_map](#case-xdp_map)
-    - [Case: xdp_firewall](#case-xdp_firewall)
-    - [Case: xdp_adjust_tail](#case-xdp_adjust_tail)
-    - [Case: xdp_lb](#case-xdp_lb)
-    - [commands to run the test](#commands-to-run-the-test)
+It will run on single core, the kernel will default using zero copy mode and xdp-native mode.
 
-<!-- /TOC -->p](#test-setup)
-	- [Test configurations](#test-configurations)
-		- [DPDK](#dpdk)
-		- [af\_xdp](#af_xdp)
-		- [LLVM JIT](#llvm-jit)
-		- [ubpf JIT](#ubpf-jit)
-		- [LLVM AOT](#llvm-aot)
-	- [Case: xdp\_tx](#case-xdp_tx)
-		- [For different configurations](#for-different-configurations)
-		- [For different size](#for-different-size)
-	- [Case: xdp\_map\_access](#case-xdp_map_access)
-		- [Take aways](#take-aways)
-	- [Case: xdp\_csum](#case-xdp_csum)
-		- [Take aways](#take-aways-1)
-	- [Case: xdping](#case-xdping)
-	- [Case: xdp\_map](#case-xdp_map)
-	- [Case: xdp\_firewall](#case-xdp_firewall)
-	- [Case: xdp\_adjust\_tail](#case-xdp_adjust_tail)
-	- [Case: xdp\_lb](#case-xdp_lb)
-	- [commands to run the test](#commands-to-run-the-test)
+### LLVM JIT
 
-<!-- /TOC -->
+The baseline configuration for LLVM based JIT.
+
+- Generated LLVM IR from eBPF bytecode. We don't add type information to the IR at this level, so some constraints amybe missing, such as the type of the function, loop bounds, pointer layout, etc.
+- Optimized with `-O3` level in the JIT compiled.
 - load with the same linker as the AOT runtime.
 
 See https://github.com/eunomia-bpf/bpftime/tree/master/vm/llvm-jit
@@ -435,6 +417,54 @@ Take aways:
 - In AOT, inline the `bpf_csum_diff` helper does not have a big improvement. Seems compile cannot do more optimization when inline this. Maybe we should tried more simple helper to inline.
 - The pkt size does not have a big impact on this example.
 
+## Case: xdp_hash_sum
+
+Calc the sum for the fist 60 bytes of the packet, andcalc the xxhash value for the sum. This is a comman patern, and the hash code is from paper `Fast In-kernel Traffic Sketching in eBPF`.
+
+```c
+	// calc the add sum
+	hash_and_sum_res.sum = calculate_checksum(data, 60);
+	// calc the xxhash32 based on the sum
+	hash_and_sum_res.xxhash64_res = xxhash32(data, 60, hash_and_sum_res.sum);
+	// store the result in the ip payload to avoid optimization out
+	__builtin_memcpy(((void*)iph + sizeof(*iph)), &hash_and_sum_res, sizeof(hash_and_sum_res));
+```
+
+We can generate `SIMD` instruciion for this case, see 
+
+
+```console
+$ llvm-objdump -S /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_hash_sum.aot.o
+
+/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_hash_sum.aot.o:        file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <bpf_main>:
+.......
+      9c: 66 0f 60 f0                   punpcklbw       %xmm0, %xmm6    # xmm6 = xmm6[0],xmm0[0],xmm6[1],xmm0[1],xmm6[2],xmm0[2],xmm6[3],xmm0[3],xmm6[4],xmm0[4],xmm6[5],xmm0[5],xmm6[6],xmm0[6],xmm6[7],xmm0[7]
+      a0: 66 0f 68 f8                   punpckhbw       %xmm0, %xmm7    # xmm7 = xmm7[8],xmm0[8],xmm7[9],xmm0[9],xmm7[10],xmm0[10],xmm7[11],xmm0[11],xmm7[12],xmm0[12],xmm7[13],xmm0[13],xmm7[14],xmm0[14],xmm7[15],xmm0[15]
+      a4: 66 0f 60 e8                   punpcklbw       %xmm0, %xmm5    # xmm5 = xmm5[0],xmm0[0],xmm5[1],xmm0[1],xmm5[2],xmm0[2],xmm5[3],xmm0[3],xmm5[4],xmm0[4],xmm5[5],xmm0[5],xmm5[6],xmm0[6],xmm5[7],xmm0[7]
+      a8: 66 0f 68 d8                   punpckhbw       %xmm0, %xmm3    # xmm3 = xmm3[8],xmm0[8],xmm3[9],xmm0[9],xmm3[10],xmm0[10],xmm3[11],xmm0[11],xmm3[12],xmm0[12],xmm3[13],xmm0[13],xmm3[14],xmm0[14],xmm3[15],xmm0[15]
+      ac: 66 44 0f 6f c1                movdqa  %xmm1, %xmm8
+      b1: 01 ca                         addl    %ecx, %edx
+      b3: 66 0f 6f c1                   movdqa  %xmm1, %xmm0
+      b7: 0f b6 48 33                   movzbl  51(%rax), %ecx
+      bb: 66 0f 6f cc                   movdqa  %xmm4, %xmm1
+      bf: 66 0f 61 e2                   punpcklwd       %xmm2, %xmm4    # xmm4 = xmm4[0],xmm2[0],xmm4[1],xmm2[1],xmm4[2],xmm2[2],xmm4[3],xmm2[3]
+      c3: 66 0f 69 ca                   punpckhwd       %xmm2, %xmm1    # xmm1 = xmm1[4],xmm2[4],xmm1[5],xmm2[5],xmm1[6],xmm2[6],xmm1[7],xmm2[7]
+      c7: 66 44 0f 69 c2                punpckhwd       %xmm2, %xmm8    # xmm8 = xmm8[4],xmm2[4],xmm8[5],xmm2[5],xmm8[6],xmm2[6],xmm8[7],xmm2[7]
+      cc: 66 0f 61 c2                   punpcklwd       %xmm2, %xmm0    # xmm0 = xmm0[0],xmm2[0],xmm0[1],xmm2[1],xmm0[2],xmm2[2],xmm0[3],xmm2[3]
+```
+
+The results for different configurations are:
+
+![xdp_hash_sum](xdp_hash_sum/ipackets.png)
+
+### Take aways
+
+- SIMD instructions can be generated for the hash calculation or sum calculation in one packet.
+
 ## Case: xdping
 
 (Kernel example)
@@ -445,7 +475,7 @@ use xdp as ping(ICMP) server.
 
 The results for different configurations are:
 
-![xdp_ping](xdping/ipackets.png)
+![xdping](xdping/ipackets.png)
 
 ## Case: xdp_map
 
@@ -615,7 +645,7 @@ NAME=xdp_map_access python3 /home/yunwei/ebpf-xdp-dpdk/bench/plot_mode.py
 make to run a single test case
 
 ```sh
-sudo BASIC_XDP_NAME=xdp_csum make xdp_csum/dpdk_llvm_aot
+sudo BASIC_XDP_NAME=xdp_hash_sum make xdp_hash_sum/dpdk_llvm_aot
 ```
 
 measure the exec time:

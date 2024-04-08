@@ -264,6 +264,7 @@ plot_all_config:
 	NAME=xdp_firewall python3 plot_mode.py
 	NAME=xdping python3 plot_mode.py
 	NAME=xdp_map python3 plot_mode.py
+	NAME=xdp_hash_sum python3 plot_mode.py
 
 .PHONY: plot_all_size
 plot_all_size:
@@ -277,4 +278,4 @@ plot_all_size:
 	NAME=xdp_firewall python3 plot_size.py
 	NAME=xdping python3 plot_size.py
 	NAME=xdp_map python3 plot_size.py
-
+	NAME=xdp_hash_sum python3 plot_size.py
