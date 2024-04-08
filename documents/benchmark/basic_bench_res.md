@@ -1,28 +1,26 @@
 # basic benchmark results
 
-We have machine octopus1 and octopus3
-
-```txt
-+--------+      +--------+
-|octopus1|------|octopus3|
-|   NF   |------| Pktgen |
-+--------+      +--------+
-```
-
-## Table of contents
+<!-- TOC -->
 
 - [basic benchmark results](#basic-benchmark-results)
-  - [Table of contents](#table-of-contents)
-  - [steup](#steup)
-    - [octopus1 setup](#octopus1-setup)
-    - [octopus3 setup](#octopus3-setup)
-    - [test connection](#test-connection)
-  - [helper commands](#helper-commands)
-  - [if calculate on octopus1, overhead](#if-calculate-on-octopus1-overhead)
-  - [test config](#test-config)
-  - [Test with tcp4 traffic](#test-with-tcp4-traffic)
-    - [xdp tx](#xdp-tx)
-    - [array map access](#array-map-access)
+    - [Table of contents](#table-of-contents)
+    - [steup](#steup)
+        - [octopus1 setup](#octopus1-setup)
+        - [octopus3 setup](#octopus3-setup)
+        - [test connection](#test-connection)
+    - [helper commands](#helper-commands)
+    - [if calculate on octopus1, overhead](#if-calculate-on-octopus1-overhead)
+    - [test config](#test-config)
+    - [Test with tcp4 traffic](#test-with-tcp4-traffic)
+        - [xdp tx](#xdp-tx)
+        - [array map access](#array-map-access)
+    - [csum with map access helper](#csum-with-map-access-helper)
+    - [xdp_tx_iptunnel](#xdp_tx_iptunnel)
+    - [ICMP traffic](#icmp-traffic)
+        - [xdping](#xdping)
+    - [trouble shooting](#trouble-shooting)
+
+<!-- /TOC -->map access](#array-map-access)
   - [csum with map access helper](#csum-with-map-access-helper)
   - [xdp\_tx\_iptunnel](#xdp_tx_iptunnel)
   - [ICMP traffic](#icmp-traffic)

@@ -202,6 +202,11 @@ int main(int argc, char **argv)
 	prog_id = info.id;
 
 	// poll_stats(map_fd, 2);
+	while (/* condition */1)
+	{
+		/* code */
+	}
+	
 
 	return 0;
 }

@@ -16,11 +16,14 @@
     - [Case: xdp_map_access](#case-xdp_map_access)
         - [Take aways](#take-aways)
     - [Case: xdp_csum](#case-xdp_csum)
+        - [Take aways](#take-aways)
     - [Case: xdp_firewall](#case-xdp_firewall)
     - [Case: xdp_ping](#case-xdp_ping)
     - [Case: xdp_adjust_tail](#case-xdp_adjust_tail)
     - [Case: xdp_lb](#case-xdp_lb)
     - [commands to run the test](#commands-to-run-the-test)
+
+<!-- /TOC -->
 
 <!-- /TOC -->
 
@@ -171,6 +174,11 @@ There are three possible optimizaions in AOT:
 - inline maps.
     - Observe: some maps are for configurations only, once they are loaded, they will not be read by userspace programs. They are also not shared between different eBPF programs. For example, the `target_pid` filtter in the tracing programs, or some config maps in network programs. Inline them will avoid the cost of map lookup and enabled better optimizaion from LLVM, since the eBPF inst will need helpers or something like `__lddw_helper_map_by_fd` to access them.
     - Approach: inline the maps as global variables in the native code, so that it can be process by the AOT linker. The linker will allocate this `global variables` as the real global variables in the runtime instead of maps, and replace the map access with the address of the global variable directly.
+
+For more details:
+
+- https://github.com/eunomia-bpf/bpftime/tree/master/tools/aot
+- https://github.com/eunomia-bpf/bpftime/tree/master/vm/llvm-jit
 
 ## Case: xdp_tx
 
@@ -385,6 +393,32 @@ The results for different pkt sizes, on dpdk_llvm_jit mode:
 
 ![xdp_csum_pkt_size](xdp_csum/dpdk_llvm_jit/ipackets.png)
 
+### Take aways
+
+Run time in csum(10000000 avg):
+
+- kernel 575ns
+- INTERPRET 2671ns
+- ubpf JIT: 554 ns
+- LLVM IR JIT: 758ns
+- LLVM AOT: 552ns
+
+Run time in csum without maps(10000000 avg):
+
+- kernel 540ns
+- INTERPRET 2671ns
+- ubpf JIT: 529ns
+- LLVM IR JIT: 527ns
+
+Take aways:
+
+- LLVM IR may be slower than the kernel JIT and ubpf JIT when using map access helpers (Why?)
+- In this case, AOT from C code and linked with LLVM doesn't have big difference with `ubpf`.
+- Map access in `BPF_MAP_TYPE_PERCPU_ARRAY` is low cost compare to the csum calculation, in bpftime and kernel, each map access helper will take about `2-3ns`.
+- kernel csum helper does not have a big difference compare to our native csum helper. each `bpf_csum_diff` will take about `15-20ns` in this case.
+- In AOT, inline the `bpf_csum_diff` helper does not have a big improvement. Seems compile cannot do more optimization when inline this. Maybe we should tried more simple helper to inline.
+- The pkt size does not have a big impact on this example.
+
 ## Case: xdp_firewall
 
 A xdp based FireWall, include parsing the protos, using a `per_cpu_hash_map` to store the blacklist ip address. It also has a VRRP filtering.
@@ -546,9 +580,7 @@ measure the exec time:
 # load xdp_tx
 sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_tx xdp_progs/.output/xdp_tx.bpf.o enp24s0f1np1 xdp-ebpf-new/base.btf
 # load xdp_map_access
-sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/b
-pftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_map_
-access enp24s0f1np1 xdp-ebpf-new/base.btf
+sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum enp24s0f1np1 xdp-ebpf-new/base.btf
 
 # find id
 sudo /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/bpftimetool/bpftimetool export res.json
