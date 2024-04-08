@@ -23,10 +23,11 @@ shared: build/$(APP)-shared
 static: build/$(APP)-static
 	ln -sf $(APP)-static build/$(APP)
 
+BATCH_FLAG ?= 
 PC_FILE := $(shell $(PKGCONF) --path libdpdk 2>/dev/null)
 CFLAGS += -O3 $(shell $(PKGCONF) --cflags libdpdk) -I$(ROOTDIR)/module
 # Add flag to allow experimental API as l2fwd uses rte_ethdev_set_ptype API
-CFLAGS += -DALLOW_EXPERIMENTAL_API  $(LTO_FLAG)
+CFLAGS += -DALLOW_EXPERIMENTAL_API $(BATCH_FLAG)  $(LTO_FLAG)
 ROOTDIR=$(shell git rev-parse --show-toplevel)
 LD_FLAGS_EBPF = -L$(BPFTIME_LIB_DIR)bpftime/runtime  \
 			-L$(BPFTIME_LIB_DIR) \

@@ -193,8 +193,7 @@ Dump llvm IR:
 /home/yunwei/llvm-project/llvm/build/bin/llvm-cbe loop.ll
 ```
 
-## Run the native code
+## The hash funtions
 
-```sh
-
-```
+- no avx: https://github.com/rurban/smhasher
+- simd version: https://github.com/jsnell/parallel-xxhash

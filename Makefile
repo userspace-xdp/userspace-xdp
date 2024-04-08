@@ -6,7 +6,7 @@ DPDK_DIR=$(ROOTDIR)/external/dpdk
 BPFTIME_DIR_UBPF=$(ROOTDIR)/build-bpftime-ubpf/
 BPFTIME_DIR_LLVM=$(ROOTDIR)/build-bpftime-llvm/
 
-BENCH_EXEC=afxdp/l2fwd/xdpsock_ubpf afxdp/l2fwd/xdpsock_llvm dpdk_l2fwd/dpdk_l2fwd_ubpf dpdk_l2fwd/dpdk_l2fwd_llvm
+BENCH_EXEC=afxdp/l2fwd/xdpsock_ubpf afxdp/l2fwd/xdpsock_llvm dpdk_l2fwd/dpdk_l2fwd_ubpf dpdk_l2fwd/dpdk_l2fwd_llvm dpdk_l2fwd/dpdk_l2fwd_batch
 
 dpdk:
 	cd external/dpdk && meson --prefix /home/yunwei/install-dir -Dplatform=generic build && cd build && ninja && ninja install
@@ -52,6 +52,14 @@ dpdk_l2fwd/dpdk_l2fwd_llvm: $(BPFTIME_DIR_LLVM) dpdk
 	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig LTO_FLAG=$(LTO_FLAG) \
 	make -C dpdk_l2fwd
 	mv dpdk_l2fwd/build/l2fwd-static dpdk_l2fwd/dpdk_l2fwd_llvm
+
+dpdk_l2fwd/dpdk_l2fwd_batch: $(BPFTIME_DIR_LLVM) dpdk
+	rm -rf dpdk_l2fwd/build
+	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) \
+	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig LTO_FLAG=$(LTO_FLAG) \
+	BATCH_FLAG=-DPROCESS_BATCH_PACKET \
+	make -C dpdk_l2fwd
+	mv dpdk_l2fwd/build/l2fwd-static dpdk_l2fwd/dpdk_l2fwd_batch
 
 pktgen:
 	# need to download dpdk v23.11 and build in $(ROOTDIR)/../install-dir/

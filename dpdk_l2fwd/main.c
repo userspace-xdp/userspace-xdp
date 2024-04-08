@@ -197,7 +197,7 @@ l2fwd_mac_updating(struct rte_mbuf *m, unsigned dest_portid)
 	rte_ether_addr_copy(&l2fwd_ports_eth_addr[dest_portid], &eth->src_addr);
 }
 
-static void swap_src_dst_mac(void *data)
+static inline void swap_src_dst_mac(void *data)
 {
 	unsigned short *p = data;
 	unsigned short dst[3];
@@ -361,12 +361,32 @@ l2fwd_main_loop(void)
 				continue;
 
 			port_statistics[portid].rx += nb_rx;
-
+// #define PROCESS_BATCH_PACKET
+#ifdef PROCESS_BATCH_PACKET
+#warning "process batch packet"
+			int dst_port = l2fwd_dst_ports[portid];
+			for (j = 0; j < nb_rx; j++) {
+		m = pkts_burst[j];
+				struct rte_ether_hdr *eth;
+				eth = rte_pktmbuf_mtod(m, struct rte_ether_hdr *);
+				swap_src_dst_mac(eth);
+			}	
+			for (j = 0; j < nb_rx; j++) {
+				m = pkts_burst[j];
+				struct rte_eth_dev_tx_buffer *buffer;
+				buffer = tx_buffer[dst_port];
+				sent = rte_eth_tx_buffer(dst_port, 0, buffer, m);
+				port_statistics[dst_port].tx += sent;
+			}
+			// int sent = rte_eth_tx_burst(portid, 0, pkts_burst, nb_rx);
+			// port_statistics[dst_port].tx += sent;
+#else
 			for (j = 0; j < nb_rx; j++) {
 				m = pkts_burst[j];
 				rte_prefetch0(rte_pktmbuf_mtod(m, void *));
 				l2fwd_simple_forward(m, portid);
 			}
+#endif
 		}
 		/* >8 End of read packet from RX queues. */
 	}

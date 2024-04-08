@@ -31,31 +31,32 @@ Disassembly of section .text:
   5a:	49 01 d6             	add    %rdx,%r14
   5d:	48 89 f5             	mov    %rsi,%rbp
   60:	4c 89 cf             	mov    %r9,%rdi
-  63:	66 66 66 66 2e 0f 1f 	data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
-  6a:	84 00 00 00 00 00 
+  63:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+  6a:	00 00 00 
+  6d:	0f 1f 00             	nopl   (%rax)
   70:	48 83 c5 e0          	add    $0xffffffffffffffe0,%rbp
   74:	48 8b 0f             	mov    (%rdi),%rcx
   77:	49 0f af ca          	imul   %r10,%rcx
   7b:	4c 01 e9             	add    %r13,%rcx
   7e:	48 c1 c1 1f          	rol    $0x1f,%rcx
   82:	49 89 cd             	mov    %rcx,%r13
-  85:	4d 0f af eb          	imul   %r11,%r13
-  89:	48 8b 5f 08          	mov    0x8(%rdi),%rbx
-  8d:	49 0f af da          	imul   %r10,%rbx
-  91:	4c 01 e3             	add    %r12,%rbx
-  94:	48 c1 c3 1f          	rol    $0x1f,%rbx
+  85:	48 8b 5f 08          	mov    0x8(%rdi),%rbx
+  89:	49 0f af da          	imul   %r10,%rbx
+  8d:	4c 01 e3             	add    %r12,%rbx
+  90:	48 c1 c3 1f          	rol    $0x1f,%rbx
+  94:	4d 0f af eb          	imul   %r11,%r13
   98:	49 89 dc             	mov    %rbx,%r12
-  9b:	4c 8b 7f 10          	mov    0x10(%rdi),%r15
-  9f:	4d 0f af fa          	imul   %r10,%r15
-  a3:	49 01 d7             	add    %rdx,%r15
-  a6:	49 c1 c7 1f          	rol    $0x1f,%r15
-  aa:	4d 0f af e3          	imul   %r11,%r12
+  9b:	4d 0f af e3          	imul   %r11,%r12
+  9f:	4c 8b 7f 10          	mov    0x10(%rdi),%r15
+  a3:	4d 0f af fa          	imul   %r10,%r15
+  a7:	49 01 d7             	add    %rdx,%r15
+  aa:	49 c1 c7 1f          	rol    $0x1f,%r15
   ae:	4c 89 fa             	mov    %r15,%rdx
-  b1:	49 0f af d3          	imul   %r11,%rdx
-  b5:	48 8b 47 18          	mov    0x18(%rdi),%rax
-  b9:	49 0f af c2          	imul   %r10,%rax
-  bd:	4c 01 f0             	add    %r14,%rax
-  c0:	48 c1 c0 1f          	rol    $0x1f,%rax
+  b1:	48 8b 47 18          	mov    0x18(%rdi),%rax
+  b5:	49 0f af c2          	imul   %r10,%rax
+  b9:	4c 01 f0             	add    %r14,%rax
+  bc:	48 c1 c0 1f          	rol    $0x1f,%rax
+  c0:	49 0f af d3          	imul   %r11,%rdx
   c4:	49 89 c6             	mov    %rax,%r14
   c7:	4d 0f af f3          	imul   %r11,%r14
   cb:	48 83 c7 20          	add    $0x20,%rdi

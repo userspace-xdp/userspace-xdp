@@ -68,19 +68,19 @@ static __always_inline uint64_t fetch8 (const char *p) {
     return (uint8_t)(*p) * PRIME5;
 }
 
-static uint64_t finalize (const uint64_t h, const char *p, uint64_t len) {
+static inline uint64_t finalize (const uint64_t h, const char *p, uint64_t len) {
     return (len >= 8) ? (finalize (rotl (h ^ fetch64 (p, 0), 27) * PRIME1 + PRIME4, p + 8, len - 8)) :
             ((len >= 4) ? (finalize (rotl (h ^ fetch32 (p), 23) * PRIME2 + PRIME3, p + 4, len - 4)) :
             ((len > 0) ? (finalize (rotl (h ^ fetch8 (p), 11) * PRIME1, p + 1, len - 1)) :
                 (mix1 (mix1 (mix1 (h, PRIME2, 33), PRIME3, 29), 1, 32))));
 }
 
-static uint64_t h32bytes_4 (const char *p, uint64_t len, const uint64_t v1,const uint64_t v2, const uint64_t v3, const uint64_t v4) {
+static inline uint64_t h32bytes_4 (const char *p, uint64_t len, const uint64_t v1,const uint64_t v2, const uint64_t v3, const uint64_t v4) {
     return (len >= 32) ? h32bytes_4 (p + 32, len - 32, fetch64 (p, v1), fetch64 (p + 8, v2), fetch64 (p + 16, v3), fetch64 (p + 24, v4)) :
             mix3 (mix3 (mix3 (mix3 (rotl (v1, 1) + rotl (v2, 7) + rotl (v3, 12) + rotl (v4, 18), v1), v2), v3), v4);
 }
 
-static uint64_t h32bytes_3 (const char *p, uint64_t len, const uint64_t seed) {
+static inline uint64_t h32bytes_3 (const char *p, uint64_t len, const uint64_t seed) {
     return h32bytes_4 (p, len, seed + PRIME1 + PRIME2, seed + PRIME2, seed, seed - PRIME1);
 }
 

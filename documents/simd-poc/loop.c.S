@@ -9,7 +9,7 @@ Disassembly of section .text:
    3:	48 8b 57 08          	mov    0x8(%rdi),%rdx
    7:	48 29 c2             	sub    %rax,%rdx
    a:	85 d2                	test   %edx,%edx
-   c:	0f 8e a9 00 00 00    	jle    bb <add_arrays+0xbb>
+   c:	0f 8e ab 00 00 00    	jle    bd <add_arrays+0xbd>
   12:	89 d1                	mov    %edx,%ecx
   14:	48 83 f9 08          	cmp    $0x8,%rcx
   18:	73 07                	jae    21 <add_arrays+0x21>
@@ -36,7 +36,7 @@ Disassembly of section .text:
   62:	48 39 fe             	cmp    %rdi,%rsi
   65:	75 d9                	jne    40 <add_arrays+0x40>
   67:	4d 85 c0             	test   %r8,%r8
-  6a:	74 4f                	je     bb <add_arrays+0xbb>
+  6a:	74 51                	je     bd <add_arrays+0xbd>
   6c:	41 83 f8 08          	cmp    $0x8,%r8d
   70:	72 3e                	jb     b0 <add_arrays+0xb0>
   72:	48 89 f7             	mov    %rsi,%rdi
@@ -44,8 +44,9 @@ Disassembly of section .text:
   78:	48 89 ce             	mov    %rcx,%rsi
   7b:	48 29 d6             	sub    %rdx,%rsi
   7e:	66 0f 76 c0          	pcmpeqd %xmm0,%xmm0
-  82:	66 66 66 66 66 2e 0f 	data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
-  89:	1f 84 00 00 00 00 00 
+  82:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+  89:	00 00 00 
+  8c:	0f 1f 40 00          	nopl   0x0(%rax)
   90:	f3 0f 7e 0c 38       	movq   (%rax,%rdi,1),%xmm1
   95:	66 0f f8 c8          	psubb  %xmm0,%xmm1
   99:	66 0f d6 0c 38       	movq   %xmm1,(%rax,%rdi,1)
@@ -53,11 +54,11 @@ Disassembly of section .text:
   a2:	48 39 fe             	cmp    %rdi,%rsi
   a5:	75 e9                	jne    90 <add_arrays+0x90>
   a7:	48 85 d2             	test   %rdx,%rdx
-  aa:	74 0f                	je     bb <add_arrays+0xbb>
+  aa:	74 11                	je     bd <add_arrays+0xbd>
   ac:	0f 1f 40 00          	nopl   0x0(%rax)
-  b0:	fe 04 30             	incb   (%rax,%rsi,1)
-  b3:	48 ff c6             	inc    %rsi
-  b6:	48 39 f1             	cmp    %rsi,%rcx
-  b9:	75 f5                	jne    b0 <add_arrays+0xb0>
-  bb:	31 c0                	xor    %eax,%eax
-  bd:	c3                   	ret    
+  b0:	80 04 30 01          	addb   $0x1,(%rax,%rsi,1)
+  b4:	48 83 c6 01          	add    $0x1,%rsi
+  b8:	48 39 f1             	cmp    %rsi,%rcx
+  bb:	75 f3                	jne    b0 <add_arrays+0xb0>
+  bd:	31 c0                	xor    %eax,%eax
+  bf:	c3                   	ret    
