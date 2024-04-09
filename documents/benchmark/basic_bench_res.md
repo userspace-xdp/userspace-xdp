@@ -3,29 +3,22 @@
 <!-- TOC -->
 
 - [basic benchmark results](#basic-benchmark-results)
-    - [Table of contents](#table-of-contents)
-    - [steup](#steup)
-        - [octopus1 setup](#octopus1-setup)
-        - [octopus3 setup](#octopus3-setup)
-        - [test connection](#test-connection)
-    - [helper commands](#helper-commands)
-    - [if calculate on octopus1, overhead](#if-calculate-on-octopus1-overhead)
-    - [test config](#test-config)
-    - [Test with tcp4 traffic](#test-with-tcp4-traffic)
-        - [xdp tx](#xdp-tx)
-        - [array map access](#array-map-access)
-    - [csum with map access helper](#csum-with-map-access-helper)
-    - [xdp_tx_iptunnel](#xdp_tx_iptunnel)
-    - [ICMP traffic](#icmp-traffic)
-        - [xdping](#xdping)
-    - [trouble shooting](#trouble-shooting)
-
-<!-- /TOC -->map access](#array-map-access)
+  - [steup](#steup)
+    - [octopus1 setup](#octopus1-setup)
+    - [octopus3 setup](#octopus3-setup)
+    - [test connection](#test-connection)
+  - [helper commands](#helper-commands)
+  - [if calculate on octopus1, overhead](#if-calculate-on-octopus1-overhead)
+  - [test config](#test-config)
+  - [Test with tcp4 traffic](#test-with-tcp4-traffic)
+    - [xdp tx](#xdp-tx)
+    - [array map access](#array-map-access)
   - [csum with map access helper](#csum-with-map-access-helper)
   - [xdp\_tx\_iptunnel](#xdp_tx_iptunnel)
   - [ICMP traffic](#icmp-traffic)
     - [xdping](#xdping)
   - [trouble shooting](#trouble-shooting)
+  - [eplain the results](#eplain-the-results)
 
 ## steup
 
@@ -265,7 +258,6 @@ dpdk xdp:
 - `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, ubpf jit(Without LTO): 
 - `l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1`, llvm jit(Without LTO): Rx 33,432,764 Tx 33,447,040
 
-
 ### array map access
 
 ```sh
@@ -373,3 +365,63 @@ INFO [805171]: Global shm destructed
 ```
 
 The BTF CO-RE has not complete and issue an invalid function call.
+
+## eplain the results
+
+AF_XDP perf data, run with xdp_tx:
+
+```txt
+    88.88%    88.54%  xdpsock_llvm  xdpsock_llvm          [.] l2fwd_all
+            |          
+            |--88.23%--l2fwd_all
+            |          
+             --0.65%--0x7f654a0e7000
+
+     9.83%     9.48%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e7012
+            |          
+             --9.48%--0x7f654a0e7014
+
+     9.53%     0.05%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e7014
+            |          
+             --9.49%--0x7f654a0e7014
+
+     0.65%     0.00%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e7000
+            |          
+             --0.65%--0x7f654a0e7000
+
+     0.52%     0.12%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e701b
+     0.45%     0.40%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e7018
+     0.35%     0.14%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e7025
+     0.35%     0.35%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e700c
+     0.32%     0.30%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e7031
+     0.26%     0.22%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e7022
+     0.25%     0.11%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e7029
+     0.17%     0.04%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e701e
+     0.12%     0.01%  xdpsock_llvm  [JIT] tid 585771      [.] 0x00007f654a0e702c
+     0.09%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] entry_SYSCALL_64_after_hwframe
+     0.09%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] do_syscall_64
+     0.05%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] handle_mm_fault
+     0.04%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] __handle_mm_fault
+     0.04%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] asm_sysvec_apic_timer_interrupt
+     0.04%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] sysvec_apic_timer_interrupt
+     0.04%     0.00%  xdpsock_llvm  libc.so.6             [.] __GI___setsockopt
+     0.04%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] __x64_sys_setsockopt
+     0.04%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] __sys_setsockopt
+     0.04%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] do_sock_setsockopt
+     0.04%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] xsk_setsockopt
+     0.04%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] xdp_umem_create
+     0.03%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] __sysvec_apic_timer_interrupt
+     0.03%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] hrtimer_interrupt
+     0.03%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] pin_user_pages
+     0.03%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] __gup_longterm_locked
+     0.03%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] __get_user_pages
+     0.03%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] __hrtimer_run_queues
+     0.03%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] tick_nohz_highres_handler
+     0.03%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] do_anonymous_page
+     0.02%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] asm_exc_page_fault
+     0.02%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] __x64_sys_sendto
+     0.02%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] __sys_sendto
+     0.02%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] tick_sched_handle
+     0.02%     0.00%  xdpsock_llvm  [kernel.kallsyms]     [k] update_process_times
+```
+

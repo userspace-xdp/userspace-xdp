@@ -71,7 +71,7 @@ The af_xdp example is tested with
 
 ```sh
 cd ebpf-xdp-dpdk/afxdp/l2fwd
-sudo ./xdpsock --l2fwd -i enp24s0f1np1
+sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1
 ```
 
 The kernel eBPF part is:
@@ -138,7 +138,20 @@ See https://github.com/eunomia-bpf/bpftime/tree/master/vm/simple-jit
 
 ### LLVM AOT
 
-bpftime AOT engine can compile the LLVM IR from the eBPF bytecode to a `.o` file, or directly load and check a precompiled native object file as the AOT results. It can help us explore better optimization approaches.
+bpftime AOT engine has split the JIT into two steps:
+
+1. Compile a eBPF bytecode into LLVM IR, and then compile the LLVM IR into native code. You can export the native code as a ELF object file(`.o`).
+2. Load the ELF object file into the runtime, lin it wth helpers and maps, check the stack layout, and then execute it.
+
+It can help us explore better optimization approaches, since the load Native ELF doen't need to be compiled from the eBPF bytecode directly(Actually you can even do it with rust). We can have approaches like:
+
+- C -> eBPF bytecode -> LLVM IR -> LLVM IR with type information -> Native code(SIMD) ELF -> Load with AOT runtime
+  
+Or
+
+- C -> eBPF bytecode -> verified -> C with some changes for relocation on AST level -> clang -> Native code ELF(SIMD) -> Load with AOT runtime. 
+  - This is like the eBPF for windows(They have a bpf2c tool)
+  - After verfying the LLVM IR code, we transform and relocated the original eBPF C code, and directly compile it with clang. (So we need the eBPF source C code)
 
 The linker(Which help load AOT programs into the runtime) checks:
 
@@ -166,18 +179,50 @@ There are three possible optimizaions in AOT:
     - Observe: The eBPF bytecode is typeless, so if we JIT from the bytecode only, the LLVM will not be able to do some optimization, such as inlining, loop unrolling, SIMD, etc. With the type information, the LLVM can do better optimization.
     - Approach: Add type information to the LLVM IR or from the source code.
 - inline helpers.
-    - Observe: Some helpers, such as copy data, strcmp, calc csum, generated random value, are very simple and Don't interact with other maps. They exist because the limitation of verifier. Inline them will avoid the cost of function call and enabled better optimizaion from LLVM.
+    - Observe: Some helpers, such as copy data, strcmp, calc csum, generated random value, are very simple and Don't interact with other maps. They exist because the limitation of verifier. Inline them will avoid the cost of helper function call and enabled better optimizaion from LLVM.
     - Approach: Prepare a helper implementations in C or LLVM IR, which can be compile and linked with the AOT eBPF res.
     - We could also use better and specific implementation for the helpers.
 - inline maps.
     - Observe: some maps are for configurations only, once they are loaded, they will not be read by userspace programs. They are also not shared between different eBPF programs. For example, the `target_pid` filtter in the tracing programs, or some config maps in network programs. Inline them will avoid the cost of map lookup and enabled better optimizaion from LLVM, since the eBPF inst will need helpers or something like `__lddw_helper_map_by_fd` to access them.
     - Approach: inline the maps as global variables in the native code, so that it can be process by the AOT linker. The linker will allocate this `global variables` as the real global variables in the runtime instead of maps, and replace the map access with the address of the global variable directly.
 
+For network packet process, we can also batch the packets, like:
+
+```c
+inline int xdp_pass(struct xdp_md *ctx)
+{
+	void *data_end = (void *)(long)ctx->data_end;
+	void *data = (void *)(long)ctx->data;
+	struct ethhdr *eth = data;
+	int rc;
+	u64 nh_off;
+	long dummy_value = 1;
+
+	nh_off = sizeof(*eth);
+	if (data + nh_off > data_end)
+		return rc;
+
+	swap_src_dst_mac(data);
+
+	return XDP_TX;
+}
+
+int batch_xdp_pass(struct xdp_md *ctx_array[]) {
+	for (int i = 0; i < SIZE; i++) {
+		xdp_pass(ctx_array[i]);
+	}
+	return XDP_TX;
+}
+```
+
+But in this way, SIMD may not work well, since the mutiple packet buffer is not linear in memory. In DPDK or AF_XDP, can we make sure the packet always comming with same size and offset?
+
 For more details:
 
 - https://github.com/eunomia-bpf/bpftime/tree/master/tools/aot
 - https://github.com/eunomia-bpf/bpftime/tree/master/vm/llvm-jit
 - [documents/optimize.md](../documents/optimize.md)
+- https://www.usenix.org/system/files/lisa21_slides_jones.pdf 
 
 ## Case: xdp_tx
 
@@ -509,6 +554,46 @@ The results for different configurations are:
 
 ![xdp_map](xdp_map/ipackets.png)
 
+The profile for kernel eBPF is like:
+
+```console
+--bpf_dispatcher_xdp_func
+  |          
+  |--32.78%--bpf_prog_e75d070f5cee5078_xdp_pass
+  |          |          
+  |          |--20.10%--htab_map_update_elem
+  |          |          |          
+  |          |          |--3.35%--alloc_htab_elem
+  |          |          |          |          
+  |          |          |          |--0.91%--__memcpy
+  |          |          |          |          
+  |          |          |           --0.55%--bpf_obj_memcpy
+  |          |          |          
+  |          |          |--2.96%--_raw_spin_lock
+  |          |          |          
+  |          |          |--1.93%--htab_lock_bucket
+  |          |          |          
+  |          |          |--1.93%--check_and_free_fields
+  |          |          |          |          
+  |          |          |           --0.80%--bpf_obj_free_fields
+  |          |          |          
+  |          |          |--1.56%--memcmp
+  |          |          |          
+  |          |           --0.91%--lookup_elem_raw
+  |          |          
+  |          |--4.44%--__htab_map_lookup_elem
+  |          |          |          
+  |          |          |--1.89%--memcmp
+  |          |          |          
+  |          |           --1.43%--lookup_nulls_elem_raw
+  |          |          
+  |          |--4.17%--htab_map_hash
+  |          |          
+  |           --0.55%--alloc_htab_elem
+  |          
+   --0.51%--__htab_map_lookup_elem
+```
+
 ## Case: xdp_firewall
 
 A xdp based FireWall, include parsing the protos, using a `per_cpu_hash_map` to store the blacklist ip address. It also has a VRRP filtering.
@@ -548,6 +633,37 @@ int xdp_firewall(struct xdp_md *ctx)
 The results for different configurations are:
 
 ![xdp_firewall](xdp_firewall/ipackets.png)
+
+In kernel, The profile of bpf program is like:
+
+```console
+$ sudo /home/yunwei/linux/tools/perf/perf record -ag
+$ sudo /home/yunwei/linux/tools/perf/perf report
+
+ |--27.53%--mlx5e_xdp_handle
+ |          |          
+ |          |--16.21%--bpf_dispatcher_xdp_func
+ |          |          |          
+ |          |          |--15.22%--bpf_prog_c794311cb551629f_xdp_pass
+ |          |          |          |          
+ |          |          |          |--4.39%--htab_map_hash
+ |          |          |          |          
+ |          |          |          |--3.36%--htab_percpu_map_lookup_elem
+ |          |          |          |          |          
+ |          |          |          |           --2.00%--lookup_nulls_elem_raw
+ |          |          |          |          
+ |          |          |           --0.51%--lookup_nulls_elem_raw
+ |          |          |          
+ |          |           --0.70%--htab_percpu_map_lookup_elem
+ |          |          
+ |          |--3.32%--mlx5e_xmit_xdp_frame_mpwqe
+ |          |          
+ |          |--0.79%--dma_sync_single_for_device
+ |          |          
+ |           --0.71%--mlx5e_xmit_xdp_frame_check_mpwqe
+ |          
+
+```
 
 ## Case: xdp_adjust_tail
 
@@ -631,6 +747,36 @@ a simple load balancer using XDP. It will get the mac address and ip address fro
 The results for different configurations are:
 
 ![xdp_lb](xdp_lb/ipackets.png)
+
+The profile for kernel eBPF is like:
+
+```console
+sudo /home/yunwei/linux/tools/perf/perf record -ag
+sudo /home/yunwei/linux/tools/perf/perf report
+-mlx5e_skb_from_cqe_mpwrq_linear
+ |          
+ |--31.97%--mlx5e_xdp_handle
+ |          |          
+ |          |--20.29%--bpf_dispatcher_xdp_func
+ |          |          |          
+ |          |          |--19.14%--bpf_prog_2d0e8e2e484c2743_xdp_pass
+ |          |          |          |          
+ |          |          |          |--9.51%--bpf_csum_diff
+ |          |          |          |          |          
+ |          |          |          |           --4.12%--csum_partial
+ |          |          |          |          
+ |          |          |           --1.39%--csum_partial
+ |          |          |          
+ |          |           --0.81%--bpf_csum_diff
+ |          |          
+ |          |--2.55%--mlx5e_xmit_xdp_frame_mpwqe
+ |          |          
+ |          |--1.00%--dma_sync_single_for_device
+ |          |          
+ |           --0.59%--mlx5e_xmit_xdp_frame_check_mpwqe
+ |          
+  --0.75%--dma_sync_single_for_device
+```
 
 ## commands to run the test
 

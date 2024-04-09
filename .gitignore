@@ -6,3 +6,5 @@ build-bpftime/
 build-bpftime-ubpf/
 build-bpftime-llvm/
 res.json
+perf.data
+perf.data.old

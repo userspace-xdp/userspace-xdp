@@ -585,3 +585,10 @@ INFO [573740]: Global shm destructed
                |          
                 --1.19%--bounds_check.constprop.0
 ```
+
+In kernel:
+
+```console
+$ sudo bpftool prog run id 3504 data_in /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin repeat 100000000
+Return value: 3, duration (average): 62ns
+```

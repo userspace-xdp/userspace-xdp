@@ -244,18 +244,6 @@ static inline void csum_replace2(__sum16 *sum, __be16 old, __be16 new)
 	*sum = ~csum16_add(csum16_sub(~(*sum), old), new);
 }
 
-// here we use a sightly different one than kernel
-// BTF can help us
-struct xdp_md_userspace
-{
-	__u64 data;
-	__u64 data_end;
-	__u32 data_meta;
-	__u32 ingress_ifindex;
-	__u32 rx_queue_index;
-	__u32 egress_ifindex;
-};
-
 unsigned short compute_ip_checksum(struct iphdr *iphdrp)
 {
 	unsigned long sum = 0;
