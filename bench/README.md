@@ -215,7 +215,19 @@ int batch_xdp_pass(struct xdp_md *ctx_array[]) {
 }
 ```
 
-But in this way, SIMD may not work well, since the mutiple packet buffer is not linear in memory. In DPDK or AF_XDP, can we make sure the packet always comming with same size and offset?
+But in this way, SIMD may not work well, since the mutiple packet buffer is not linear in memory. SIMD may work for batching process like:
+
+```c
+// Example packet data (simplified)
+uint8_t packets[][20] = {
+    {0x45, 0x00, 0x00, 0x73, 0x00, 0x00, 0x40, 0x00, 0x40, 0x11},
+    {0x45, 0x00, 0x00, 0x54, 0x00, 0x00, 0x40, 0x00, 0x40, 0x01},
+    {0x00, 0x45, 0x00, 0x00, 0x73, 0x00, 0x00, 0x40, 0x00, 0x40},
+    // Add more packets for testing
+};
+```
+
+In DPDK or AF_XDP, can we make sure the packet always comming with same size and offset?
 
 For more details:
 
