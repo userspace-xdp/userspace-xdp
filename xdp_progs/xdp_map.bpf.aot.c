@@ -27,12 +27,12 @@ static void swap_src_dst_mac(void *data)
 // use array to simulate hash map
 int packet_size_distribute[8192] = {0};
 
-int* bpf_map_lookup_elem(int *m, int *key)
+inline int* bpf_map_lookup_elem(int *m, int *key)
 {
 	return &m[*key];
 }
 
-int bpf_map_update_elem(int *m, int *key, int *value, int flags)
+inline int bpf_map_update_elem(int *m, int *key, int *value, int flags)
 {
 	m[*key] = *value;
 	return 0;
