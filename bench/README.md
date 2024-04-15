@@ -807,7 +807,7 @@ NAME=xdp_map_access python3 /home/yunwei/ebpf-xdp-dpdk/bench/plot_mode.py
 make to run a single test case
 
 ```sh
-sudo BASIC_XDP_NAME=xdp_hash_sum make xdp_hash_sum/dpdk_llvm_aot
+sudo BASIC_XDP_NAME=xdp_map_access make xdp_map_access/dpdk_llvm_aot
 ```
 
 measure the exec time:
