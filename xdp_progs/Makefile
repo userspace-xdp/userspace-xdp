@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
 OUTPUT := .output
 CLANG ?= clang
+CXX ?= clang++
 LIBBPF_SRC := $(abspath ../bpftime/third_party/libbpf/src)
 BPFTOOL_SRC := $(abspath ../bpftime/third_party/bpftool/src)
 LIBBPF_OBJ := $(abspath $(OUTPUT)/libbpf.a)
@@ -66,7 +67,7 @@ $(call allow-override,CC,$(CROSS_COMPILE)cc)
 $(call allow-override,CXX,$(CROSS_COMPILE)g++)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
-AOT_OBJECTS = $(OUTPUT)/xdp_csum.aot.o $(OUTPUT)/xdp_csum_only.aot.o $(OUTPUT)/xdp_hash_sum.aot.o  $(OUTPUT)/xdp_map_access.aot.o $(OUTPUT)/xdp_csum_only.inline.aot.o
+AOT_OBJECTS = $(OUTPUT)/xdp_map.aot.o $(OUTPUT)/xdp_csum.aot.o $(OUTPUT)/xdp_csum_only.aot.o $(OUTPUT)/xdp_hash_sum.aot.o  $(OUTPUT)/xdp_map_access.aot.o $(OUTPUT)/xdp_csum_only.inline.aot.o
 
 .PHONY: all 
 all: $(APPS) $(AOT_OBJECTS)
@@ -141,6 +142,9 @@ $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 $(OUTPUT)/%.aot.o: %.bpf.aot.c
 	$(call msg,CC,$@)
 	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
+
+$(OUTPUT)/%.aot.o: %.bpf.aot.cpp
+	$(CXX) -O3 -fno-stack-protector -fno-permissive $(INCLUDES) -c $< -o $@
 
 $(OUTPUT)/%.inline.aot.o: %.bpf.inline.aot.c
 	$(call msg,CC,$@)

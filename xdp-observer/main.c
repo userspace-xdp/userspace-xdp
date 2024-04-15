@@ -4,10 +4,11 @@
 #include <linux/bpf.h>
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
-#include <arpa/inet.h>
-#include <net/if.h>
 #include "main.h"
 #include "main.skel.h"
+#include <linux/if_link.h>
+#include <arpa/inet.h>
+#include <net/if.h>
 
 void handle_sigint(int sig)
 {
@@ -69,12 +70,33 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    struct bpf_link *link = bpf_program__attach_xdp(skel->progs.xdp_pass, ifindex);
-    if (!link)
-    {
-        fprintf(stderr, "bpf_program__attach_xdp\n");
-        return 1;
-    }
+    // struct bpf_link *link = bpf_program__attach_xdp(skel->progs.xdp_pass, ifindex);
+    // if (!link)
+    // {
+    //     fprintf(stderr, "bpf_program__attach_xdp\n");
+    //     return 1;
+    // }
+    int prog_fd = bpf_program__fd(skel->progs.xdp_pass);
+    int xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST;
+	if (getenv("SKBMODE")) {
+		printf("skb mode\n");
+		xdp_flags |= XDP_FLAGS_SKB_MODE;
+	} else if (getenv("DRVMODE")) {
+		printf("DRV mode\n");
+		xdp_flags |= XDP_FLAGS_DRV_MODE;
+	} else if (getenv("HWMODE")) {
+		printf("HWMODE mode\n");
+		xdp_flags |= XDP_FLAGS_HW_MODE;
+	} else {
+		printf("XDP native mode\n");
+	}
+
+	err = bpf_xdp_attach(ifindex, prog_fd,
+							 xdp_flags,
+							 nullptr);
+	if (err) {
+		printf("attach maybe error\n");
+	}
 
     struct bpf_map *ringbuf_map = bpf_object__find_map_by_name(skel->obj, "ringbuf");
     if (!ringbuf_map)

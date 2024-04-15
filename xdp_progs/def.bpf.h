@@ -23,11 +23,15 @@ typedef __u32 u32;
 typedef __s64 s64;
 typedef __u64 u64;
 
+#ifndef __cplusplus
+
 enum
 {
 	false = 0,
 	true = 1,
 };
+
+#endif
 
 typedef __u16 __be16;
 typedef __u32 __be32;

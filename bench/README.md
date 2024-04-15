@@ -22,6 +22,7 @@
 	- [Case: xdp\_firewall](#case-xdp_firewall)
 	- [Case: xdp\_adjust\_tail](#case-xdp_adjust_tail)
 	- [Case: xdp\_lb](#case-xdp_lb)
+	- [xdp-observer](#xdp-observer)
 	- [commands to run the test](#commands-to-run-the-test)
 
 
@@ -790,6 +791,12 @@ sudo /home/yunwei/linux/tools/perf/perf report
   --0.75%--dma_sync_single_for_device
 ```
 
+## xdp-observer
+
+A simple xdp program to observer the incoming xdp packets, and using ring buffer to print the packet to userspace.
+
+![xdp_observer](xdp_observer/ipackets.png)
+
 ## commands to run the test
 
 Test all for a single use case
@@ -833,4 +840,3 @@ measure the exec time in kernel:
 ```sh
 sudo bpftool prog run id 2729 data_in /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin repeat 1000000000
 ```
-
