@@ -8,3 +8,4 @@ build-bpftime-llvm/
 res.json
 perf.data
 perf.data.old
+afxdp/l2fwd/xdpsock_kern.ll

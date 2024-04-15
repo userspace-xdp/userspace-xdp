@@ -31,12 +31,15 @@ $(BPFTIME_DIR_LLVM):
 
 afxdp/l2fwd/xdpsock_ubpf: $(BPFTIME_DIR_UBPF)
 	rm -f afxdp/l2fwd/xdpsock
-	BPFTIME_LIB_DIR=$(BPFTIME_DIR_UBPF) LTO_FLAG=$(LTO_FLAG) make -C afxdp/l2fwd
+	BPFTIME_LIB_DIR=$(BPFTIME_DIR_UBPF) LTO_FLAG=$(LTO_FLAG) \
+	make -C afxdp/l2fwd
 	mv afxdp/l2fwd/xdpsock afxdp/l2fwd/xdpsock_ubpf
 
 afxdp/l2fwd/xdpsock_llvm: $(BPFTIME_DIR_LLVM)
 	rm -f afxdp/l2fwd/xdpsock
-	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) LTO_FLAG=$(LTO_FLAG) make -C afxdp/l2fwd
+	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) LTO_FLAG=$(LTO_FLAG) \
+	BPFTIME_VM_LIBRARY=-lbpftime_llvm_jit_vm \
+	make -C afxdp/l2fwd
 	mv afxdp/l2fwd/xdpsock afxdp/l2fwd/xdpsock_llvm
 
 dpdk_l2fwd/dpdk_l2fwd_ubpf: $(BPFTIME_DIR_UBPF) dpdk
@@ -49,6 +52,7 @@ dpdk_l2fwd/dpdk_l2fwd_ubpf: $(BPFTIME_DIR_UBPF) dpdk
 dpdk_l2fwd/dpdk_l2fwd_llvm: $(BPFTIME_DIR_LLVM) dpdk
 	rm -rf dpdk_l2fwd/build
 	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) \
+	BPFTIME_VM_LIBRARY=-lbpftime_llvm_jit_vm \
 	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig LTO_FLAG=$(LTO_FLAG) \
 	make -C dpdk_l2fwd
 	mv dpdk_l2fwd/build/l2fwd-static dpdk_l2fwd/dpdk_l2fwd_llvm
@@ -56,6 +60,7 @@ dpdk_l2fwd/dpdk_l2fwd_llvm: $(BPFTIME_DIR_LLVM) dpdk
 dpdk_l2fwd/dpdk_l2fwd_batch: $(BPFTIME_DIR_LLVM) dpdk
 	rm -rf dpdk_l2fwd/build
 	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) \
+	BPFTIME_VM_LIBRARY=-lbpftime_llvm_jit_vm \
 	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig LTO_FLAG=$(LTO_FLAG) \
 	BATCH_FLAG=-DPROCESS_BATCH_PACKET \
 	make -C dpdk_l2fwd

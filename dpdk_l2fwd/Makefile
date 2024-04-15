@@ -23,6 +23,7 @@ shared: build/$(APP)-shared
 static: build/$(APP)-static
 	ln -sf $(APP)-static build/$(APP)
 
+BPFTIME_VM_LIBRARY ?= -lubpf -lbpftime_ubpf_vm
 BATCH_FLAG ?= 
 PC_FILE := $(shell $(PKGCONF) --path libdpdk 2>/dev/null)
 CFLAGS += -O3 $(shell $(PKGCONF) --cflags libdpdk) -I$(ROOTDIR)/module
@@ -38,12 +39,16 @@ LD_FLAGS_EBPF = -L$(BPFTIME_LIB_DIR)bpftime/runtime  \
 			-L$(BPFTIME_LIB_DIR)bpftime/attach/frida_uprobe_attach_impl \
 			-L$(BPFTIME_LIB_DIR)bpftime/attach/syscall_trace_attach_impl \
 			-L$(BPFTIME_LIB_DIR)bpftime/libbpf \
+			-L$(BPFTIME_LIB_DIR)bpftime/vm/vm-core \
+			-L$(BPFTIME_LIB_DIR)bpftime/vm/ubpf-vm/ubpf/lib \
+			-L$(BPFTIME_LIB_DIR)bpftime/vm/ubpf-vm \
 			-L$(ROOTDIR)/afxdp/lib/xdp-tools/lib/libxdp \
 			-lruntime -lxdp-bpftime  -lxdp \
 			-lpthread -lm -ldl -lconfig -lnuma -lgcov -lstdc++ -lruntime \
 			-lbpftime_frida_uprobe_attach_impl \
 			-lbpftime_syscall_trace_attach_impl \
-			-lvm-bpf \
+			-lbpftime_vm \
+			$(BPFTIME_VM_LIBRARY) \
 			$(shell /usr/bin/llvm-config-15 --ldflags --link-static) \
 			$(shell /usr/bin/llvm-config-15 --libs --link-static) \
 			$(shell /usr/bin/llvm-config-15 --system-libs --link-static) \

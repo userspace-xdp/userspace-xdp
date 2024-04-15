@@ -4,6 +4,7 @@ USER_TARGETS   := xdpsock
 BPF_TARGETS    := xdpsock_kern
 ROOTDIR=$(shell git rev-parse --show-toplevel)
 LTO_FLAG ?=  -flto
+BPFTIME_VM_LIBRARY ?= -lubpf -lbpftime_ubpf_vm
 LDLIBS += -lpthread -L$(BPFTIME_LIB_DIR)bpftime/runtime/  \
 			-L$(BPFTIME_LIB_DIR) \
 			-L$(BPFTIME_LIB_DIR)bpftime/vm \
@@ -12,11 +13,15 @@ LDLIBS += -lpthread -L$(BPFTIME_LIB_DIR)bpftime/runtime/  \
 			-L$(BPFTIME_LIB_DIR)bpftime/attach/base_attach_impl \
 			-L$(BPFTIME_LIB_DIR)bpftime/attach/frida_uprobe_attach_impl \
 			-L$(BPFTIME_LIB_DIR)bpftime/attach/syscall_trace_attach_impl \
+			-L$(BPFTIME_LIB_DIR)bpftime/vm/vm-core \
+			-L$(BPFTIME_LIB_DIR)bpftime/vm/ubpf-vm/ubpf/lib \
+			-L$(BPFTIME_LIB_DIR)bpftime/vm/ubpf-vm \
 			-lruntime -lxdp-bpftime $(DPDK_LIBS) \
 			-lpthread -lm -ldl -lconfig -lnuma -lgcov -lstdc++ -lruntime \
 			-lbpftime_frida_uprobe_attach_impl \
 			-lbpftime_syscall_trace_attach_impl \
-			-lvm-bpf \
+			-lbpftime_vm \
+			$(BPFTIME_VM_LIBRARY) \
 			$(shell /usr/bin/llvm-config-15 --ldflags --link-static) \
 			$(shell /usr/bin/llvm-config-15 --libs --link-static) \
 			$(shell /usr/bin/llvm-config-15 --system-libs --link-static) \
