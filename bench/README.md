@@ -539,7 +539,48 @@ The results for different configurations are:
 
 ![xdping](xdping/ipackets.png)
 
-- we tried to avoid the checks
+- we tried to avoid the checks by remove this:
+
+```c
+
+static __always_inline int icmp_check(struct xdp_md *ctx, int type)
+{
+	void *data_end = (void *)(long)ctx->data_end;
+	void *data = (void *)(long)ctx->data;
+	struct ethhdr *eth = data;
+	struct icmphdr *icmph;
+	struct iphdr *iph;
+	// bpf_printk("icmp_check\n");
+	if (data + sizeof(*eth) + sizeof(*iph) + ICMP_ECHO_LEN > data_end)
+		return XDP_PASS;
+	// bpf_printk("icmp_check ICMP_ECHO_LEN > data_end\n");
+	if (eth->h_proto != bpf_htons(ETH_P_IP))
+		return XDP_PASS;
+	// bpf_printk("eth->h_proto\n");
+	iph = data + sizeof(*eth);
+
+	if (iph->protocol != IPPROTO_ICMP)
+		return XDP_PASS;
+	// bpf_printk("iph->protocol\n");
+	// if (bpf_ntohs(iph->tot_len) - sizeof(*iph) != ICMP_ECHO_LEN)
+	// 	return XDP_PASS;
+	// bpf_printk("iph->tot_len\n");
+	icmph = data + sizeof(*eth) + sizeof(*iph);
+	// bpf_printk("icmph %p", icmph);
+	// return XDP_PASS;
+	if (&(icmph->type) > data_end) {
+		bpf_printk("XDP_PASS for invalid icmp\n");
+		return XDP_PASS;
+	}
+	// bpf_printk("icmph->type %d\n", icmph->type);
+	// if (icmph->type != type)
+	// 	return XDP_PASS;
+	// bpf_printk("XDP_TX icmp\n");
+	return XDP_TX;
+}
+```
+
+But the performcnce does show a big difference.
 
 ## Case: xdp_map
 

@@ -18,14 +18,14 @@ execute_with_trap() {
 
 # Commands to execute
 commands=(
-    'make $BASIC_XDP_NAME/dpdk_llvm_jit'
+    # 'make $BASIC_XDP_NAME/dpdk_llvm_jit'
     # 'make $BASIC_XDP_NAME/dpdk_ubpf_jit'
     # 'make $BASIC_XDP_NAME/dpdk_intepreter'
-    # 'make $BASIC_XDP_NAME/drv_mode'
-    # 'make $BASIC_XDP_NAME/skb_mode'
+    'make $BASIC_XDP_NAME/drv_mode'
+    'make $BASIC_XDP_NAME/skb_mode'
     # 'make $BASIC_XDP_NAME/afxdp_ubpf_jit'
     # 'make $BASIC_XDP_NAME/afxdp_llvm_jit_copy'
-    'make $BASIC_XDP_NAME/afxdp_llvm_jit_zero_copy'
+    # 'make $BASIC_XDP_NAME/afxdp_llvm_jit_zero_copy'
 )
 
 # Iterate over the commands array and execute each command with trap

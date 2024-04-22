@@ -21,6 +21,11 @@ We have observed two main reasons to do that:
 
 With these approaches, even AF_XDP in userspace can perform better than kernel XDP.
 
+Questions to answer:for baseline:
+
+- How does the performance baseline of kernel driver mode XDP, kernel SKB mode XDP, DPDK and AF_XDP compare, when doing two somple tasks: XDP_PASS and XDP_TX?
+- What's the difference for AF_XDP copy mode and zero copy mode?
+
 ### SIMD - can work
 
 Case: xdp_hash_sum
@@ -28,6 +33,10 @@ Case: xdp_hash_sum
 Calc the sum for the fist 60 bytes of the packet, and calc the xxhash value for the sum. This is a comman patern for people want to implement load-balance and need hash, and the hash code is from paper `Fast In-kernel Traffic Sketching in eBPF`.
 
 ![xdp_hash_sum](xdp_hash_sum/ipackets.png)
+
+- How complex will make the kernel eBPF program to be slowr than userspace eBPF program?
+- What's the difference between ubpf jit and llvm jit?
+- What's the difference if we use SIMD instructions in userspace?
 
 ### Inline maps - can work
 
@@ -49,6 +58,12 @@ and using array map:
 
 ![xdp_map_access](xdp_map_access/ipackets.png)
 
+Help answer:
+
+- What's the difference compare kernel per-cpu hash map(Without lock) and kernel hash map(With lock)
+- What's the difference compare kernel hash maps with userspace inline hash maps(Without lock)
+- What if we adpot a more simple hash algorithm? (Assume the key is int type)
+
 ## Inline helpers
 
 
@@ -62,4 +77,4 @@ Case: xdping
 - Can work in cases the xdp program is short and the traffic pattern is already known.
 - Since there is not running in kernel, the safety verification is not need so much.
 
-
+![xdping](xdping/ipackets.png)
