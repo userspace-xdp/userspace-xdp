@@ -10,6 +10,7 @@ uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3,
 uint64_t bpftime_xdp_adjust_tail(struct xdp_buff *xdp, __u64 offset);
 uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags);
 uint64_t bpftime_xdp_adjust_head(struct xdp_md_userspace *xdp, int offset);
+long bpftime_xdp_load_bytes(struct xdp_md_userspace *xdp_md, __u32 offset, void *buf, __u32 len);
 }
 #include <cassert>
 #include <cstddef>
@@ -35,6 +36,12 @@ bpftime::bpftime_helper_info xdp_adjust_tail = {
 	.index = 65,
 	.name = "bpf_xdp_adjust_tail",
 	.fn = (void *)bpftime_xdp_adjust_tail
+};
+
+bpftime::bpftime_helper_info bpf_xdp_load_bytes = {
+	.index = 189,
+	.name = "bpf_xdp_load_bytes",
+	.fn = (void *)bpftime_xdp_load_bytes
 };
 
 bpftime::bpftime_helper_info bpf_redirect_map = {
@@ -137,6 +144,8 @@ static int load_ebpf_programs()
 				bpf_redirect_map);
 			new_prog->bpftime_prog_register_raw_helper(
 				xdp_adjust_head);
+			new_prog->bpftime_prog_register_raw_helper(
+				bpf_xdp_load_bytes);
 			if (using_aot) {
 				// load aot object from share memory
 				int res = new_prog->load_aot_object(aot_buf);

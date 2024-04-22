@@ -37,7 +37,7 @@ typedef struct {
 
 HashMapEntry packet_size_distribute[MAP_SIZE] = {0};
 
-// A more robust hash function using bit manipulation and a prime number
+// A simple hash function using bit manipulation and a prime number
 unsigned int hash(int key) {
     key ^= (key >> 20) ^ (key >> 12);
     key = key ^ (key >> 7) ^ (key >> 4);

@@ -23,6 +23,10 @@ remote64to1024tcp:
 	python3 pktgen/remote.py 512 ./tmp-pktgen-res/size-512.txt tcp
 	python3 pktgen/remote.py 1024 ./tmp-pktgen-res/size-1024.txt tcp
 
+.PHONY: remote64tcp
+remote64tcp:
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt tcp
+
 .PHONY: remote256icmp
 remote256icmp:
 	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt icmp
@@ -55,7 +59,7 @@ RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp-maps/target/release/xdp $(IFINDEX)
 RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) N
 RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) S
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_KERNEL_SKB_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
-BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/xdp_map.aot.o
+BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/xdp_ map.aot.o
 else ifeq ($(BASIC_XDP_NAME),xdp_csum)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) -N
@@ -100,7 +104,7 @@ RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp-observer/main $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
-TRAFFICGEN = remote64to1024tcp
+TRAFFICGEN = remote64tcp
 else
 $(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))
 endif
@@ -204,6 +208,20 @@ $(BASIC_XDP_NAME)/dpdk_llvm_aot: $(BASIC_XDP_NAME)
 	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9 || true
 	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9  || true
 
+$(BASIC_XDP_NAME)/afxdp_llvm_aot: $(BASIC_XDP_NAME)
+	$(MAKE) remove-xdp
+	# Start the process in the background
+	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
+	$(RUN_XDP_USERSPACE_COMMAND) &
+	rm -rf ./tmp-pktgen-res
+	cd $(ROOTDIR)/afxdp/l2fwd && sudo AOT_OBJECT_NAME=$(BASIC_XDP_AOT_RES_NAME) \
+	./xdpsock_llvm --l2fwd -i enp24s0f1np1 -z &
+	$(MAKE) tmp-pktgen-res
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_aot
+	# sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
+	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true
+	sudo pgrep -f 'xdpsock_llvm' | xargs kill -9 || true
+
 $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
 	# Start the process in the background
@@ -272,6 +290,7 @@ plot_all_config:
 	NAME=xdping python3 plot_mode.py
 	NAME=xdp_map python3 plot_mode.py
 	NAME=xdp_hash_sum python3 plot_mode.py
+	NAME=xdp-observer python3 plot_mode.py
 
 .PHONY: plot_all_size
 plot_all_size:

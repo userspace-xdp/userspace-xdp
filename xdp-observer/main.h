@@ -12,6 +12,9 @@ struct event
     int rst;
     int psh;
     int ack;
+    // int http;
+    // unsigned int len;
+    // unsigned char data[256];
 };
 
 #endif

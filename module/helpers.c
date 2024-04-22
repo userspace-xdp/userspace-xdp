@@ -514,6 +514,15 @@ uint64_t bpftime_xdp_adjust_head(struct xdp_md_userspace* xdp, int offset) {
 	return 0;
 }
 
+long bpftime_xdp_load_bytes(struct xdp_md_userspace *xdp_md, __u32 offset, void *buf, __u32 len) {
+	void *data = xdp_md->data + offset;
+	if (data + len > xdp_md->data_end) {
+		return -EINVAL;
+	}
+	memcpy(buf, data, len);
+	return 0;
+}
+
 int bpf_get_link_xdp_id(int ifindex, __u32 *prog_id, __u32 flags)
 {
 	return -1;

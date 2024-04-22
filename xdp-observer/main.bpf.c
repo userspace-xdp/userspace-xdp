@@ -54,7 +54,6 @@ int xdp_pass(struct xdp_md *ctx)
 	if (iph->protocol != IPPROTO_TCP) {
 		bpf_printk("Not a TCP packet");
 		return XDP_PASS;
-	
 	}
 
 	struct tcphdr *tcph = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
@@ -77,6 +76,22 @@ int xdp_pass(struct xdp_md *ctx)
 	e.rst = tcph->rst;
 	e.psh = tcph->psh;
 	e.ack = tcph->ack;
+	// e.len = data_end - data;
+	// // help indetify http packets
+	// void* tcp_paload = (void*)tcph + tcph->doff * 4;
+	// if (tcp_paload + 4 < data_end) {
+	// 	// because we cannot let helpers access packet, need copy 
+	// 	bpf_xdp_load_bytes(ctx, 0, e.data, 4);
+	// 	// demosntrate how to use bpf_strncmp
+	// 	if (bpf_strncmp(e.data, 4, "HTTP") == 0) {
+	// 		e.http = 1;
+	// 	} else {
+	// 		e.http = 0;
+	// 	}
+	// }
+	// // cpoy the buffer
+	// if (data + 60 < data_end)
+	// 	bpf_xdp_load_bytes(ctx, 0, &e.data, 60);
 
 	bpf_ringbuf_output(&ringbuf, &e, sizeof(e), 0);
 	swap_src_dst_mac(data);

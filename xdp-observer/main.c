@@ -46,12 +46,6 @@ int main(int argc, char *argv[])
 	);
 	if (argc == 3)
 		opts.btf_custom_path = argv[2];
-    ifindex = if_nametoindex(argv[1]);
-    if (ifindex == 0)
-    {
-        fprintf(stderr, "Invalid interface\n");
-        return 1;
-    }
     libbpf_set_print(libbpf_print_fn);
 
     signal(SIGINT, handle_sigint);
@@ -91,6 +85,12 @@ int main(int argc, char *argv[])
 		printf("XDP native mode\n");
 	}
 
+    ifindex = if_nametoindex(argv[1]);
+    if (ifindex == 0)
+    {
+        fprintf(stderr, "Invalid interface\n");
+        return 1;
+    }
 	err = bpf_xdp_attach(ifindex, prog_fd,
 							 xdp_flags,
 							 nullptr);
