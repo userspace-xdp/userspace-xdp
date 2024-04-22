@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
 OUTPUT := .output
 CLANG ?= clang
-CXX ?= clang++
 LIBBPF_SRC := $(abspath ../bpftime/third_party/libbpf/src)
 BPFTOOL_SRC := $(abspath ../bpftime/third_party/bpftool/src)
 LIBBPF_OBJ := $(abspath $(OUTPUT)/libbpf.a)
@@ -22,7 +21,7 @@ INCLUDES := -I$(OUTPUT) -I../bpftime/third_party/libbpf/include/uapi -I$(dir $(V
 CFLAGS := -g -Wall
 ALL_LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
 
-APPS = xdping_no_check xdp_csum xdp_pass xdp_csum_only xdp_fw xdp_map_access xdp_tx_iptunnel xdping xdp_tx xdp_drop xdp_adjust_tail xdp_hash_sum
+APPS = main # minimal minimal_legacy uprobe kprobe fentry usdt sockfilter tc ksyscall
 
 CARGO ?= $(shell which cargo)
 ifeq ($(strip $(CARGO)),)
@@ -67,10 +66,8 @@ $(call allow-override,CC,$(CROSS_COMPILE)cc)
 $(call allow-override,CXX,$(CROSS_COMPILE)g++)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
-AOT_OBJECTS = $(OUTPUT)/xdp_map.aot.o $(OUTPUT)/xdp_csum.aot.o $(OUTPUT)/xdp_csum_only.aot.o $(OUTPUT)/xdp_hash_sum.aot.o  $(OUTPUT)/xdp_map_access.aot.o $(OUTPUT)/xdp_csum_only.inline.aot.o
-
 .PHONY: all 
-all: $(APPS) $(AOT_OBJECTS)
+all: $(APPS)
 
 .PHONY: clean
 clean:
@@ -138,20 +135,6 @@ base.btf: base.c
 $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 	$(call msg,BINARY,$@)
 	$(Q)$(CXX) $(CFLAGS) $^ $(ALL_LDFLAGS) -lelf -lz -o $@
-
-$(OUTPUT)/%.aot.o: %.bpf.aot.c
-	$(call msg,CC,$@)
-	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
-
-$(OUTPUT)/%.aot.o: %.bpf.aot.cpp
-	$(CXX) -O3 -fno-stack-protector -fno-permissive $(INCLUDES) -c $< -o $@
-
-$(OUTPUT)/%.inline.aot.o: %.bpf.inline.aot.c
-	$(call msg,CC,$@)
-	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
-
-clean-aot:
-	rm -f $(AOT_OBJECTS)
 
 # delete failed targets
 .DELETE_ON_ERROR:
