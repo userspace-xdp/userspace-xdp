@@ -23,6 +23,7 @@
 	- [Case: xdp\_adjust\_tail](#case-xdp_adjust_tail)
 	- [Case: xdp\_lb](#case-xdp_lb)
 	- [xdp-observer](#xdp-observer)
+	- [xdp-tcpclassify](#xdp-tcpclassify)
 	- [commands to run the test](#commands-to-run-the-test)
 
 
@@ -840,6 +841,12 @@ A simple xdp program to observer the incoming xdp packets, and using ring buffer
 
 ![xdp_observer](xdp_observer/ipackets.png)
 
+## xdp-tcpclassify
+
+A simple xdp program to observer the incoming xdp packets, and using ring buffer to print the packet to userspace.
+
+![xdp_observer](xdp-tcpclassify/ipackets.png)
+
 ## commands to run the test
 
 Test all for a single use case
@@ -860,6 +867,7 @@ make to run a single test case
 sudo BASIC_XDP_NAME=xdp_map_access make xdp_map_access/dpdk_llvm_aot
 sudo BASIC_XDP_NAME=xdp_map make xdp_map/afxdp_llvm_aot
 sudo BASIC_XDP_NAME=xdp_hash_sum make xdp_hash_sum/afxdp_llvm_aot
+sudo BASIC_XDP_NAME=xdp-tcpclassify make xdp-tcpclassify/afxdp_llvm_aot
 ```
 
 measure the exec time:

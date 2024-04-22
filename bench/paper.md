@@ -66,7 +66,22 @@ Help answer:
 
 ## Inline helpers
 
+Case: xdp-tcpclassify
 
+A simple xdp program to observer the incoming xdp packets, try to classify the http 1.1 traffic in tcp payload, and using ring buffer to print the packet and it's oontent to userspace.
+
+Help answer:
+
+- What is the performance improvement if we use inline helpers in AOT compile?
+
+![xdp_observer](xdp-tcpclassify/ipackets.png)
+
+We inline the two kernel helpers:
+
+- bpf_xdp_load_bytes
+- bpf_strncmp
+  
+> Note that even if we can use pointer to access the packet data, we still need to first copy the contet to other buffer (like stack or maps) to use the other helper functions. This is because the xdp_md data pointer is 32 bit and other helpers like bpf_strncmp accept 64 bit pointer.
 
 ## Avoid checks
 
@@ -74,7 +89,13 @@ Case: xdping
 
 (Kernel example) use xdp as ping(ICMP) server.
 
+Why we can Avoid checks?
+
 - Can work in cases the xdp program is short and the traffic pattern is already known.
 - Since there is not running in kernel, the safety verification is not need so much.
 
 ![xdping](xdping/ipackets.png)
+
+How does the performance improvement if we avoid the checks?
+
+- Not significant, because the checks are not the main cost of the program due to the branch prediction.
