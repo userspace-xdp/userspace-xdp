@@ -539,6 +539,8 @@ The results for different configurations are:
 
 ![xdping](xdping/ipackets.png)
 
+- we tried to avoid the checks
+
 ## Case: xdp_map
 
 Using BPF_MAP_TYPE_HASH to summarize the incoming packets length.

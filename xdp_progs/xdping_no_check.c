@@ -21,11 +21,11 @@
 #include "bpf/libbpf.h"
 
 #include "xdping.h"
-#include "xdping.skel.h"
+#include "xdping_no_check.skel.h"
 
 static int ifindex;
 static __u32 xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST;
-struct xdping_bpf* skel = NULL;
+struct xdping_no_check_bpf* skel = NULL;
 
 static void cleanup(int sig)
 {
@@ -183,14 +183,14 @@ int main(int argc, char **argv)
 		opts.btf_custom_path = argv[optind];
 	printf("optind %d %d %s\n", optind, argc, opts.btf_custom_path);
 
-	skel = xdping_bpf__open_opts(&opts);
+	skel = xdping_no_check_bpf__open_opts(&opts);
 	if (!skel)
 	{
 		fprintf(stderr, "Failed to open BPF skeleton\n");
 		return 1;
 	}
 	obj = skel->obj;
-	int res = xdping_bpf__load(skel);
+	int res = xdping_no_check_bpf__load(skel);
 	if (res) {
 		printf("bpf_object__load failed\n");
 		return 1;

@@ -49,5 +49,17 @@ and using array map:
 
 ![xdp_map_access](xdp_map_access/ipackets.png)
 
-## inline helpers
+## Inline helpers
+
+
+
+## Avoid checks
+
+Case: xdping
+
+(Kernel example) use xdp as ping(ICMP) server.
+
+- Can work in cases the xdp program is short and the traffic pattern is already known.
+- Since there is not running in kernel, the safety verification is not need so much.
+
 
