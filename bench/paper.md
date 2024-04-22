@@ -21,10 +21,12 @@ We have observed two main reasons to do that:
 
 With these approaches, even AF_XDP in userspace can perform better than kernel XDP.
 
-Questions to answer:for baseline:
+Questions to answer for baseline, see [README.md](README.md):
 
 - How does the performance baseline of kernel driver mode XDP, kernel SKB mode XDP, DPDK and AF_XDP compare, when doing two somple tasks: XDP_PASS and XDP_TX?
 - What's the difference for AF_XDP copy mode and zero copy mode?
+  
+And for optimization, see below:
 
 ### SIMD - can work
 
@@ -34,9 +36,11 @@ Calc the sum for the fist 60 bytes of the packet, and calc the xxhash value for 
 
 ![xdp_hash_sum](xdp_hash_sum/ipackets.png)
 
-- How complex will make the kernel eBPF program to be slowr than userspace eBPF program?
+- How complex will make the kernel eBPF program to be slowr than userspace eBPF program? 
 - What's the difference between ubpf jit and llvm jit?
 - What's the difference if we use SIMD instructions in userspace?
+
+Results: A hash function that would take about 40ns to exec in kernel eBPF or ubpf will be reduce to 5-10ns in userspace eBPF with SIMD instructions. This can overwin the performance gap between kernel and userspace.
 
 ### Inline maps - can work
 
@@ -60,11 +64,13 @@ and using array map:
 
 Help answer:
 
-- What's the difference compare kernel per-cpu hash map(Without lock) and kernel hash map(With lock)
-- What's the difference compare kernel hash maps with userspace inline hash maps(Without lock)
-- What if we adpot a more simple hash algorithm? (Assume the key is int type)
+- What's the difference compare kernel per-cpu hash map(Without lock) and kernel hash map(With lock)? We can see from kernel Driver mode per-cpu hash map vs kernel Driver mode hash map.
+- What's the difference compare kernel hash maps with userspace inline hash maps(Without lock)? We can see from kernel Driver mode per-cpu hash map vs af_xdp inline map.
+- What if we adpot a more simple hash algorithm? (Assume the key is int type) DPDK inline map vs dpdk inline map simple array.
 
-## Inline helpers
+Also, inline a hash map has better improvement thn inline a global variable array map. Global variable array map is not access by helpers.
+
+## Inline helpers -can work
 
 Case: xdp-tcpclassify
 
@@ -78,12 +84,14 @@ Help answer:
 
 We inline the two kernel helpers:
 
-- bpf_xdp_load_bytes
-- bpf_strncmp
+- `bpf_xdp_load_bytes`
+- `bpf_strncmp`
+  
+Results: Show with DPDK, inline helpers in XDP NFs can have a 40% performance improvement.
   
 > Note that even if we can use pointer to access the packet data, we still need to first copy the contet to other buffer (like stack or maps) to use the other helper functions. This is because the xdp_md data pointer is 32 bit and other helpers like bpf_strncmp accept 64 bit pointer.
 
-## Avoid checks
+## Avoid checks - may not need
 
 Case: xdping
 
@@ -98,4 +106,4 @@ Why we can Avoid checks?
 
 How does the performance improvement if we avoid the checks?
 
-- Not significant, because the checks are not the main cost of the program due to the branch prediction.
+Results: Not significant, because the checks are not the main cost of the program due to the branch prediction.
