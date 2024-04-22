@@ -14,8 +14,14 @@ We have observed two main reasons to do that:
 
 ## use cases
 
-- Pre-stack filtering / processing, Flow sampling, monitoring. 
-- traffic redirects, load balancers and firewalls
+- `XDP_PASS`: Pre-stack filtering / processing, Flow sampling, monitoring.
+- `XDP_TX`: traffic redirects, load balancers, firewalls and monitoring. We have
+  - xdping: use xdp as ping(ICMP) server
+  - xdp_map/xdp_map_access: use map to summary the length or count incoming packets
+  - xdp_observer/dump traffic: observe the incoming packets and using ring buffer to print the packet and it's content to userspace.
+  - xdp load-balancer: a simple load balancer
+  - xdp_firewall: a simple black list firewall
+  - xdp_adjust_tail: modify pkt too long for ICMP pkt
 
 ## Optimize approaches and results
 
@@ -40,7 +46,7 @@ Calc the sum for the fist 60 bytes of the packet, and calc the xxhash value for 
 - What's the difference between ubpf jit and llvm jit?
 - What's the difference if we use SIMD instructions in userspace?
 
-Results: A hash function that would take about 40ns to exec in kernel eBPF or ubpf will be reduce to 5-10ns in userspace eBPF with SIMD instructions. This can overwin the performance gap between kernel and userspace.
+Results: A hash function that would take about 40ns to exec in kernel eBPF or ubpf will be reduce to 5-10ns in userspace eBPF with SIMD instructions. This can overwin the performance gap between kernel and userspace. Even if not enabled SIMD, afxdp is 30% better than driver mode. AF XDP itself costs 75ns, driver mode itself costs 60ns, but here we can see the bottleneck comes from eBPF runtime.
 
 ### Inline maps - can work
 
