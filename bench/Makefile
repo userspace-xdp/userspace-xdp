@@ -114,7 +114,7 @@ RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
 TRAFFICGEN = remote64tcp
 else ifeq ($(BASIC_XDP_NAME),xdp-tcpclassify)
-RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp-observer/main $(NETDEV)
+RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp-tcpclassify/main $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
@@ -270,7 +270,7 @@ $(BASIC_XDP_NAME)/afxdp_ubpf_jit: $(BASIC_XDP_NAME)
 	LD_PRELOAD=$(BPFTIME_DIR_UBPF)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
-	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_ubpf --l2fwd -i enp24s0f1np1 &
+	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_ubpf --l2fwd -i enp24s0f1np1 -z &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_ubpf_jit
 	# sudo pgrep -f '$(BASIC_XDP_NAME)' | xargs kill || true
@@ -291,6 +291,7 @@ plot_all_config:
 	NAME=xdp_map python3 plot_mode.py
 	NAME=xdp_hash_sum python3 plot_mode.py
 	NAME=xdp-observer python3 plot_mode.py
+	NAME=xdp-tcpclassify python3 plot_mode.py
 
 .PHONY: plot_all_size
 plot_all_size:

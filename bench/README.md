@@ -478,7 +478,7 @@ Take aways:
 
 ## Case: xdp_hash_sum
 
-Calc the sum for the fist 60 bytes of the packet, andcalc the xxhash value for the sum. This is a comman patern, and the hash code is from paper `Fast In-kernel Traffic Sketching in eBPF`.
+Calc the sum for the fist 60 bytes of the packet, and calc the xxhash value for the sum. This is a comman patern, and the hash code is from paper `Fast In-kernel Traffic Sketching in eBPF`.
 
 - instruction count: 257
 
