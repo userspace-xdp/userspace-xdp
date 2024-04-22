@@ -64,13 +64,13 @@ and using array map:
 
 Help answer:
 
-- What's the difference compare kernel per-cpu hash map(Without lock) and kernel hash map(With lock)? We can see from kernel Driver mode per-cpu hash map vs kernel Driver mode hash map.
-- What's the difference compare kernel hash maps with userspace inline hash maps(Without lock)? We can see from kernel Driver mode per-cpu hash map vs af_xdp inline map.
-- What if we adpot a more simple hash algorithm? (Assume the key is int type) DPDK inline map vs dpdk inline map simple array.
+- What's the difference compare kernel per-cpu hash map(Without lock) and kernel hash map(With lock)? We can see from `kernel Driver mode per-cpu hash map` vs k`ernel Driver mode hash map`.
+- What's the difference compare kernel hash maps with userspace inline hash maps(Without lock)? We can see from `kernel Driver mode per-cpu hash map` vs `af_xdp inline map`.
+- What if we adpot a more simple hash algorithm? (Assume the key is int type) `DPDK inline map` vs `dpdk inline map simple array`.
 
 Also, inline a hash map has better improvement thn inline a global variable array map. Global variable array map is not access by helpers.
 
-## Inline helpers -can work
+## Inline helpers - can work
 
 Case: xdp-tcpclassify
 
@@ -78,7 +78,7 @@ A simple xdp program to observer the incoming xdp packets, try to classify the h
 
 Help answer:
 
-- What is the performance improvement if we use inline helpers in AOT compile?
+- What is the performance improvement if we use inline helpers in AOT compile? See `dpdk inline helpers` vs `dpdk llvm jit`.
 
 ![xdp_observer](xdp-tcpclassify/ipackets.png)
 
@@ -104,6 +104,6 @@ Why we can Avoid checks?
 
 ![xdping](xdping/ipackets.png)
 
-How does the performance improvement if we avoid the checks?
+- How does the performance improvement if we avoid the checks? See `dpdk xdping no checks` vs `dpdk llvm jit`.
 
 Results: Not significant, because the checks are not the main cost of the program due to the branch prediction.
