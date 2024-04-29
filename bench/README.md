@@ -116,6 +116,14 @@ The default configuration is:
 
 It will run on single core, the kernel will default using zero copy mode and xdp-native mode.
 
+enable different config of AF_XDP(Using simple XDP_TX):
+
+- busy-not-wake-up: `SO_PREFER_BUSY_POLL true, XDP_USE_NEED_WAKEUP false`: 9,870,746
+- busy-wake-up(Which is our previous default): `SO_PREFER_BUSY_POLL true, XDP_USE_NEED_WAKEUP true`: 9,598,103
+- sys-poll-not-wake-up: `use syscall for polling, XDP_USE_NEED_WAKEUP false`: 7,973,450
+
+![afxdp-config](afxdp-config.png)
+
 ### LLVM JIT
 
 The baseline configuration for LLVM based JIT.
