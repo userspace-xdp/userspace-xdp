@@ -9,7 +9,7 @@ BPFTIME_DIR_LLVM=$(ROOTDIR)/build-bpftime-llvm/
 BENCH_EXEC=afxdp/l2fwd/xdpsock_ubpf afxdp/l2fwd/xdpsock_llvm dpdk_l2fwd/dpdk_l2fwd_ubpf dpdk_l2fwd/dpdk_l2fwd_llvm dpdk_l2fwd/dpdk_l2fwd_batch
 
 dpdk:
-	cd external/dpdk && meson --prefix /home/yunwei/install-dir -Dplatform=generic build && cd build && ninja && ninja install
+	cd external/dpdk && meson --prefix /home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir -Dplatform=generic build && cd build && ninja && ninja install
 
 dpdk-ebpf:
 	make -C build distclean

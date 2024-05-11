@@ -23,7 +23,7 @@ LDLIBS += -lpthread -L$(BPFTIME_LIB_DIR)bpftime/runtime/  \
 			-lbpftime_vm \
 			$(BPFTIME_VM_LIBRARY) \
 			$(shell /usr/bin/llvm-config-15 --ldflags --link-static) \
-			$(shell /usr/bin/llvm-config-15 --libs --link-static) \
+			$(shell /usr/bin/llvm-config-15 --libs --link-static engine orcjit x86 jitlink linker mcjit) \
 			$(shell /usr/bin/llvm-config-15 --system-libs --link-static) \
 			-lspdlog -lbpf \
 			-lfrida-gum -lpthread -lm -ldl -lz -lelf $(LTO_FLAG)
