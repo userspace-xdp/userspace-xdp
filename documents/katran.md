@@ -104,68 +104,76 @@ New Map types
 
 ## Run katran in kernel with local example
 
-(Test in my machine, the dev is ens33)
-
 For the katran code fixed some compile issues, see <https://github.com/yunwei37/katran>
 
 See <https://github.com/facebookincubator/katran/blob/main/EXAMPLE.md> for how the example works.
 
+(Test in my machine)
+
+Start with the environment in repo:
+
+```sh
+scripts/testbed-setup.sh ebpf
+source scripts/aliases.sh
+lb bash
+```
+
+Allow forward:
+
+```sh
+sudo iptables -P FORWARD ACCEPT
+sudo ip netns exec h2 ip link set lo up
+```
+
 First, config kernel and local env. There are four steps:
 
-1. MAC address of default gateway: `192.168.174.2` `00:50:56:fa:70:cc`
+1. MAC address of default gateway: `10.0.0.2` `de:ad:be:ef:00:02`
 2. You need to know how many receive queues your NIC has and what the mapping between them and cpus
 3. collect CPU to NUMA node mapping
 4. Disable Receive Offload
 
 ```console
-$  ip route  | grep default
-default via 192.168.174.2 dev ens33 proto dhcp src 192.168.174.128 metric 100 
-$ ip n show | grep 192.168.174.2
-192.168.174.254 dev ens33 lladdr 00:50:56:fd:a7:be REACHABLE 
-192.168.174.2 dev ens33 lladdr 00:50:56:fa:70:cc REACHABLE
-$ ifconfig
-docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
-        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
-        ether 02:42:63:37:9b:b8  txqueuelen 0  (Ethernet)
-        RX packets 0  bytes 0 (0.0 B)
+# ip route
+10.0.0.0/24 dev veth6 proto kernel scope link src 10.0.0.10 
+# ip n show
+10.0.0.3 dev veth6 lladdr de:ad:be:ef:00:03 STALE 
+10.0.0.2 dev veth6 lladdr de:ad:be:ef:00:02 STALE 
+# ifconfig
+veth6: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.0.0.10  netmask 255.255.255.0  broadcast 10.0.0.255
+        inet6 fe80::dcad:beff:feef:10  prefixlen 64  scopeid 0x20<link>
+        ether de:ad:be:ef:00:10  txqueuelen 1000  (Ethernet)
+        RX packets 38  bytes 2728 (2.7 KB)
         RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 0  bytes 0 (0.0 B)
+        TX packets 22  bytes 1664 (1.6 KB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-ens33: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 192.168.174.128  netmask 255.255.255.0  broadcast 192.168.174.255
-        inet6 fe80::20c:29ff:feef:9fa6  prefixlen 64  scopeid 0x20<link>
-        ether 00:0c:29:ef:9f:a6  txqueuelen 1000  (Ethernet)
-        RX packets 1591144  bytes 2162127921 (2.1 GB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 370590  bytes 54742464 (54.7 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
-        inet 127.0.0.1  netmask 255.0.0.0
-        inet6 ::1  prefixlen 128  scopeid 0x10<host>
-        loop  txqueuelen 1000  (Local Loopback)
-        RX packets 352932  bytes 52887229 (52.8 MB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 352932  bytes 52887229 (52.8 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-yunwei@yunwei37server:~/katran/example_grpc$ sudo ethtool -l ens33
-netlink error: Operation not supported
-yunwei@yunwei37server:~/katran/example_grpc$ sudo systemctl stop irqbalance
-yunwei@yunwei37server:~/katran/example_grpc$ sudo systemctl disable irqbalance
+#  sudo ethtool -l veth6
+Channel parameters for veth6:
+Pre-set maximums:
+RX:             128
+TX:             128
+Other:          n/a
+Combined:       n/a
+Current hardware settings:
+RX:             1
+TX:             1
+Other:          n/a
+Combined:       n/a
+# sudo systemctl stop irqbalance
+# sudo systemctl disable irqbalance
 Synchronizing state of irqbalance.service with SysV service script with /lib/systemd/systemd-sysv-install.
 Executing: /lib/systemd/systemd-sysv-install disable irqbalance
 Removed "/etc/systemd/system/multi-user.target.wants/irqbalance.service".
-yunwei@yunwei37server:~/katran/example_grpc$ cat /proc/interrupts  | grep ens33
+$ # do this for physical device
+$ # cat /proc/interrupts  | grep ens33
   19:          0          0          0          0          0          0         39     639058   IO-APIC   19-fasteoi   ens33
-yunwei@yunwei37server:~/katran/example_grpc$ cd /proc/irq/19
-yunwei@yunwei37server:/proc/irq/19$ sudo  sh -c "echo 1 > smp_affinity"  
-yunwei@yunwei37server:/proc/irq/19$ sudo ip link add name ipip0 type ipip external
-yunwei@yunwei37server:/proc/irq/19$ sudo ip link add name ipip60 type ip6tnl external
-yunwei@yunwei37server:/proc/irq/19$ sudo ip link set up dev ipip0
-yunwei@yunwei37server:/proc/irq/19$ sudo ip link set up dev ipip60
-yunwei@yunwei37server:/proc/irq/19$ sudo /usr/sbin/ethtool --offload ens33  lro off
+$ # cd /proc/irq/19
+$ # sudo  sh -c "echo 1 > smp_affinity"  
+$ sudo ip link add name ipip0 type ipip external
+# sudo ip link add name ipip60 type ip6tnl external
+# sudo ip link set up dev ipip0
+# sudo ip link set up dev ipip60
+$ # sudo /usr/sbin/ethtool --offload ens33  lro off
 ```
 
 build grpc client:
@@ -178,7 +186,7 @@ cd example_grpc
 start katran:
 
 ```console
-~/katran$ sudo ./_build/build/example_grpc/katran_server_grpc -balancer_prog ./_build/deps/bpfprog/bpf/balancer.bpf.o -default_mac 00:50:56:fa:70:cc -forwarding_cores=0 -intf=ens33 -hc_forwarding=false
+~/katran$ sudo ./_build/build/example_grpc/katran_server_grpc -balancer_prog ./_build/deps/bpfprog/bpf/balancer.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=veth6 -hc_forwarding=false
 I20240512 14:50:40.829821 318559 KatranGrpcService.cpp:69] Starting Katran
 libbpf: elf: skipping unrecognized data section(17) .eh_frame
 libbpf: elf: skipping relo section(18) .rel.eh_frame for section(17) .eh_frame
@@ -199,9 +207,9 @@ Server listening on 0.0.0.0:50051
 
 In this example:
 
-1. MAC address of default router is 00:50:56:fa:70:cc
+1. MAC address of default router is de:ad:be:ef:00:02
 2. Only cpu 0 is configured for forwarding (by IRQ affinity).
-3. We are using ens33 interface for load balancing (packets would be received on this interface).
+3. We are using veth6 interface for load balancing (packets would be received on this interface).
 4. disable health checking
 
 ## Test of connection
@@ -209,6 +217,8 @@ In this example:
 Topology:
 
 ```sh
+# client is 10.0.0.1
+# katran is on 10.0.0.10
 <client> ---- <net> ---- <katran> ---- <net> ---- <server>
 ```
 
@@ -217,6 +227,13 @@ Packet flow looks like this:
 1. From "client" to "katran" (which advertises VIP reachability to the network) it's IP packets with a src of "client" and dst of the VIP.
 2. When "katran" receives this packets, it encapsulates them and sends to the real. this packets are going to be IPIP encapsulated. inner header would state the same ("client" -> "VIP"). The outer header contains specifically crafted src address and destination would be address of the "server".
 3. When server receives this IPIP packet - it removes outer ip header, and processes original packet and while sending replies - it sends it directly from the "VIP" to the "client".
+
+Enter lb:
+
+```sh
+source scripts/aliases.sh
+lb bash
+```
 
 Create ipip interfaces on the server:
 
@@ -262,3 +279,73 @@ VIP must be configured on the real:
 ```console
 sudo ip a a 10.200.200.1/32 dev lo
 ```
+
+Configure a VIP. In our case we are interested in traffic Towards ip 10.200.200.1 and destination port 80/tcp (http). To interact with katran we are using go based client, you can run it w/ --help flag to see what options it supports.
+
+```console
+$ sudo ip link set lo up
+$ ./example_grpc/goclient/bin/main -A -t 10.200.200.1:80
+2024/05/12 15:17:39 Adding service: 10.200.200.1:80 6
+2024/05/12 15:17:39 Vip modified
+exiting
+```
+
+Add a real to this VIP. In this case: ip address of the real would be 10.0.0.2. As in our example VIP will have only single real - we will not configure any weight for this real.
+
+```console
+$ ./example_grpc/goclient/bin/main -a -t 10.200.200.1:80 -r 10.0.0.2
+2024/05/12 15:19:29 Reals modified
+exiting
+```
+
+list the config:
+
+```sh
+$ ./example_grpc/goclient/bin/main -l
+2024/05/12 16:03:39 vips len 1
+VIP:         10.200.200.1 Port:     80 Protocol: tcp
+Vip's flags: 
+ ->10.0.0.2          weight: 1 flags: 
+exiting
+```
+
+start a server on h2:
+
+```sh
+source scripts/aliases.sh
+h2 bash
+python3 -m http.server
+```
+
+Set route and curl in root ns:
+
+```sh
+$ sudo ip route add 10.200.200.1 via 10.0.0.10
+$ ping 10.200.200.1
+PING 10.200.200.1 (10.200.200.1) 56(84) bytes of data.
+64 bytes from 10.200.200.1: icmp_seq=1 ttl=64 time=9.87 ms
+64 bytes from 10.200.200.1: icmp_seq=2 ttl=64 time=0.114 ms
+...
+$ curl 10.200.200.1
+```
+
+Observe the lru results:
+
+```sh
+$ ./example_grpc/goclient/bin/main  -s -lru
+summary: 0 pkts/sec. lru hit: 0.00% lru miss: 0.00% (tcp syn: 0.00% tcp non-syn: 0.00% udp: 0.00%) fallback lru hit: 0 pkts/sec
+summary: 9 pkts/sec. lru hit: 88.89% lru miss: 11.11% (tcp syn: 0.11% tcp non-syn: 0.00% udp: 0.00%) fallback lru hit: 0 pkts/sec
+summary: 0 pkts/sec. lru hit: 0.00% lru miss: 0.00% (tcp syn: 0.00% tcp non-syn: 0.00% udp: 0.00%) fallback lru hit: 0 pkts/sec
+summary: 2 pkts/sec. lru hit: 100.00% lru miss: 0.00% (tcp syn: 0.00% tcp non-syn: 0.00% udp: 0.00%) fallback lru hit: 0 pkts/sec
+```
+
+## Run in userspace
+
+First load the katran into the kernel, unload and trace it in userspace:
+
+```sh
+sudo BPFTIME_RUN_WITH_KERNEL=true LD_PRELOAD=~/.bpftime/libbpftime-syscall-server.so ./_build/build/example_grpc/katran_server_grpc -balancer_prog ./_build/deps/bpfprog/bpf/balancer.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=veth6 -hc_forwarding=false
+```
+
+Dump with json:
+
