@@ -219,6 +219,7 @@ Topology:
 ```sh
 # client is 10.0.0.1
 # katran is on 10.0.0.10
+# vip is 10.200.200.1
 <client> ---- <net> ---- <katran> ---- <net> ---- <server>
 ```
 
@@ -339,13 +340,87 @@ summary: 0 pkts/sec. lru hit: 0.00% lru miss: 0.00% (tcp syn: 0.00% tcp non-syn:
 summary: 2 pkts/sec. lru hit: 100.00% lru miss: 0.00% (tcp syn: 0.00% tcp non-syn: 0.00% udp: 0.00%) fallback lru hit: 0 pkts/sec
 ```
 
-## Run in userspace
-
-First load the katran into the kernel, unload and trace it in userspace:
+You can also use udp traffic:
 
 ```sh
-sudo BPFTIME_RUN_WITH_KERNEL=true LD_PRELOAD=~/.bpftime/libbpftime-syscall-server.so ./_build/build/example_grpc/katran_server_grpc -balancer_prog ./_build/deps/bpfprog/bpf/balancer.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=veth6 -hc_forwarding=false
+# See https://github.com/eunomia-bpf/xdp-pktgen in test
+$ ./udp_client # generate traffic
+$ sudo ./xdpdump -i veth6 -v --rx-capture exit -x
+1715573433.008508953: balancer_ingress()@exit[TX]: packet size 75 bytes, captured 75 bytes on if_index 25, rx queue 0, id 10
+  0x0000:  de ad be ef 00 02 de ad be ef 00 10 08 00 45 00  ..............E.
+  0x0010:  00 3d 00 00 00 00 40 04 af 02 ac 10 15 a9 0a 00  .=....@.........
+  0x0020:  00 02 45 00 00 29 8f 7a 40 00 40 11 ce 7f 0a 00  ..E..).z@.@.....
+  0x0030:  00 01 0a c8 c8 01 a8 15 26 94 00 15 dc f0 48 65  ........&.....He
+  0x0040:  6c 6c 6f 20 53 65 72 76 65 72 21                 llo Server!
 ```
+
+## Run in userspace
+
+```sh
+sudo BPFTIME_RUN_WITH_KERNEL=true BPFTIME_ALLOW_EXTERNAL_MAPS=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so ./_build/build/example_grpc/katran_server_grpc -balancer_prog ./_build/deps/bpfprog/bpf/balancer.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=veth6 -hc_forwarding=false
+```
+
+This include:
+
+- load katran xdp programs and maps into the kernel, Track and dump the BPF instructions
+- Block the program from attaching to xdp interfaces
+- "Unload" the program and maps, record the info in share memory, attach them in userspace
+
+Another approach is just load it in userspace share memory, so no kernel eBPF support is needed(May be buggy):
+
+```sh
+sudo BPFTIME_ALLOW_EXTERNAL_MAPS=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so ./_build/build/example_grpc/katran_server_grpc -balancer_prog ./_build/deps/bpfprog/bpf/balancer.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=veth6 -hc_forwarding=false
+```
+
+The map access for katran, for example, like the rpc client does `./example_grpc/goclient/bin/main -A -u 10.200.200.1:9876` will go through userspace maps in shared memory.
 
 Dump with json:
 
+```sh
+$ sudo /home/yunwei/ebpf-xdp-dpdk/bpftime/build/tools/bpftimetool/bpftimetool export res.json
+[2024-05-13 04:20:23.707] [info] [bpftime_shm_internal.cpp:658] Global shm constructed. shm_open_type 1 for bpftime_maps_shm
+[2024-05-13 04:20:23.707] [info] [bpftime_shm_internal.cpp:29] Global shm initialized
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:265] find prog fd=15 name=balancer_ingres
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=ctl_array found at 334
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=vip_map found at 335
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=fallback_cache found at 336
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=lru_mapping found at 337
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=ch_rings found at 338
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=reals found at 339
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=reals_stats found at 340
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=lru_miss_stats found at 341
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=vip_miss_stats found at 342
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=stats found at 343
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=quic_stats_map found at 344
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=decap_vip_stats found at 345
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=server_id_map found at 346
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=tpr_stats_map found at 347
+[2024-05-13 04:20:23.709] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=server_id_stats found at 348
+INFO [392027]: Global shm destructed
+```
+
+See the json file [katran.json](katran.json) for the detail config and instructions.
+
+Setup the environment as described before.
+
+Run dpdk:
+
+```console
+$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+
+load eBPF program xdp_pass
+set entry program xdp_pass
+init eBPF runtime success
+EAL: Detected CPU lcores: 48
+EAL: Detected NUMA nodes: 1
+EAL: Detected static linkage of DPDK
+EAL: Multi-process socket /var/run/dpdk/rte/mp_socket
+EAL: Selected IOVA mode 'PA'
+```
+
+Run AF_XDP:
+
+```sh
+cd ebpf-xdp-dpdk/afxdp/l2fwd
+sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1
+```
