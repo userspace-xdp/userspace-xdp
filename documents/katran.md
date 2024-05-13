@@ -7,6 +7,13 @@ The record for porting katran, include:
 - How to test it's functionality with a simple example
 - How to run it in userspace
 
+- [Port katran](#port-katran)
+  - [Required features for katran](#required-features-for-katran)
+  - [Run katran in kernel with local example](#run-katran-in-kernel-with-local-example)
+  - [Test of katran functionality](#test-of-katran-functionality)
+  - [Run in userspace](#run-in-userspace)
+  - [basic bench result](#basic-bench-result)
+
 ## Required features for katran
 
 This is the analysis for katran program:
@@ -89,7 +96,7 @@ $ sudo bpftool map
         pids katran_server_g(318559)
 ```
 
-For the disassembly bytecode, see [dump_katran.txt](dump_katran.txt)
+For the disassembly bytecode, see [dump_katran.txt](katran/dump_katran.txt)
 
 New Helpers:
 
@@ -113,7 +120,7 @@ See <https://github.com/facebookincubator/katran/blob/main/EXAMPLE.md> for how t
 Start with the environment in repo:
 
 ```sh
-scripts/testbed-setup.sh ebpf
+sudo scripts/testbed-setup.sh ebpf
 source scripts/aliases.sh
 lb bash
 ```
@@ -212,7 +219,7 @@ In this example:
 3. We are using veth6 interface for load balancing (packets would be received on this interface).
 4. disable health checking
 
-## Test of connection
+## Test of katran functionality
 
 Topology:
 
@@ -220,6 +227,7 @@ Topology:
 # client is 10.0.0.1
 # katran is on 10.0.0.10
 # vip is 10.200.200.1
+# server is on 10.0.0.2
 <client> ---- <net> ---- <katran> ---- <net> ---- <server>
 ```
 
@@ -340,11 +348,13 @@ summary: 0 pkts/sec. lru hit: 0.00% lru miss: 0.00% (tcp syn: 0.00% tcp non-syn:
 summary: 2 pkts/sec. lru hit: 100.00% lru miss: 0.00% (tcp syn: 0.00% tcp non-syn: 0.00% udp: 0.00%) fallback lru hit: 0 pkts/sec
 ```
 
-You can also use udp traffic:
+You can also use udp traffic and observed it with `xdpdump`:
 
 ```sh
 # See https://github.com/eunomia-bpf/xdp-pktgen in test
 $ ./udp_client # generate traffic
+$ ./example_grpc/goclient/bin/main -A -u 10.200.200.1:9876
+$ ./example_grpc/goclient/bin/main -a -u 10.200.200.1:9876 -r 10.0.0.2
 $ sudo ./xdpdump -i veth6 -v --rx-capture exit -x
 1715573433.008508953: balancer_ingress()@exit[TX]: packet size 75 bytes, captured 75 bytes on if_index 25, rx queue 0, id 10
   0x0000:  de ad be ef 00 02 de ad be ef 00 10 08 00 45 00  ..............E.
@@ -399,14 +409,21 @@ $ sudo /home/yunwei/ebpf-xdp-dpdk/bpftime/build/tools/bpftimetool/bpftimetool ex
 INFO [392027]: Global shm destructed
 ```
 
-See the json file [katran.json](katran.json) for the detail config and instructions.
+See the json file [katran.json](katran/katran.json) for the detail config and instructions.
 
-Setup the environment as described before.
+Setup the environment as described before, add config using RPC tool, and run it in ns `lb`.
+
+Set up the testbed
+
+```sh
+sudo scripts/hugepages.sh
+scripts/testbed-setup.sh 
+```
 
 Run dpdk:
 
 ```console
-$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 --vdev=net_tap0,iface=tapdpdk -- -p 0x1
 
 load eBPF program xdp_pass
 set entry program xdp_pass
@@ -418,9 +435,15 @@ EAL: Multi-process socket /var/run/dpdk/rte/mp_socket
 EAL: Selected IOVA mode 'PA'
 ```
 
+Link the tap interface to the dpdk server
+
+```sh
+scripts/link-dpdk.sh
+```
+
 Run AF_XDP:
 
 ```sh
 cd ebpf-xdp-dpdk/afxdp/l2fwd
-sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1
+sudo ./xdpsock_llvm --l2fwd -i veth6
 ```
