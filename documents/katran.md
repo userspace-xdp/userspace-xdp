@@ -7,6 +7,8 @@ The record for porting katran, include:
 - How to test it's functionality with a simple example
 - How to run it in userspace
 
+TOC:
+
 - [Port katran](#port-katran)
   - [Required features for katran](#required-features-for-katran)
   - [Run katran in kernel with local example](#run-katran-in-kernel-with-local-example)
@@ -447,3 +449,22 @@ Run AF_XDP:
 cd ebpf-xdp-dpdk/afxdp/l2fwd
 sudo ./xdpsock_llvm --l2fwd -i veth6
 ```
+
+## basic bench result
+
+Measure the exec time in kernel:
+
+```sh
+sudo bpftool prog
+sudo bpftool prog run id 57 data_in /home/yunwei/ebpf-xdp-dpdk/documents/katran/udp.bin repeat 100000000
+```
+
+strange things happends(Might be related to no bind to a CPU core?), run multiple times of it will get different results.
+
+```console
+$ sudo bpftool prog run id 57 data_in /home/yunwei/ebpf-xdp-dpdk/documents/katran/udp.bin repeat 100000000
+Return value: 2, duration (average): 15ns
+$ sudo bpftool prog run id 57 data_in /home/yunwei/ebpf-xdp-dpdk/documents/katran/udp.bin repeat 1
+Return value: 3, duration: 4514ns
+```
+
