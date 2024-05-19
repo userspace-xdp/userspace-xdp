@@ -72,7 +72,7 @@ It's using a single core and single port, with 512MB memory. The application is 
 The af_xdp example is tested with
 
 ```sh
-cd ebpf-xdp-dpdk/afxdp/l2fwd
+cd afxdp/l2fwd
 sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1
 ```
 

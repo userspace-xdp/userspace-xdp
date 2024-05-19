@@ -132,6 +132,12 @@ BASIC_XDP_AOT_RES_NAME ?= $(ROOTDIR)/xdp_progs/.output/tcpclassify.aot.o
 else
 $(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))
 endif
+
+KATRAN_XDP_NAME ?= katran-range
+ifeq ($(KATRAN_XDP_NAME),katran-range)
+RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
+TRAFFICGEN = remote64range
+BASIC_XDP_AOT_RES_NAME ?= $(ROOTDIR)/xdp_progs/.output/tcpclassify.aot.o
 ################################################################################################
 
 $(BASIC_XDP_NAME):
@@ -161,6 +167,22 @@ $(BASIC_XDP_NAME)/drv_mode: $(BASIC_XDP_NAME)
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/drv_mode
 	sudo pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 
+$(KATRAN_XDP_NAME)/katran_kernel: $(KATRAN_XDP_NAME)
+	$(MAKE) remove-xdp
+	# Start the process in the background
+	sudo /home/yunwei/katran/_build/build/example_grpc/katran_server_grpc\
+		-balancer_prog \
+		/home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o\
+		-default_mac b8:3f:d2:2a:e5:11 -forwarding_cores=0 \
+		-intf=$(NETDEV) -hc_forwarding=false &
+	/home/yunwei/katran/example_grpc/goclient/bin/main \
+						   -A -t 192.168.1.13:5678
+	/home/yunwei/katran/example_grpc/goclient/bin/main \
+						   -a -t 192.168.1.13:5678 -r 192.168.1.11
+	rm -rf ./tmp-pktgen-res
+	$(MAKE) tmp-pktgen-res
+	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/katran_kernel
+	sudo pgrep -f 'katran_server_grpc' | xargs kill || true
 
 $(BASIC_XDP_NAME)/skb_mode: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp

@@ -260,7 +260,7 @@ __wsum csum_partial(const void *buff, int len, __wsum sum)
 }
 #endif
 
-uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3,
+uint64_t bpftime_csum_diff_runtime(uint64_t r1, uint64_t from_size, uint64_t r3,
 			   uint64_t to_size, uint64_t seed)
 {
 	struct bpf_scratchpad sp_data;
@@ -457,7 +457,7 @@ struct skb_shared_info {
 	((xdp)->data_hard_start + (xdp)->frame_sz -                            \
 	 SKB_DATA_ALIGN(sizeof(struct skb_shared_info)))
 
-uint64_t bpftime_xdp_adjust_tail(struct xdp_buff *xdp, uint64_t offset)
+uint64_t bpftime_xdp_adjust_tail_runtime(struct xdp_buff *xdp, uint64_t offset)
 {
 	void *data_hard_end = xdp_data_hard_end(xdp); /* use xdp->frame_sz */
 	void *data_end = xdp->data_end + offset;
@@ -496,7 +496,7 @@ void register_redirect_map_callback(int map_id, redirect_call_back_func cb)
 	redirect_map_callback = cb;
 }
 
-uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags)
+uint64_t bpftime_redirect_map_runtime(uint64_t map, __u64 key, __u64 flags)
 {
 	if (redirect_map_callback) {
 		redirect_map_callback(map, key);
@@ -507,14 +507,14 @@ uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags)
 	}
 }
 
-uint64_t bpftime_xdp_adjust_head(struct xdp_md_userspace* xdp, int offset) {
+uint64_t bpftime_xdp_adjust_head_runtime(struct xdp_md_userspace* xdp, int offset) {
 	// Do nothing because we don't use xdp meta data
 	void *data = xdp->data + offset;
 	xdp->data = data;
 	return 0;
 }
 
-long bpftime_xdp_load_bytes(struct xdp_md_userspace *xdp_md, __u32 offset, void *buf, __u32 len) {
+long bpftime_xdp_load_bytes_runtime(struct xdp_md_userspace *xdp_md, __u32 offset, void *buf, __u32 len) {
 	void *data = xdp_md->data + offset;
 	if (data + len > xdp_md->data_end) {
 		return -EINVAL;
@@ -523,12 +523,12 @@ long bpftime_xdp_load_bytes(struct xdp_md_userspace *xdp_md, __u32 offset, void 
 	return 0;
 }
 
-int bpf_get_link_xdp_id(int ifindex, __u32 *prog_id, __u32 flags)
+int bpf_get_link_xdp_id_runtime(int ifindex, __u32 *prog_id, __u32 flags)
 {
 	return -1;
 }
 
-int bpf_get_link_xdp_info(int ifindex, struct xdp_link_info *info,
+int bpf_get_link_xdp_info_runtime(int ifindex, struct xdp_link_info *info,
 			  size_t info_size, __u32 flags)
 {
 	return -1;

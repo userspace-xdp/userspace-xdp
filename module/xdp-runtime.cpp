@@ -5,12 +5,12 @@
 #include "handler/prog_handler.hpp"
 #include <bpftime_shm.hpp>
 extern "C" {
-uint64_t bpftime_csum_diff(uint64_t r1, uint64_t from_size, uint64_t r3,
+uint64_t bpftime_csum_diff_runtime(uint64_t r1, uint64_t from_size, uint64_t r3,
 			   uint64_t to_size, uint64_t seed);
-uint64_t bpftime_xdp_adjust_tail(struct xdp_buff *xdp, __u64 offset);
-uint64_t bpftime_redirect_map(uint64_t map, __u64 key, __u64 flags);
-uint64_t bpftime_xdp_adjust_head(struct xdp_md_userspace *xdp, int offset);
-long bpftime_xdp_load_bytes(struct xdp_md_userspace *xdp_md, __u32 offset, void *buf, __u32 len);
+uint64_t bpftime_xdp_adjust_tail_runtime(struct xdp_buff *xdp, __u64 offset);
+uint64_t bpftime_redirect_map_runtime(uint64_t map, __u64 key, __u64 flags);
+uint64_t bpftime_xdp_adjust_head_runtime(struct xdp_md_userspace *xdp, int offset);
+long bpftime_xdp_load_bytes_runtime(struct xdp_md_userspace *xdp_md, __u32 offset, void *buf, __u32 len);
 }
 #include <cassert>
 #include <cstddef>
@@ -30,30 +30,30 @@ static bpftime_prog *entry_prog = nullptr;
 
 bpftime::bpftime_helper_info csum_diff = { .index = 28,
 					   .name = "bpftime_csum_diff",
-					   .fn = (void *)bpftime_csum_diff };
+					   .fn = (void *)bpftime_csum_diff_runtime };
 
 bpftime::bpftime_helper_info xdp_adjust_tail = {
 	.index = 65,
 	.name = "bpf_xdp_adjust_tail",
-	.fn = (void *)bpftime_xdp_adjust_tail
+	.fn = (void *)bpftime_xdp_adjust_tail_runtime
 };
 
 bpftime::bpftime_helper_info bpf_xdp_load_bytes = {
 	.index = 189,
 	.name = "bpf_xdp_load_bytes",
-	.fn = (void *)bpftime_xdp_load_bytes
+	.fn = (void *)bpftime_xdp_load_bytes_runtime
 };
 
 bpftime::bpftime_helper_info bpf_redirect_map = {
 	.index = 51,
 	.name = "bpf_redirect_map",
-	.fn = (void *)bpftime_redirect_map
+	.fn = (void *)bpftime_redirect_map_runtime
 };
 
 bpftime::bpftime_helper_info xdp_adjust_head = {
 	.index = 44,
 	.name = "bpf_xdp_adjust_head",
-	.fn = (void *)bpftime_xdp_adjust_head
+	.fn = (void *)bpftime_xdp_adjust_head_runtime
 };
 
 static bool if_enable_jit()
@@ -170,7 +170,7 @@ static int load_ebpf_programs()
 			}
 
 			printf("load eBPF program %s\n", prog.name.c_str());
-			if (prog.name == "xdp_pass") {
+			if (prog.name == "xdp_pass" || prog.name == "balancer_ingres") {
 				entry_prog = new_prog;
 				printf("set entry program %s\n",
 				       prog.name.c_str());
