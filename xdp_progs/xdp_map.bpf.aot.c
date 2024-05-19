@@ -99,4 +99,3 @@ int bpf_main(void *ctx_base)
 	swap_src_dst_mac(data);
 	return XDP_TX;
 }
-

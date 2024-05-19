@@ -31,6 +31,15 @@ remote64tcp:
 remote256icmp:
 	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt icmp
 
+.PHONY: remote64range
+remote64range:
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt range_tcp 0
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-100.txt range_tcp 100
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-1000.txt range_tcp 1000
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-2000.txt range_tcp 2000
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-6000.txt range_tcp 6000
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-8000.txt range_tcp 8000
+
 tmp-pktgen-res:
 	mkdir -p ./tmp-pktgen-res
 	$(MAKE) $(TRAFFICGEN)

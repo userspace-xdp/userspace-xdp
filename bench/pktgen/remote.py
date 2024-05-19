@@ -8,16 +8,24 @@ parser = argparse.ArgumentParser(description="Run pktgen with specified packet s
 parser.add_argument("pkt_size", type=int, help="The desired packet size for pktgen.")
 parser.add_argument("output_file", type=str, help="The file to save SOC output.")
 parser.add_argument("type", type=str, help="The type of traffic profile to use.")
+parser.add_argument("port_range", default=0, type=int, help="The desired max port range size for pktgen.")
 args = parser.parse_args()
 
 # The other script will be executed on the remote machine with 10 seconds
 wait_seconds = 70
 run_seconds = 60
 
+if args.type == "icmp":
+    traffic_profile = "traffic-profile-basic-icmp.lua"
+elif args.type == "range_tcp":
+    traffic_profile = "traffic-profile-tcp-range.lua"
+else:
+    traffic_profile = "traffic-profile-basic.lua"
+
 def extract_pkt_size():
     find_pkt_size_cmd = [
         "ssh", "yunwei@octopus1.doc.res.ic.ac.uk", "-i", "/home/yunwei/.ssh/id_rsa1",
-        "grep -m 1 'pkt_size\\s*=' /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/traffic-profile-basic.lua | awk -F '=' '{print $2}' | tr -d '; \\t\\n'"
+        "grep -m 1 'pkt_size\\s*=' /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/" + traffic_profile + " | awk -F '=' '{print $2}' | tr -d '; \\t\\n'"
     ]
 
     try:
@@ -32,7 +40,7 @@ def extract_pkt_size():
 def modify_pkt_size(new_size):
     modify_cmd = [
         "ssh", "yunwei@octopus1.doc.res.ic.ac.uk", "-i", "/home/yunwei/.ssh/id_rsa1",
-        f"sed -i '/pkt_size\\s*=\\s*/c\\pkt_size\\t= {new_size};' /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/traffic-profile-basic.lua"
+        f"sed -i '/pkt_size\\s*=\\s*/c\\pkt_size\\t= {new_size};' /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/" + traffic_profile
     ]
 
     try:
@@ -41,6 +49,20 @@ def modify_pkt_size(new_size):
     except subprocess.CalledProcessError as e:
         print("Failed to modify pkt_size:", e.stderr)
         exit(1)
+
+def modify_port_range(new_size):
+    print(f"Modifying port range to {new_size}...")
+    modify_cmd = [
+        "ssh", "yunwei@octopus1.doc.res.ic.ac.uk", "-i", "/home/yunwei/.ssh/id_rsa1",
+        f"sed -i 's/^pktgen\.range\.src_port(sendport, \"max\", [0-9]\+);$/pktgen.range.src_port(sendport, \"max\", {new_size});/' /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/" + traffic_profile
+    ]
+
+    try:
+        subprocess.run(modify_cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        print(f"port range successfully updated to {new_size}.")
+    except subprocess.CalledProcessError as e:
+        print("Failed to modify port range :", e.stderr)
+        # exit(1)
 
 # Example usage:
 pkt_size = extract_pkt_size()
@@ -52,10 +74,9 @@ want_pkt_size = args.pkt_size
 # Example modification (change the value as needed):
 modify_pkt_size(want_pkt_size)
 
-if args.type == "icmp":
-    traffic_profile = "traffic-profile-basic-icmp.lua"
-else:
-    traffic_profile = "traffic-profile-basic.lua"
+want_port_range = args.port_range
+modify_port_range(want_port_range)
+
 # Command to run pktgen via SSH
 ssh_cmd = [
     "ssh", "-t", "yunwei@octopus1.doc.res.ic.ac.uk", "-i", "/home/yunwei/.ssh/id_rsa1",
