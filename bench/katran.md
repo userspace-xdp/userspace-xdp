@@ -143,6 +143,15 @@ Userspace dpdk llvm jit:
 
 ### Compare of different pkt size
 
+Kernel driver mode:
+
+![/home/yunwei/ebpf-xdp-dpdk/bench/katran-size/drv_mode/ipackets.png](katran-size/drv_mode/ipackets.png)
+
+Userspace dpdk llvm jit:
+
+![/home/yunwei/ebpf-xdp-dpdk/bench/katran-size/dpdk_llvm_jit/ipackets.png](katran-size/dpdk_llvm_jit/ipackets.png)
+
+
 ## Discussion
 
 - Need more optimize on the runtime before optimize code (2-3 days)

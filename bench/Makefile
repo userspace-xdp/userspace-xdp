@@ -17,19 +17,19 @@ TRAFFICGEN ?= remote64to1024tcp
 
 .PHONY: remote64to1024tcp
 remote64to1024tcp:
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt tcp
-	python3 pktgen/remote.py 128 ./tmp-pktgen-res/size-128.txt tcp
-	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt tcp
-	python3 pktgen/remote.py 512 ./tmp-pktgen-res/size-512.txt tcp
-	python3 pktgen/remote.py 1024 ./tmp-pktgen-res/size-1024.txt tcp
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt tcp 0
+	python3 pktgen/remote.py 128 ./tmp-pktgen-res/size-128.txt tcp 0
+	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt tcp 0
+	python3 pktgen/remote.py 512 ./tmp-pktgen-res/size-512.txt tcp 0
+	python3 pktgen/remote.py 1024 ./tmp-pktgen-res/size-1024.txt tcp 0
 
 .PHONY: remote64tcp
 remote64tcp:
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt tcp
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt tcp 0
 
 .PHONY: remote256icmp
 remote256icmp:
-	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt icmp
+	python3 pktgen/remote.py 256 ./tmp-pktgen-res/size-256.txt icmp 0
 
 .PHONY: remote64range
 remote64range:
