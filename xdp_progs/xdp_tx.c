@@ -160,10 +160,12 @@ int main(int argc, char **argv)
 		printf("Found lru mapping\n");
 		// the same entry as default
 		// should be id actually, but works for syscall server
+		int cache_size = 2000;
 		int value = bpf_map_create(BPF_MAP_TYPE_LRU_HASH, "katran_lru",
 					    sizeof(struct flow_key),
 					    sizeof(struct real_pos_lru),
-					    8000000, 0);
+					    cache_size, 0);
+		printf("cache size %d\n", cache_size);
 		if (value < 0) {
 			printf("Failed to get katran lru FD\n");
 			return 1;

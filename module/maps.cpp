@@ -3,6 +3,7 @@
 #include "bpftime_shm.hpp"
 #include "lpm_trie.h"
 #include "LRUCache11.hpp"
+#include "xdp-runtime.h"
 
 static std::map<int, int> dev_hash_map = {};
 
@@ -138,32 +139,33 @@ namespace std {
     };
 }
 
-lru11::Cache<flow_key, real_pos_lru> cache(8000000, 1000);
+// set cache size to 2k and eviction size to 1k
+lru11::Cache<flow_key, real_pos_lru> cache(2000, 1000);
 
 // lru map
 void *lru_hash_map_elem_lookup(int id, const void *key, bool from_syscall) {
-    printf("runtime: lru_hash_map_elem_lookup\n");
+    DEBUG_PRINT("runtime: lru_hash_map_elem_lookup\n");
     static real_pos_lru value_local;
     bool success = cache.tryGetRef(*(flow_key *)key, value_local);
-    printf("hit: %d\n", success);
+    DEBUG_PRINT("hit: %d\n", success);
     if (!success)
         return nullptr;
     return &value_local;
 }
 
 long lru_hash_map_elem_update(int id, const void *key, const void *value, uint64_t flags, bool from_syscall) {
-    printf("runtime: lru_hash_map_elem_update\n");
+    DEBUG_PRINT("runtime: lru_hash_map_elem_update\n");
     cache.insert(*(flow_key *)key, *(real_pos_lru *)value);
     return 0;
 }
 
 long lru_hash_map_elem_delete(int id, const void *key, bool from_syscall) {
-    printf("lru_hash_map_elem_delete\n");
+    DEBUG_PRINT("lru_hash_map_elem_delete\n");
     return 0;
 }
 
 int lru_hash_map_get_next_key(int id, const void *key, void *next_key, bool from_syscall) {
-    printf("lru_hash_map_get_next_key\n");
+    DEBUG_PRINT("lru_hash_map_get_next_key\n");
     return 0;
 }
 

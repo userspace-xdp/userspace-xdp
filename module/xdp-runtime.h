@@ -31,6 +31,14 @@ int ebpf_module_init();
 
 void register_redirect_map_callback(int map_id, redirect_call_back_func cb);
 
+#define ENABLE_DEBUG 0
+#define DEBUG_PRINT(fmt, ...)                                                  \
+  ({                                                                           \
+      if (ENABLE_DEBUG) {                                                       \
+        printf(fmt, ##__VA_ARGS__);                                         \
+      }                                                                         \
+  })
+
 #ifdef __cplusplus
 }
 #endif

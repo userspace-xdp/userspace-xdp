@@ -33,12 +33,12 @@ remote256icmp:
 
 .PHONY: remote64range
 remote64range:
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64.txt range_tcp 0
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-100.txt range_tcp 100
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-1000.txt range_tcp 1000
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-2000.txt range_tcp 2000
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-6000.txt range_tcp 6000
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/size-64-8000.txt range_tcp 8000
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-0.txt range_tcp 0
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-1000.txt range_tcp 1000
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-2000.txt range_tcp 2000
+	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-6000.txt range_tcp 6000
+	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-8000.txt range_tcp 8000
+	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-8000.txt range_tcp 16000
 
 tmp-pktgen-res:
 	mkdir -p ./tmp-pktgen-res
@@ -129,15 +129,17 @@ RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
 TRAFFICGEN = remote64tcp
 BASIC_XDP_AOT_RES_NAME ?= $(ROOTDIR)/xdp_progs/.output/tcpclassify.aot.o
+else ifeq ($(BASIC_XDP_NAME),katran-range)
+RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/xdp_tx /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND = DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_SKB_COMMAND = SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_USERSPACE_COMMAND = BPFTIME_ALLOW_EXTERNAL_MAPS=true $(ROOTDIR)/xdp_progs/xdp_tx \
+	/home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o $(NETDEV)
+TRAFFICGEN = remote64range
 else
 $(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))
 endif
 
-KATRAN_XDP_NAME ?= katran-range
-ifeq ($(KATRAN_XDP_NAME),katran-range)
-RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
-TRAFFICGEN = remote64range
-BASIC_XDP_AOT_RES_NAME ?= $(ROOTDIR)/xdp_progs/.output/tcpclassify.aot.o
 ################################################################################################
 
 $(BASIC_XDP_NAME):
@@ -167,22 +169,22 @@ $(BASIC_XDP_NAME)/drv_mode: $(BASIC_XDP_NAME)
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/drv_mode
 	sudo pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
 
-$(KATRAN_XDP_NAME)/katran_kernel: $(KATRAN_XDP_NAME)
-	$(MAKE) remove-xdp
-	# Start the process in the background
-	sudo /home/yunwei/katran/_build/build/example_grpc/katran_server_grpc\
-		-balancer_prog \
-		/home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o\
-		-default_mac b8:3f:d2:2a:e5:11 -forwarding_cores=0 \
-		-intf=$(NETDEV) -hc_forwarding=false &
-	/home/yunwei/katran/example_grpc/goclient/bin/main \
-						   -A -t 192.168.1.13:5678
-	/home/yunwei/katran/example_grpc/goclient/bin/main \
-						   -a -t 192.168.1.13:5678 -r 192.168.1.11
-	rm -rf ./tmp-pktgen-res
-	$(MAKE) tmp-pktgen-res
-	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/katran_kernel
-	sudo pgrep -f 'katran_server_grpc' | xargs kill || true
+# $(KATRAN_XDP_NAME)/katran_kernel: $(KATRAN_XDP_NAME)
+# 	$(MAKE) remove-xdp
+# 	# Start the process in the background
+# 	sudo /home/yunwei/katran/_build/build/example_grpc/katran_server_grpc\
+# 		-balancer_prog \
+# 		/home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o\
+# 		-default_mac b8:3f:d2:2a:e5:11 -forwarding_cores=0 \
+# 		-intf=$(NETDEV) -hc_forwarding=false &
+# 	/home/yunwei/katran/example_grpc/goclient/bin/main \
+# 						   -A -t 192.168.1.13:5678
+# 	/home/yunwei/katran/example_grpc/goclient/bin/main \
+# 						   -a -t 192.168.1.13:5678 -r 192.168.1.11
+# 	rm -rf ./tmp-pktgen-res
+# 	$(MAKE) tmp-pktgen-res
+# 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/katran_kernel
+# 	sudo pgrep -f 'katran_server_grpc' | xargs kill || true
 
 $(BASIC_XDP_NAME)/skb_mode: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
@@ -199,6 +201,7 @@ $(BASIC_XDP_NAME)/dpdk_intepreter: $(BASIC_XDP_NAME)
 	LD_PRELOAD=$(BPFTIME_DIR_UBPF)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
+	sleep 2
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_UBPF)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_UBPF)/bpftime/libbpf/libbpf \
 	DISABLE_JIT=1 \
 	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_ubpf \
@@ -214,6 +217,7 @@ $(BASIC_XDP_NAME)/dpdk_ubpf_jit: $(BASIC_XDP_NAME)
 	LD_PRELOAD=$(BPFTIME_DIR_UBPF)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
+	sleep 2
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_UBPF)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_UBPF)/bpftime/libbpf/libbpf \
 	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_ubpf \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
@@ -229,6 +233,7 @@ $(BASIC_XDP_NAME)/dpdk_llvm_jit: $(BASIC_XDP_NAME)
 	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
+	sleep 2
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_LLVM)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_LLVM)/bpftime/libbpf/libbpf \
 	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_llvm \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &

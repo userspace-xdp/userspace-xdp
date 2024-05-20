@@ -1,6 +1,10 @@
 # Bench and optimize katran on userspace eBPF
 
+Katran performance test and optimization record.
+
 ## Setup configuration
+
+The setup configuration of katran.
 
 ### Workflow of katran and testbed
 
@@ -51,6 +55,68 @@ Set the ip:
 ./example_grpc/goclient/bin/main -A -t 192.168.1.13:5678
 ./example_grpc/goclient/bin/main -a -t 192.168.1.13:5678 -r 192.168.1.11
 ```
+
+The LRU cache size is set to 2000, and the src port of generated packets is:
+
+- 0-0: (only single session)
+- 0-1000
+- 0-2000
+- 0-6000
+- 0-8000
+- 0-16000
+
+This can help answer: how the LRU cache hit affect the performance.
+
+### test command in kernel
+
+Run katran:
+
+```sh
+sudo /home/yunwei/katran/_build/build/example_grpc/katran_server_grpc -balancer_prog /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o -default_mac b8:3f:d2:2a:e5:11 -forwarding_cores=0 -intf=enp24s0f1np1 -hc_forwarding=false
+```
+
+An alternative to load in xdp program only:
+
+```sh
+sudo xdp_progs/xdp_tx /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o enp24s0f1np1
+```
+
+### test command in userspace
+
+load in userspace:
+
+> It has some bug with libunwind in octopus3 (but not in my machine), it will sigsegv in mmap, maybe related to LD_PRELOAD.
+
+```sh
+sudo BPFTIME_ALLOW_EXTERNAL_MAPS=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./_build/build/example_grpc/katran_server_grpc -balancer_prog /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=enp24s0f1np1 -hc_forwarding=false
+```
+
+An alternative to load in xdp program only:
+
+```sh
+sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug BPFTIME_ALLOW_EXTERNAL_MAPS=true  xdp_progs/xdp_tx /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o enp24s0f1np1 xdp-ebpf-new/base.btf
+```
+
+Start dpdk and af_xdp is the same as others, for example
+
+```sh
+sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+```
+
+See bench [README.md](README.md) for more details.
+
+## Appendix
+
+### Default katran cache config:
+
+We have test traffic generator configurations in kernel(Default lru size is 8,000,000):
+
+- src port range: 0-0:   lru hit: 100.00% lru miss: 0.00% (only single session)
+- src port range: 0-100: lru hit: 100.00% lru miss: 0.00%
+- src port range: 0-1000 lru hit: 85.43% lru miss: 14.57%
+- src port range: 0-2000 lru hit: 64.80% lru miss: 35.20%
+- src port range: 0-6000 lru hit: 52.85% lru miss: 47.15%
+- src port range: 0-8000 lru hit: 28.56% lru miss: 71.44%
 
 The map content:
 
@@ -121,46 +187,8 @@ yunwei@octopus3:~/katran$ ./example_grpc/goclient/bin/main  -s -lru
 summary: 373360644 pkts/sec. lru hit: 100.00% lru miss: 0.00% (tcp syn: 0.00% tcp non-syn: 0.00% udp: 1.00%) fallback lru hit: 373364861 pkts/sec
 ```
 
-We have test traffic generator configurations for:
 
-- src port range: 0-0:   lru hit: 100.00% lru miss: 0.00% (only single session)
-- src port range: 0-100: lru hit: 100.00% lru miss: 0.00% 
-- src port range: 0-1000 lru hit: 85.43% lru miss: 14.57%
-- src port range: 0-2000 lru hit: 64.80% lru miss: 35.20%
-- src port range: 0-6000 lru hit: 52.85% lru miss: 47.15%
-- src port range: 0-8000 lru hit: 28.56% lru miss: 71.44%
-
-### test command in kernel
-
-Run katran:
-
-```sh
-sudo /home/yunwei/katran/_build/build/example_grpc/katran_server_grpc -balancer_prog /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o -default_mac b8:3f:d2:2a:e5:11 -forwarding_cores=0 -intf=enp24s0f1np1 -hc_forwarding=false
-```
-
-### test command in userspace
-
-load in userspace:
-
-> It has some bug with libunwind in octopus3 (but not in my machine), it will sigsegv in mmap, maybe related to LD_PRELOAD.
-
-```sh
-sudo BPFTIME_ALLOW_EXTERNAL_MAPS=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so ./_build/build/example_grpc/katran_server_grpc -balancer_prog /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=enp24s0f1np1 -hc_forwarding=false
-```
-
-An alternative to load in xdp program only:
-
-```sh
-sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug BPFTIME_ALLOW_EXTERNAL_MAPS=true  xdp_progs/xdp_tx /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o enp24s0f1np1 xdp-ebpf-new/base.btf
-```
-
-Start dpdk and af_xdp is the same as others, for example
-
-```sh
-sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
-```
-
-## Debug
+### Debug
 
 compile the xdp only:
 
@@ -183,4 +211,11 @@ set environment BPFTIME_ALLOW_EXTERNAL_MAPS true
 set environment LD_PRELOAD /home/yunwei/ebpf-xdp-dpdk/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so
 set args -balancer_prog /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=enp24s0f1np1 -hc_forwarding=false
 run
+```
+
+disable xdp for enp24s0f1np1:
+
+```sh
+sudo ip link set dev enp24s0f1np1 xdp off
+sudo ip link set dev enp24s0f1np1 xdpgeneric off
 ```

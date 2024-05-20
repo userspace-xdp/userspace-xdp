@@ -3,7 +3,7 @@ import re
 import matplotlib.pyplot as plt
 
 # Base directory and specific subdirectory to analyze
-name = os.environ.get('NAME', 'xdp_tx')
+name = os.environ.get('NAME', 'katran-range')
 root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench", name)
 
 run_seconds = 60
@@ -24,7 +24,7 @@ def parse_file(file_path):
         print(ipackets)
     return ipackets
 
-def collect_data_single_directory(directory, file_pattern='size-\d+\.txt'):
+def collect_data_single_directory(directory, file_pattern='range-\d+\.txt'):
     """
     Collect and aggregate data from files matching the file_pattern within a single directory.
     """
@@ -36,7 +36,7 @@ def collect_data_single_directory(directory, file_pattern='size-\d+\.txt'):
             ipackets = parse_file(file_path)
             if ipackets is not None:
                 data[str(size)] = ipackets
-            print(f"File: {filename}, Packet Size: {size}, Ipackets: {ipackets}")
+            print(f"File: {filename}, Packet Range: {size}, Ipackets: {ipackets}")
     # sort data by values
     data = dict(sorted(data.items(), key=lambda item: int(item[0])))
     print(f"Aggregated Data: {data}")
@@ -68,7 +68,7 @@ def collect_data(root_dir):
             dir_full_path = os.path.join(dirpath, dirname)
             print(f"Processing directory: {dir_full_path}")
             data = collect_data_single_directory(dir_full_path)
-            plot_data(data, dir_full_path, title='Ipackets by Packet Size in ' + root_dir + ' ' + name,
-              xlabel='Packet Size (Bytes)', ylabel='Pkt/s')
+            plot_data(data, dir_full_path, title='Ipackets by Packet Range in ' + root_dir + ' ' + name,
+              xlabel='Packet Range (Bytes)', ylabel='Pkt/s')
 
 collect_data(root_dir)
