@@ -8,6 +8,8 @@ root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench", name)
 target_file = 'size-64.txt'
 if name == "xdping" or name == "xdp_adjust_tail":
     target_file = 'size-256.txt'
+if name == "katran-range" or name == "katran-size":
+    target_file = 'range-0.txt'
 save_name = 'ipackets.png'
 
 print("root_dir: %s\n" % root_dir)

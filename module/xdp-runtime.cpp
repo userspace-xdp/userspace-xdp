@@ -142,10 +142,10 @@ static int load_ebpf_programs()
 				xdp_adjust_tail);
 			new_prog->bpftime_prog_register_raw_helper(
 				bpf_redirect_map);
-			new_prog->bpftime_prog_register_raw_helper(
-				xdp_adjust_head);
-			new_prog->bpftime_prog_register_raw_helper(
-				bpf_xdp_load_bytes);
+			// new_prog->bpftime_prog_register_raw_helper(
+			// 	xdp_adjust_head);
+			// new_prog->bpftime_prog_register_raw_helper(
+			// 	bpf_xdp_load_bytes);
 			if (using_aot) {
 				// load aot object from share memory
 				int res = new_prog->load_aot_object(aot_buf);

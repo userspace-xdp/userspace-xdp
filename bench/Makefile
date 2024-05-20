@@ -36,9 +36,9 @@ remote64range:
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-0.txt range_tcp 0
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-1000.txt range_tcp 1000
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-2000.txt range_tcp 2000
-	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-6000.txt range_tcp 6000
-	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-8000.txt range_tcp 8000
-	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-8000.txt range_tcp 16000
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-6000.txt range_tcp 6000
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-8000.txt range_tcp 8000
+	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-8000.txt range_tcp 16000
 
 tmp-pktgen-res:
 	mkdir -p ./tmp-pktgen-res
@@ -68,7 +68,7 @@ RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp-maps/target/release/xdp $(IFINDEX)
 RUN_XDP_KERNEL_DRV_COMMAND = $(RUN_XDP_BASIC_COMMAND) N
 RUN_XDP_KERNEL_SKB_COMMAND = $(RUN_XDP_BASIC_COMMAND) S
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_KERNEL_SKB_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
-BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/xdp_map.aot.o
+BASIC_XDP_AOT_RES_NAME ?= $(ROOTDIR)/xdp_progs/.output/xdp_map.aot.o
 TRAFFICGEN = remote64tcp
 else ifeq ($(BASIC_XDP_NAME),xdp_csum)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME) $(NETDEV)
@@ -118,17 +118,17 @@ BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp-firewall/.output/xdp_firewall.aot.o
 TRAFFICGEN = remote64to1024tcp
 else ifeq ($(BASIC_XDP_NAME),xdp-observer)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp-observer/main $(NETDEV)
-RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
-RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_DRV_COMMAND = DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_SKB_COMMAND = SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
 TRAFFICGEN = remote64tcp
 else ifeq ($(BASIC_XDP_NAME),xdp-tcpclassify)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp-tcpclassify/main $(NETDEV)
-RUN_XDP_KERNEL_DRV_COMMAND ?= DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
-RUN_XDP_KERNEL_SKB_COMMAND ?= SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_DRV_COMMAND = DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_SKB_COMMAND = SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = $(RUN_XDP_BASIC_COMMAND) $(ROOTDIR)/xdp-ebpf-new/base.btf
 TRAFFICGEN = remote64tcp
-BASIC_XDP_AOT_RES_NAME ?= $(ROOTDIR)/xdp_progs/.output/tcpclassify.aot.o
+BASIC_XDP_AOT_RES_NAME = $(ROOTDIR)/xdp_progs/.output/tcpclassify.aot.o
 else ifeq ($(BASIC_XDP_NAME),katran-range)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/xdp_tx /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND = DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
@@ -136,6 +136,13 @@ RUN_XDP_KERNEL_SKB_COMMAND = SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = BPFTIME_ALLOW_EXTERNAL_MAPS=true $(ROOTDIR)/xdp_progs/xdp_tx \
 	/home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o $(NETDEV)
 TRAFFICGEN = remote64range
+else ifeq ($(BASIC_XDP_NAME),katran-size)
+RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/xdp_tx /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o $(NETDEV)
+RUN_XDP_KERNEL_DRV_COMMAND = DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_KERNEL_SKB_COMMAND = SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
+RUN_XDP_USERSPACE_COMMAND = BPFTIME_ALLOW_EXTERNAL_MAPS=true $(ROOTDIR)/xdp_progs/xdp_tx \
+	/home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o $(NETDEV)
+TRAFFICGEN = remote64to1024tcp
 else
 $(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))
 endif

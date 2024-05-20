@@ -2,6 +2,22 @@
 
 Katran performance test and optimization record.
 
+- [Bench and optimize katran on userspace eBPF](#bench-and-optimize-katran-on-userspace-ebpf)
+  - [Setup configuration](#setup-configuration)
+    - [Workflow of katran and testbed](#workflow-of-katran-and-testbed)
+    - [config katran: same section](#config-katran-same-section)
+    - [test command in kernel](#test-command-in-kernel)
+    - [test command in userspace](#test-command-in-userspace)
+  - [Test results](#test-results)
+    - [Compare different configurations](#compare-different-configurations)
+    - [Compare different source port range(cache hit rate)](#compare-different-source-port-rangecache-hit-rate)
+    - [Compare of different pkt size](#compare-of-different-pkt-size)
+  - [Discussion](#discussion)
+  - [Appendix](#appendix)
+    - [Default katran cache config:](#default-katran-cache-config)
+    - [Debug](#debug)
+
+
 ## Setup configuration
 
 The setup configuration of katran.
@@ -65,7 +81,7 @@ The LRU cache size is set to 2000, and the src port of generated packets is:
 - 0-8000
 - 0-16000
 
-This can help answer: how the LRU cache hit affect the performance.
+This can help answer: how the LRU cache hit affect the performance. (We can also draw a figture of hit rate.)
 
 ### test command in kernel
 
@@ -104,6 +120,34 @@ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib
 ```
 
 See bench [README.md](README.md) for more details.
+
+## Test results
+
+The test results:
+
+### Compare different configurations
+
+![/home/yunwei/ebpf-xdp-dpdk/bench/katran-range/ipackets.png](katran-range/ipackets.png)
+
+TODO: optimize maps in runtime
+
+### Compare different source port range(cache hit rate)
+
+Kernel driver mode:
+
+![/home/yunwei/ebpf-xdp-dpdk/bench/katran-range/drv_mode/ipackets.png](katran-range/drv_mode/ipackets.png)
+
+Userspace dpdk llvm jit:
+
+![/home/yunwei/ebpf-xdp-dpdk/bench/katran-range/dpdk_llvm_jit/ipackets.png](katran-range/dpdk_llvm_jit/ipackets.png)
+
+### Compare of different pkt size
+
+## Discussion
+
+- Need more optimize on the runtime before optimize code (2-3 days)
+  - already fix some performance issues related to hash map and percpu map
+  - need more benchmark and perf test
 
 ## Appendix
 
