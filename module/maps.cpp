@@ -2,6 +2,7 @@
 #include <cstdint>
 #include "bpftime_shm.hpp"
 #include "lpm_trie.h"
+#include "LRUCache11.hpp"
 
 static std::map<int, int> dev_hash_map = {};
 
@@ -83,4 +84,92 @@ bpftime::bpftime_map_ops lpm_map_ops{
 	.elem_update = lpm_elem_update,
     .elem_delete = lpm_elem_delete,
     .map_get_next_key = nullptr,
+};
+
+#include <iostream>
+#include "LRUCache11.hpp"
+#include <functional>
+
+// Define the flow_key structure
+struct flow_key {
+    union {
+        uint32_t src;
+        uint32_t srcv6[4];
+    };
+    union {
+        uint32_t dst;
+        uint32_t dstv6[4];
+    };
+    union {
+        uint32_t ports;
+        uint16_t port16[2];
+    };
+    uint8_t proto;
+
+    // Define equality operator for flow_key
+    bool operator==(const flow_key& other) const {
+        return src == other.src &&
+               dst == other.dst &&
+               ports == other.ports &&
+               proto == other.proto;
+    }
+};
+
+// Define the real_pos_lru structure
+struct real_pos_lru {
+    uint32_t pos;
+    uint64_t atime;
+};
+
+namespace std {
+    template <>
+    struct hash<flow_key> {
+        std::size_t operator()(const flow_key& key) const {
+            using std::size_t;
+            using std::hash;
+
+            size_t h1 = hash<uint32_t>()(key.src);
+            size_t h2 = hash<uint32_t>()(key.dst);
+            size_t h3 = hash<uint32_t>()(key.ports);
+            size_t h4 = hash<uint8_t>()(key.proto);
+
+            return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3);
+        }
+    };
+}
+
+lru11::Cache<flow_key, real_pos_lru> cache(8000000, 1000);
+
+// lru map
+void *lru_hash_map_elem_lookup(int id, const void *key, bool from_syscall) {
+    printf("runtime: lru_hash_map_elem_lookup\n");
+    static real_pos_lru value_local;
+    bool success = cache.tryGetRef(*(flow_key *)key, value_local);
+    printf("hit: %d\n", success);
+    if (!success)
+        return nullptr;
+    return &value_local;
+}
+
+long lru_hash_map_elem_update(int id, const void *key, const void *value, uint64_t flags, bool from_syscall) {
+    printf("runtime: lru_hash_map_elem_update\n");
+    cache.insert(*(flow_key *)key, *(real_pos_lru *)value);
+    return 0;
+}
+
+long lru_hash_map_elem_delete(int id, const void *key, bool from_syscall) {
+    printf("lru_hash_map_elem_delete\n");
+    return 0;
+}
+
+int lru_hash_map_get_next_key(int id, const void *key, void *next_key, bool from_syscall) {
+    printf("lru_hash_map_get_next_key\n");
+    return 0;
+}
+
+bpftime::bpftime_map_ops lru_hash_map_ops{
+    .elem_lookup = lru_hash_map_elem_lookup,
+    .elem_update = lru_hash_map_elem_update,
+    .elem_delete = lru_hash_map_elem_delete,
+    .map_get_next_key = lru_hash_map_get_next_key,
 };

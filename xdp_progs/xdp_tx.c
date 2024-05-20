@@ -20,6 +20,28 @@ struct vip_definition {
 	__u8 proto;
 };
 
+struct flow_key {
+  union {
+    __be32 src;
+    __be32 srcv6[4];
+  };
+  union {
+    __be32 dst;
+    __be32 dstv6[4];
+  };
+  union {
+    __u32 ports;
+    __u16 port16[2];
+  };
+  __u8 proto;
+};
+
+// where to send client's packet from LRU_MAP
+struct real_pos_lru {
+  __u32 pos;
+  __u64 atime;
+};
+
 // result of vip's lookup
 struct vip_meta {
 	__u32 flags;
@@ -27,13 +49,40 @@ struct vip_meta {
 };
 
 struct ctl_value {
-  union {
-    __u64 value;
-    __u32 ifindex;
-    __u8 mac[6];
-  };
+	union {
+		__u64 value;
+		__u32 ifindex;
+		__u8 mac[6];
+	};
 };
 
+// for LRU's map in map we will support up to this number of cpus
+#ifndef MAX_SUPPORTED_CPUS
+#define MAX_SUPPORTED_CPUS 128
+#endif
+
+// $ sudo bpftool map
+// 517: lru_hash  name katran_lru  flags 0x0
+//         key 40B  value 16B  max_entries 8000000  memlock 966220096B
+//         pids katran_server_g(261219)
+// 518: array  name ctl_array  flags 0x0
+//         key 4B  value 8B  max_entries 16  memlock 448B
+//         btf_id 770
+//         pids katran_server_g(261219)
+// 519: hash  name vip_map  flags 0x0
+//         key 20B  value 8B  max_entries 512  memlock 55744B
+//         btf_id 770
+//         pids katran_server_g(261219)
+// 520: lru_hash  name fallback_cache  flags 0x0
+//         key 40B  value 16B  max_entries 1000  memlock 122752B
+//         btf_id 770
+//         pids katran_server_g(261219)
+// 521: array_of_maps  name lru_mapping  flags 0x0
+//         key 4B  value 4B  max_entries 128  memlock 1344B
+//         pids katran_server_g(261219)
+// $ sudo bpftool map dump id 521
+// key: 00 00 00 00  inner_map_id: 517
+// Found 1 element
 
 static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
 			   va_list args)
@@ -55,8 +104,9 @@ int main(int argc, char **argv)
 		opts.btf_custom_path = argv[3];
 	// Open and load the BPF program
 	bpf_object *obj = bpf_object__open_file(argv[1], &opts);
-	struct bpf_map *vip_map = nullptr;
-	struct bpf_map *ctl_array = nullptr;
+	struct bpf_map *vip_map = NULL;
+	struct bpf_map *ctl_array = NULL;
+	struct bpf_map *lru_mapping = NULL;
 	if (bpf_object__load(obj)) {
 		printf("Failed to load program\n");
 		return 1;
@@ -80,8 +130,8 @@ int main(int argc, char **argv)
 					      .port = 11798,
 					      .proto = 6 };
 		struct vip_meta value = {};
-		int res = bpf_map__update_elem(vip_map, &key, sizeof(key), &value,
-				     sizeof(value), 0);
+		int res = bpf_map__update_elem(vip_map, &key, sizeof(key),
+					       &value, sizeof(value), 0);
 		if (res) {
 			printf("Failed to update vip map\n");
 			return 1;
@@ -94,16 +144,45 @@ int main(int argc, char **argv)
 		printf("Found ctl array\n");
 		__u32 key = 0;
 		// These magic number are dumped from bpftool
-		struct ctl_value value = {
-					  .mac = {184, 63, 210, 42, 229, 17}
-					};
-		int res = bpf_map__update_elem(ctl_array, &key, sizeof(key), &value, sizeof(value), 0);
+		struct ctl_value value = { .mac = { 184, 63, 210, 42, 229,
+						    17 } };
+		int res = bpf_map__update_elem(ctl_array, &key, sizeof(key),
+					       &value, sizeof(value), 0);
 		if (res) {
 			printf("Failed to update ctl array\n");
 			return 1;
 		}
 	} else {
 		printf("Failed to find ctl array, skip\n");
+	}
+	lru_mapping = bpf_object__find_map_by_name(obj, "lru_mapping");
+	if (lru_mapping) {
+		printf("Found lru mapping\n");
+		// the same entry as default
+		// should be id actually, but works for syscall server
+		int value = bpf_map_create(BPF_MAP_TYPE_LRU_HASH, "katran_lru",
+					    sizeof(struct flow_key),
+					    sizeof(struct real_pos_lru),
+					    8000000, 0);
+		if (value < 0) {
+			printf("Failed to get katran lru FD\n");
+			return 1;
+		}
+		// struct flow_key lru_key = {};
+		// struct real_pos_lru lru_value = {};
+		// bpf_map_update_elem(value, &lru_key, &lru_value, 0);
+		for (__u32 i = 0; i < MAX_SUPPORTED_CPUS; i++) {
+			// These magic number are dumped from bpftool
+			int res = bpf_map__update_elem(lru_mapping, &i,
+						       sizeof(i), &value,
+						       sizeof(value), 0);
+			if (res) {
+				printf("Failed to update lru mapping\n");
+				return 1;
+			}
+		}
+	} else {
+		printf("Failed to find lru mapping, skip\n");
 	}
 
 	bpf_program__set_type(prog, BPF_PROG_TYPE_XDP);
