@@ -26,6 +26,15 @@ struct vip_meta {
 	__u32 vip_num;
 };
 
+struct ctl_value {
+  union {
+    __u64 value;
+    __u32 ifindex;
+    __u8 mac[6];
+  };
+};
+
+
 static int libbpf_print_fn(enum libbpf_print_level level, const char *format,
 			   va_list args)
 {
@@ -47,6 +56,7 @@ int main(int argc, char **argv)
 	// Open and load the BPF program
 	bpf_object *obj = bpf_object__open_file(argv[1], &opts);
 	struct bpf_map *vip_map = nullptr;
+	struct bpf_map *ctl_array = nullptr;
 	if (bpf_object__load(obj)) {
 		printf("Failed to load program\n");
 		return 1;
@@ -70,10 +80,30 @@ int main(int argc, char **argv)
 					      .port = 11798,
 					      .proto = 6 };
 		struct vip_meta value = {};
-		bpf_map__update_elem(vip_map, &key, sizeof(key), &value,
+		int res = bpf_map__update_elem(vip_map, &key, sizeof(key), &value,
 				     sizeof(value), 0);
+		if (res) {
+			printf("Failed to update vip map\n");
+			return 1;
+		}
 	} else {
 		printf("Failed to find vip map, skip\n");
+	}
+	ctl_array = bpf_object__find_map_by_name(obj, "ctl_array");
+	if (ctl_array) {
+		printf("Found ctl array\n");
+		__u32 key = 0;
+		// These magic number are dumped from bpftool
+		struct ctl_value value = {
+					  .mac = {184, 63, 210, 42, 229, 17}
+					};
+		int res = bpf_map__update_elem(ctl_array, &key, sizeof(key), &value, sizeof(value), 0);
+		if (res) {
+			printf("Failed to update ctl array\n");
+			return 1;
+		}
+	} else {
+		printf("Failed to find ctl array, skip\n");
 	}
 
 	bpf_program__set_type(prog, BPF_PROG_TYPE_XDP);

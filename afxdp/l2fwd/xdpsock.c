@@ -236,6 +236,8 @@ static bool ebpf_process_packet(void *pkt, uint32_t len)
 	struct xdp_md_userspace data;
 	data.data = (uintptr_t)pkt;
 	data.data_end = data.data + len;
+	data.buffer_start = data.data;
+	data.buffer_end = data.data_end;
 	// /* FIXME: Start your logic from here */
 	ebpf_module_run_at_handler(&data, sizeof(data), &bpf_ret);
 	DEBUG_PRINT("bpf_ret: %lu\n", bpf_ret);

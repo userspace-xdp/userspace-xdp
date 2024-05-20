@@ -509,6 +509,7 @@ uint64_t bpftime_redirect_map_runtime(uint64_t map, __u64 key, __u64 flags)
 
 uint64_t bpftime_xdp_adjust_head_runtime(struct xdp_md_userspace* xdp, int offset) {
 	// Do nothing because we don't use xdp meta data
+	printf("bpftime_xdp_adjust_head_runtime is not supported\n");
 	void *data = xdp->data + offset;
 	xdp->data = data;
 	return 0;

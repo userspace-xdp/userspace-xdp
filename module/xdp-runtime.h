@@ -16,6 +16,9 @@ struct xdp_md_userspace
 	__u32 ingress_ifindex;
 	__u32 rx_queue_index;
 	__u32 egress_ifindex;
+	// additional fields
+	__u64 buffer_start; // record the start of the available buffer
+	__u64 buffer_end; // record the end of the available buffer
 };
 
 typedef void (*redirect_call_back_func)(void *data, int ifindex);

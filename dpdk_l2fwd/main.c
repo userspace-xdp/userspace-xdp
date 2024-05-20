@@ -238,6 +238,9 @@ l2fwd_simple_forward(struct rte_mbuf *m, unsigned portid)
 	struct xdp_md_userspace data;
 	data.data = (uint64_t)payload;
 	data.data_end = data.data + m->data_len;
+	data.buffer_start = data.data;
+	// The end of dpdk buffer is not pkt_end, but the end of the buffer
+	data.buffer_end = m->buf_addr + m->buf_len;
 	DEBUG_PRINT("\n\nreceived packet, send data to eBPF module %"PRIu64" len: %d\n", data.data, m->data_len);
 
 	/* FIXME: Start your logic from here */

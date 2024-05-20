@@ -72,6 +72,40 @@ $ sudo bpftool map dump id 470
         }
     }
 ]
+$ sudo bpftool map
+517: lru_hash  name katran_lru  flags 0x0
+        key 40B  value 16B  max_entries 8000000  memlock 966220096B
+        pids katran_server_g(261219)
+518: array  name ctl_array  flags 0x0
+        key 4B  value 8B  max_entries 16  memlock 448B
+        btf_id 770
+        pids katran_server_g(261219)
+519: hash  name vip_map  flags 0x0
+        key 20B  value 8B  max_entries 512  memlock 55744B
+        btf_id 770
+        pids katran_server_g(261219)
+520: lru_hash  name fallback_cache  flags 0x0
+        key 40B  value 16B  max_entries 1000  memlock 122752B
+        btf_id 770
+        pids katran_server_g(261219)
+521: array_of_maps  name lru_mapping  flags 0x0
+        key 4B  value 4B  max_entries 128  memlock 1344B
+        pids katran_server_g(261219)
+$ sudo bpftool map dump id 521
+key: 00 00 00 00  inner_map_id: 517 
+Found 1 element
+$ sudo bpftool map dump id 518
+[{
+        "key": 0,
+        "value": {
+            "": {
+                "value": 19675963604920,
+                "ifindex": 718421944,
+                "mac": [184,63,210,42,229,17
+                ]
+            }
+        }
+    },{
 ```
 
 check result:
