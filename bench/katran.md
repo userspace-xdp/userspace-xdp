@@ -158,6 +158,42 @@ Userspace dpdk llvm jit:
   - already fix some performance issues related to hash map and percpu map
   - need more benchmark and perf test
 
+The default hash map profile:
+
+```console
+# ........  ........  ...............  .......................  ....................................................................>
+#
+    41.54%     0.00%  dpdk_l2fwd_llvm  [unknown]                [k] 0x0020105090230100
+            |
+            ---0x20105090230100
+               |          
+               |--30.35%--0x7f761b343b14
+               |          |          
+               |          |--29.05%--bpftime::hash_map_impl::elem_lookup(void const*)
+               |          |          |          
+               |          |          |--17.36%--boost::interprocess::offset_ptr<boost::unordered::detail::node<boost::interprocess::>
+               |          |          |          |          
+               |          |          |           --10.36%--bool boost::intrusive::algo_equal<boost::container::vec_iterator<boost::i>
+               |          |          |          
+               |          |          |--8.80%--unsigned long boost::unordered::detail::mix64_policy<unsigned long>::apply_hash<bpfti>
+               |          |          |          
+               |          |           --1.06%--void boost::container::vector<unsigned char, boost::interprocess::allocator<unsigned >
+               |          |          
+               |           --0.72%--bpftime::bpf_map_handler::map_lookup_elem(void const*, bool) const
+               |          
+               |--1.75%--0x7f761b343b81
+               |          |          
+               |           --1.05%--bpftime::per_cpu_array_map_impl::elem_lookup(void const*)
+               |          
+               |--1.56%--bpftime_map_lookup_elem_helper
+               |          
+               |--1.17%--0x7f761b343c2e
+               |          |          
+               |           --1.08%--bpftime::bpf_map_handler::map_lookup_elem(void const*, bool) const
+               |          
+               |--0.74%--0x7f761b343aed
+```
+
 ## Appendix
 
 ### Default katran cache config:
