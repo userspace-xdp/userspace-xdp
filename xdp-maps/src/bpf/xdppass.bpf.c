@@ -1,21 +1,21 @@
 #include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
 
-// struct
-// {
-// 	__uint(type, BPF_MAP_TYPE_HASH);
-// 	__uint(max_entries, 8192);
-// 	__type(key, int);
-// 	__type(value, int);
-// } packet_size_distribute SEC(".maps");
-
 struct
 {
-	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
+	__uint(type, BPF_MAP_TYPE_HASH);
 	__uint(max_entries, 8192);
 	__type(key, int);
 	__type(value, int);
 } packet_size_distribute SEC(".maps");
+
+// struct
+// {
+// 	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
+// 	__uint(max_entries, 8192);
+// 	__type(key, int);
+// 	__type(value, int);
+// } packet_size_distribute SEC(".maps");
 
 static void swap_src_dst_mac(void *data)
 {

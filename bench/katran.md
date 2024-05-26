@@ -289,16 +289,15 @@ clang -I./usr/include -I./include -I./ -DDEBUG -D__KERNEL__ -Wno-unused-value -W
 load with gdb:
 
 ```sh
-gdb ./_build/build/example_grpc/katran_server_grpc
+sudo gdb  xdp_progs/xdp_tx
 ```
 
 Once inside `gdb`, execute the following commands:
 
 ```sh
-set environment BPFTIME_RUN_WITH_KERNEL true
 set environment BPFTIME_ALLOW_EXTERNAL_MAPS true
-set environment LD_PRELOAD /home/yunwei/ebpf-xdp-dpdk/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so
-set args -balancer_prog /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=enp24s0f1np1 -hc_forwarding=false
+set environment LD_PRELOAD /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so
+set args /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o enp24s0f1np1 
 run
 ```
 
