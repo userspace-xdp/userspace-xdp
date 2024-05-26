@@ -256,6 +256,7 @@ $(BASIC_XDP_NAME)/dpdk_llvm_aot: $(BASIC_XDP_NAME)
 	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
+	sleep 2
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_LLVM)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_LLVM)/bpftime/libbpf/libbpf \
 	AOT_OBJECT_NAME=$(BASIC_XDP_AOT_RES_NAME) \
 	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_llvm \
@@ -272,6 +273,7 @@ $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy: $(BASIC_XDP_NAME)
 	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
+	sleep 2
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1 -z &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy
@@ -285,6 +287,7 @@ $(BASIC_XDP_NAME)/afxdp_llvm_aot: $(BASIC_XDP_NAME)
 	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
+	sleep 2
 	cd $(ROOTDIR)/afxdp/l2fwd && \
 	sudo -E AOT_OBJECT_NAME=$(BASIC_XDP_AOT_RES_NAME) \
 	./xdpsock_llvm --l2fwd -i enp24s0f1np1 -z &
@@ -300,6 +303,7 @@ $(BASIC_XDP_NAME)/afxdp_llvm_jit_copy: $(BASIC_XDP_NAME)
 	LD_PRELOAD=$(BPFTIME_DIR_LLVM)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
+	sleep 2
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1 -c &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_llvm_jit_copy
@@ -314,6 +318,7 @@ $(BASIC_XDP_NAME)/afxdp_ubpf_jit: $(BASIC_XDP_NAME)
 	LD_PRELOAD=$(BPFTIME_DIR_UBPF)/bpftime/runtime/syscall-server/libbpftime-syscall-server.so \
 	$(RUN_XDP_USERSPACE_COMMAND) &
 	rm -rf ./tmp-pktgen-res
+	sleep 2
 	cd $(ROOTDIR)/afxdp/l2fwd && sudo ./xdpsock_ubpf --l2fwd -i enp24s0f1np1 -z &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/afxdp_ubpf_jit
