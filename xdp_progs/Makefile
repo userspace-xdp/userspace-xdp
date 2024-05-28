@@ -161,11 +161,11 @@ generate_llvm_ir:
 
 	mkdir -p tcp_classify_ir
 	/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build \
-	 /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.o \
-	 --emit_llvm 2> xdp_map_access_ir/xdp_map_access.ll
-	opt -O3 -S xdp_map_access_ir/xdp_map_access.ll -opaque-pointers  -o xdp_map_access_ir/xdp_map_access_opt.ll
-	opt -O3 -opaque-pointers -o xdp_map_access_ir/xdp_map_access_opt.bc xdp_map_access_ir/xdp_map_access_inline.ll
-	llc -O3 -opaque-pointers -filetype=obj -o .output/xdp_map_access.aot.o xdp_map_access_ir/xdp_map_access_opt.bc 
+	 /home/yunwei/ebpf-xdp-dpdk/xdp-tcpclassify/.output/main.bpf.o \
+	 --emit_llvm 2> tcp_classify_ir/res.ll
+	opt -O3 -S tcp_classify_ir/res.ll -opaque-pointers  -o tcp_classify_ir/res_opt.ll
+	opt -O3 -opaque-pointers -o tcp_classify_ir/res.bc tcp_classify_ir/res_inline.ll
+	llc -O3 -opaque-pointers -filetype=obj -o .output/tcp_classify_ir.aot.o tcp_classify_ir/res.bc 
 
 clean-aot:
 	rm -f $(AOT_OBJECTS)

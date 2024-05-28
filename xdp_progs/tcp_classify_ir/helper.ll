@@ -3,8 +3,7 @@
 %struct.event = type { i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, [256 x i8] }
 %struct.ethhdr = type { [6 x i8], [6 x i8], i16 }
 
-; Function Attrs: nofree norecurse nosync nounwind readonly uwtable
-define dso_local i64 @bpf_strncmp(i8* nocapture noundef readonly %0, i32 noundef %1, i8* nocapture noundef readonly %2) local_unnamed_addr #0 {
+define dso_local i64 @bpf_strncmp(i8* nocapture noundef readonly %0, i32 noundef %1, i8* nocapture noundef readonly %2) local_unnamed_addr alwaysinline {
   switch i32 %1, label %38 [
     i32 4, label %4
     i32 0, label %56
@@ -91,8 +90,7 @@ declare void @llvm.lifetime.start.p0i8(i64 immarg, i8* nocapture) #1
 ; Function Attrs: argmemonly mustprogress nofree nosync nounwind willreturn
 declare void @llvm.lifetime.end.p0i8(i64 immarg, i8* nocapture) #1
 
-; Function Attrs: mustprogress nofree nosync nounwind uwtable willreturn
-define dso_local i64 @bpf_xdp_load_bytes(%struct.xdp_md* nocapture noundef readonly %0, i32 noundef %1, i8* nocapture noundef writeonly %2, i32 noundef %3) local_unnamed_addr #2 {
+define dso_local i64 @bpf_xdp_load_bytes(%struct.xdp_md* nocapture noundef readonly %0, i32 noundef %1, i8* nocapture noundef writeonly %2, i32 noundef %3) local_unnamed_addr alwaysinline {
   %5 = getelementptr inbounds %struct.xdp_md, %struct.xdp_md* %0, i64 0, i32 0
   %6 = load i64, i64* %5, align 8, !tbaa !12
   %7 = zext i32 %1 to i64
