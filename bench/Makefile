@@ -13,7 +13,7 @@ remove-xdp:
 	sudo ip link set dev $(NETDEV) xdp off
 	sudo ip link set dev $(NETDEV) xdpgeneric off
 
-TRAFFICGEN ?= remote64to1024tcp
+TRAFFICGEN ?= remote64tcp
 
 .PHONY: remote64to1024tcp
 remote64to1024tcp:

@@ -13,7 +13,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include "vmlinux.h"
+// #include "vmlinux.h"
+#include "def.bpf.h"
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 

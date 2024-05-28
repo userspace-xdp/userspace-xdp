@@ -57,7 +57,7 @@ Results: A hash function that would take about 40ns to exec in kernel eBPF or ub
 # compile llvm IR to native code
 clang -O3 -c -o xdp_map_access.o xdp_map_access.ll
 # (optional) optimize llvm ir
-opt -O3 -S xdp_map_access.ll -opaque-pointers  -o your_program.ll
+opt -O3 -S xdp_map_access.ll -opaque-pointers  -o xdp_map_access_opt.ll
 # load the native code with aot runtime
 sudo -E AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.aot.o /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 ```
@@ -79,7 +79,20 @@ Help answer:
 - What's the difference compare kernel hash maps with userspace inline hash maps(Without lock)? We can see from `kernel Driver mode per-cpu hash map` vs `af_xdp inline map`.
 - What if we adpot a more simple hash algorithm? (Assume the key is int type) `DPDK inline map` vs `dpdk inline map simple array`.
 
-Also, inline a hash map has better improvement thn inline a global variable array map. Global variable array map is not access by helpers.
+For example, llvm ir for `bpf_map_lookup_elem` to a array:
+
+```llvm
+@ctl_map = global [2 x i32] zeroinitializer, align 4
+
+define i64 @_bpf_helper_ext_0001(i64 %i, i64 %pos, i64 %2, i64 %3, i64 %4) local_unnamed_addr alwaysinline {
+entry:
+  %1 = inttoptr i64 %pos to ptr
+  %2 = load i32, ptr %1, align 4
+  %3 = getelementptr [2 x i32], ptr @ctl_map, i64 0, i64 %2
+  %4 = ptrtoint ptr %3 to i64
+  ret i64 %4
+}
+```
 
 ## Inline helpers - can work
 
