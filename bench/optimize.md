@@ -48,23 +48,28 @@ Calc the sum for the fist 60 bytes of the packet, and calc the xxhash value for 
 
 Results: A hash function that would take about 40ns to exec in kernel eBPF or ubpf will be reduce to 5-10ns in userspace eBPF with SIMD instructions. This can overwin the performance gap between kernel and userspace. Even if not enabled SIMD, afxdp is 30% better than driver mode. AF XDP itself costs 75ns, driver mode itself costs 60ns, but here we can see the bottleneck comes from eBPF runtime.
 
+- eBPF source C code -> eBPF relocation C code -> Native code
+- eBPF source code -> eBPF bytecode code -> LLVM IR -> Native code
+
+```sh
+# generate llvm IR
+/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build  /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.o --emit_llvm 2> xdp_map_access.ll
+# compile llvm IR to native code
+clang -O3 -c -o xdp_map_access.o xdp_map_access.ll
+# (optional) optimize llvm ir
+opt -O3 -S xdp_map_access.ll -opaque-pointers  -o your_program.ll
+# load the native code with aot runtime
+sudo -E AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.aot.o /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+```
+
 ### Inline maps - can work
 
-Case: xdp_map
+- Case: xdp_map Using BPF_MAP_TYPE_HASH to summarize the incoming packets length.
 
-Using BPF_MAP_TYPE_HASH to summarize the incoming packets length.
-
-- kernel hash map is slow, we can have better performance with inline userspace hash map.
-- The results is better from:
-  - avoid the cost of map lookup and enabled better optimizaion from LLVM. Changing from map lookup helpers to directly access global variables.
-  - using better or simpler hash algorithm
-  - using lock-free hash map instead of kernel lock hash map
-
-> Our userspace eBPF hash map implementation in shared memory is slow. (Can optimize, engineering work, but it's off topic.)
 
 ![xdp_map](xdp_map/ipackets.png)
 
-and using array map:
+- Case: xdp_map_access Using `BPF_MAP_TYPE_ARRAY` and `BPF_MAP_TYPE_PER_CPU_ARRAY` to control income packet XDP_PASS or XDP_TX, summarize the incoming packets count. Is the same code from katran `xdp_pktcntr.bpf.c`.
 
 ![xdp_map_access](xdp_map_access/ipackets.png)
 
