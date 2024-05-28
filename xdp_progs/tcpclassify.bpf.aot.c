@@ -36,7 +36,7 @@ static void swap_src_dst_mac(void *data)
 // bpf_ringbuf_output
 long _bpf_helper_ext_0130(unsigned long long ringbuf, void *data, u64 size, u64 flags);
 
-inline long bpf_strncmp(const char *s1, u32 n, const char *s2) {
+long bpf_strncmp(const char *s1, u32 n, const char *s2) {
 	if (n == 4) {
         // Cast the pointers to `unsigned int*` and compare the integers.
         unsigned int i1 = *(unsigned int*)s1;
@@ -67,7 +67,7 @@ inline long bpf_strncmp(const char *s1, u32 n, const char *s2) {
     }
 }
 
-inline long bpf_xdp_load_bytes(struct xdp_md *xdp_md, __u32 offset, void *buf, __u32 len) {
+long bpf_xdp_load_bytes(struct xdp_md *xdp_md, __u32 offset, void *buf, __u32 len) {
 	void *data = xdp_md->data + offset;
 	__builtin_memcpy(buf, data, len);
 	return 0;
