@@ -1,0 +1,3522 @@
+int balancer_ingress(struct xdp_md * ctx):
+bpf_prog_d8fa0fcd48f4bd5f_balancer_ingress:
+; int balancer_ingress(struct xdp_md* ctx) {
+   0:	nopl	(%rax,%rax)
+   5:	nop
+   7:	pushq	%rbp
+   8:	movq	%rsp, %rbp
+   b:	subq	$200, %rsp
+  12:	pushq	%rbx
+  13:	pushq	%r13
+  15:	pushq	%r14
+  17:	pushq	%r15
+  19:	movq	%rdi, %rbx
+  1c:	movl	$1, %r14d
+; void* data_end = (void*)(long)ctx->data_end;
+  22:	movq	8(%rbx), %r15
+; void* data = (void*)(long)ctx->data;
+  26:	movq	(%rbx), %r13
+; if (data + nh_off > data_end) {
+  2a:	movq	%r13, %rdi
+  2d:	addq	$14, %rdi
+; if (data + nh_off > data_end) {
+  31:	cmpq	%r15, %rdi
+  34:	ja	0x118b
+; eth_proto = eth->h_proto;
+  3a:	movzbq	12(%r13), %rdx
+  3f:	movzbq	13(%r13), %rsi
+  44:	shlq	$8, %rsi
+  48:	orq	%rdx, %rsi
+; if (eth_proto == BE_ETH_P_IP) {
+  4b:	cmpq	$56710, %rsi
+  52:	je	0x20e
+  58:	movl	$2, %r14d
+  5e:	cmpq	$8, %rsi
+  62:	jne	0x118b
+  68:	xorl	%esi, %esi
+; struct packet_description pckt = {};
+  6a:	movq	%rsi, -32(%rbp)
+  6e:	movq	%rsi, -40(%rbp)
+  72:	movq	%rsi, -48(%rbp)
+  76:	movq	%rsi, -56(%rbp)
+  7a:	movq	%rsi, -64(%rbp)
+  7e:	movq	%rsi, -72(%rbp)
+; struct vip_definition vip = {};
+  82:	movl	%esi, -80(%rbp)
+  85:	movq	%rsi, -88(%rbp)
+  89:	movq	%rsi, -96(%rbp)
+; __u32 mac_addr_pos = 0;
+  8d:	movl	%esi, -104(%rbp)
+; if (iph + 1 > data_end) {
+  90:	movq	%r13, %rdx
+  93:	addq	$34, %rdx
+; 
+  97:	movl	$1, %r14d
+; if (iph + 1 > data_end) {
+  9d:	cmpq	%r15, %rdx
+  a0:	ja	0x118b
+; if (iph->ihl != 5) {
+  a6:	movzbq	(%rdi), %rdi
+  ab:	andq	$15, %rdi
+; 
+  af:	movl	$1, %r14d
+; if (iph->ihl != 5) {
+  b5:	cmpq	$5, %rdi
+  b9:	jne	0x118b
+; pckt->tos = iph->tos;
+  bf:	movzbq	15(%r13), %rdi
+; pckt->tos = iph->tos;
+  c4:	movb	%dil, -27(%rbp)
+; *protocol = iph->protocol;
+  c8:	movzbq	23(%r13), %rdi
+; pckt->flow.proto = *protocol;
+  cd:	movb	%dil, -36(%rbp)
+; if (iph->frag_off & PCKT_FRAGMENTED) {
+  d1:	movzwq	20(%r13), %rsi
+; if (iph->frag_off & PCKT_FRAGMENTED) {
+  d6:	movq	%rsi, %rcx
+  d9:	andq	$65343, %rcx
+; 
+  e0:	movl	$1, %r14d
+; if (iph->frag_off & PCKT_FRAGMENTED) {
+  e6:	testq	%rcx, %rcx
+  e9:	jne	0x118b
+; 
+  ef:	movzwq	16(%r13), %rcx
+; if (*protocol == IPPROTO_ICMP) {
+  f4:	movq	%rcx, -128(%rbp)
+  f8:	movq	%rdi, %rcx
+; if (*protocol == IPPROTO_ICMP) {
+  fb:	cmpq	$1, %rcx
+  ff:	jne	0x51f
+; if (icmp_hdr + 1 > data_end) {
+ 105:	movq	%r13, %rcx
+ 108:	addq	$42, %rcx
+; 
+ 10c:	movl	$1, %r14d
+; if (icmp_hdr + 1 > data_end) {
+ 112:	cmpq	%r15, %rcx
+ 115:	ja	0x118b
+; if (icmp_hdr->type == ICMP_ECHO) {
+ 11b:	movzbq	(%rdx), %rdi
+; if (icmp_hdr->type == ICMP_ECHO) {
+ 120:	cmpq	$3, %rdi
+ 124:	je	0x939
+ 12a:	movl	$2, %r14d
+ 130:	cmpq	$8, %rdi
+ 134:	jne	0x118b
+; *csum += *next_iph_u16++;
+ 13a:	movq	-128(%rbp), %rdi
+ 13e:	addq	%rdi, %rsi
+ 141:	movl	$64, %edi
+; iph->ttl = DEFAULT_TTL;
+ 146:	movb	%dil, 22(%r13)
+; *csum += *next_iph_u16++;
+ 14a:	movzwq	14(%r13), %rdi
+; *csum += *next_iph_u16++;
+ 14f:	addq	%rdi, %rsi
+; tmp_addr = iph->daddr;
+ 152:	movl	30(%r13), %edi
+; *csum += *next_iph_u16++;
+ 156:	movq	%rdi, %rdx
+ 159:	andq	$65535, %rdx
+ 160:	movq	%rdi, %rcx
+ 163:	shrq	$16, %rcx
+; *csum += *next_iph_u16++;
+ 167:	addq	%rdx, %rcx
+; iph->daddr = iph->saddr;
+ 16a:	movl	26(%r13), %edx
+; *csum += *next_iph_u16++;
+ 16e:	movq	%rdx, %r8
+ 171:	andq	$65535, %r8
+; *csum += *next_iph_u16++;
+ 178:	addq	%r8, %rcx
+; *csum += *next_iph_u16++;
+ 17b:	movq	%rdx, %r8
+ 17e:	shrq	$16, %r8
+; *csum += *next_iph_u16++;
+ 182:	addq	%r8, %rcx
+ 185:	addq	%rcx, %rsi
+; *csum += *next_iph_u16++;
+ 188:	movzwq	18(%r13), %rcx
+; *csum += *next_iph_u16++;
+ 18d:	addq	%rcx, %rsi
+; *csum += *next_iph_u16++;
+ 190:	movzwq	22(%r13), %rcx
+; *csum += *next_iph_u16++;
+ 195:	addq	%rcx, %rsi
+; if (csum >> 16)
+ 198:	movq	%rsi, %rcx
+ 19b:	shrq	$16, %rcx
+; if (csum >> 16)
+ 19f:	testq	%rcx, %rcx
+ 1a2:	je	0x1ae
+ 1a4:	andq	$65535, %rsi
+ 1ab:	addq	%rcx, %rsi
+; if (csum >> 16)
+ 1ae:	movq	%rsi, %rcx
+ 1b1:	shrq	$16, %rcx
+; if (csum >> 16)
+ 1b5:	testq	%rcx, %rcx
+ 1b8:	je	0x1c4
+ 1ba:	andq	$65535, %rsi
+ 1c1:	addq	%rcx, %rsi
+; if (csum >> 16)
+ 1c4:	movq	%rsi, %rcx
+ 1c7:	shrq	$16, %rcx
+; if (csum >> 16)
+ 1cb:	testq	%rcx, %rcx
+ 1ce:	je	0x1da
+ 1d0:	andq	$65535, %rsi
+ 1d7:	addq	%rcx, %rsi
+ 1da:	xorl	%ecx, %ecx
+; icmp_hdr->type = ICMP_ECHOREPLY;
+ 1dc:	movb	%cl, 34(%r13)
+; iph->daddr = iph->saddr;
+ 1e0:	movl	%edx, 30(%r13)
+; iph->saddr = tmp_addr;
+ 1e4:	movl	%edi, 26(%r13)
+; icmp_hdr->checksum += 0x0008;
+ 1e8:	movzwq	36(%r13), %rdi
+ 1ed:	addq	$8, %rdi
+ 1f1:	movw	%di, 36(%r13)
+; if (csum >> 16)
+ 1f6:	movq	%rsi, %rdi
+ 1f9:	shrq	$16, %rdi
+; if (csum >> 16)
+ 1fd:	addq	%rsi, %rdi
+; iph->check = csum;
+ 200:	xorq	$-1, %rdi
+; iph->check = csum;
+ 204:	movw	%di, 24(%r13)
+ 209:	jmp	0x34b
+ 20e:	xorl	%edi, %edi
+; struct packet_description pckt = {};
+ 210:	movq	%rdi, -32(%rbp)
+ 214:	movq	%rdi, -40(%rbp)
+ 218:	movq	%rdi, -48(%rbp)
+ 21c:	movq	%rdi, -56(%rbp)
+ 220:	movq	%rdi, -64(%rbp)
+ 224:	movq	%rdi, -72(%rbp)
+; struct vip_definition vip = {};
+ 228:	movl	%edi, -80(%rbp)
+ 22b:	movq	%rdi, -88(%rbp)
+ 22f:	movq	%rdi, -96(%rbp)
+; __u32 mac_addr_pos = 0;
+ 233:	movl	%edi, -104(%rbp)
+ 236:	movl	$1, %r14d
+; if (ip6h + 1 > data_end) {
+ 23c:	movq	%r13, %rsi
+ 23f:	addq	$54, %rsi
+; if (ip6h + 1 > data_end) {
+ 243:	cmpq	%r15, %rsi
+ 246:	ja	0x118b
+; *protocol = ip6h->nexthdr;
+ 24c:	movzbq	20(%r13), %rdi
+; pckt->flow.proto = *protocol;
+ 251:	movb	%dil, -36(%rbp)
+; pckt->tos = (ip6h->priority << 4) & 0xF0;
+ 255:	movzbq	14(%r13), %rdx
+; pckt->tos = (ip6h->priority << 4) & 0xF0;
+ 25a:	shlq	$4, %rdx
+; pckt->tos = (ip6h->priority << 4) & 0xF0;
+ 25e:	movb	%dl, -27(%rbp)
+; pckt->tos = pckt->tos | ((ip6h->flow_lbl[0] >> 4) & 0x0F);
+ 261:	movzbq	15(%r13), %rcx
+; pckt->tos = pckt->tos | ((ip6h->flow_lbl[0] >> 4) & 0x0F);
+ 266:	shrq	$4, %rcx
+; pckt->tos = pckt->tos | ((ip6h->flow_lbl[0] >> 4) & 0x0F);
+ 26a:	orq	%rdx, %rcx
+; pckt->tos = pckt->tos | ((ip6h->flow_lbl[0] >> 4) & 0x0F);
+ 26d:	movb	%cl, -27(%rbp)
+; if (*protocol == IPPROTO_FRAGMENT) {
+ 270:	cmpq	$44, %rdi
+ 274:	je	0x118b
+; 
+ 27a:	movzwq	18(%r13), %rax
+; if (*protocol == IPPROTO_FRAGMENT) {
+ 27f:	cmpq	$58, %rdi
+ 283:	jne	0x403
+; if (icmp_hdr + 1 > data_end) {
+ 289:	movq	%r13, %rdi
+ 28c:	addq	$62, %rdi
+; if (icmp_hdr + 1 > data_end) {
+ 290:	cmpq	%r15, %rdi
+ 293:	ja	0x118b
+; if (icmp_hdr->icmp6_type == ICMPV6_ECHO_REQUEST) {
+ 299:	movzbq	(%rsi), %rdi
+; if (icmp_hdr->icmp6_type == ICMPV6_ECHO_REQUEST) {
+ 29e:	cmpq	$1, %rdi
+ 2a2:	je	0x869
+ 2a8:	cmpq	$2, %rdi
+ 2ac:	je	0x813
+ 2b2:	movl	$2, %r14d
+ 2b8:	cmpq	$128, %rdi
+ 2bf:	jne	0x118b
+ 2c5:	movl	$129, %edi
+; icmp_hdr->icmp6_type = ICMPV6_ECHO_REPLY;
+ 2ca:	movb	%dil, 54(%r13)
+ 2ce:	movl	$64, %edi
+; ip6h->hop_limit = DEFAULT_TTL;
+ 2d3:	movb	%dil, 21(%r13)
+; icmp_hdr->icmp6_cksum -= 0x0001;
+ 2d7:	movzwq	56(%r13), %rdi
+ 2dc:	addq	$-1, %rdi
+ 2e0:	movw	%di, 56(%r13)
+; memcpy(tmp_addr, ip6h->saddr.s6_addr32, 16);
+ 2e5:	movl	34(%r13), %edi
+ 2e9:	shlq	$32, %rdi
+ 2ed:	movl	30(%r13), %esi
+ 2f1:	orq	%rsi, %rdi
+ 2f4:	movq	%rdi, -8(%rbp)
+ 2f8:	movl	26(%r13), %edi
+ 2fc:	shlq	$32, %rdi
+ 300:	movl	22(%r13), %esi
+ 304:	orq	%rsi, %rdi
+ 307:	movq	%rdi, -16(%rbp)
+; memcpy(ip6h->saddr.s6_addr32, ip6h->daddr.s6_addr32, 16);
+ 30b:	movl	38(%r13), %edi
+ 30f:	movl	%edi, 22(%r13)
+ 313:	movl	42(%r13), %edi
+ 317:	movl	%edi, 26(%r13)
+ 31b:	movl	46(%r13), %edi
+ 31f:	movl	%edi, 30(%r13)
+ 323:	movl	50(%r13), %edi
+ 327:	movl	%edi, 34(%r13)
+; memcpy(ip6h->daddr.s6_addr32, tmp_addr, 16);
+ 32b:	movq	-16(%rbp), %rdi
+ 32f:	movl	%edi, 38(%r13)
+ 333:	shrq	$32, %rdi
+ 337:	movl	%edi, 42(%r13)
+ 33b:	movq	-8(%rbp), %rdi
+ 33f:	movl	%edi, 46(%r13)
+ 343:	shrq	$32, %rdi
+ 347:	movl	%edi, 50(%r13)
+; 
+ 34b:	movzbq	11(%r13), %rdi
+ 350:	shlq	$8, %rdi
+ 354:	movzbq	10(%r13), %rsi
+ 359:	orq	%rsi, %rdi
+ 35c:	movw	%di, -116(%rbp)
+ 360:	movzbq	7(%r13), %rdi
+ 365:	shlq	$8, %rdi
+ 369:	movzbq	6(%r13), %rsi
+ 36e:	orq	%rsi, %rdi
+ 371:	movzbq	9(%r13), %rsi
+ 376:	shlq	$8, %rsi
+ 37a:	movzbq	8(%r13), %rdx
+ 37f:	orq	%rdx, %rsi
+ 382:	shlq	$16, %rsi
+ 386:	orq	%rdi, %rsi
+ 389:	movl	%esi, -120(%rbp)
+ 38c:	movzbq	2(%r13), %rdi
+ 391:	movb	%dil, 8(%r13)
+ 395:	movzbq	3(%r13), %rdi
+ 39a:	movb	%dil, 9(%r13)
+ 39e:	movzbq	(%r13), %rdi
+ 3a3:	movb	%dil, 6(%r13)
+ 3a7:	movzbq	1(%r13), %rdi
+ 3ac:	movb	%dil, 7(%r13)
+ 3b0:	movzbq	4(%r13), %rdi
+ 3b5:	movb	%dil, 10(%r13)
+ 3b9:	movzbq	5(%r13), %rdi
+ 3be:	movb	%dil, 11(%r13)
+ 3c2:	movl	-120(%rbp), %edi
+ 3c5:	movq	%rdi, %rsi
+ 3c8:	shrq	$16, %rsi
+ 3cc:	movb	%sil, 2(%r13)
+ 3d0:	movq	%rdi, %rsi
+ 3d3:	shrq	$24, %rsi
+ 3d7:	movb	%sil, 3(%r13)
+ 3db:	movb	%dil, (%r13)
+ 3df:	shrq	$8, %rdi
+ 3e3:	movb	%dil, 1(%r13)
+ 3e7:	movzwq	-116(%rbp), %rdi
+ 3ec:	movb	%dil, 4(%r13)
+ 3f0:	shrq	$8, %rdi
+ 3f4:	movb	%dil, 5(%r13)
+ 3f8:	movl	$3, %r14d
+ 3fe:	jmp	0x118b
+; memcpy(pckt->flow.srcv6, ip6h->saddr.s6_addr32, 16);
+ 403:	movl	34(%r13), %esi
+ 407:	shlq	$32, %rsi
+ 40b:	movl	30(%r13), %edx
+ 40f:	orq	%rdx, %rsi
+ 412:	movq	%rsi, -64(%rbp)
+ 416:	movl	26(%r13), %esi
+ 41a:	shlq	$32, %rsi
+ 41e:	movl	22(%r13), %edx
+ 422:	orq	%rdx, %rsi
+ 425:	movq	%rsi, -72(%rbp)
+; memcpy(pckt->flow.dstv6, ip6h->daddr.s6_addr32, 16);
+ 429:	movl	50(%r13), %esi
+ 42d:	shlq	$32, %rsi
+ 431:	movl	46(%r13), %edx
+ 435:	orq	%rdx, %rsi
+ 438:	movq	%rsi, -48(%rbp)
+ 43c:	movl	38(%r13), %esi
+ 440:	movl	42(%r13), %edx
+ 444:	shlq	$32, %rdx
+ 448:	orq	%rsi, %rdx
+ 44b:	movq	%rdx, -56(%rbp)
+ 44f:	xorl	%esi, %esi
+; if (protocol == IPPROTO_TCP) {
+ 451:	movq	%rdi, %rdx
+ 454:	cmpq	$17, %rdx
+ 458:	je	0x4e1
+; 
+ 45e:	movl	$2, %r14d
+; if (protocol == IPPROTO_TCP) {
+ 464:	cmpq	$6, %rdx
+ 468:	jne	0x118b
+; bool is_icmp = !((pckt->flags & F_ICMP) == 0);
+ 46e:	movq	%rsi, %rcx
+ 471:	andq	$1, %rcx
+ 475:	movl	$54, %r8d
+; if (is_ipv6) {
+ 47b:	testq	%rcx, %rcx
+ 47e:	je	0x486
+ 480:	movl	$102, %r8d
+; tcp = data + off;
+ 486:	movq	%r13, %rdx
+ 489:	addq	%r8, %rdx
+; if (tcp + 1 > data_end) {
+ 48c:	movq	%rdx, %r8
+ 48f:	addq	$20, %r8
+; 
+ 493:	movl	$1, %r14d
+; if (tcp + 1 > data_end) {
+ 499:	cmpq	%r15, %r8
+ 49c:	ja	0x118b
+; if (tcp->syn) {
+ 4a2:	movzwq	12(%rdx), %r8
+; if (tcp->syn) {
+ 4a7:	andq	$512, %r8
+; if (tcp->syn) {
+ 4ae:	testq	%r8, %r8
+ 4b1:	je	0x4bb
+; pckt->flags |= F_SYN_SET;
+ 4b3:	orq	$2, %rsi
+ 4b7:	movb	%sil, -28(%rbp)
+ 4bb:	movq	%rax, -128(%rbp)
+; if (!is_icmp) {
+ 4bf:	testq	%rcx, %rcx
+ 4c2:	jne	0x5bd
+; 
+ 4c8:	movzwq	(%rdx), %rsi
+ 4cd:	movw	%si, -40(%rbp)
+ 4d1:	movq	%rbp, %rcx
+ 4d4:	addq	$-40, %rcx
+ 4d8:	addq	$2, %rdx
+ 4dc:	jmp	0x5cd
+; bool is_icmp = !((pckt->flags & F_ICMP) == 0);
+ 4e1:	andq	$1, %rsi
+ 4e5:	movl	$54, %ecx
+; if (is_ipv6) {
+ 4ea:	testq	%rsi, %rsi
+ 4ed:	je	0x4f4
+ 4ef:	movl	$102, %ecx
+; udp = data + off;
+ 4f4:	movq	%r13, %rdx
+ 4f7:	addq	%rcx, %rdx
+; if (udp + 1 > data_end) {
+ 4fa:	movq	%rdx, %rcx
+ 4fd:	addq	$8, %rcx
+; 
+ 501:	movl	$1, %r14d
+; if (udp + 1 > data_end) {
+ 507:	cmpq	%r15, %rcx
+ 50a:	ja	0x118b
+ 510:	movq	%rax, -128(%rbp)
+; if (!is_icmp) {
+ 514:	testq	%rsi, %rsi
+ 517:	jne	0x5bd
+ 51d:	jmp	0x4c8
+; pckt->flow.src = iph->saddr;
+ 51f:	movl	26(%r13), %esi
+; pckt->flow.src = iph->saddr;
+ 523:	movl	%esi, -72(%rbp)
+ 526:	xorl	%edx, %edx
+; pckt->flow.dst = iph->daddr;
+ 528:	movq	%r13, %rsi
+ 52b:	addq	$30, %rsi
+; 
+ 52f:	movl	(%rsi), %esi
+ 532:	movl	%esi, -56(%rbp)
+; if (protocol == IPPROTO_TCP) {
+ 535:	movq	%rdi, %rcx
+ 538:	cmpq	$17, %rcx
+ 53c:	je	0x8e6
+; 
+ 542:	movl	$2, %r14d
+; if (protocol == IPPROTO_TCP) {
+ 548:	cmpq	$6, %rcx
+ 54c:	jne	0x118b
+; bool is_icmp = !((pckt->flags & F_ICMP) == 0);
+ 552:	movq	%rdx, %r8
+ 555:	andq	$1, %r8
+ 559:	movl	$34, %eax
+; if (is_ipv6) {
+ 55e:	testq	%r8, %r8
+ 561:	je	0x568
+ 563:	movl	$62, %eax
+; tcp = data + off;
+ 568:	movq	%r13, %rcx
+ 56b:	addq	%rax, %rcx
+; if (tcp + 1 > data_end) {
+ 56e:	movq	%rcx, %rax
+ 571:	addq	$20, %rax
+; 
+ 575:	movl	$1, %r14d
+; if (tcp + 1 > data_end) {
+ 57b:	cmpq	%r15, %rax
+ 57e:	ja	0x118b
+; if (tcp->syn) {
+ 584:	movzwq	12(%rcx), %rax
+; if (tcp->syn) {
+ 589:	andq	$512, %rax
+; if (tcp->syn) {
+ 58f:	testq	%rax, %rax
+ 592:	je	0x59b
+; pckt->flags |= F_SYN_SET;
+ 594:	orq	$2, %rdx
+ 598:	movb	%dl, -28(%rbp)
+; if (!is_icmp) {
+ 59b:	movq	%rbp, %rax
+ 59e:	addq	$-40, %rax
+ 5a2:	testq	%r8, %r8
+ 5a5:	jne	0x9f3
+; pckt->flow.port16[0] = tcp->source;
+ 5ab:	movzwq	(%rcx), %rdx
+; pckt->flow.port16[0] = tcp->source;
+ 5b0:	movw	%dx, -40(%rbp)
+; pckt->flow.port16[1] = tcp->dest;
+ 5b4:	addq	$2, %rcx
+ 5b8:	jmp	0xa0e
+; 
+ 5bd:	movzwq	2(%rdx), %rsi
+ 5c2:	movw	%si, -40(%rbp)
+ 5c6:	movq	%rbp, %rcx
+ 5c9:	addq	$-40, %rcx
+ 5cd:	movzwq	(%rdx), %rsi
+ 5d2:	movq	%rcx, -136(%rbp)
+ 5d9:	movw	%si, 2(%rcx)
+; vip.proto = pckt.flow.proto;
+ 5dd:	movb	%dil, -78(%rbp)
+; vip.port = pckt.flow.port16[1];
+ 5e1:	movw	%si, -80(%rbp)
+; memcpy(vip.vipv6, pckt.flow.dstv6, 16);
+ 5e5:	movq	-48(%rbp), %rdi
+ 5e9:	movq	%rdi, -88(%rbp)
+ 5ed:	movq	-56(%rbp), %rdi
+ 5f1:	movq	%rdi, -96(%rbp)
+ 5f5:	movq	%rbp, %rsi
+; 
+ 5f8:	addq	$-96, %rsi
+; vip_info = bpf_map_lookup_elem(&vip_map, &vip);
+ 5fc:	movabsq	$-58455674560345088, %rdi
+ 606:	callq	0xffffffffd25c56f8
+ 60b:	testq	%rax, %rax
+ 60e:	je	0x614
+ 610:	addq	$72, %rax
+; if (!vip_info) {
+ 614:	testq	%rax, %rax
+ 617:	jne	0x671
+ 619:	xorl	%edi, %edi
+; vip.port = 0;
+ 61b:	movw	%di, -80(%rbp)
+ 61f:	movq	%rbp, %rsi
+ 622:	addq	$-96, %rsi
+; vip_info = bpf_map_lookup_elem(&vip_map, &vip);
+ 626:	movabsq	$-58455674560345088, %rdi
+ 630:	callq	0xffffffffd25c56f8
+ 635:	testq	%rax, %rax
+ 638:	je	0x63e
+ 63a:	addq	$72, %rax
+; 
+ 63e:	movl	$2, %r14d
+ 644:	movq	-128(%rbp), %rdi
+; if (!vip_info) {
+ 648:	testq	%rax, %rax
+ 64b:	je	0x118b
+ 651:	movq	%rdi, -128(%rbp)
+; if (!(vip_info->flags & F_HASH_DPORT_ONLY) &&
+ 655:	movl	(%rax), %edi
+; if (!(vip_info->flags & F_HASH_DPORT_ONLY) &&
+ 658:	andq	$136, %rdi
+ 65f:	testq	%rdi, %rdi
+ 662:	jne	0x671
+ 664:	xorl	%edi, %edi
+; pckt.flow.port16[1] = 0;
+ 666:	movq	-136(%rbp), %rsi
+ 66d:	movw	%di, 2(%rsi)
+; if (data_end - data > MAX_PCKT_SIZE) {
+ 671:	movq	%r15, %rdi
+ 674:	subq	%r13, %rdi
+; 
+ 677:	movl	$1, %r14d
+ 67d:	movq	-128(%rbp), %rsi
+; if (data_end - data > MAX_PCKT_SIZE) {
+ 681:	cmpq	$1514, %rdi
+ 688:	jg	0x118b
+ 68e:	movq	%rax, -144(%rbp)
+ 695:	movq	%rsi, -128(%rbp)
+ 699:	movl	$512, %edi
+; __u32 stats_key = MAX_VIPS + LRU_CNTRS;
+ 69e:	movl	%edi, -108(%rbp)
+ 6a1:	movq	%rbp, %rsi
+; 
+ 6a4:	addq	$-108, %rsi
+; data_stats = bpf_map_lookup_elem(&stats, &stats_key);
+ 6a8:	movabsq	$-58455663325642752, %rdi
+ 6b2:	callq	0xffffffffd25cab78
+ 6b7:	movl	$1, %r14d
+; if (!data_stats) {
+ 6bd:	testq	%rax, %rax
+ 6c0:	je	0x118b
+; data_stats->v1 += 1;
+ 6c6:	movq	(%rax), %rdi
+ 6ca:	addq	$1, %rdi
+ 6ce:	movq	%rax, -160(%rbp)
+ 6d5:	movq	%rdi, (%rax)
+ 6d9:	movq	-144(%rbp), %r14
+; if ((vip_info->flags & F_HASH_NO_SRC_PORT)) {
+ 6e0:	movl	(%r14), %edi
+; if ((vip_info->flags & F_HASH_NO_SRC_PORT)) {
+ 6e4:	andq	$1, %rdi
+; if ((vip_info->flags & F_HASH_NO_SRC_PORT)) {
+ 6e8:	testq	%rdi, %rdi
+ 6eb:	je	0x6f3
+ 6ed:	xorl	%edi, %edi
+; pckt.flow.port16[0] = 0;
+ 6ef:	movw	%di, -40(%rbp)
+; vip_num = vip_info->vip_num;
+ 6f3:	movl	4(%r14), %edi
+; vip_num = vip_info->vip_num;
+ 6f7:	movl	%edi, -100(%rbp)
+; __u32 cpu_num = bpf_get_smp_processor_id();
+ 6fa:	callq	0xffffffffd25bcf78
+; __u32 cpu_num = bpf_get_smp_processor_id();
+ 6ff:	movl	%eax, -112(%rbp)
+ 702:	movq	%rbp, %rsi
+; vip_num = vip_info->vip_num;
+ 705:	addq	$-112, %rsi
+; void* lru_map = bpf_map_lookup_elem(&lru_mapping, &cpu_num);
+ 709:	movabsq	$-58455674667823104, %rdi
+ 713:	addq	$272, %rdi
+ 71a:	movl	(%rsi), %eax
+ 71d:	cmpq	$128, %rax
+ 724:	jae	0x738
+ 726:	shlq	$3, %rax
+ 72a:	addq	%rdi, %rax
+ 72d:	movq	(%rax), %rax
+ 731:	testq	%rax, %rax
+ 734:	je	0x738
+ 736:	jmp	0x73a
+ 738:	xorl	%eax, %eax
+ 73a:	movq	%rax, %rdx
+; if (!lru_map) {
+ 73d:	testq	%rdx, %rdx
+ 740:	jne	0x786
+ 742:	movl	$515, %edi
+; __u32 lru_stats_key = MAX_VIPS + FALLBACK_LRU_CNTR;
+ 747:	movl	%edi, -16(%rbp)
+ 74a:	movq	%rbp, %rsi
+; 
+ 74d:	addq	$-16, %rsi
+; struct lb_stats* lru_stats = bpf_map_lookup_elem(&stats, &lru_stats_key);
+ 751:	movabsq	$-58455663325642752, %rdi
+ 75b:	callq	0xffffffffd25cab78
+; if (!lru_stats) {
+ 760:	testq	%rax, %rax
+ 763:	je	0x1185
+; lru_stats->v1 += 1;
+ 769:	movq	(%rax), %rdi
+ 76d:	addq	$1, %rdi
+ 771:	movq	%rdi, (%rax)
+ 775:	movabsq	$-58455674560317440, %rdx
+ 77f:	movq	-144(%rbp), %r14
+; if ((vip_info->flags & F_QUIC_VIP)) {
+ 786:	movl	(%r14), %edi
+; if ((vip_info->flags & F_QUIC_VIP)) {
+ 78a:	andq	$4, %rdi
+ 78e:	movq	%r14, %rsi
+; if ((vip_info->flags & F_QUIC_VIP)) {
+ 791:	testq	%rdi, %rdi
+ 794:	je	0x16ec
+; bool is_icmp = (pckt.flags & F_ICMP);
+ 79a:	movzbq	-28(%rbp), %rdi
+; bool is_icmp = (pckt.flags & F_ICMP);
+ 79f:	andq	$1, %rdi
+; if (is_icmp) {
+ 7a3:	testq	%rdi, %rdi
+ 7a6:	je	0xc38
+ 7ac:	movq	%rdx, %r14
+ 7af:	movl	$523, %edi
+; __u32 stats_key = MAX_VIPS + QUIC_ICMP_STATS;
+ 7b4:	movl	%edi, -16(%rbp)
+ 7b7:	movq	%rbp, %rsi
+; 
+ 7ba:	addq	$-16, %rsi
+; struct lb_stats* data_stats = bpf_map_lookup_elem(&stats, &stats_key);
+ 7be:	movabsq	$-58455663325642752, %rdi
+ 7c8:	callq	0xffffffffd25cab78
+; if (!data_stats) {
+ 7cd:	testq	%rax, %rax
+ 7d0:	je	0x1185
+; data_stats->v1 += 1;
+ 7d6:	movq	(%rax), %rdi
+ 7da:	addq	$1, %rdi
+ 7de:	movq	%rdi, (%rax)
+; (icmp_hdr->icmp6_code == ICMPV6_ADDR_UNREACH) ||
+ 7e2:	movzbq	55(%r13), %rdi
+; (icmp_hdr->icmp6_code == ICMPV6_ADDR_UNREACH) ||
+ 7e7:	addq	$-3, %rdi
+ 7eb:	andq	$255, %rdi
+ 7f2:	movq	-144(%rbp), %rsi
+; if (ignorable_quic_icmp_code(data, data_end, is_ipv6)) {
+ 7f9:	cmpq	$1, %rdi
+ 7fd:	ja	0x80b
+; data_stats->v2 += 1;
+ 7ff:	movq	8(%rax), %rdi
+ 803:	addq	$1, %rdi
+ 807:	movq	%rdi, 8(%rax)
+ 80b:	movq	%r14, %rdx
+ 80e:	jmp	0x16ec
+ 813:	movq	%rax, -128(%rbp)
+ 817:	movl	$524, %edi
+; __u32 stats_key = MAX_VIPS + ICMP_PTB_V6_STATS;
+ 81c:	movl	%edi, -16(%rbp)
+ 81f:	movq	%rbp, %rsi
+; 
+ 822:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&stats, &stats_key);
+ 826:	movabsq	$-58455663325642752, %rdi
+ 830:	callq	0xffffffffd25cab78
+; if (!icmp_ptb_v6_stats) {
+ 835:	testq	%rax, %rax
+ 838:	je	0x118b
+; icmp_ptb_v6_stats->v1 += 1;
+ 83e:	movq	(%rax), %rdi
+ 842:	addq	$1, %rdi
+ 846:	movq	%rdi, (%rax)
+; __u32 mtu = bpf_ntohl(icmp_hdr->icmp6_mtu);
+ 84a:	movl	58(%r13), %edi
+ 84e:	bswapl	%edi
+; if (mtu < MAX_MTU_IN_PTB_TO_DROP) {
+ 850:	cmpq	$1279, %rdi
+ 857:	ja	0x865
+; icmp_ptb_v6_stats->v2 += 1;
+ 859:	movq	8(%rax), %rdi
+ 85d:	addq	$1, %rdi
+ 861:	movq	%rdi, 8(%rax)
+ 865:	movq	-128(%rbp), %rax
+; if (ip6h + 1 > data_end) {
+ 869:	movq	%r13, %rdi
+ 86c:	addq	$102, %rdi
+; 
+ 870:	movl	$1, %r14d
+; if (ip6h + 1 > data_end) {
+ 876:	cmpq	%r15, %rdi
+ 879:	ja	0x118b
+; pckt->flow.proto = ip6h->nexthdr;
+ 87f:	movzbq	68(%r13), %rdi
+; pckt->flow.proto = ip6h->nexthdr;
+ 884:	movb	%dil, -36(%rbp)
+; pckt->flags |= F_ICMP;
+ 888:	movzbq	-28(%rbp), %rsi
+ 88d:	orq	$1, %rsi
+ 891:	movb	%sil, -28(%rbp)
+; memcpy(pckt->flow.srcv6, ip6h->daddr.s6_addr32, 16);
+ 895:	movl	90(%r13), %edx
+ 899:	shlq	$32, %rdx
+ 89d:	movl	86(%r13), %ecx
+ 8a1:	orq	%rcx, %rdx
+ 8a4:	movq	%rdx, -72(%rbp)
+ 8a8:	movl	98(%r13), %edx
+ 8ac:	shlq	$32, %rdx
+ 8b0:	movl	94(%r13), %ecx
+ 8b4:	orq	%rcx, %rdx
+ 8b7:	movq	%rdx, -64(%rbp)
+; memcpy(pckt->flow.dstv6, ip6h->saddr.s6_addr32, 16);
+ 8bb:	movl	74(%r13), %edx
+ 8bf:	shlq	$32, %rdx
+ 8c3:	movl	70(%r13), %ecx
+ 8c7:	orq	%rcx, %rdx
+ 8ca:	movq	%rdx, -56(%rbp)
+ 8ce:	movl	78(%r13), %edx
+ 8d2:	movl	82(%r13), %ecx
+ 8d6:	shlq	$32, %rcx
+ 8da:	orq	%rdx, %rcx
+ 8dd:	movq	%rcx, -48(%rbp)
+ 8e1:	jmp	0x451
+; bool is_icmp = !((pckt->flags & F_ICMP) == 0);
+ 8e6:	andq	$1, %rdx
+ 8ea:	movl	$34, %r8d
+; if (is_ipv6) {
+ 8f0:	testq	%rdx, %rdx
+ 8f3:	je	0x8fb
+ 8f5:	movl	$62, %r8d
+; udp = data + off;
+ 8fb:	movq	%r13, %rcx
+ 8fe:	addq	%r8, %rcx
+; if (udp + 1 > data_end) {
+ 901:	movq	%rcx, %r8
+ 904:	addq	$8, %r8
+; 
+ 908:	movl	$1, %r14d
+; if (udp + 1 > data_end) {
+ 90e:	cmpq	%r15, %r8
+ 911:	ja	0x118b
+; if (!is_icmp) {
+ 917:	testq	%rdx, %rdx
+ 91a:	jne	0x9fe
+; pckt->flow.port16[0] = udp->source;
+ 920:	movzwq	(%rcx), %rdx
+; pckt->flow.port16[0] = udp->source;
+ 925:	movw	%dx, -40(%rbp)
+; pckt->flow.port16[0] = udp->source;
+ 929:	movq	%rbp, %rax
+ 92c:	addq	$-40, %rax
+; pckt->flow.port16[1] = udp->dest;
+ 930:	addq	$2, %rcx
+ 934:	jmp	0xa0e
+; if (icmp_hdr->code == ICMP_FRAG_NEEDED) {
+ 939:	movzbq	35(%r13), %rdi
+; if (icmp_hdr->code == ICMP_FRAG_NEEDED) {
+ 93e:	cmpq	$4, %rdi
+ 942:	jne	0x99b
+ 944:	movq	%rcx, %r14
+ 947:	movl	$525, %edi
+; __u32 stats_key = MAX_VIPS + ICMP_PTB_V4_STATS;
+ 94c:	movl	%edi, -16(%rbp)
+ 94f:	movq	%rbp, %rsi
+; 
+ 952:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&stats, &stats_key);
+ 956:	movabsq	$-58455663325642752, %rdi
+ 960:	callq	0xffffffffd25cab78
+; if (!icmp_ptb_v4_stats) {
+ 965:	testq	%rax, %rax
+ 968:	je	0x1185
+; icmp_ptb_v4_stats->v1 += 1;
+ 96e:	movq	(%rax), %rdi
+ 972:	addq	$1, %rdi
+ 976:	movq	%rdi, (%rax)
+; __u16 mtu = bpf_ntohs(icmp_hdr->un.frag.mtu);
+ 97a:	movzwq	40(%r13), %rdi
+; if (mtu < MAX_MTU_IN_PTB_TO_DROP) {
+ 97f:	andq	$255, %rdi
+; if (mtu < MAX_MTU_IN_PTB_TO_DROP) {
+ 986:	cmpq	$4, %rdi
+ 98a:	ja	0x998
+; icmp_ptb_v4_stats->v2 += 1;
+ 98c:	movq	8(%rax), %rdi
+ 990:	addq	$1, %rdi
+ 994:	movq	%rdi, 8(%rax)
+ 998:	movq	%r14, %rcx
+; if (iph + 1 > data_end) {
+ 99b:	movq	%r13, %rdi
+ 99e:	addq	$62, %rdi
+; 
+ 9a2:	movl	$1, %r14d
+; if (iph + 1 > data_end) {
+ 9a8:	cmpq	%r15, %rdi
+ 9ab:	ja	0x118b
+; if (iph->ihl != 5) {
+ 9b1:	movzbq	(%rcx), %rdi
+ 9b6:	andq	$15, %rdi
+; 
+ 9ba:	movl	$1, %r14d
+; if (iph->ihl != 5) {
+ 9c0:	cmpq	$5, %rdi
+ 9c4:	je	0x9cb
+ 9c6:	jmp	0x118b
+; pckt->flow.proto = iph->protocol;
+ 9cb:	movzbq	51(%r13), %rdi
+; pckt->flow.proto = iph->protocol;
+ 9d0:	movb	%dil, -36(%rbp)
+; pckt->flags |= F_ICMP;
+ 9d4:	movzbq	-28(%rbp), %rdx
+ 9d9:	orq	$1, %rdx
+ 9dd:	movb	%dl, -28(%rbp)
+; pckt->flow.src = iph->daddr;
+ 9e0:	movl	58(%r13), %esi
+; pckt->flow.src = iph->daddr;
+ 9e4:	movl	%esi, -72(%rbp)
+; pckt->flow.src = iph->daddr;
+ 9e7:	movq	%r13, %rsi
+ 9ea:	addq	$54, %rsi
+ 9ee:	jmp	0x52f
+; pckt->flow.port16[0] = tcp->dest;
+ 9f3:	movzwq	2(%rcx), %rdx
+; pckt->flow.port16[0] = tcp->dest;
+ 9f8:	movw	%dx, -40(%rbp)
+ 9fc:	jmp	0xa0e
+; pckt->flow.port16[0] = udp->dest;
+ 9fe:	movzwq	2(%rcx), %rdx
+; pckt->flow.port16[0] = udp->dest;
+ a03:	movw	%dx, -40(%rbp)
+; pckt->flow.port16[0] = udp->dest;
+ a07:	movq	%rbp, %rax
+ a0a:	addq	$-40, %rax
+; 
+ a0e:	movzwq	(%rcx), %rdx
+ a13:	movq	%rax, -136(%rbp)
+ a1a:	movw	%dx, 2(%rax)
+; vip.proto = pckt.flow.proto;
+ a1e:	movb	%dil, -78(%rbp)
+; vip.port = pckt.flow.port16[1];
+ a22:	movw	%dx, -80(%rbp)
+; vip.vip = pckt.flow.dst;
+ a26:	movl	%esi, -96(%rbp)
+ a29:	movq	%rbp, %rsi
+; 
+ a2c:	addq	$-96, %rsi
+; vip_info = bpf_map_lookup_elem(&vip_map, &vip);
+ a30:	movabsq	$-58455674560345088, %rdi
+ a3a:	callq	0xffffffffd25c56f8
+ a3f:	testq	%rax, %rax
+ a42:	je	0xa48
+ a44:	addq	$72, %rax
+; if (!vip_info) {
+ a48:	testq	%rax, %rax
+ a4b:	jne	0xa9d
+ a4d:	xorl	%edi, %edi
+; vip.port = 0;
+ a4f:	movw	%di, -80(%rbp)
+ a53:	movq	%rbp, %rsi
+ a56:	addq	$-96, %rsi
+; vip_info = bpf_map_lookup_elem(&vip_map, &vip);
+ a5a:	movabsq	$-58455674560345088, %rdi
+ a64:	callq	0xffffffffd25c56f8
+ a69:	testq	%rax, %rax
+ a6c:	je	0xa72
+ a6e:	addq	$72, %rax
+; 
+ a72:	movl	$2, %r14d
+; if (!vip_info) {
+ a78:	testq	%rax, %rax
+ a7b:	je	0x118b
+; if (!(vip_info->flags & F_HASH_DPORT_ONLY) &&
+ a81:	movl	(%rax), %edi
+; if (!(vip_info->flags & F_HASH_DPORT_ONLY) &&
+ a84:	andq	$136, %rdi
+ a8b:	testq	%rdi, %rdi
+ a8e:	jne	0xa9d
+ a90:	xorl	%edi, %edi
+; pckt.flow.port16[1] = 0;
+ a92:	movq	-136(%rbp), %rsi
+ a99:	movw	%di, 2(%rsi)
+; if (data_end - data > MAX_PCKT_SIZE) {
+ a9d:	movq	%r15, %rdi
+ aa0:	subq	%r13, %rdi
+; 
+ aa3:	movl	$1, %r14d
+; if (data_end - data > MAX_PCKT_SIZE) {
+ aa9:	cmpq	$1514, %rdi
+ ab0:	jg	0x118b
+ ab6:	movq	%rax, -144(%rbp)
+ abd:	movl	$512, %edi
+; __u32 stats_key = MAX_VIPS + LRU_CNTRS;
+ ac2:	movl	%edi, -108(%rbp)
+ ac5:	movq	%rbp, %rsi
+; 
+ ac8:	addq	$-108, %rsi
+; data_stats = bpf_map_lookup_elem(&stats, &stats_key);
+ acc:	movabsq	$-58455663325642752, %rdi
+ ad6:	callq	0xffffffffd25cab78
+ adb:	movl	$1, %r14d
+; if (!data_stats) {
+ ae1:	testq	%rax, %rax
+ ae4:	je	0x118b
+; data_stats->v1 += 1;
+ aea:	movq	(%rax), %rdi
+ aee:	addq	$1, %rdi
+ af2:	movq	%rax, -160(%rbp)
+ af9:	movq	%rdi, (%rax)
+ afd:	movq	-144(%rbp), %r14
+; if ((vip_info->flags & F_HASH_NO_SRC_PORT)) {
+ b04:	movl	(%r14), %edi
+; if ((vip_info->flags & F_HASH_NO_SRC_PORT)) {
+ b08:	andq	$1, %rdi
+; if ((vip_info->flags & F_HASH_NO_SRC_PORT)) {
+ b0c:	testq	%rdi, %rdi
+ b0f:	je	0xb17
+ b11:	xorl	%edi, %edi
+; pckt.flow.port16[0] = 0;
+ b13:	movw	%di, -40(%rbp)
+; vip_num = vip_info->vip_num;
+ b17:	movl	4(%r14), %edi
+; vip_num = vip_info->vip_num;
+ b1b:	movl	%edi, -100(%rbp)
+; __u32 cpu_num = bpf_get_smp_processor_id();
+ b1e:	callq	0xffffffffd25bcf78
+; __u32 cpu_num = bpf_get_smp_processor_id();
+ b23:	movl	%eax, -112(%rbp)
+ b26:	movq	%rbp, %rsi
+; vip_num = vip_info->vip_num;
+ b29:	addq	$-112, %rsi
+; void* lru_map = bpf_map_lookup_elem(&lru_mapping, &cpu_num);
+ b2d:	movabsq	$-58455674667823104, %rdi
+ b37:	addq	$272, %rdi
+ b3e:	movl	(%rsi), %eax
+ b41:	cmpq	$128, %rax
+ b48:	jae	0xb5c
+ b4a:	shlq	$3, %rax
+ b4e:	addq	%rdi, %rax
+ b51:	movq	(%rax), %rax
+ b55:	testq	%rax, %rax
+ b58:	je	0xb5c
+ b5a:	jmp	0xb5e
+ b5c:	xorl	%eax, %eax
+ b5e:	movq	%rax, %rdx
+; if (!lru_map) {
+ b61:	testq	%rdx, %rdx
+ b64:	jne	0xbaa
+ b66:	movl	$515, %edi
+; __u32 lru_stats_key = MAX_VIPS + FALLBACK_LRU_CNTR;
+ b6b:	movl	%edi, -16(%rbp)
+ b6e:	movq	%rbp, %rsi
+; 
+ b71:	addq	$-16, %rsi
+; struct lb_stats* lru_stats = bpf_map_lookup_elem(&stats, &lru_stats_key);
+ b75:	movabsq	$-58455663325642752, %rdi
+ b7f:	callq	0xffffffffd25cab78
+; if (!lru_stats) {
+ b84:	testq	%rax, %rax
+ b87:	je	0x1185
+; lru_stats->v1 += 1;
+ b8d:	movq	(%rax), %rdi
+ b91:	addq	$1, %rdi
+ b95:	movq	%rdi, (%rax)
+ b99:	movabsq	$-58455674560317440, %rdx
+ ba3:	movq	-144(%rbp), %r14
+; if ((vip_info->flags & F_QUIC_VIP)) {
+ baa:	movl	(%r14), %edi
+; if ((vip_info->flags & F_QUIC_VIP)) {
+ bae:	andq	$4, %rdi
+; if ((vip_info->flags & F_QUIC_VIP)) {
+ bb2:	movq	%rdx, -152(%rbp)
+ bb9:	testq	%rdi, %rdi
+ bbc:	je	0xdab
+; bool is_icmp = (pckt.flags & F_ICMP);
+ bc2:	movzbq	-28(%rbp), %rdi
+; bool is_icmp = (pckt.flags & F_ICMP);
+ bc7:	andq	$1, %rdi
+; if (is_icmp) {
+ bcb:	testq	%rdi, %rdi
+ bce:	je	0xce5
+ bd4:	movl	$523, %edi
+; __u32 stats_key = MAX_VIPS + QUIC_ICMP_STATS;
+ bd9:	movl	%edi, -16(%rbp)
+ bdc:	movq	%rbp, %rsi
+; 
+ bdf:	addq	$-16, %rsi
+; struct lb_stats* data_stats = bpf_map_lookup_elem(&stats, &stats_key);
+ be3:	movabsq	$-58455663325642752, %rdi
+ bed:	callq	0xffffffffd25cab78
+; if (!data_stats) {
+ bf2:	testq	%rax, %rax
+ bf5:	je	0x1185
+; data_stats->v1 += 1;
+ bfb:	movq	(%rax), %rdi
+ bff:	addq	$1, %rdi
+ c03:	movq	%rdi, (%rax)
+; (icmp_hdr->code == ICMP_PORT_UNREACH) ||
+ c07:	movzbq	35(%r13), %rdi
+; (icmp_hdr->code == ICMP_PORT_UNREACH) ||
+ c0c:	andq	$253, %rdi
+; if (ignorable_quic_icmp_code(data, data_end, is_ipv6)) {
+ c13:	cmpq	$1, %rdi
+ c17:	jne	0xc25
+; data_stats->v2 += 1;
+ c19:	movq	8(%rax), %rdi
+ c1d:	addq	$1, %rdi
+ c21:	movq	%rdi, 8(%rax)
+ c25:	movq	-144(%rbp), %r14
+ c2c:	movq	-152(%rbp), %rdx
+ c33:	jmp	0xdab
+ c38:	movq	%rdx, -152(%rbp)
+ c3f:	xorl	%edi, %edi
+; __u32 quic_packets_stats_key = 0;
+ c41:	movl	%edi, -120(%rbp)
+ c44:	movq	%rbp, %rsi
+; 
+ c47:	addq	$-120, %rsi
+; bpf_map_lookup_elem(&quic_stats_map, &quic_packets_stats_key);
+ c4b:	movabsq	$-58455674580393984, %rdi
+ c55:	callq	0xffffffffd25cab78
+ c5a:	movq	%rax, %r14
+; if (!quic_packets_stats) {
+ c5d:	testq	%r14, %r14
+ c60:	je	0x1185
+; bool is_icmp = (pckt->flags & F_ICMP);
+ c66:	movzbq	-28(%rbp), %rsi
+; bool is_icmp = (pckt->flags & F_ICMP);
+ c6b:	andq	$1, %rsi
+ c6f:	movl	$54, %edi
+; if (is_ipv6) {
+ c74:	testq	%rsi, %rsi
+ c77:	je	0xc7e
+ c79:	movl	$102, %edi
+; if ((data + off + sizeof(struct udphdr) + sizeof(__u8)) > data_end) {
+ c7e:	addq	%rdi, %r13
+; if ((data + off + sizeof(struct udphdr) + sizeof(__u8)) > data_end) {
+ c81:	movq	%r13, %rdi
+ c84:	addq	$9, %rdi
+; if ((data + off + sizeof(struct udphdr) + sizeof(__u8)) > data_end) {
+ c88:	cmpq	%r15, %rdi
+ c8b:	ja	0x16d2
+; 
+ c91:	addq	$8, %r13
+; if ((*pkt_type & QUIC_LONG_HEADER) == QUIC_LONG_HEADER) {
+ c95:	movzbq	(%r13), %rsi
+ c9a:	shlq	$56, %rsi
+ c9e:	sarq	$56, %rsi
+; if ((*pkt_type & QUIC_LONG_HEADER) == QUIC_LONG_HEADER) {
+ ca2:	cmpq	$-1, %rsi
+ ca6:	jg	0x1499
+; if (quic_data + sizeof(struct quic_long_header) > data_end) {
+ cac:	movq	%r13, %rdi
+ caf:	addq	$14, %rdi
+; if (quic_data + sizeof(struct quic_long_header) > data_end) {
+ cb3:	cmpq	%r15, %rdi
+ cb6:	ja	0x16d2
+; if ((*pkt_type & QUIC_PACKET_TYPE_MASK) < QUIC_HANDSHAKE) {
+ cbc:	andq	$32, %rsi
+; if ((*pkt_type & QUIC_PACKET_TYPE_MASK) < QUIC_HANDSHAKE) {
+ cc0:	testq	%rsi, %rsi
+ cc3:	je	0x1561
+; if (long_header->conn_id_lens < QUIC_MIN_CONNID_LEN) {
+ cc9:	movzbq	5(%r13), %rdi
+; if (long_header->conn_id_lens < QUIC_MIN_CONNID_LEN) {
+ cce:	addq	$6, %r13
+ cd2:	movl	$8, %esi
+ cd7:	cmpq	%rdi, %rsi
+ cda:	ja	0x16d2
+ ce0:	jmp	0x14ac
+ ce5:	xorl	%edi, %edi
+; __u32 quic_packets_stats_key = 0;
+ ce7:	movl	%edi, -120(%rbp)
+ cea:	movq	%rbp, %rsi
+; 
+ ced:	addq	$-120, %rsi
+; bpf_map_lookup_elem(&quic_stats_map, &quic_packets_stats_key);
+ cf1:	movabsq	$-58455674580393984, %rdi
+ cfb:	callq	0xffffffffd25cab78
+; if (!quic_packets_stats) {
+ d00:	testq	%rax, %rax
+ d03:	je	0x1185
+ d09:	movq	%rax, -168(%rbp)
+ d10:	movq	-152(%rbp), %rdi
+; bool is_icmp = (pckt->flags & F_ICMP);
+ d17:	movzbq	-28(%rbp), %rsi
+; bool is_icmp = (pckt->flags & F_ICMP);
+ d1c:	andq	$1, %rsi
+ d20:	movl	$34, %edi
+; if (is_ipv6) {
+ d25:	testq	%rsi, %rsi
+ d28:	je	0xd2f
+ d2a:	movl	$62, %edi
+; if ((data + off + sizeof(struct udphdr) + sizeof(__u8)) > data_end) {
+ d2f:	addq	%rdi, %r13
+; if ((data + off + sizeof(struct udphdr) + sizeof(__u8)) > data_end) {
+ d32:	movq	%r13, %rdi
+ d35:	addq	$9, %rdi
+; if ((data + off + sizeof(struct udphdr) + sizeof(__u8)) > data_end) {
+ d39:	cmpq	%r15, %rdi
+ d3c:	ja	0xd8a
+; 
+ d3e:	addq	$8, %r13
+; if ((*pkt_type & QUIC_LONG_HEADER) == QUIC_LONG_HEADER) {
+ d42:	movzbq	(%r13), %rsi
+ d47:	shlq	$56, %rsi
+ d4b:	sarq	$56, %rsi
+; if ((*pkt_type & QUIC_LONG_HEADER) == QUIC_LONG_HEADER) {
+ d4f:	cmpq	$-1, %rsi
+ d53:	jg	0x14fd
+; if (quic_data + sizeof(struct quic_long_header) > data_end) {
+ d59:	movq	%r13, %rdi
+ d5c:	addq	$14, %rdi
+; if (quic_data + sizeof(struct quic_long_header) > data_end) {
+ d60:	cmpq	%r15, %rdi
+ d63:	ja	0xd8a
+; if ((*pkt_type & QUIC_PACKET_TYPE_MASK) < QUIC_HANDSHAKE) {
+ d65:	andq	$32, %rsi
+; if ((*pkt_type & QUIC_PACKET_TYPE_MASK) < QUIC_HANDSHAKE) {
+ d69:	testq	%rsi, %rsi
+ d6c:	je	0x2454
+; if (long_header->conn_id_lens < QUIC_MIN_CONNID_LEN) {
+ d72:	movzbq	5(%r13), %rdi
+; if (long_header->conn_id_lens < QUIC_MIN_CONNID_LEN) {
+ d77:	addq	$6, %r13
+ d7b:	movl	$8, %esi
+ d80:	cmpq	%rdi, %rsi
+ d83:	ja	0xd8a
+ d85:	jmp	0x1510
+ d8a:	movq	-168(%rbp), %rsi
+; 
+ d91:	movq	(%rsi), %rdi
+ d95:	addq	$1, %rdi
+ d99:	movq	%rdi, (%rsi)
+ d9d:	movq	-152(%rbp), %rdx
+ da4:	movq	-144(%rbp), %r14
+; original_sport = pckt.flow.port16[0];
+ dab:	movzwq	-40(%rbp), %rdi
+; if (!dst && !(pckt.flags & F_SYN_SET) &&
+ db0:	movq	%rdi, -168(%rbp)
+ db7:	movzbq	-28(%rbp), %rdi
+; if (!dst && !(pckt.flags & F_SYN_SET) &&
+ dbc:	andq	$2, %rdi
+; if (!dst && !(pckt.flags & F_SYN_SET) &&
+ dc0:	testq	%rdi, %rdi
+ dc3:	jne	0xe67
+; !(vip_info->flags & F_LRU_BYPASS)) {
+ dc9:	movl	(%r14), %edi
+; !(vip_info->flags & F_LRU_BYPASS)) {
+ dcd:	andq	$2, %rdi
+; if (!dst && !(pckt.flags & F_SYN_SET) &&
+ dd1:	testq	%rdi, %rdi
+ dd4:	jne	0xe67
+ dda:	movq	%rbp, %rsi
+; 
+ ddd:	addq	$-72, %rsi
+; dst_lru = bpf_map_lookup_elem(lru_map, &pckt->flow);
+ de1:	movq	%rdx, %rdi
+ de4:	callq	0xffffffffd25bcdd8
+ de9:	movq	%rax, %r13
+; if (!dst_lru) {
+ dec:	testq	%r13, %r13
+ def:	je	0xe67
+; if (!isGlobalLru && pckt->flow.proto == IPPROTO_UDP) {
+ df1:	movzbq	-36(%rbp), %rdi
+; if (!isGlobalLru && pckt->flow.proto == IPPROTO_UDP) {
+ df6:	cmpq	$17, %rdi
+ dfa:	jne	0xe1e
+; cur_time = bpf_ktime_get_ns();
+ dfc:	callq	0xffffffffd25bd2b8
+; if (cur_time - dst_lru->atime > LRU_UDP_TIMEOUT) {
+ e01:	movq	8(%r13), %rdi
+; if (cur_time - dst_lru->atime > LRU_UDP_TIMEOUT) {
+ e05:	movq	%rax, %rsi
+ e08:	subq	%rdi, %rsi
+ e0b:	movabsq	$30000000000, %rdi
+; if (cur_time - dst_lru->atime > LRU_UDP_TIMEOUT) {
+ e15:	cmpq	%rdi, %rsi
+ e18:	ja	0xe67
+; dst_lru->atime = cur_time;
+ e1a:	movq	%rax, 8(%r13)
+; key = dst_lru->pos;
+ e1e:	movl	(%r13), %edi
+; pckt->real_index = key;
+ e22:	movl	%edi, -32(%rbp)
+; key = dst_lru->pos;
+ e25:	movl	%edi, -16(%rbp)
+ e28:	movq	%rbp, %rsi
+; key = dst_lru->pos;
+ e2b:	addq	$-16, %rsi
+; *real = bpf_map_lookup_elem(&reals, &key);
+ e2f:	movabsq	$-51044215024988160, %rdi
+ e39:	addq	$272, %rdi
+ e40:	movl	(%rsi), %eax
+ e43:	cmpq	$4096, %rax
+ e4a:	jae	0xe55
+ e4c:	imulq	$24, %rax, %rax
+ e50:	addq	%rdi, %rax
+ e53:	jmp	0xe57
+ e55:	xorl	%eax, %eax
+ e57:	movq	%rax, -176(%rbp)
+; if (!dst) {
+ e5e:	testq	%rax, %rax
+ e61:	jne	0x1299
+; if (pckt.flow.proto == IPPROTO_TCP) {
+ e67:	movzbq	-36(%rbp), %rdi
+; if (pckt.flow.proto == IPPROTO_TCP) {
+ e6c:	cmpq	$6, %rdi
+ e70:	jne	0xec1
+ e72:	movl	$513, %edi
+; __u32 lru_stats_key = MAX_VIPS + LRU_MISS_CNTR;
+ e77:	movl	%edi, -16(%rbp)
+ e7a:	movq	%rbp, %rsi
+; 
+ e7d:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&stats, &lru_stats_key);
+ e81:	movabsq	$-58455663325642752, %rdi
+ e8b:	callq	0xffffffffd25cab78
+; if (!lru_stats) {
+ e90:	testq	%rax, %rax
+ e93:	je	0x1185
+; if (pckt.flags & F_SYN_SET) {
+ e99:	movzbq	-28(%rbp), %rsi
+; if (pckt.flags & F_SYN_SET) {
+ e9e:	andq	$2, %rsi
+ ea2:	movl	$1, %edi
+ ea7:	testq	%rsi, %rsi
+ eaa:	je	0xeae
+ eac:	xorl	%edi, %edi
+; if (pckt.flags & F_SYN_SET) {
+ eae:	shlq	$3, %rdi
+; 
+ eb2:	addq	%rdi, %rax
+ eb5:	movq	(%rax), %rdi
+ eb9:	addq	$1, %rdi
+ ebd:	movq	%rdi, (%rax)
+ ec1:	xorl	%r14d, %r14d
+; struct real_pos_lru new_dst_lru = {};
+ ec4:	movq	%r14, -8(%rbp)
+ ec8:	movq	%r14, -16(%rbp)
+ ecc:	movl	$514, %edi
+; __u32 conn_rate_key = MAX_VIPS + NEW_CONN_RATE_CNTR;
+ ed1:	movl	%edi, -120(%rbp)
+ ed4:	movq	%rbp, %rsi
+; 
+ ed7:	addq	$-120, %rsi
+; bpf_map_lookup_elem(&stats, &conn_rate_key);
+ edb:	movabsq	$-58455663325642752, %rdi
+ ee5:	callq	0xffffffffd25cab78
+ eea:	movq	%rax, %r13
+ eed:	movl	$1, %r15d
+; if (!conn_rate_stats) {
+ ef3:	testq	%r13, %r13
+ ef6:	je	0xf3b
+; *cur_time = bpf_ktime_get_ns();
+ ef8:	callq	0xffffffffd25bd2b8
+ efd:	movq	%rax, %r14
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+ f00:	movq	8(%r13), %rdi
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+ f04:	movq	%r14, %rsi
+ f07:	subq	%rdi, %rsi
+ f0a:	movl	$1000000001, %edi
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+ f0f:	cmpq	%rsi, %rdi
+ f12:	ja	0xf23
+; conn_rate_stats->v2 = *cur_time;
+ f14:	movq	%r14, 8(%r13)
+ f18:	movl	$1, %edi
+; conn_rate_stats->v1 = 1;
+ f1d:	movq	%rdi, (%r13)
+ f21:	jmp	0xf38
+; conn_rate_stats->v1 += 1;
+ f23:	movq	(%r13), %rdi
+ f27:	addq	$1, %rdi
+ f2b:	movq	%rdi, (%r13)
+; if (conn_rate_stats->v1 > MAX_CONN_RATE) {
+ f2f:	cmpq	$125000, %rdi
+ f36:	ja	0xf3b
+ f38:	xorl	%r15d, %r15d
+; if (vip_info->flags & F_HASH_DPORT_ONLY) {
+ f3b:	movq	-144(%rbp), %rdi
+ f42:	movl	(%rdi), %edi
+; if (vip_info->flags & F_HASH_DPORT_ONLY) {
+ f45:	andq	$8, %rdi
+; if (vip_info->flags & F_HASH_DPORT_ONLY) {
+ f49:	testq	%rdi, %rdi
+ f4c:	jne	0xf54
+; return jhash_2words(pckt->flow.src, pckt->flow.ports, INIT_JHASH_SEED);
+ f4e:	movl	-72(%rbp), %r8d
+ f52:	jmp	0xf6f
+; pckt->flow.port16[0] = pckt->flow.port16[1];
+ f54:	movq	-136(%rbp), %rdi
+ f5b:	movzwq	2(%rdi), %rdi
+; pckt->flow.port16[0] = pckt->flow.port16[1];
+ f60:	movw	%di, -40(%rbp)
+ f64:	xorl	%r8d, %r8d
+; memset(pckt->flow.srcv6, 0, 16);
+ f67:	movq	%r8, -72(%rbp)
+ f6b:	movq	%r8, -64(%rbp)
+; return jhash_2words(pckt->flow.src, pckt->flow.ports, INIT_JHASH_SEED);
+ f6f:	movl	-40(%rbp), %edx
+; b += initval;
+ f72:	addq	$-525483785, %rdx
+ f79:	movl	$4294705152, %edi
+ f7e:	movq	%rdx, %rsi
+ f81:	andq	%rdi, %rsi
+; return (word << shift) | (word >> ((-shift) & 31));
+ f84:	shrq	$18, %rsi
+ f88:	movq	%rdx, %rcx
+ f8b:	shlq	$14, %rcx
+ f8f:	orq	%rsi, %rcx
+; __jhash_final(a, b, c);
+ f92:	movq	%rdx, %rsi
+ f95:	xorq	$-525483785, %rsi
+ f9c:	subq	%rcx, %rsi
+ f9f:	movl	$4292870144, %ecx
+ fa4:	movq	%rsi, %rax
+ fa7:	andq	%rcx, %rax
+; return (word << shift) | (word >> ((-shift) & 31));
+ faa:	shrq	$21, %rax
+ fae:	movq	%rsi, %r13
+ fb1:	shlq	$11, %r13
+ fb5:	orq	%rax, %r13
+; a += initval;
+ fb8:	addq	$-525483785, %r8
+; __jhash_final(a, b, c);
+ fbf:	movq	%rsi, %rcx
+ fc2:	xorq	%r8, %rcx
+ fc5:	subq	%r13, %rcx
+ fc8:	movl	$4294967168, %r8d
+ fce:	movq	%rcx, %rax
+ fd1:	andq	%r8, %rax
+; return (word << shift) | (word >> ((-shift) & 31));
+ fd4:	shrq	$7, %rax
+ fd8:	movq	%rcx, %r13
+ fdb:	shlq	$25, %r13
+ fdf:	orq	%rax, %r13
+; __jhash_final(a, b, c);
+ fe2:	movq	%rcx, %r8
+ fe5:	xorq	%rdx, %r8
+ fe8:	subq	%r13, %r8
+ feb:	movl	$4294901760, %edx
+ ff0:	movq	%r8, %rax
+ ff3:	andq	%rdx, %rax
+; return (word << shift) | (word >> ((-shift) & 31));
+ ff6:	shrq	$16, %rax
+ ffa:	movq	%r8, %r13
+ ffd:	shlq	$16, %r13
+1001:	orq	%rax, %r13
+; __jhash_final(a, b, c);
+1004:	movq	%r8, %rdx
+1007:	xorq	%rsi, %rdx
+100a:	subq	%r13, %rdx
+100d:	movl	$4026531840, %esi
+1012:	movq	%rdx, %rax
+1015:	andq	%rsi, %rax
+; return (word << shift) | (word >> ((-shift) & 31));
+1018:	shrq	$28, %rax
+101c:	movq	%rdx, %r13
+101f:	shlq	$4, %r13
+1023:	orq	%rax, %r13
+; __jhash_final(a, b, c);
+1026:	movq	%rdx, %rsi
+1029:	xorq	%rcx, %rsi
+102c:	subq	%r13, %rsi
+102f:	movq	%rsi, %rcx
+1032:	andq	%rdi, %rcx
+; return (word << shift) | (word >> ((-shift) & 31));
+1035:	shrq	$18, %rcx
+1039:	movq	%rsi, %rdi
+103c:	shlq	$14, %rdi
+1040:	orq	%rcx, %rdi
+; __jhash_final(a, b, c);
+1043:	xorq	%r8, %rsi
+1046:	subq	%rdi, %rsi
+1049:	movl	$4294967040, %edi
+104e:	movq	%rsi, %rcx
+1051:	andq	%rdi, %rcx
+; return (word << shift) | (word >> ((-shift) & 31));
+1054:	shrq	$8, %rcx
+1058:	movq	%rsi, %rdi
+105b:	shlq	$24, %rdi
+105f:	orq	%rcx, %rdi
+; __jhash_final(a, b, c);
+1062:	xorq	%rdx, %rsi
+1065:	subq	%rdi, %rsi
+1068:	movq	%rsi, %rdi
+106b:	shlq	$32, %rdi
+106f:	shrq	$32, %rdi
+; hash = get_packet_hash(pckt, hash_16bytes) % RING_SIZE;
+1073:	pushq	%rax
+1074:	pushq	%rdx
+1075:	movq	$65537, %r11
+107c:	movq	%rdi, %rax
+107f:	xorl	%edx, %edx
+1081:	divq	%r11
+1084:	movq	%rax, %rdi
+1087:	popq	%rdx
+1088:	popq	%rax
+1089:	imulq	$65537, %rdi, %rdi
+1090:	subq	%rdi, %rsi
+; key = RING_SIZE * (vip_info->vip_num) + hash;
+1093:	movq	-144(%rbp), %rdi
+109a:	movl	4(%rdi), %edi
+; key = RING_SIZE * (vip_info->vip_num) + hash;
+109d:	imulq	$65537, %rdi, %rdi
+; key = RING_SIZE * (vip_info->vip_num) + hash;
+10a4:	addq	%rdi, %rsi
+; key = RING_SIZE * (vip_info->vip_num) + hash;
+10a7:	movl	%esi, -20(%rbp)
+10aa:	movq	%rbp, %rsi
+; 
+10ad:	addq	$-20, %rsi
+; real_pos = bpf_map_lookup_elem(&ch_rings, &key);
+10b1:	movabsq	$-51044213640192000, %rdi
+10bb:	addq	$272, %rdi
+10c2:	movl	(%rsi), %eax
+10c5:	cmpq	$33554944, %rax
+10cc:	jae	0x10d7
+10ce:	shlq	$3, %rax
+10d2:	addq	%rdi, %rax
+10d5:	jmp	0x10d9
+10d7:	xorl	%eax, %eax
+; if (!real_pos) {
+10d9:	testq	%rax, %rax
+10dc:	je	0x1185
+; key = *real_pos;
+10e2:	movl	(%rax), %edi
+; key = *real_pos;
+10e5:	movl	%edi, -20(%rbp)
+; if (key == 0) {
+10e8:	testq	%rdi, %rdi
+10eb:	jne	0x111f
+10ed:	movl	$521, %edi
+; __u32 ch_drop_stats_key = MAX_VIPS + CH_DROP_STATS;
+10f2:	movl	%edi, -120(%rbp)
+10f5:	movq	%rbp, %rsi
+; 
+10f8:	addq	$-120, %rsi
+; bpf_map_lookup_elem(&stats, &ch_drop_stats_key);
+10fc:	movabsq	$-58455663325642752, %rdi
+1106:	callq	0xffffffffd25cab78
+; if (!ch_drop_stats) {
+110b:	testq	%rax, %rax
+110e:	je	0x111c
+; ch_drop_stats->v2 += 1;
+1110:	movq	8(%rax), %rdi
+1114:	addq	$1, %rdi
+1118:	movq	%rdi, 8(%rax)
+; pckt->real_index = key;
+111c:	movl	-20(%rbp), %edi
+; pckt->real_index = key;
+111f:	movl	%edi, -32(%rbp)
+1122:	movq	%rbp, %rsi
+; 
+1125:	addq	$-20, %rsi
+; *real = bpf_map_lookup_elem(&reals, &key);
+1129:	movabsq	$-51044215024988160, %rdi
+1133:	addq	$272, %rdi
+113a:	movl	(%rsi), %eax
+113d:	cmpq	$4096, %rax
+1144:	jae	0x114f
+1146:	imulq	$24, %rax, %rax
+114a:	addq	%rdi, %rax
+114d:	jmp	0x1151
+114f:	xorl	%eax, %eax
+; if (!(*real)) {
+1151:	testq	%rax, %rax
+1154:	jne	0x1198
+1156:	movl	$521, %edi
+; __u32 ch_drop_stats_key = MAX_VIPS + CH_DROP_STATS;
+115b:	movl	%edi, -120(%rbp)
+115e:	movq	%rbp, %rsi
+; 
+1161:	addq	$-120, %rsi
+; bpf_map_lookup_elem(&stats, &ch_drop_stats_key);
+1165:	movabsq	$-58455663325642752, %rdi
+116f:	callq	0xffffffffd25cab78
+; if (!ch_drop_stats) {
+1174:	testq	%rax, %rax
+1177:	je	0x1185
+; 
+1179:	movq	(%rax), %rdi
+117d:	addq	$1, %rdi
+1181:	movq	%rdi, (%rax)
+1185:	movl	$1, %r14d
+; }
+118b:	movq	%r14, %rax
+118e:	popq	%r15
+1190:	popq	%r14
+1192:	popq	%r13
+1194:	popq	%rbx
+1195:	leave
+1196:	retq
+1197:	int3
+1198:	movq	%rax, -176(%rbp)
+; if (lru_map && !(vip_info->flags & F_LRU_BYPASS) && !under_flood) {
+119f:	movq	-152(%rbp), %rdi
+11a6:	testq	%rdi, %rdi
+11a9:	je	0x11f5
+; if (lru_map && !(vip_info->flags & F_LRU_BYPASS) && !under_flood) {
+11ab:	movq	-144(%rbp), %rdi
+11b2:	movl	(%rdi), %edi
+; if (lru_map && !(vip_info->flags & F_LRU_BYPASS) && !under_flood) {
+11b5:	andq	$2, %rdi
+11b9:	shrq	%rdi
+; if (lru_map && !(vip_info->flags & F_LRU_BYPASS) && !under_flood) {
+11bc:	orq	%rdi, %r15
+11bf:	testq	%r15, %r15
+11c2:	jne	0x11f5
+; if (pckt->flow.proto == IPPROTO_UDP) {
+11c4:	movzbq	-36(%rbp), %rdi
+; if (pckt->flow.proto == IPPROTO_UDP) {
+11c9:	cmpq	$17, %rdi
+11cd:	jne	0x11d3
+; new_dst_lru.atime = cur_time;
+11cf:	movq	%r14, -8(%rbp)
+; new_dst_lru.pos = key;
+11d3:	movl	-20(%rbp), %edi
+; new_dst_lru.pos = key;
+11d6:	movl	%edi, -16(%rbp)
+11d9:	movq	%rbp, %rsi
+; new_dst_lru.pos = key;
+11dc:	addq	$-72, %rsi
+11e0:	movq	%rbp, %rdx
+11e3:	addq	$-16, %rdx
+; bpf_map_update_elem(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);
+11e7:	movq	-152(%rbp), %rdi
+11ee:	xorl	%ecx, %ecx
+11f0:	callq	0xffffffffd25bce08
+11f5:	xorl	%edi, %edi
+; __u32 vip_miss_stats_key = 0;
+11f7:	movl	%edi, -16(%rbp)
+11fa:	movq	%rbp, %rsi
+; 
+11fd:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&vip_miss_stats, &vip_miss_stats_key);
+1201:	movabsq	$-58455674580395008, %rdi
+120b:	addq	$272, %rdi
+1212:	movl	(%rsi), %eax
+1215:	cmpq	$1, %rax
+1219:	jae	0x1224
+121b:	imulq	$24, %rax, %rax
+121f:	addq	%rdi, %rax
+1222:	jmp	0x1226
+1224:	xorl	%eax, %eax
+; if (!lru_miss_stat_vip) {
+1226:	testq	%rax, %rax
+1229:	je	0x1185
+; bool vip_match = address_match && port_match && proto_match;
+122f:	movzwq	-80(%rbp), %rsi
+; (!is_ipv6 && lru_miss_stat_vip->vip == vip->vip);
+1234:	movl	-96(%rbp), %edx
+; bool vip_match = address_match && port_match && proto_match;
+1237:	movzbq	-78(%rbp), %rdi
+; bool proto_match = lru_miss_stat_vip->proto = vip->proto;
+123c:	movb	%dil, 18(%rax)
+; (!is_ipv6 && lru_miss_stat_vip->vip == vip->vip);
+1240:	movl	(%rax), %ecx
+; bool vip_match = address_match && port_match && proto_match;
+1243:	cmpq	%rdx, %rcx
+1246:	jne	0x1286
+1248:	movzwq	16(%rax), %rdx
+124d:	cmpq	%rsi, %rdx
+1250:	jne	0x1286
+1252:	testq	%rdi, %rdi
+1255:	je	0x1286
+; __u32 lru_stats_key = pckt->real_index;
+1257:	movl	-32(%rbp), %edi
+; __u32 lru_stats_key = pckt->real_index;
+125a:	movl	%edi, -120(%rbp)
+125d:	movq	%rbp, %rsi
+; __u32 lru_stats_key = pckt->real_index;
+1260:	addq	$-120, %rsi
+; __u32* lru_miss_stat = bpf_map_lookup_elem(&lru_miss_stats, &lru_stats_key);
+1264:	movabsq	$-51044215024840704, %rdi
+126e:	callq	0xffffffffd25cab78
+; if (!lru_miss_stat) {
+1273:	testq	%rax, %rax
+1276:	je	0x1185
+; *lru_miss_stat += 1;
+127c:	movl	(%rax), %edi
+127f:	addq	$1, %rdi
+1283:	movl	%edi, (%rax)
+1286:	movq	-160(%rbp), %rsi
+; data_stats->v2 += 1;
+128d:	movq	8(%rsi), %rdi
+1291:	addq	$1, %rdi
+1295:	movq	%rdi, 8(%rsi)
+1299:	movq	%rbp, %rsi
+; 
+129c:	addq	$-104, %rsi
+; cval = bpf_map_lookup_elem(&ctl_array, &mac_addr_pos);
+12a0:	movabsq	$-58455674580398080, %rdi
+12aa:	addq	$272, %rdi
+12b1:	movl	(%rsi), %eax
+12b4:	cmpq	$16, %rax
+12b8:	jae	0x12c3
+12ba:	shlq	$3, %rax
+12be:	addq	%rdi, %rax
+12c1:	jmp	0x12c5
+12c3:	xorl	%eax, %eax
+12c5:	movq	%rax, %r13
+12c8:	movl	$1, %r14d
+; if (!cval) {
+12ce:	testq	%r13, %r13
+12d1:	je	0x118b
+12d7:	movq	%rbp, %rsi
+; 
+12da:	addq	$-100, %rsi
+; data_stats = bpf_map_lookup_elem(&stats, &vip_num);
+12de:	movabsq	$-58455663325642752, %rdi
+12e8:	callq	0xffffffffd25cab78
+; if (!data_stats) {
+12ed:	testq	%rax, %rax
+12f0:	je	0x118b
+12f6:	movq	-128(%rbp), %r15
+12fa:	rorw	$8, %r15w
+12ff:	movzwl	%r15w, %r15d
+; data_stats->v1 += 1;
+1303:	movq	(%rax), %rdi
+1307:	addq	$1, %rdi
+130b:	movq	%rdi, (%rax)
+; data_stats->v2 += pkt_bytes;
+130f:	movq	8(%rax), %rdi
+1313:	addq	%r15, %rdi
+1316:	movq	%rdi, 8(%rax)
+; data_stats = bpf_map_lookup_elem(&reals_stats, &pckt.real_index);
+131a:	movq	%rbp, %rsi
+131d:	addq	$-32, %rsi
+; data_stats = bpf_map_lookup_elem(&reals_stats, &pckt.real_index);
+1321:	movabsq	$-51044215024881664, %rdi
+132b:	callq	0xffffffffd25cab78
+; if (!data_stats) {
+1330:	testq	%rax, %rax
+1333:	je	0x118b
+; data_stats->v1 += 1;
+1339:	movq	(%rax), %rdi
+133d:	addq	$1, %rdi
+1341:	movq	%rdi, (%rax)
+; data_stats->v2 += pkt_bytes;
+1345:	movq	8(%rax), %rdi
+1349:	addq	%r15, %rdi
+134c:	movq	%rdi, 8(%rax)
+; pckt.flow.port16[0] = original_sport;
+1350:	movq	-168(%rbp), %rdi
+1357:	movw	%di, -40(%rbp)
+; if (dst->flags & F_IPV6) {
+135b:	movq	-176(%rbp), %rdi
+1362:	movzbq	16(%rdi), %rdi
+; if (dst->flags & F_IPV6) {
+1367:	andq	$1, %rdi
+; if (dst->flags & F_IPV6) {
+136b:	testq	%rdi, %rdi
+136e:	je	0x2267
+; if (XDP_ADJUST_HEAD_FUNC(xdp, 0 - (int)sizeof(struct ipv6hdr))) {
+1374:	movq	%rbx, %rdi
+1377:	movl	$4294967256, %esi
+137c:	callq	0xffffffffd30c6b48
+1381:	shlq	$32, %rax
+1385:	shrq	$32, %rax
+; if (XDP_ADJUST_HEAD_FUNC(xdp, 0 - (int)sizeof(struct ipv6hdr))) {
+1389:	testq	%rax, %rax
+138c:	jne	0x118b
+; data = (void*)(long)xdp->data;
+1392:	movq	(%rbx), %rdi
+; data_end = (void*)(long)xdp->data_end;
+1396:	movq	8(%rbx), %rsi
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+139a:	movq	%rdi, %rdx
+139d:	addq	$14, %rdx
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+13a1:	cmpq	%rsi, %rdx
+13a4:	ja	0x118b
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+13aa:	movq	%rdi, %rdx
+13ad:	addq	$54, %rdx
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+13b1:	cmpq	%rsi, %rdx
+13b4:	ja	0x118b
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+13ba:	cmpq	%rsi, %rdx
+13bd:	ja	0x118b
+; 
+13c3:	movq	%rdi, %rsi
+13c6:	addq	$40, %rsi
+; memcpy(new_eth->h_dest, cval->mac, 6);
+13ca:	movzbq	5(%r13), %rdx
+13cf:	movb	%dl, 5(%rdi)
+13d2:	movzbq	4(%r13), %rdx
+13d7:	movb	%dl, 4(%rdi)
+13da:	movzbq	3(%r13), %rdx
+13df:	movb	%dl, 3(%rdi)
+13e2:	movzbq	2(%r13), %rdx
+13e7:	movb	%dl, 2(%rdi)
+13ea:	movzbq	1(%r13), %rdx
+13ef:	movb	%dl, 1(%rdi)
+13f2:	movzbq	(%r13), %rdx
+13f7:	movb	%dl, (%rdi)
+; memcpy(new_eth->h_source, old_eth->h_dest, 6);
+13fa:	movzbq	2(%rsi), %rdx
+13ff:	movb	%dl, 8(%rdi)
+1402:	movzbq	3(%rsi), %rdx
+1407:	movb	%dl, 9(%rdi)
+140a:	movzbq	(%rsi), %rdx
+140f:	movb	%dl, 6(%rdi)
+1412:	movzbq	1(%rsi), %rdx
+1417:	movb	%dl, 7(%rdi)
+141a:	movzbq	4(%rsi), %rdx
+141f:	movb	%dl, 10(%rdi)
+1422:	movzbq	5(%rsi), %rsi
+1427:	movb	%sil, 11(%rdi)
+142b:	movl	$134, %esi
+; new_eth->h_proto = BE_ETH_P_IPV6;
+1430:	movb	%sil, 12(%rdi)
+1434:	movl	$221, %esi
+1439:	movb	%sil, 13(%rdi)
+; create_encap_ipv6_src(pckt->flow.port16[0], pckt->flow.src, saddr);
+143d:	movzwq	-40(%rbp), %rsi
+; create_encap_ipv6_src(pckt->flow.port16[0], pckt->flow.src, saddr);
+1442:	movl	-72(%rbp), %edx
+; saddr[3] = src ^ port;
+1445:	xorq	%rsi, %rdx
+; create_v6_hdr(ip6h, pckt->tos, saddr, dst->dstv6, payload_len, proto);
+1448:	movzbq	-27(%rbp), %rsi
+144d:	movl	$16388, %ecx
+; ip6h->nexthdr = proto;
+1452:	movw	%cx, 20(%rdi)
+1456:	movl	$1, %ecx
+; memcpy(ip6h->saddr.s6_addr32, saddr, 16);
+145b:	movl	%ecx, 22(%rdi)
+145e:	xorl	%ecx, %ecx
+1460:	movl	%ecx, 26(%rdi)
+1463:	movl	%ecx, 30(%rdi)
+; memset(ip6h->flow_lbl, 0, sizeof(ip6h->flow_lbl));
+1466:	movb	%cl, 16(%rdi)
+1469:	movb	%cl, 17(%rdi)
+; ip6h->payload_len = bpf_htons(payload_len);
+146c:	movq	-128(%rbp), %rcx
+1470:	movw	%cx, 18(%rdi)
+; memcpy(ip6h->saddr.s6_addr32, saddr, 16);
+1474:	movl	%edx, 34(%rdi)
+; ip6h->flow_lbl[0] = (tc & 0x0F) << 4;
+1477:	movq	%rsi, %rdx
+147a:	shlq	$4, %rdx
+; ip6h->flow_lbl[0] = (tc & 0x0F) << 4;
+147e:	movb	%dl, 15(%rdi)
+; ip6h->priority = (tc & 0xF0) >> 4;
+1481:	shrq	$4, %rsi
+; ip6h->priority = (tc & 0xF0) >> 4;
+1485:	orq	$96, %rsi
+1489:	movb	%sil, 14(%rdi)
+148d:	movq	-176(%rbp), %rdx
+1494:	jmp	0x207a
+; if (quic_data + sizeof(struct quic_short_header) > data_end) {
+1499:	movq	%r13, %rsi
+149c:	addq	$9, %rsi
+14a0:	movq	%rdi, %r13
+; if (quic_data + sizeof(struct quic_short_header) > data_end) {
+14a3:	cmpq	%r15, %rsi
+14a6:	ja	0x16d2
+; __u8 connIdVersion = (connId[0] >> 6);
+14ac:	movzbq	(%r13), %rdi
+; __u8 connIdVersion = (connId[0] >> 6);
+14b1:	movq	%rdi, %rsi
+14b4:	shrq	$6, %rsi
+; if (connIdVersion == QUIC_CONNID_VERSION_V1) {
+14b8:	cmpq	$3, %rsi
+14bc:	je	0x15a3
+14c2:	cmpq	$2, %rsi
+14c6:	je	0x15d0
+14cc:	cmpq	$1, %rsi
+14d0:	jne	0x16d2
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+14d6:	andq	$63, %rdi
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+14da:	shlq	$10, %rdi
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+14de:	movzbq	1(%r13), %r15
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+14e3:	shlq	$2, %r15
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+14e7:	orq	%rdi, %r15
+14ea:	movl	$56, %edi
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+14ef:	movzbq	2(%r13), %rsi
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+14f4:	shrq	$6, %rsi
+14f8:	jmp	0x15ef
+; if (quic_data + sizeof(struct quic_short_header) > data_end) {
+14fd:	movq	%r13, %rsi
+1500:	addq	$9, %rsi
+1504:	movq	%rdi, %r13
+; if (quic_data + sizeof(struct quic_short_header) > data_end) {
+1507:	cmpq	%r15, %rsi
+150a:	ja	0xd8a
+; __u8 connIdVersion = (connId[0] >> 6);
+1510:	movzbq	(%r13), %rdi
+; __u8 connIdVersion = (connId[0] >> 6);
+1515:	movq	%rdi, %rsi
+1518:	shrq	$6, %rsi
+; if (connIdVersion == QUIC_CONNID_VERSION_V1) {
+151c:	cmpq	$3, %rsi
+1520:	je	0x249d
+1526:	cmpq	$2, %rsi
+152a:	je	0x24ca
+1530:	cmpq	$1, %rsi
+1534:	jne	0xd8a
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+153a:	andq	$63, %rdi
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+153e:	shlq	$10, %rdi
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+1542:	movzbq	1(%r13), %r14
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+1547:	shlq	$2, %r14
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+154b:	orq	%rdi, %r14
+154e:	movl	$56, %edi
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+1553:	movzbq	2(%r13), %rsi
+; ((connId[0] & 0x3F) << 10) | (connId[1] << 2) | (connId[2] >> 6);
+1558:	shrq	$6, %rsi
+155c:	jmp	0x24e9
+; quic_packets_stats->cid_initial += 1;
+1561:	movq	8(%r14), %rdi
+1565:	addq	$1, %rdi
+1569:	movq	%rdi, 8(%r14)
+; vip_num, /* new conn */ true, /* mismatch in lru */ false);
+156d:	movl	-100(%rbp), %edi
+1570:	movl	%edi, -16(%rbp)
+1573:	movq	%rbp, %rsi
+; 
+1576:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&server_id_stats, &vip_num);
+157a:	movabsq	$-58455665021952000, %rdi
+1584:	callq	0xffffffffd25cab78
+; if (!per_vip_stats) {
+1589:	testq	%rax, %rax
+158c:	je	0x16de
+; per_vip_stats->v1 += 1;
+1592:	movq	(%rax), %rdi
+1596:	addq	$1, %rdi
+159a:	movq	%rdi, (%rax)
+159e:	jmp	0x16de
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+15a3:	movzbq	1(%r13), %rdi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+15a8:	shlq	$24, %rdi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+15ac:	movzbq	2(%r13), %r15
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+15b1:	shlq	$16, %r15
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+15b5:	orq	%rdi, %r15
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+15b8:	movzbq	3(%r13), %rdi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+15bd:	shlq	$8, %rdi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+15c1:	orq	%rdi, %r15
+15c4:	movl	$72, %edi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+15c9:	movzbq	4(%r13), %rsi
+15ce:	jmp	0x15ef
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+15d0:	movzbq	1(%r13), %rdi
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+15d5:	shlq	$16, %rdi
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+15d9:	movzbq	2(%r13), %r15
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+15de:	shlq	$8, %r15
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+15e2:	orq	%rdi, %r15
+15e5:	movl	$64, %edi
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+15ea:	movzbq	3(%r13), %rsi
+; 
+15ef:	andq	$255, %rsi
+15f6:	orq	%rsi, %r15
+; struct quic_parse_result qpr = parse_quic(data, data_end, is_ipv6, &pckt);
+15f9:	movq	%r15, %rsi
+15fc:	shlq	$32, %rsi
+1600:	sarq	$32, %rsi
+1604:	movl	$1, %edx
+; if (qpr.server_id > 0) {
+1609:	cmpq	%rsi, %rdx
+160c:	jg	0x16d2
+; 
+1612:	movq	%r14, %rsi
+1615:	addq	%rdi, %rsi
+1618:	movq	(%rsi), %rdi
+161c:	addq	$1, %rdi
+1620:	movq	%rdi, (%rsi)
+; __u32 key = qpr.server_id;
+1624:	movl	%r15d, -20(%rbp)
+1628:	movq	%rbp, %rsi
+; 
+162b:	addq	$-20, %rsi
+; __u32* real_pos = bpf_map_lookup_elem(&server_id_map, &key);
+162f:	movabsq	$-51044213371744256, %rdi
+1639:	addq	$272, %rdi
+1640:	movl	(%rsi), %eax
+1643:	cmpq	$16777214, %rax
+164a:	jae	0x1655
+164c:	shlq	$3, %rax
+1650:	addq	%rdi, %rax
+1653:	jmp	0x1657
+1655:	xorl	%eax, %eax
+; if (real_pos) {
+1657:	testq	%rax, %rax
+165a:	je	0x16ba
+; key = *real_pos;
+165c:	movl	(%rax), %edi
+; key = *real_pos;
+165f:	movl	%edi, -20(%rbp)
+; if (key == 0) {
+1662:	testq	%rdi, %rdi
+1665:	je	0x16ba
+; pckt.real_index = key;
+1667:	movl	%edi, -32(%rbp)
+166a:	movq	%rbp, %rsi
+166d:	addq	$-20, %rsi
+; dst = bpf_map_lookup_elem(&reals, &key);
+1671:	movabsq	$-51044215024988160, %rdi
+167b:	addq	$272, %rdi
+1682:	movl	(%rsi), %eax
+1685:	cmpq	$4096, %rax
+168c:	jae	0x1697
+168e:	imulq	$24, %rax, %rax
+1692:	addq	%rdi, %rax
+1695:	jmp	0x1699
+1697:	xorl	%eax, %eax
+1699:	movq	%rax, -168(%rbp)
+; if (!dst) {
+16a0:	testq	%rax, %rax
+16a3:	jne	0x2417
+; quic_packets_stats->cid_unknown_real_dropped += 1;
+16a9:	movq	40(%r14), %rdi
+16ad:	addq	$1, %rdi
+16b1:	movq	%rdi, 40(%r14)
+16b5:	jmp	0x1185
+; 
+16ba:	shlq	$32, %r15
+16be:	sarq	$32, %r15
+16c2:	movq	%r15, 24(%r14)
+16c6:	movq	16(%r14), %rdi
+16ca:	addq	$1, %rdi
+16ce:	movq	%rdi, 16(%r14)
+; 
+16d2:	movq	(%r14), %rdi
+16d6:	addq	$1, %rdi
+16da:	movq	%rdi, (%r14)
+16de:	movq	-152(%rbp), %rdx
+16e5:	movq	-144(%rbp), %rsi
+; original_sport = pckt.flow.port16[0];
+16ec:	movzwq	-40(%rbp), %rdi
+; if (!dst && !(pckt.flags & F_SYN_SET) &&
+16f1:	movq	%rdi, -192(%rbp)
+16f8:	movzbq	-28(%rbp), %rdi
+; if (!dst && !(pckt.flags & F_SYN_SET) &&
+16fd:	andq	$2, %rdi
+; if (!dst && !(pckt.flags & F_SYN_SET) &&
+1701:	testq	%rdi, %rdi
+1704:	jne	0x17b5
+; !(vip_info->flags & F_LRU_BYPASS)) {
+170a:	movl	(%rsi), %edi
+; !(vip_info->flags & F_LRU_BYPASS)) {
+170d:	andq	$2, %rdi
+; if (!dst && !(pckt.flags & F_SYN_SET) &&
+1711:	testq	%rdi, %rdi
+1714:	jne	0x17b5
+171a:	movq	%rbp, %rsi
+; 
+171d:	addq	$-72, %rsi
+1721:	movq	%rdx, %r13
+; dst_lru = bpf_map_lookup_elem(lru_map, &pckt->flow);
+1724:	movq	%rdx, %rdi
+1727:	callq	0xffffffffd25bcdd8
+172c:	movq	%rax, %r14
+; if (!dst_lru) {
+172f:	testq	%r14, %r14
+1732:	je	0x2097
+; if (!isGlobalLru && pckt->flow.proto == IPPROTO_UDP) {
+1738:	movzbq	-36(%rbp), %rdi
+; if (!isGlobalLru && pckt->flow.proto == IPPROTO_UDP) {
+173d:	cmpq	$17, %rdi
+1741:	jne	0x1769
+; cur_time = bpf_ktime_get_ns();
+1743:	callq	0xffffffffd25bd2b8
+; if (cur_time - dst_lru->atime > LRU_UDP_TIMEOUT) {
+1748:	movq	8(%r14), %rdi
+; if (cur_time - dst_lru->atime > LRU_UDP_TIMEOUT) {
+174c:	movq	%rax, %rsi
+174f:	subq	%rdi, %rsi
+1752:	movabsq	$30000000000, %rdi
+; if (cur_time - dst_lru->atime > LRU_UDP_TIMEOUT) {
+175c:	cmpq	%rdi, %rsi
+175f:	ja	0x2097
+; dst_lru->atime = cur_time;
+1765:	movq	%rax, 8(%r14)
+; key = dst_lru->pos;
+1769:	movl	(%r14), %edi
+; pckt->real_index = key;
+176d:	movl	%edi, -32(%rbp)
+; key = dst_lru->pos;
+1770:	movl	%edi, -16(%rbp)
+1773:	movq	%rbp, %rsi
+; key = dst_lru->pos;
+1776:	addq	$-16, %rsi
+; *real = bpf_map_lookup_elem(&reals, &key);
+177a:	movabsq	$-51044215024988160, %rdi
+1784:	addq	$272, %rdi
+178b:	movl	(%rsi), %eax
+178e:	cmpq	$4096, %rax
+1795:	jae	0x17a0
+1797:	imulq	$24, %rax, %rax
+179b:	addq	%rdi, %rax
+179e:	jmp	0x17a2
+17a0:	xorl	%eax, %eax
+17a2:	movq	%r13, %rdx
+17a5:	movq	%rax, -168(%rbp)
+; if (!dst) {
+17ac:	testq	%rax, %rax
+17af:	jne	0x1e74
+; if (pckt.flow.proto == IPPROTO_TCP) {
+17b5:	movzbq	-36(%rbp), %rdi
+; if (pckt.flow.proto == IPPROTO_TCP) {
+17ba:	cmpq	$6, %rdi
+17be:	jne	0x1815
+17c0:	movq	%rdx, %r13
+17c3:	movl	$513, %edi
+; __u32 lru_stats_key = MAX_VIPS + LRU_MISS_CNTR;
+17c8:	movl	%edi, -16(%rbp)
+17cb:	movq	%rbp, %rsi
+; 
+17ce:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&stats, &lru_stats_key);
+17d2:	movabsq	$-58455663325642752, %rdi
+17dc:	callq	0xffffffffd25cab78
+; if (!lru_stats) {
+17e1:	testq	%rax, %rax
+17e4:	je	0x1185
+; if (pckt.flags & F_SYN_SET) {
+17ea:	movzbq	-28(%rbp), %rsi
+; if (pckt.flags & F_SYN_SET) {
+17ef:	andq	$2, %rsi
+17f3:	movl	$1, %edi
+17f8:	testq	%rsi, %rsi
+17fb:	je	0x17ff
+17fd:	xorl	%edi, %edi
+; if (pckt.flags & F_SYN_SET) {
+17ff:	shlq	$3, %rdi
+; 
+1803:	addq	%rdi, %rax
+1806:	movq	(%rax), %rdi
+180a:	addq	$1, %rdi
+180e:	movq	%rdi, (%rax)
+1812:	movq	%r13, %rdx
+1815:	movq	%rdx, -152(%rbp)
+181c:	xorl	%r13d, %r13d
+; struct real_pos_lru new_dst_lru = {};
+181f:	movq	%r13, -8(%rbp)
+1823:	movq	%r13, -16(%rbp)
+1827:	movl	$514, %edi
+; __u32 conn_rate_key = MAX_VIPS + NEW_CONN_RATE_CNTR;
+182c:	movl	%edi, -120(%rbp)
+182f:	movq	%rbp, %rsi
+; 
+1832:	addq	$-120, %rsi
+; bpf_map_lookup_elem(&stats, &conn_rate_key);
+1836:	movabsq	$-58455663325642752, %rdi
+1840:	callq	0xffffffffd25cab78
+1845:	movq	%rax, %r14
+1848:	movl	$1, %r15d
+; if (!conn_rate_stats) {
+184e:	testq	%r14, %r14
+1851:	je	0x1896
+; *cur_time = bpf_ktime_get_ns();
+1853:	callq	0xffffffffd25bd2b8
+1858:	movq	%rax, %r13
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+185b:	movq	8(%r14), %rdi
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+185f:	movq	%r13, %rsi
+1862:	subq	%rdi, %rsi
+1865:	movl	$1000000001, %edi
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+186a:	cmpq	%rsi, %rdi
+186d:	ja	0x187e
+; conn_rate_stats->v2 = *cur_time;
+186f:	movq	%r13, 8(%r14)
+1873:	movl	$1, %edi
+; conn_rate_stats->v1 = 1;
+1878:	movq	%rdi, (%r14)
+187c:	jmp	0x1893
+; conn_rate_stats->v1 += 1;
+187e:	movq	(%r14), %rdi
+1882:	addq	$1, %rdi
+1886:	movq	%rdi, (%r14)
+; if (conn_rate_stats->v1 > MAX_CONN_RATE) {
+188a:	cmpq	$125000, %rdi
+1891:	ja	0x1896
+1893:	xorl	%r15d, %r15d
+1896:	movq	%r15, -184(%rbp)
+; if (vip_info->flags & F_HASH_DPORT_ONLY) {
+189d:	movq	-144(%rbp), %rdi
+18a4:	movl	(%rdi), %edi
+; if (vip_info->flags & F_HASH_DPORT_ONLY) {
+18a7:	andq	$8, %rdi
+; if (vip_info->flags & F_HASH_DPORT_ONLY) {
+18ab:	movq	%r13, -200(%rbp)
+18b2:	testq	%rdi, %rdi
+18b5:	jne	0x18dd
+; a += k[0];
+18b7:	movzbq	-60(%rbp), %rdi
+; a += (u32)k[1] << 8;
+18bc:	movq	%rdi, -176(%rbp)
+18c3:	movzbq	-59(%rbp), %r15
+; a += (u32)k[2] << 16;
+18c8:	movzbq	-58(%rbp), %rax
+; a += (u32)k[3] << 24;
+18cd:	movzbq	-57(%rbp), %r14
+; c += *(u32*)(k + 8);
+18d2:	movl	-64(%rbp), %ecx
+; b += *(u32*)(k + 4);
+18d5:	movl	-68(%rbp), %esi
+; a += *(u32*)(k);
+18d8:	movl	-72(%rbp), %edi
+18db:	jmp	0x190e
+; pckt->flow.port16[0] = pckt->flow.port16[1];
+18dd:	movq	-136(%rbp), %rdi
+18e4:	movzwq	2(%rdi), %rdi
+; pckt->flow.port16[0] = pckt->flow.port16[1];
+18e9:	movw	%di, -40(%rbp)
+18ed:	xorl	%esi, %esi
+; memset(pckt->flow.srcv6, 0, 16);
+18ef:	movq	%rsi, -72(%rbp)
+18f3:	xorl	%edi, %edi
+18f5:	movq	%rdi, -176(%rbp)
+18fc:	movq	%rsi, -64(%rbp)
+; a += (u32)k[1] << 8;
+1900:	xorl	%r15d, %r15d
+; a += (u32)k[2] << 16;
+1903:	xorl	%eax, %eax
+; a += (u32)k[3] << 24;
+1905:	xorl	%r14d, %r14d
+; c += *(u32*)(k + 8);
+1908:	xorl	%ecx, %ecx
+; b += *(u32*)(k + 4);
+190a:	xorl	%esi, %esi
+; a += *(u32*)(k);
+190c:	xorl	%edi, %edi
+; __jhash_mix(a, b, c);
+190e:	subq	%rcx, %rdi
+; c += *(u32*)(k + 8);
+1911:	addq	$-559038209, %rcx
+1918:	movl	$4026531840, %edx
+191d:	movq	%rcx, %r8
+1920:	andq	%rdx, %r8
+; return (word << shift) | (word >> ((-shift) & 31));
+1923:	shrq	$28, %r8
+1927:	movq	%rcx, %r13
+192a:	shlq	$4, %r13
+192e:	orq	%r8, %r13
+; __jhash_mix(a, b, c);
+1931:	xorq	%rdi, %r13
+1934:	movl	$4227858432, %edi
+1939:	movq	%r13, %r8
+193c:	andq	%rdi, %r8
+; return (word << shift) | (word >> ((-shift) & 31));
+193f:	shrq	$26, %r8
+1943:	movq	%r13, %rdx
+1946:	shlq	$6, %rdx
+194a:	orq	%r8, %rdx
+; b += *(u32*)(k + 4);
+194d:	addq	$-559038209, %rsi
+; __jhash_mix(a, b, c);
+1954:	movq	%rsi, %rdi
+1957:	subq	%r13, %rdi
+195a:	xorq	%rdx, %rdi
+; a += (u32)k[3] << 24;
+195d:	shlq	$24, %r14
+; a += (u32)k[2] << 16;
+1961:	andq	$255, %rax
+; a += (u32)k[2] << 16;
+1967:	shlq	$16, %rax
+; a += (u32)k[3] << 24;
+196b:	orq	%r14, %rax
+; pckt->flow.ports,
+196e:	movl	-40(%rbp), %r14d
+; b += initval;
+1972:	addq	$-525483785, %r14
+1979:	movq	%r14, %rdx
+197c:	movq	%rsi, %r8
+197f:	movq	%r14, %rsi
+1982:	movq	%rsi, -136(%rbp)
+1989:	movl	$4294705152, %r14d
+198f:	andq	%r14, %rdx
+; return (word << shift) | (word >> ((-shift) & 31));
+1992:	shrq	$18, %rdx
+1996:	movq	%rsi, %r14
+1999:	shlq	$14, %r14
+199d:	orq	%rdx, %r14
+; __jhash_final(a, b, c);
+19a0:	xorq	$-525483785, %rsi
+19a7:	subq	%r14, %rsi
+19aa:	movq	%rsi, %r14
+; __jhash_mix(a, b, c);
+19ad:	addq	%r8, %rcx
+; a += (u32)k[1] << 8;
+19b0:	andq	$255, %r15
+; a += (u32)k[1] << 8;
+19b7:	shlq	$8, %r15
+; a += (u32)k[2] << 16;
+19bb:	orq	%r15, %rax
+19be:	movq	-176(%rbp), %rsi
+; a += k[0];
+19c5:	andq	$255, %rsi
+; a += (u32)k[1] << 8;
+19cc:	orq	%rsi, %rax
+19cf:	movl	$4278190080, %esi
+; __jhash_mix(a, b, c);
+19d4:	movq	%rdi, %rdx
+19d7:	andq	%rsi, %rdx
+; return (word << shift) | (word >> ((-shift) & 31));
+19da:	shrq	$24, %rdx
+19de:	movq	%rdi, %rsi
+19e1:	shlq	$8, %rsi
+19e5:	orq	%rdx, %rsi
+; __jhash_mix(a, b, c);
+19e8:	addq	%rcx, %r13
+19eb:	subq	%rdi, %rcx
+19ee:	xorq	%rsi, %rcx
+19f1:	movl	$4292870144, %edx
+19f6:	movq	%r14, %r15
+; __jhash_final(a, b, c);
+19f9:	movq	%r15, -168(%rbp)
+1a00:	movq	%r15, %rsi
+1a03:	andq	%rdx, %rsi
+; return (word << shift) | (word >> ((-shift) & 31));
+1a06:	shrq	$21, %rsi
+1a0a:	shlq	$11, %r15
+1a0e:	orq	%rsi, %r15
+1a11:	movl	$4294901760, %edx
+; __jhash_mix(a, b, c);
+1a16:	movq	%rcx, %rsi
+1a19:	andq	%rdx, %rsi
+; return (word << shift) | (word >> ((-shift) & 31));
+1a1c:	shrq	$16, %rsi
+1a20:	movq	%rcx, %rdx
+1a23:	shlq	$16, %rdx
+1a27:	orq	%rsi, %rdx
+; __jhash_mix(a, b, c);
+1a2a:	addq	%r13, %rdi
+1a2d:	subq	%rcx, %r13
+1a30:	xorq	%rdx, %r13
+1a33:	movl	$4294959104, %esi
+1a38:	movq	%r13, %rdx
+1a3b:	andq	%rsi, %rdx
+; return (word << shift) | (word >> ((-shift) & 31));
+1a3e:	shrq	$13, %rdx
+1a42:	movq	%r13, %rsi
+1a45:	shlq	$19, %rsi
+1a49:	orq	%rdx, %rsi
+; __jhash_mix(a, b, c);
+1a4c:	addq	%rdi, %rcx
+1a4f:	subq	%r13, %rdi
+1a52:	xorq	%rsi, %rdi
+1a55:	addq	%rcx, %r13
+1a58:	movq	%rdi, %r8
+1a5b:	addq	%r13, %r8
+1a5e:	movq	%r8, %rdx
+1a61:	movl	$4294705152, %esi
+1a66:	andq	%rsi, %rdx
+; return (word << shift) | (word >> ((-shift) & 31));
+1a69:	shrq	$18, %rdx
+1a6d:	movq	%r8, %rsi
+1a70:	shlq	$14, %rsi
+1a74:	orq	%rdx, %rsi
+; __jhash_mix(a, b, c);
+1a77:	movq	%rdi, %rdx
+1a7a:	movl	$4026531840, %r14d
+1a80:	andq	%r14, %rdx
+; return (word << shift) | (word >> ((-shift) & 31));
+1a83:	shrq	$28, %rdx
+; __jhash_mix(a, b, c);
+1a87:	subq	%rdi, %rcx
+; return (word << shift) | (word >> ((-shift) & 31));
+1a8a:	shlq	$4, %rdi
+1a8e:	orq	%rdx, %rdi
+; __jhash_mix(a, b, c);
+1a91:	xorq	%rdi, %rcx
+; a += k[0];
+1a94:	addq	%rax, %r13
+; __jhash_final(a, b, c);
+1a97:	xorq	%r8, %rcx
+1a9a:	subq	%rsi, %rcx
+1a9d:	movq	%rcx, %rdi
+1aa0:	movl	$4292870144, %esi
+1aa5:	andq	%rsi, %rdi
+; return (word << shift) | (word >> ((-shift) & 31));
+1aa8:	shrq	$21, %rdi
+1aac:	movq	%rcx, %rsi
+1aaf:	shlq	$11, %rsi
+1ab3:	orq	%rdi, %rsi
+; __jhash_final(a, b, c);
+1ab6:	movq	%rcx, %rax
+1ab9:	xorq	%r13, %rax
+1abc:	subq	%rsi, %rax
+1abf:	movl	$4294967168, %edi
+1ac4:	movq	%rax, %rsi
+1ac7:	andq	%rdi, %rsi
+; return (word << shift) | (word >> ((-shift) & 31));
+1aca:	shrq	$7, %rsi
+1ace:	movq	%rax, %r13
+1ad1:	shlq	$25, %r13
+1ad5:	orq	%rsi, %r13
+; __jhash_final(a, b, c);
+1ad8:	movq	%rax, %rdx
+1adb:	xorq	%r8, %rdx
+1ade:	subq	%r13, %rdx
+1ae1:	movq	%rdx, %rsi
+1ae4:	movl	$4294901760, %r8d
+1aea:	andq	%r8, %rsi
+; return (word << shift) | (word >> ((-shift) & 31));
+1aed:	shrq	$16, %rsi
+1af1:	movq	%rdx, %r8
+1af4:	shlq	$16, %r8
+1af8:	orq	%rsi, %r8
+; __jhash_final(a, b, c);
+1afb:	movq	%rdx, %r14
+1afe:	xorq	%rcx, %r14
+1b01:	subq	%r8, %r14
+1b04:	movq	%r14, %rsi
+1b07:	movl	$4026531840, %r13d
+1b0d:	andq	%r13, %rsi
+; return (word << shift) | (word >> ((-shift) & 31));
+1b10:	shrq	$28, %rsi
+1b14:	movq	%r14, %rcx
+1b17:	shlq	$4, %rcx
+1b1b:	orq	%rsi, %rcx
+; __jhash_final(a, b, c);
+1b1e:	movq	%r14, %rsi
+1b21:	xorq	%rax, %rsi
+1b24:	subq	%rcx, %rsi
+1b27:	movq	%rsi, %rcx
+1b2a:	movl	$4294705152, %r8d
+1b30:	andq	%r8, %rcx
+; return (word << shift) | (word >> ((-shift) & 31));
+1b33:	shrq	$18, %rcx
+1b37:	movq	%rsi, %r8
+1b3a:	shlq	$14, %r8
+1b3e:	orq	%rcx, %r8
+; __jhash_final(a, b, c);
+1b41:	xorq	%rdx, %rsi
+1b44:	subq	%r8, %rsi
+1b47:	movl	$4294967040, %edx
+1b4c:	movq	%rsi, %rcx
+1b4f:	andq	%rdx, %rcx
+; return (word << shift) | (word >> ((-shift) & 31));
+1b52:	shrq	$8, %rcx
+1b56:	movq	%rsi, %r8
+1b59:	shlq	$24, %r8
+1b5d:	orq	%rcx, %r8
+; __jhash_final(a, b, c);
+1b60:	xorq	%r14, %rsi
+; a += initval;
+1b63:	subq	%r8, %rsi
+1b66:	addq	$-525483785, %rsi
+1b6d:	movq	-168(%rbp), %r14
+; __jhash_final(a, b, c);
+1b74:	xorq	%r14, %rsi
+1b77:	subq	%r15, %rsi
+1b7a:	movq	%rsi, %rcx
+1b7d:	andq	%rdi, %rcx
+; return (word << shift) | (word >> ((-shift) & 31));
+1b80:	shrq	$7, %rcx
+1b84:	movq	%rsi, %rdi
+1b87:	shlq	$25, %rdi
+1b8b:	orq	%rcx, %rdi
+; __jhash_final(a, b, c);
+1b8e:	movq	%rsi, %rax
+1b91:	movq	-136(%rbp), %rcx
+1b98:	xorq	%rcx, %rax
+1b9b:	subq	%rdi, %rax
+1b9e:	movq	%rax, %rdi
+1ba1:	movl	$4294901760, %ecx
+1ba6:	andq	%rcx, %rdi
+; return (word << shift) | (word >> ((-shift) & 31));
+1ba9:	shrq	$16, %rdi
+1bad:	movq	%rax, %r8
+1bb0:	shlq	$16, %r8
+1bb4:	orq	%rdi, %r8
+; __jhash_final(a, b, c);
+1bb7:	movq	%rax, %rcx
+1bba:	xorq	%r14, %rcx
+1bbd:	subq	%r8, %rcx
+1bc0:	movq	%rcx, %rdi
+1bc3:	andq	%r13, %rdi
+; return (word << shift) | (word >> ((-shift) & 31));
+1bc6:	shrq	$28, %rdi
+1bca:	movq	%rcx, %r8
+1bcd:	shlq	$4, %r8
+1bd1:	orq	%rdi, %r8
+; __jhash_final(a, b, c);
+1bd4:	movq	%rcx, %rdi
+1bd7:	xorq	%rsi, %rdi
+1bda:	subq	%r8, %rdi
+1bdd:	movq	%rdi, %rsi
+1be0:	movl	$4294705152, %r8d
+1be6:	andq	%r8, %rsi
+; return (word << shift) | (word >> ((-shift) & 31));
+1be9:	shrq	$18, %rsi
+1bed:	movq	%rdi, %r8
+1bf0:	shlq	$14, %r8
+1bf4:	orq	%rsi, %r8
+; __jhash_final(a, b, c);
+1bf7:	xorq	%rax, %rdi
+1bfa:	subq	%r8, %rdi
+1bfd:	movq	%rdi, %rsi
+1c00:	andq	%rdx, %rsi
+; return (word << shift) | (word >> ((-shift) & 31));
+1c03:	shrq	$8, %rsi
+1c07:	movq	%rdi, %rdx
+1c0a:	shlq	$24, %rdx
+1c0e:	orq	%rsi, %rdx
+; __jhash_final(a, b, c);
+1c11:	xorq	%rcx, %rdi
+1c14:	subq	%rdx, %rdi
+1c17:	movq	%rdi, %rsi
+1c1a:	shlq	$32, %rsi
+1c1e:	shrq	$32, %rsi
+; hash = get_packet_hash(pckt, hash_16bytes) % RING_SIZE;
+1c22:	pushq	%rax
+1c23:	pushq	%rdx
+1c24:	movq	$65537, %r11
+1c2b:	movq	%rsi, %rax
+1c2e:	xorl	%edx, %edx
+1c30:	divq	%r11
+1c33:	movq	%rax, %rsi
+1c36:	popq	%rdx
+1c37:	popq	%rax
+1c38:	imulq	$65537, %rsi, %rsi
+1c3f:	subq	%rsi, %rdi
+; key = RING_SIZE * (vip_info->vip_num) + hash;
+1c42:	movq	-144(%rbp), %rsi
+1c49:	movl	4(%rsi), %esi
+; key = RING_SIZE * (vip_info->vip_num) + hash;
+1c4c:	imulq	$65537, %rsi, %rsi
+; key = RING_SIZE * (vip_info->vip_num) + hash;
+1c53:	addq	%rsi, %rdi
+; key = RING_SIZE * (vip_info->vip_num) + hash;
+1c56:	movl	%edi, -20(%rbp)
+1c59:	movq	%rbp, %rsi
+; 
+1c5c:	addq	$-20, %rsi
+; real_pos = bpf_map_lookup_elem(&ch_rings, &key);
+1c60:	movabsq	$-51044213640192000, %rdi
+1c6a:	addq	$272, %rdi
+1c71:	movl	(%rsi), %eax
+1c74:	cmpq	$33554944, %rax
+1c7b:	jae	0x1c86
+1c7d:	shlq	$3, %rax
+1c81:	addq	%rdi, %rax
+1c84:	jmp	0x1c88
+1c86:	xorl	%eax, %eax
+; if (!real_pos) {
+1c88:	testq	%rax, %rax
+1c8b:	je	0x1185
+; key = *real_pos;
+1c91:	movl	(%rax), %edi
+; key = *real_pos;
+1c94:	movl	%edi, -20(%rbp)
+1c97:	movq	-152(%rbp), %r13
+1c9e:	movq	-184(%rbp), %r15
+; if (key == 0) {
+1ca5:	testq	%rdi, %rdi
+1ca8:	jne	0x1cdc
+1caa:	movl	$521, %edi
+; __u32 ch_drop_stats_key = MAX_VIPS + CH_DROP_STATS;
+1caf:	movl	%edi, -120(%rbp)
+1cb2:	movq	%rbp, %rsi
+; 
+1cb5:	addq	$-120, %rsi
+; bpf_map_lookup_elem(&stats, &ch_drop_stats_key);
+1cb9:	movabsq	$-58455663325642752, %rdi
+1cc3:	callq	0xffffffffd25cab78
+; if (!ch_drop_stats) {
+1cc8:	testq	%rax, %rax
+1ccb:	je	0x1cd9
+; ch_drop_stats->v2 += 1;
+1ccd:	movq	8(%rax), %rdi
+1cd1:	addq	$1, %rdi
+1cd5:	movq	%rdi, 8(%rax)
+; pckt->real_index = key;
+1cd9:	movl	-20(%rbp), %edi
+; pckt->real_index = key;
+1cdc:	movl	%edi, -32(%rbp)
+1cdf:	movq	%rbp, %rsi
+; 
+1ce2:	addq	$-20, %rsi
+; *real = bpf_map_lookup_elem(&reals, &key);
+1ce6:	movabsq	$-51044215024988160, %rdi
+1cf0:	addq	$272, %rdi
+1cf7:	movl	(%rsi), %eax
+1cfa:	cmpq	$4096, %rax
+1d01:	jae	0x1d0c
+1d03:	imulq	$24, %rax, %rax
+1d07:	addq	%rdi, %rax
+1d0a:	jmp	0x1d0e
+1d0c:	xorl	%eax, %eax
+1d0e:	movq	%rax, %r14
+; if (!(*real)) {
+1d11:	testq	%r14, %r14
+1d14:	jne	0x1d42
+1d16:	movl	$521, %edi
+; __u32 ch_drop_stats_key = MAX_VIPS + CH_DROP_STATS;
+1d1b:	movl	%edi, -120(%rbp)
+1d1e:	movq	%rbp, %rsi
+; 
+1d21:	addq	$-120, %rsi
+; bpf_map_lookup_elem(&stats, &ch_drop_stats_key);
+1d25:	movabsq	$-58455663325642752, %rdi
+1d2f:	callq	0xffffffffd25cab78
+; if (!ch_drop_stats) {
+1d34:	testq	%rax, %rax
+1d37:	je	0x1185
+1d3d:	jmp	0x1179
+; if (lru_map && !(vip_info->flags & F_LRU_BYPASS) && !under_flood) {
+1d42:	testq	%r13, %r13
+1d45:	je	0x1d94
+; if (lru_map && !(vip_info->flags & F_LRU_BYPASS) && !under_flood) {
+1d47:	movq	-144(%rbp), %rdi
+1d4e:	movl	(%rdi), %edi
+; if (lru_map && !(vip_info->flags & F_LRU_BYPASS) && !under_flood) {
+1d51:	andq	$2, %rdi
+1d55:	shrq	%rdi
+; if (lru_map && !(vip_info->flags & F_LRU_BYPASS) && !under_flood) {
+1d58:	orq	%rdi, %r15
+1d5b:	testq	%r15, %r15
+1d5e:	jne	0x1d94
+; if (pckt->flow.proto == IPPROTO_UDP) {
+1d60:	movzbq	-36(%rbp), %rdi
+; if (pckt->flow.proto == IPPROTO_UDP) {
+1d65:	cmpq	$17, %rdi
+1d69:	jne	0x1d76
+; new_dst_lru.atime = cur_time;
+1d6b:	movq	-200(%rbp), %rdi
+1d72:	movq	%rdi, -8(%rbp)
+; new_dst_lru.pos = key;
+1d76:	movl	-20(%rbp), %edi
+; new_dst_lru.pos = key;
+1d79:	movl	%edi, -16(%rbp)
+1d7c:	movq	%rbp, %rsi
+; new_dst_lru.pos = key;
+1d7f:	addq	$-72, %rsi
+1d83:	movq	%rbp, %rdx
+1d86:	addq	$-16, %rdx
+; bpf_map_update_elem(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);
+1d8a:	movq	%r13, %rdi
+1d8d:	xorl	%ecx, %ecx
+1d8f:	callq	0xffffffffd25bce08
+1d94:	xorl	%r13d, %r13d
+; __u32 vip_miss_stats_key = 0;
+1d97:	movl	%r13d, -16(%rbp)
+1d9b:	movq	%rbp, %rsi
+; 
+1d9e:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&vip_miss_stats, &vip_miss_stats_key);
+1da2:	movabsq	$-58455674580395008, %rdi
+1dac:	addq	$272, %rdi
+1db3:	movl	(%rsi), %eax
+1db6:	cmpq	$1, %rax
+1dba:	jae	0x1dc5
+1dbc:	imulq	$24, %rax, %rax
+1dc0:	addq	%rdi, %rax
+1dc3:	jmp	0x1dc7
+1dc5:	xorl	%eax, %eax
+; if (!lru_miss_stat_vip) {
+1dc7:	testq	%rax, %rax
+1dca:	je	0x1185
+; (lru_miss_stat_vip->vipv6[0] == vip->vipv6[0] &&
+1dd0:	movl	(%rax), %edi
+; (lru_miss_stat_vip->vipv6[0] == vip->vipv6[0] &&
+1dd3:	movl	-96(%rbp), %esi
+; (lru_miss_stat_vip->vipv6[0] == vip->vipv6[0] &&
+1dd6:	cmpq	%rsi, %rdi
+1dd9:	jne	0x1e05
+; lru_miss_stat_vip->vipv6[1] == vip->vipv6[1] &&
+1ddb:	movl	4(%rax), %edi
+; lru_miss_stat_vip->vipv6[1] == vip->vipv6[1] &&
+1dde:	movl	-92(%rbp), %esi
+; lru_miss_stat_vip->vipv6[1] == vip->vipv6[1] &&
+1de1:	cmpq	%rsi, %rdi
+1de4:	jne	0x1e05
+; lru_miss_stat_vip->vipv6[2] == vip->vipv6[2] &&
+1de6:	movl	8(%rax), %edi
+; lru_miss_stat_vip->vipv6[2] == vip->vipv6[2] &&
+1de9:	movl	-88(%rbp), %esi
+; lru_miss_stat_vip->vipv6[2] == vip->vipv6[2] &&
+1dec:	cmpq	%rsi, %rdi
+1def:	jne	0x1e05
+; lru_miss_stat_vip->vipv6[3] == vip->vipv6[3])) ||
+1df1:	movl	12(%rax), %edi
+1df4:	movl	$1, %r13d
+; lru_miss_stat_vip->vipv6[3] == vip->vipv6[3])) ||
+1dfa:	movl	-84(%rbp), %esi
+; lru_miss_stat_vip->vipv6[3] == vip->vipv6[3])) ||
+1dfd:	cmpq	%rsi, %rdi
+1e00:	je	0x1e05
+1e02:	xorl	%r13d, %r13d
+; bool vip_match = address_match && port_match && proto_match;
+1e05:	movzwq	-80(%rbp), %rsi
+1e0a:	movzbq	-78(%rbp), %rdi
+; bool proto_match = lru_miss_stat_vip->proto = vip->proto;
+1e0f:	movb	%dil, 18(%rax)
+; bool vip_match = address_match && port_match && proto_match;
+1e13:	andq	$1, %r13
+1e17:	testq	%r13, %r13
+1e1a:	je	0x1e5a
+1e1c:	movzwq	16(%rax), %rdx
+1e21:	cmpq	%rsi, %rdx
+1e24:	jne	0x1e5a
+1e26:	testq	%rdi, %rdi
+1e29:	je	0x1e5a
+; __u32 lru_stats_key = pckt->real_index;
+1e2b:	movl	-32(%rbp), %edi
+; __u32 lru_stats_key = pckt->real_index;
+1e2e:	movl	%edi, -120(%rbp)
+1e31:	movq	%rbp, %rsi
+; __u32 lru_stats_key = pckt->real_index;
+1e34:	addq	$-120, %rsi
+; __u32* lru_miss_stat = bpf_map_lookup_elem(&lru_miss_stats, &lru_stats_key);
+1e38:	movabsq	$-51044215024840704, %rdi
+1e42:	callq	0xffffffffd25cab78
+; if (!lru_miss_stat) {
+1e47:	testq	%rax, %rax
+1e4a:	je	0x1185
+; *lru_miss_stat += 1;
+1e50:	movl	(%rax), %edi
+1e53:	addq	$1, %rdi
+1e57:	movl	%edi, (%rax)
+1e5a:	movq	%r14, -168(%rbp)
+1e61:	movq	-160(%rbp), %rsi
+; data_stats->v2 += 1;
+1e68:	movq	8(%rsi), %rdi
+1e6c:	addq	$1, %rdi
+1e70:	movq	%rdi, 8(%rsi)
+1e74:	movq	%rbp, %rsi
+; 
+1e77:	addq	$-104, %rsi
+; cval = bpf_map_lookup_elem(&ctl_array, &mac_addr_pos);
+1e7b:	movabsq	$-58455674580398080, %rdi
+1e85:	addq	$272, %rdi
+1e8c:	movl	(%rsi), %eax
+1e8f:	cmpq	$16, %rax
+1e93:	jae	0x1e9e
+1e95:	shlq	$3, %rax
+1e99:	addq	%rdi, %rax
+1e9c:	jmp	0x1ea0
+1e9e:	xorl	%eax, %eax
+1ea0:	movq	%rax, %r15
+1ea3:	movl	$1, %r14d
+; if (!cval) {
+1ea9:	testq	%r15, %r15
+1eac:	je	0x118b
+1eb2:	movq	%rbp, %rsi
+; 
+1eb5:	addq	$-100, %rsi
+; data_stats = bpf_map_lookup_elem(&stats, &vip_num);
+1eb9:	movabsq	$-58455663325642752, %rdi
+1ec3:	callq	0xffffffffd25cab78
+; if (!data_stats) {
+1ec8:	testq	%rax, %rax
+1ecb:	je	0x118b
+1ed1:	movq	-128(%rbp), %rsi
+1ed5:	rorw	$8, %si
+1ed9:	movzwl	%si, %esi
+; data_stats->v1 += 1;
+1edc:	movq	(%rax), %rdi
+1ee0:	addq	$1, %rdi
+1ee4:	movq	%rdi, (%rax)
+; data_stats->v2 += pkt_bytes;
+1ee8:	movq	8(%rax), %rdi
+1eec:	movq	%rsi, %r13
+1eef:	addq	%rsi, %rdi
+1ef2:	movq	%rdi, 8(%rax)
+; data_stats = bpf_map_lookup_elem(&reals_stats, &pckt.real_index);
+1ef6:	movq	%rbp, %rsi
+1ef9:	addq	$-32, %rsi
+; data_stats = bpf_map_lookup_elem(&reals_stats, &pckt.real_index);
+1efd:	movabsq	$-51044215024881664, %rdi
+1f07:	callq	0xffffffffd25cab78
+; if (!data_stats) {
+1f0c:	testq	%rax, %rax
+1f0f:	je	0x118b
+; data_stats->v1 += 1;
+1f15:	movq	(%rax), %rdi
+1f19:	addq	$1, %rdi
+1f1d:	movq	%rdi, (%rax)
+; data_stats->v2 += pkt_bytes;
+1f21:	movq	8(%rax), %rdi
+1f25:	addq	%r13, %rdi
+1f28:	movq	%rdi, 8(%rax)
+; pckt.flow.port16[0] = original_sport;
+1f2c:	movq	-192(%rbp), %rdi
+1f33:	movw	%di, -40(%rbp)
+; if (dst->flags & F_IPV6) {
+1f37:	movq	-168(%rbp), %rdi
+1f3e:	movzbq	16(%rdi), %rdi
+; if (dst->flags & F_IPV6) {
+1f43:	andq	$1, %rdi
+; if (dst->flags & F_IPV6) {
+1f47:	testq	%rdi, %rdi
+1f4a:	je	0x209f
+; if (XDP_ADJUST_HEAD_FUNC(xdp, 0 - (int)sizeof(struct ipv6hdr))) {
+1f50:	movq	%rbx, %rdi
+1f53:	movl	$4294967256, %esi
+1f58:	callq	0xffffffffd30c6b48
+1f5d:	shlq	$32, %rax
+1f61:	shrq	$32, %rax
+; if (XDP_ADJUST_HEAD_FUNC(xdp, 0 - (int)sizeof(struct ipv6hdr))) {
+1f65:	testq	%rax, %rax
+1f68:	jne	0x118b
+; data = (void*)(long)xdp->data;
+1f6e:	movq	(%rbx), %rdi
+; data_end = (void*)(long)xdp->data_end;
+1f72:	movq	8(%rbx), %rsi
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+1f76:	movq	%rdi, %rdx
+1f79:	addq	$14, %rdx
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+1f7d:	cmpq	%rsi, %rdx
+1f80:	ja	0x118b
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+1f86:	movq	%rdi, %rdx
+1f89:	addq	$54, %rdx
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+1f8d:	cmpq	%rsi, %rdx
+1f90:	ja	0x118b
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+1f96:	cmpq	%rsi, %rdx
+1f99:	ja	0x118b
+; 
+1f9f:	movq	%rdi, %rsi
+1fa2:	addq	$40, %rsi
+; memcpy(new_eth->h_dest, cval->mac, 6);
+1fa6:	movzbq	5(%r15), %rdx
+1fab:	movb	%dl, 5(%rdi)
+1fae:	movzbq	4(%r15), %rdx
+1fb3:	movb	%dl, 4(%rdi)
+1fb6:	movzbq	3(%r15), %rdx
+1fbb:	movb	%dl, 3(%rdi)
+1fbe:	movzbq	2(%r15), %rdx
+1fc3:	movb	%dl, 2(%rdi)
+1fc6:	movzbq	1(%r15), %rdx
+1fcb:	movb	%dl, 1(%rdi)
+1fce:	movzbq	(%r15), %rdx
+1fd3:	movb	%dl, (%rdi)
+; memcpy(new_eth->h_source, old_eth->h_dest, 6);
+1fd6:	movzbq	2(%rsi), %rdx
+1fdb:	movb	%dl, 8(%rdi)
+1fde:	movzbq	3(%rsi), %rdx
+1fe3:	movb	%dl, 9(%rdi)
+1fe6:	movzbq	(%rsi), %rdx
+1feb:	movb	%dl, 6(%rdi)
+1fee:	movzbq	1(%rsi), %rdx
+1ff3:	movb	%dl, 7(%rdi)
+1ff6:	movzbq	4(%rsi), %rdx
+1ffb:	movb	%dl, 10(%rdi)
+1ffe:	movzbq	5(%rsi), %rsi
+2003:	movb	%sil, 11(%rdi)
+2007:	movl	$134, %esi
+; new_eth->h_proto = BE_ETH_P_IPV6;
+200c:	movb	%sil, 12(%rdi)
+2010:	movl	$221, %esi
+2015:	movb	%sil, 13(%rdi)
+; create_encap_ipv6_src(pckt->flow.port16[0], pckt->flow.srcv6[3], saddr);
+2019:	movzwq	-40(%rbp), %rsi
+; create_encap_ipv6_src(pckt->flow.port16[0], pckt->flow.srcv6[3], saddr);
+201e:	movl	-60(%rbp), %edx
+; saddr[3] = src ^ port;
+2021:	xorq	%rsi, %rdx
+; create_v6_hdr(ip6h, pckt->tos, saddr, dst->dstv6, payload_len, proto);
+2024:	movzbq	-27(%rbp), %rsi
+2029:	movl	$1, %ecx
+; memcpy(ip6h->saddr.s6_addr32, saddr, 16);
+202e:	movl	%ecx, 22(%rdi)
+; payload_len = pkt_bytes + sizeof(struct ipv6hdr);
+2031:	addq	$40, %r13
+; ip6h->payload_len = bpf_htons(payload_len);
+2035:	rorw	$8, %r13w
+203a:	movzwl	%r13w, %r13d
+; ip6h->payload_len = bpf_htons(payload_len);
+203e:	movw	%r13w, 18(%rdi)
+2043:	xorl	%ecx, %ecx
+; memcpy(ip6h->saddr.s6_addr32, saddr, 16);
+2045:	movl	%ecx, 26(%rdi)
+2048:	movl	%ecx, 30(%rdi)
+; memset(ip6h->flow_lbl, 0, sizeof(ip6h->flow_lbl));
+204b:	movb	%cl, 16(%rdi)
+204e:	movb	%cl, 17(%rdi)
+2051:	movl	$16425, %ecx
+; ip6h->nexthdr = proto;
+2056:	movw	%cx, 20(%rdi)
+; memcpy(ip6h->saddr.s6_addr32, saddr, 16);
+205a:	movl	%edx, 34(%rdi)
+; ip6h->flow_lbl[0] = (tc & 0x0F) << 4;
+205d:	movq	%rsi, %rdx
+2060:	shlq	$4, %rdx
+; ip6h->flow_lbl[0] = (tc & 0x0F) << 4;
+2064:	movb	%dl, 15(%rdi)
+; ip6h->priority = (tc & 0xF0) >> 4;
+2067:	shrq	$4, %rsi
+; ip6h->priority = (tc & 0xF0) >> 4;
+206b:	orq	$96, %rsi
+206f:	movb	%sil, 14(%rdi)
+2073:	movq	-168(%rbp), %rdx
+; 
+207a:	movl	12(%rdx), %esi
+207d:	movl	%esi, 50(%rdi)
+2080:	movl	8(%rdx), %esi
+2083:	movl	%esi, 46(%rdi)
+2086:	movl	4(%rdx), %esi
+2089:	movl	%esi, 42(%rdi)
+208c:	movl	(%rdx), %esi
+208f:	movl	%esi, 38(%rdi)
+2092:	jmp	0x3f8
+2097:	movq	%r13, %rdx
+209a:	jmp	0x17b5
+; __u32 ip_src = create_encap_ipv4_src(pckt->flow.port16[0], pckt->flow.src);
+209f:	movl	-72(%rbp), %edi
+; if (XDP_ADJUST_HEAD_FUNC(xdp, 0 - (int)sizeof(struct iphdr))) {
+20a2:	movq	%rdi, -128(%rbp)
+20a6:	movq	%rbx, %rdi
+20a9:	movl	$4294967276, %esi
+20ae:	callq	0xffffffffd30c6b48
+20b3:	shlq	$32, %rax
+20b7:	shrq	$32, %rax
+; if (XDP_ADJUST_HEAD_FUNC(xdp, 0 - (int)sizeof(struct iphdr))) {
+20bb:	testq	%rax, %rax
+20be:	jne	0x118b
+; data = (void*)(long)xdp->data;
+20c4:	movq	(%rbx), %rdi
+; data_end = (void*)(long)xdp->data_end;
+20c8:	movq	8(%rbx), %rsi
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+20cc:	movq	%rdi, %rdx
+20cf:	addq	$14, %rdx
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+20d3:	cmpq	%rsi, %rdx
+20d6:	ja	0x118b
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+20dc:	movq	%rdi, %rdx
+20df:	addq	$34, %rdx
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+20e3:	cmpq	%rsi, %rdx
+20e6:	ja	0x118b
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+20ec:	cmpq	%rsi, %rdx
+20ef:	ja	0x118b
+20f5:	movq	-192(%rbp), %rbx
+20fc:	bswapl	%ebx
+20fe:	movl	$4294901760, %esi
+; 
+2103:	andq	%rsi, %rbx
+2106:	movq	-128(%rbp), %rsi
+210a:	andq	$-65536, %rsi
+2111:	xorq	%rsi, %rbx
+2114:	movq	%rbx, %rsi
+2117:	orq	$4268, %rsi
+211e:	movq	%rdi, %rdx
+2121:	addq	$20, %rdx
+; memcpy(new_eth->h_dest, cval->mac, 6);
+2125:	movzbq	5(%r15), %rcx
+212a:	movb	%cl, 5(%rdi)
+212d:	movzbq	4(%r15), %rcx
+2132:	movb	%cl, 4(%rdi)
+2135:	movzbq	3(%r15), %rcx
+213a:	movb	%cl, 3(%rdi)
+213d:	movzbq	2(%r15), %rcx
+2142:	movb	%cl, 2(%rdi)
+2145:	movzbq	1(%r15), %rcx
+214a:	movb	%cl, 1(%rdi)
+214d:	movzbq	(%r15), %rcx
+2152:	movb	%cl, (%rdi)
+; memcpy(new_eth->h_source, old_eth->h_dest, 6);
+2155:	movzbq	2(%rdx), %rcx
+215a:	movb	%cl, 8(%rdi)
+215d:	movzbq	3(%rdx), %rcx
+2162:	movb	%cl, 9(%rdi)
+2165:	movzbq	(%rdx), %rcx
+216a:	movb	%cl, 6(%rdi)
+216d:	movzbq	1(%rdx), %rcx
+2172:	movb	%cl, 7(%rdi)
+2175:	movzbq	4(%rdx), %rcx
+217a:	movb	%cl, 10(%rdi)
+217d:	movzbq	5(%rdx), %rdx
+2182:	movb	%dl, 11(%rdi)
+2185:	movl	$8, %edx
+; new_eth->h_proto = BE_ETH_P_IP;
+218a:	movb	%dl, 12(%rdi)
+218d:	xorl	%edx, %edx
+218f:	movb	%dl, 13(%rdi)
+; create_v4_hdr(iph, pckt->tos, ip_src, dst->dst, pkt_bytes, IPPROTO_IPIP);
+2192:	movq	-168(%rbp), %rcx
+2199:	movl	(%rcx), %ecx
+; create_v4_hdr(iph, pckt->tos, ip_src, dst->dst, pkt_bytes, IPPROTO_IPIP);
+219c:	movzbq	-27(%rbp), %r8
+21a1:	movl	$69, %eax
+; iph->ihl = 5;
+21a6:	movb	%al, 14(%rdi)
+; iph->tos = tos;
+21a9:	movb	%r8b, 15(%rdi)
+; *csum += *next_iph_u16++;
+21ad:	shlq	$32, %rbx
+21b1:	shrq	$32, %rbx
+21b5:	shrq	$16, %rbx
+21b9:	movq	%rcx, %r8
+21bc:	andq	$65535, %r8
+; *csum += *next_iph_u16++;
+21c3:	addq	%r8, %rbx
+; iph->id = 0;
+21c6:	movl	%edx, 18(%rdi)
+21c9:	movl	$1088, %edx
+; iph->ttl = DEFAULT_TTL;
+21ce:	movw	%dx, 22(%rdi)
+; iph->saddr = saddr;
+21d2:	movl	%esi, 26(%rdi)
+; iph->daddr = daddr;
+21d5:	movl	%ecx, 30(%rdi)
+; *csum += *next_iph_u16++;
+21d8:	shrq	$16, %rcx
+; *csum += *next_iph_u16++;
+21dc:	addq	%rcx, %rbx
+; iph->tot_len = bpf_htons(pkt_bytes + sizeof(struct iphdr));
+21df:	addq	$20, %r13
+21e3:	rorw	$8, %r13w
+21e8:	movzwl	%r13w, %r13d
+; iph->tot_len = bpf_htons(pkt_bytes + sizeof(struct iphdr));
+21ec:	movw	%r13w, 16(%rdi)
+; *csum += *next_iph_u16++;
+21f1:	addq	%r13, %rbx
+; *csum += *next_iph_u16++;
+21f4:	movzwq	14(%rdi), %rsi
+; *csum += *next_iph_u16++;
+21f9:	addq	%rsi, %rbx
+; *csum += *next_iph_u16++;
+21fc:	movzwq	22(%rdi), %rsi
+; *csum += *next_iph_u16++;
+2201:	addq	%rsi, %rbx
+2204:	addq	$4268, %rbx
+220b:	movq	%rbx, %rdx
+; if (csum >> 16)
+220e:	movq	%rbx, %rsi
+2211:	shrq	$16, %rsi
+; if (csum >> 16)
+2215:	testq	%rsi, %rsi
+2218:	je	0x2224
+221a:	andq	$65535, %rdx
+2221:	addq	%rsi, %rdx
+; if (csum >> 16)
+2224:	movq	%rdx, %rsi
+2227:	shrq	$16, %rsi
+; if (csum >> 16)
+222b:	testq	%rsi, %rsi
+222e:	je	0x223a
+2230:	andq	$65535, %rdx
+2237:	addq	%rsi, %rdx
+; if (csum >> 16)
+223a:	movq	%rdx, %rsi
+223d:	shrq	$16, %rsi
+; if (csum >> 16)
+2241:	testq	%rsi, %rsi
+2244:	je	0x2250
+2246:	andq	$65535, %rdx
+224d:	addq	%rsi, %rdx
+; 
+2250:	movq	%rdx, %rsi
+2253:	shrq	$16, %rsi
+2257:	addq	%rdx, %rsi
+225a:	xorq	$-1, %rsi
+225e:	movw	%si, 24(%rdi)
+2262:	jmp	0x3f8
+; __u32 ip_src = create_encap_ipv4_src(pckt->flow.port16[0], pckt->flow.src);
+2267:	movl	-72(%rbp), %edi
+; if (XDP_ADJUST_HEAD_FUNC(xdp, 0 - (int)sizeof(struct iphdr))) {
+226a:	movq	%rdi, -128(%rbp)
+226e:	movq	%rbx, %rdi
+2271:	movl	$4294967276, %esi
+2276:	callq	0xffffffffd30c6b48
+227b:	shlq	$32, %rax
+227f:	shrq	$32, %rax
+; if (XDP_ADJUST_HEAD_FUNC(xdp, 0 - (int)sizeof(struct iphdr))) {
+2283:	testq	%rax, %rax
+2286:	jne	0x118b
+; data = (void*)(long)xdp->data;
+228c:	movq	(%rbx), %rdi
+; data_end = (void*)(long)xdp->data_end;
+2290:	movq	8(%rbx), %rsi
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+2294:	movq	%rdi, %rdx
+2297:	addq	$14, %rdx
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+229b:	cmpq	%rsi, %rdx
+229e:	ja	0x118b
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+22a4:	movq	%rdi, %rdx
+22a7:	addq	$34, %rdx
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+22ab:	cmpq	%rsi, %rdx
+22ae:	ja	0x118b
+; if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+22b4:	cmpq	%rsi, %rdx
+22b7:	ja	0x118b
+22bd:	movq	-168(%rbp), %rbx
+22c4:	bswapl	%ebx
+22c6:	movl	$4294901760, %esi
+; 
+22cb:	andq	%rsi, %rbx
+22ce:	movq	-128(%rbp), %rsi
+22d2:	andq	$-65536, %rsi
+22d9:	xorq	%rsi, %rbx
+22dc:	movq	%rbx, %rsi
+22df:	orq	$4268, %rsi
+22e6:	movq	%rdi, %rdx
+22e9:	addq	$20, %rdx
+; memcpy(new_eth->h_dest, cval->mac, 6);
+22ed:	movzbq	5(%r13), %rcx
+22f2:	movb	%cl, 5(%rdi)
+22f5:	movzbq	4(%r13), %rcx
+22fa:	movb	%cl, 4(%rdi)
+22fd:	movzbq	3(%r13), %rcx
+2302:	movb	%cl, 3(%rdi)
+2305:	movzbq	2(%r13), %rcx
+230a:	movb	%cl, 2(%rdi)
+230d:	movzbq	1(%r13), %rcx
+2312:	movb	%cl, 1(%rdi)
+2315:	movzbq	(%r13), %rcx
+231a:	movb	%cl, (%rdi)
+; memcpy(new_eth->h_source, old_eth->h_dest, 6);
+231d:	movzbq	2(%rdx), %rcx
+2322:	movb	%cl, 8(%rdi)
+2325:	movzbq	3(%rdx), %rcx
+232a:	movb	%cl, 9(%rdi)
+232d:	movzbq	(%rdx), %rcx
+2332:	movb	%cl, 6(%rdi)
+2335:	movzbq	1(%rdx), %rcx
+233a:	movb	%cl, 7(%rdi)
+233d:	movzbq	4(%rdx), %rcx
+2342:	movb	%cl, 10(%rdi)
+2345:	movzbq	5(%rdx), %rdx
+234a:	movb	%dl, 11(%rdi)
+234d:	movl	$8, %edx
+; new_eth->h_proto = BE_ETH_P_IP;
+2352:	movb	%dl, 12(%rdi)
+2355:	xorl	%edx, %edx
+2357:	movb	%dl, 13(%rdi)
+; create_v4_hdr(iph, pckt->tos, ip_src, dst->dst, pkt_bytes, IPPROTO_IPIP);
+235a:	movq	-176(%rbp), %rcx
+2361:	movl	(%rcx), %ecx
+; create_v4_hdr(iph, pckt->tos, ip_src, dst->dst, pkt_bytes, IPPROTO_IPIP);
+2364:	movzbq	-27(%rbp), %r8
+2369:	movl	$69, %eax
+; iph->ihl = 5;
+236e:	movb	%al, 14(%rdi)
+; iph->tos = tos;
+2371:	movb	%r8b, 15(%rdi)
+; *csum += *next_iph_u16++;
+2375:	shlq	$32, %rbx
+2379:	shrq	$32, %rbx
+237d:	shrq	$16, %rbx
+2381:	movq	%rcx, %r8
+2384:	andq	$65535, %r8
+; *csum += *next_iph_u16++;
+238b:	addq	%r8, %rbx
+; iph->id = 0;
+238e:	movl	%edx, 18(%rdi)
+2391:	movl	$1088, %edx
+; iph->ttl = DEFAULT_TTL;
+2396:	movw	%dx, 22(%rdi)
+; iph->saddr = saddr;
+239a:	movl	%esi, 26(%rdi)
+; iph->daddr = daddr;
+239d:	movl	%ecx, 30(%rdi)
+; *csum += *next_iph_u16++;
+23a0:	shrq	$16, %rcx
+; *csum += *next_iph_u16++;
+23a4:	addq	%rcx, %rbx
+; iph->tot_len = bpf_htons(pkt_bytes + sizeof(struct iphdr));
+23a7:	addq	$20, %r15
+23ab:	rorw	$8, %r15w
+23b0:	movzwl	%r15w, %r15d
+; iph->tot_len = bpf_htons(pkt_bytes + sizeof(struct iphdr));
+23b4:	movw	%r15w, 16(%rdi)
+; *csum += *next_iph_u16++;
+23b9:	addq	%r15, %rbx
+; *csum += *next_iph_u16++;
+23bc:	movzwq	14(%rdi), %rsi
+; *csum += *next_iph_u16++;
+23c1:	addq	%rsi, %rbx
+; *csum += *next_iph_u16++;
+23c4:	movzwq	22(%rdi), %rsi
+; *csum += *next_iph_u16++;
+23c9:	addq	%rsi, %rbx
+23cc:	addq	$4268, %rbx
+23d3:	movq	%rbx, %rdx
+; if (csum >> 16)
+23d6:	movq	%rbx, %rsi
+23d9:	shrq	$16, %rsi
+; if (csum >> 16)
+23dd:	testq	%rsi, %rsi
+23e0:	je	0x23ec
+23e2:	andq	$65535, %rdx
+23e9:	addq	%rsi, %rdx
+; if (csum >> 16)
+23ec:	movq	%rdx, %rsi
+23ef:	shrq	$16, %rsi
+; if (csum >> 16)
+23f3:	testq	%rsi, %rsi
+23f6:	je	0x2402
+23f8:	andq	$65535, %rdx
+23ff:	addq	%rsi, %rdx
+; if (csum >> 16)
+2402:	movq	%rdx, %rsi
+2405:	shrq	$16, %rsi
+; if (csum >> 16)
+2409:	testq	%rsi, %rsi
+240c:	je	0x2250
+2412:	jmp	0x2246
+2417:	movq	%rbp, %rsi
+; 
+241a:	addq	$-72, %rsi
+; struct real_pos_lru* dst_lru = bpf_map_lookup_elem(lru_map, &pckt->flow);
+241e:	movq	-152(%rbp), %rdi
+2425:	callq	0xffffffffd25bcdd8
+; if (dst_lru) {
+242a:	testq	%rax, %rax
+242d:	je	0x25e3
+; if (dst_lru->pos == pckt->real_index) {
+2433:	movl	(%rax), %esi
+; if (dst_lru->pos == pckt->real_index) {
+2436:	movl	-32(%rbp), %edi
+; if (dst_lru->pos == pckt->real_index) {
+2439:	cmpq	%rdi, %rsi
+243c:	je	0x2443
+243e:	jmp	0x2668
+; quic_packets_stats->dst_match_in_lru += 1;
+2443:	movq	80(%r14), %rdi
+2447:	addq	$1, %rdi
+244b:	movq	%rdi, 80(%r14)
+244f:	jmp	0x270c
+2454:	movq	-168(%rbp), %rsi
+; quic_packets_stats->cid_initial += 1;
+245b:	movq	8(%rsi), %rdi
+245f:	addq	$1, %rdi
+2463:	movq	%rdi, 8(%rsi)
+; vip_num, /* new conn */ true, /* mismatch in lru */ false);
+2467:	movl	-100(%rbp), %edi
+246a:	movl	%edi, -16(%rbp)
+246d:	movq	%rbp, %rsi
+; 
+2470:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&server_id_stats, &vip_num);
+2474:	movabsq	$-58455665021952000, %rdi
+247e:	callq	0xffffffffd25cab78
+; if (!per_vip_stats) {
+2483:	testq	%rax, %rax
+2486:	je	0xd9d
+; per_vip_stats->v1 += 1;
+248c:	movq	(%rax), %rdi
+2490:	addq	$1, %rdi
+2494:	movq	%rdi, (%rax)
+2498:	jmp	0xd9d
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+249d:	movzbq	1(%r13), %rdi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+24a2:	shlq	$24, %rdi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+24a6:	movzbq	2(%r13), %r14
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+24ab:	shlq	$16, %r14
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+24af:	orq	%rdi, %r14
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+24b2:	movzbq	3(%r13), %rdi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+24b7:	shlq	$8, %rdi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+24bb:	orq	%rdi, %r14
+24be:	movl	$72, %edi
+; (connId[1] << 24) | (connId[2] << 16) | (connId[3] << 8) | (connId[4]);
+24c3:	movzbq	4(%r13), %rsi
+24c8:	jmp	0x24e9
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+24ca:	movzbq	1(%r13), %rdi
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+24cf:	shlq	$16, %rdi
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+24d3:	movzbq	2(%r13), %r14
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+24d8:	shlq	$8, %r14
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+24dc:	orq	%rdi, %r14
+24df:	movl	$64, %edi
+; result.server_id = (connId[1] << 16) | (connId[2] << 8) | (connId[3]);
+24e4:	movzbq	3(%r13), %rsi
+; 
+24e9:	andq	$255, %rsi
+24f0:	orq	%rsi, %r14
+; struct quic_parse_result qpr = parse_quic(data, data_end, is_ipv6, &pckt);
+24f3:	movq	%r14, %rsi
+24f6:	shlq	$32, %rsi
+24fa:	sarq	$32, %rsi
+24fe:	movl	$1, %edx
+; if (qpr.server_id > 0) {
+2503:	cmpq	%rsi, %rdx
+2506:	jg	0xd8a
+; 
+250c:	movq	-168(%rbp), %rsi
+2513:	addq	%rdi, %rsi
+2516:	movq	(%rsi), %rdi
+251a:	addq	$1, %rdi
+251e:	movq	%rdi, (%rsi)
+; __u32 key = qpr.server_id;
+2522:	movl	%r14d, -20(%rbp)
+2526:	movq	%rbp, %rsi
+; 
+2529:	addq	$-20, %rsi
+; __u32* real_pos = bpf_map_lookup_elem(&server_id_map, &key);
+252d:	movabsq	$-51044213371744256, %rdi
+2537:	addq	$272, %rdi
+253e:	movl	(%rsi), %eax
+2541:	cmpq	$16777214, %rax
+2548:	jae	0x2553
+254a:	shlq	$3, %rax
+254e:	addq	%rdi, %rax
+2551:	jmp	0x2555
+2553:	xorl	%eax, %eax
+; if (real_pos) {
+2555:	testq	%rax, %rax
+2558:	je	0x25bf
+; key = *real_pos;
+255a:	movl	(%rax), %edi
+; key = *real_pos;
+255d:	movl	%edi, -20(%rbp)
+; if (key == 0) {
+2560:	testq	%rdi, %rdi
+2563:	je	0x25bf
+; pckt.real_index = key;
+2565:	movl	%edi, -32(%rbp)
+2568:	movq	%rbp, %rsi
+256b:	addq	$-20, %rsi
+; dst = bpf_map_lookup_elem(&reals, &key);
+256f:	movabsq	$-51044215024988160, %rdi
+2579:	addq	$272, %rdi
+2580:	movl	(%rsi), %eax
+2583:	cmpq	$4096, %rax
+258a:	jae	0x2595
+258c:	imulq	$24, %rax, %rax
+2590:	addq	%rdi, %rax
+2593:	jmp	0x2597
+2595:	xorl	%eax, %eax
+2597:	movq	%rax, -176(%rbp)
+; if (!dst) {
+259e:	testq	%rax, %rax
+25a1:	jne	0x26a6
+25a7:	movq	-168(%rbp), %rsi
+; quic_packets_stats->cid_unknown_real_dropped += 1;
+25ae:	movq	40(%rsi), %rdi
+25b2:	addq	$1, %rdi
+25b6:	movq	%rdi, 40(%rsi)
+25ba:	jmp	0x1185
+; 
+25bf:	shlq	$32, %r14
+25c3:	sarq	$32, %r14
+25c7:	movq	-168(%rbp), %rsi
+25ce:	movq	%r14, 24(%rsi)
+25d2:	movq	16(%rsi), %rdi
+25d6:	addq	$1, %rdi
+25da:	movq	%rdi, 16(%rsi)
+25de:	jmp	0xd91
+25e3:	movl	$514, %edi
+; __u32 conn_rate_key = MAX_VIPS + NEW_CONN_RATE_CNTR;
+25e8:	movl	%edi, -16(%rbp)
+25eb:	movq	%rbp, %rsi
+; 
+25ee:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&stats, &conn_rate_key);
+25f2:	movabsq	$-58455663325642752, %rdi
+25fc:	callq	0xffffffffd25cab78
+2601:	movq	%rax, %r15
+; if (!conn_rate_stats) {
+2604:	testq	%r15, %r15
+2607:	je	0x2700
+; *cur_time = bpf_ktime_get_ns();
+260d:	callq	0xffffffffd25bd2b8
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+2612:	movq	8(%r15), %rdi
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+2616:	movq	%rax, %rsi
+2619:	subq	%rdi, %rsi
+261c:	movl	$1000000001, %edi
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+2621:	cmpq	%rsi, %rdi
+2624:	ja	0x26e6
+; conn_rate_stats->v2 = *cur_time;
+262a:	movq	%rax, 8(%r15)
+262e:	movl	$1, %edi
+; conn_rate_stats->v1 = 1;
+2633:	movq	%rdi, (%r15)
+2637:	xorl	%edi, %edi
+; struct real_pos_lru new_dst_lru = {};
+2639:	movq	%rdi, -16(%rbp)
+; new_dst_lru.pos = pckt->real_index;
+263d:	movl	-32(%rbp), %esi
+; new_dst_lru.pos = pckt->real_index;
+2640:	movl	%esi, -16(%rbp)
+; struct real_pos_lru new_dst_lru = {};
+2643:	movq	%rdi, -8(%rbp)
+2647:	movq	%rbp, %rsi
+264a:	addq	$-72, %rsi
+264e:	movq	%rbp, %rdx
+2651:	addq	$-16, %rdx
+; bpf_map_update_elem(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);
+2655:	movq	-152(%rbp), %rdi
+265c:	xorl	%ecx, %ecx
+265e:	callq	0xffffffffd25bce08
+2663:	jmp	0x2700
+; dst_lru->pos = pckt->real_index;
+2668:	movl	%edi, (%rax)
+; quic_packets_stats->dst_mismatch_in_lru += 1;
+266b:	movq	88(%r14), %rdi
+266f:	addq	$1, %rdi
+2673:	movq	%rdi, 88(%r14)
+; vip_num, /* new conn */ false, /* mismatch in lru */ true);
+2677:	movl	-100(%rbp), %edi
+267a:	movl	%edi, -16(%rbp)
+267d:	movq	%rbp, %rsi
+; dst_lru->pos = pckt->real_index;
+2680:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&server_id_stats, &vip_num);
+2684:	movabsq	$-58455665021952000, %rdi
+268e:	callq	0xffffffffd25cab78
+; if (!per_vip_stats) {
+2693:	testq	%rax, %rax
+2696:	je	0x270c
+; per_vip_stats->v2 += 1;
+2698:	movq	8(%rax), %rdi
+269c:	addq	$1, %rdi
+26a0:	movq	%rdi, 8(%rax)
+26a4:	jmp	0x270c
+26a6:	movq	%rbp, %rsi
+; 
+26a9:	addq	$-72, %rsi
+; struct real_pos_lru* dst_lru = bpf_map_lookup_elem(lru_map, &pckt->flow);
+26ad:	movq	-152(%rbp), %rdi
+26b4:	callq	0xffffffffd25bcdd8
+; if (dst_lru) {
+26b9:	testq	%rax, %rax
+26bc:	je	0x2729
+; if (dst_lru->pos == pckt->real_index) {
+26be:	movl	(%rax), %esi
+; if (dst_lru->pos == pckt->real_index) {
+26c1:	movl	-32(%rbp), %edi
+; if (dst_lru->pos == pckt->real_index) {
+26c4:	cmpq	%rdi, %rsi
+26c7:	je	0x26ce
+26c9:	jmp	0x27ab
+26ce:	movq	-168(%rbp), %rsi
+; quic_packets_stats->dst_match_in_lru += 1;
+26d5:	movq	80(%rsi), %rdi
+26d9:	addq	$1, %rdi
+26dd:	movq	%rdi, 80(%rsi)
+26e1:	jmp	0x281d
+; conn_rate_stats->v1 += 1;
+26e6:	movq	(%r15), %rdi
+26ea:	addq	$1, %rdi
+26ee:	movq	%rdi, (%r15)
+26f2:	movl	$125001, %esi
+; if (conn_rate_stats->v1 > MAX_CONN_RATE) {
+26f7:	cmpq	%rdi, %rsi
+26fa:	ja	0x2637
+; quic_packets_stats->dst_not_found_in_lru += 1;
+2700:	movq	96(%r14), %rdi
+2704:	addq	$1, %rdi
+2708:	movq	%rdi, 96(%r14)
+; quic_packets_stats->cid_routed += 1;
+270c:	movq	32(%r14), %rdi
+2710:	addq	$1, %rdi
+2714:	movq	%rdi, 32(%r14)
+; original_sport = pckt.flow.port16[0];
+2718:	movzwq	-40(%rbp), %rdi
+; if (!dst) {
+271d:	movq	%rdi, -192(%rbp)
+2724:	jmp	0x1e74
+2729:	movl	$514, %edi
+; __u32 conn_rate_key = MAX_VIPS + NEW_CONN_RATE_CNTR;
+272e:	movl	%edi, -16(%rbp)
+2731:	movq	%rbp, %rsi
+; 
+2734:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&stats, &conn_rate_key);
+2738:	movabsq	$-58455663325642752, %rdi
+2742:	callq	0xffffffffd25cab78
+2747:	movq	%rax, %r13
+; if (!conn_rate_stats) {
+274a:	testq	%r13, %r13
+274d:	je	0x280a
+; *cur_time = bpf_ktime_get_ns();
+2753:	callq	0xffffffffd25bd2b8
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+2758:	movq	8(%r13), %rdi
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+275c:	movq	%rax, %rsi
+275f:	subq	%rdi, %rsi
+2762:	movl	$1000000001, %edi
+; if ((*cur_time - conn_rate_stats->v2) > ONE_SEC) {
+2767:	cmpq	%rsi, %rdi
+276a:	ja	0x27f0
+; conn_rate_stats->v2 = *cur_time;
+2770:	movq	%rax, 8(%r13)
+2774:	movl	$1, %edi
+; conn_rate_stats->v1 = 1;
+2779:	movq	%rdi, (%r13)
+277d:	xorl	%edi, %edi
+; struct real_pos_lru new_dst_lru = {};
+277f:	movq	%rdi, -16(%rbp)
+; new_dst_lru.pos = pckt->real_index;
+2783:	movl	-32(%rbp), %esi
+; new_dst_lru.pos = pckt->real_index;
+2786:	movl	%esi, -16(%rbp)
+; struct real_pos_lru new_dst_lru = {};
+2789:	movq	%rdi, -8(%rbp)
+278d:	movq	%rbp, %rsi
+2790:	addq	$-72, %rsi
+2794:	movq	%rbp, %rdx
+2797:	addq	$-16, %rdx
+; bpf_map_update_elem(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);
+279b:	movq	-152(%rbp), %rdi
+27a2:	xorl	%ecx, %ecx
+27a4:	callq	0xffffffffd25bce08
+27a9:	jmp	0x280a
+; dst_lru->pos = pckt->real_index;
+27ab:	movl	%edi, (%rax)
+27ae:	movq	-168(%rbp), %rsi
+; quic_packets_stats->dst_mismatch_in_lru += 1;
+27b5:	movq	88(%rsi), %rdi
+27b9:	addq	$1, %rdi
+27bd:	movq	%rdi, 88(%rsi)
+; vip_num, /* new conn */ false, /* mismatch in lru */ true);
+27c1:	movl	-100(%rbp), %edi
+27c4:	movl	%edi, -16(%rbp)
+27c7:	movq	%rbp, %rsi
+; dst_lru->pos = pckt->real_index;
+27ca:	addq	$-16, %rsi
+; bpf_map_lookup_elem(&server_id_stats, &vip_num);
+27ce:	movabsq	$-58455665021952000, %rdi
+27d8:	callq	0xffffffffd25cab78
+; if (!per_vip_stats) {
+27dd:	testq	%rax, %rax
+27e0:	je	0x281d
+; per_vip_stats->v2 += 1;
+27e2:	movq	8(%rax), %rdi
+27e6:	addq	$1, %rdi
+27ea:	movq	%rdi, 8(%rax)
+27ee:	jmp	0x281d
+; conn_rate_stats->v1 += 1;
+27f0:	movq	(%r13), %rdi
+27f4:	addq	$1, %rdi
+27f8:	movq	%rdi, (%r13)
+27fc:	movl	$125001, %esi
+; if (conn_rate_stats->v1 > MAX_CONN_RATE) {
+2801:	cmpq	%rdi, %rsi
+2804:	ja	0x277d
+280a:	movq	-168(%rbp), %rsi
+; quic_packets_stats->dst_not_found_in_lru += 1;
+2811:	movq	96(%rsi), %rdi
+2815:	addq	$1, %rdi
+2819:	movq	%rdi, 96(%rsi)
+281d:	movq	-168(%rbp), %rsi
+; quic_packets_stats->cid_routed += 1;
+2824:	movq	32(%rsi), %rdi
+2828:	addq	$1, %rdi
+282c:	movq	%rdi, 32(%rsi)
+; original_sport = pckt.flow.port16[0];
+2830:	movzwq	-40(%rbp), %rdi
+; if (!dst) {
+2835:	movq	%rdi, -168(%rbp)
+283c:	jmp	0x1299
+
