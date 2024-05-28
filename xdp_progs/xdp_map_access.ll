@@ -2029,139 +2029,205 @@ setupBlock:
   br label %bb_inst_0
 
 bb_inst_0:                                        ; preds = %setupBlock
-  store i64 2, ptr %r0, align 4
   %2 = load ptr, ptr %r1, align 8
-  %3 = getelementptr i8, ptr %2, i64 4
+  %3 = getelementptr i8, ptr %2, i64 0
   %4 = load i32, ptr %3, align 4
   %5 = zext i32 %4 to i64
-  store i64 %5, ptr %r2, align 4
+  store i64 %5, ptr %r6, align 4
   %6 = load ptr, ptr %r1, align 8
-  %7 = getelementptr i8, ptr %6, i64 0
+  %7 = getelementptr i8, ptr %6, i64 4
   %8 = load i32, ptr %7, align 4
   %9 = zext i32 %8 to i64
-  store i64 %9, ptr %r1, align 4
+  store i64 %9, ptr %r7, align 4
+  store i64 0, ptr %r1, align 4
   %10 = load i64, ptr %r1, align 4
-  store i64 %10, ptr %r3, align 4
-  %11 = load i64, ptr %r3, align 4
-  %12 = add i64 %11, 14
-  store i64 %12, ptr %r3, align 4
-  %13 = load i64, ptr %r2, align 4
-  %14 = load i64, ptr %r3, align 4
-  %15 = icmp ugt i64 %14, %13
-  br i1 %15, label %bb_inst_24, label %bb_inst_6
+  %11 = trunc i64 %10 to i32
+  %12 = load ptr, ptr %r10, align 8
+  %13 = getelementptr i8, ptr %12, i64 -4
+  store i32 %11, ptr %13, align 4
+  %14 = load i64, ptr %r1, align 4
+  %15 = trunc i64 %14 to i32
+  %16 = load ptr, ptr %r10, align 8
+  %17 = getelementptr i8, ptr %16, i64 -8
+  store i32 %15, ptr %17, align 4
+  %18 = load i64, ptr %r10, align 4
+  store i64 %18, ptr %r2, align 4
+  %19 = load i64, ptr %r2, align 4
+  %20 = add i64 %19, -4
+  store i64 %20, ptr %r2, align 4
+  store i64 0, ptr %r1, align 4
+  %21 = load i64, ptr %r1, align 4
+  %22 = load i64, ptr %r2, align 4
+  %23 = load i64, ptr %r3, align 4
+  %24 = load i64, ptr %r4, align 4
+  %25 = load i64, ptr %r5, align 4
+  %26 = call i64 @_bpf_helper_ext_0001(i64 %21, i64 %22, i64 %23, i64 %24, i64 %25)
+  store i64 %26, ptr %r0, align 4
+  br label %bb_inst_10
 
-bb_inst_6:                                        ; preds = %bb_inst_0
-  store i64 0, ptr %r2, align 4
-  %16 = load ptr, ptr %r2, align 8
-  %17 = getelementptr i8, ptr %16, i64 0
-  %18 = load i32, ptr %17, align 4
-  %19 = zext i32 %18 to i64
-  store i64 %19, ptr %r3, align 4
-  %20 = load i64, ptr %r3, align 4
-  %21 = add i64 %20, 1
-  store i64 %21, ptr %r3, align 4
-  %22 = load i64, ptr %r3, align 4
-  %23 = trunc i64 %22 to i32
-  %24 = load ptr, ptr %r2, align 8
-  %25 = getelementptr i8, ptr %24, i64 0
-  store i32 %23, ptr %25, align 4
-  %26 = load ptr, ptr %r1, align 8
-  %27 = getelementptr i8, ptr %26, i64 0
-  %28 = load i16, ptr %27, align 2
-  %29 = zext i16 %28 to i64
-  store i64 %29, ptr %r2, align 4
+bb_inst_10:                                       ; preds = %bb_inst_0
+  %27 = load i64, ptr %r0, align 4
+  store i64 %27, ptr %r1, align 4
+  store i64 2, ptr %r0, align 4
+  %28 = load i64, ptr %r1, align 4
+  %29 = icmp eq i64 %28, 0
+  br i1 %29, label %bb_inst_41, label %bb_inst_13
+
+bb_inst_13:                                       ; preds = %bb_inst_10
   %30 = load ptr, ptr %r1, align 8
-  %31 = getelementptr i8, ptr %30, i64 6
-  %32 = load i16, ptr %31, align 2
-  %33 = zext i16 %32 to i64
-  store i64 %33, ptr %r3, align 4
-  %34 = load i64, ptr %r3, align 4
-  %35 = trunc i64 %34 to i16
-  %36 = load ptr, ptr %r1, align 8
-  %37 = getelementptr i8, ptr %36, i64 0
-  store i16 %35, ptr %37, align 2
-  %38 = load ptr, ptr %r1, align 8
-  %39 = getelementptr i8, ptr %38, i64 8
-  %40 = load i16, ptr %39, align 2
-  %41 = zext i16 %40 to i64
-  store i64 %41, ptr %r3, align 4
-  %42 = load ptr, ptr %r1, align 8
-  %43 = getelementptr i8, ptr %42, i64 2
-  %44 = load i16, ptr %43, align 2
-  %45 = zext i16 %44 to i64
-  store i64 %45, ptr %r4, align 4
-  %46 = load i64, ptr %r4, align 4
-  %47 = trunc i64 %46 to i16
-  %48 = load ptr, ptr %r1, align 8
-  %49 = getelementptr i8, ptr %48, i64 8
-  store i16 %47, ptr %49, align 2
-  %50 = load i64, ptr %r3, align 4
-  %51 = trunc i64 %50 to i16
-  %52 = load ptr, ptr %r1, align 8
-  %53 = getelementptr i8, ptr %52, i64 2
-  store i16 %51, ptr %53, align 2
-  %54 = load ptr, ptr %r1, align 8
-  %55 = getelementptr i8, ptr %54, i64 10
-  %56 = load i16, ptr %55, align 2
-  %57 = zext i16 %56 to i64
-  store i64 %57, ptr %r3, align 4
-  %58 = load ptr, ptr %r1, align 8
-  %59 = getelementptr i8, ptr %58, i64 4
-  %60 = load i16, ptr %59, align 2
-  %61 = zext i16 %60 to i64
-  store i64 %61, ptr %r4, align 4
-  %62 = load i64, ptr %r4, align 4
-  %63 = trunc i64 %62 to i16
-  %64 = load ptr, ptr %r1, align 8
-  %65 = getelementptr i8, ptr %64, i64 10
-  store i16 %63, ptr %65, align 2
-  %66 = load i64, ptr %r2, align 4
-  %67 = trunc i64 %66 to i16
-  %68 = load ptr, ptr %r1, align 8
-  %69 = getelementptr i8, ptr %68, i64 6
-  store i16 %67, ptr %69, align 2
-  %70 = load i64, ptr %r3, align 4
-  %71 = trunc i64 %70 to i16
-  %72 = load ptr, ptr %r1, align 8
-  %73 = getelementptr i8, ptr %72, i64 4
-  store i16 %71, ptr %73, align 2
-  store i64 3, ptr %r0, align 4
+  %31 = getelementptr i8, ptr %30, i64 0
+  %32 = load i32, ptr %31, align 4
+  %33 = zext i32 %32 to i64
+  store i64 %33, ptr %r1, align 4
+  %34 = load i64, ptr %r1, align 4
+  %35 = icmp ne i64 %34, 0
+  br i1 %35, label %bb_inst_41, label %bb_inst_15
+
+bb_inst_15:                                       ; preds = %bb_inst_13
+  %36 = load i64, ptr %r10, align 4
+  store i64 %36, ptr %r2, align 4
+  %37 = load i64, ptr %r2, align 4
+  %38 = add i64 %37, -8
+  store i64 %38, ptr %r2, align 4
+  store i64 0, ptr %r1, align 4
+  %39 = load i64, ptr %r1, align 4
+  %40 = load i64, ptr %r2, align 4
+  %41 = load i64, ptr %r3, align 4
+  %42 = load i64, ptr %r4, align 4
+  %43 = load i64, ptr %r5, align 4
+  %44 = call i64 @_bpf_helper_ext_0001(i64 %39, i64 %40, i64 %41, i64 %42, i64 %43)
+  store i64 %44, ptr %r0, align 4
+  br label %bb_inst_20
+
+bb_inst_20:                                       ; preds = %bb_inst_15
+  %45 = load i64, ptr %r0, align 4
+  %46 = icmp eq i64 %45, 0
+  br i1 %46, label %bb_inst_24, label %bb_inst_21
+
+bb_inst_21:                                       ; preds = %bb_inst_20
+  %47 = load ptr, ptr %r0, align 8
+  %48 = getelementptr i8, ptr %47, i64 0
+  %49 = load i64, ptr %48, align 4
+  store i64 %49, ptr %r1, align 4
+  %50 = load i64, ptr %r1, align 4
+  %51 = add i64 %50, 1
+  store i64 %51, ptr %r1, align 4
+  %52 = load i64, ptr %r1, align 4
+  %53 = load ptr, ptr %r0, align 8
+  %54 = getelementptr i8, ptr %53, i64 0
+  store i64 %52, ptr %54, align 4
   br label %bb_inst_24
 
-bb_inst_24:                                       ; preds = %bb_inst_6, %bb_inst_0
-  %74 = load i64, ptr %callItemCnt, align 4
-  %75 = icmp eq i64 %74, 0
-  br i1 %75, label %exitBlock, label %localFuncReturnBlock
+bb_inst_24:                                       ; preds = %bb_inst_21, %bb_inst_20
+  store i64 1, ptr %r0, align 4
+  %55 = load i64, ptr %r6, align 4
+  store i64 %55, ptr %r1, align 4
+  %56 = load i64, ptr %r1, align 4
+  %57 = add i64 %56, 14
+  store i64 %57, ptr %r1, align 4
+  %58 = load i64, ptr %r7, align 4
+  %59 = load i64, ptr %r1, align 4
+  %60 = icmp ugt i64 %59, %58
+  br i1 %60, label %bb_inst_41, label %bb_inst_28
 
-exitBlock:                                        ; preds = %bb_inst_24
-  %76 = load i64, ptr %r0, align 4
-  ret i64 %76
+bb_inst_28:                                       ; preds = %bb_inst_24
+  %61 = load ptr, ptr %r6, align 8
+  %62 = getelementptr i8, ptr %61, i64 0
+  %63 = load i16, ptr %62, align 2
+  %64 = zext i16 %63 to i64
+  store i64 %64, ptr %r1, align 4
+  %65 = load ptr, ptr %r6, align 8
+  %66 = getelementptr i8, ptr %65, i64 6
+  %67 = load i16, ptr %66, align 2
+  %68 = zext i16 %67 to i64
+  store i64 %68, ptr %r2, align 4
+  %69 = load i64, ptr %r2, align 4
+  %70 = trunc i64 %69 to i16
+  %71 = load ptr, ptr %r6, align 8
+  %72 = getelementptr i8, ptr %71, i64 0
+  store i16 %70, ptr %72, align 2
+  %73 = load ptr, ptr %r6, align 8
+  %74 = getelementptr i8, ptr %73, i64 8
+  %75 = load i16, ptr %74, align 2
+  %76 = zext i16 %75 to i64
+  store i64 %76, ptr %r2, align 4
+  %77 = load ptr, ptr %r6, align 8
+  %78 = getelementptr i8, ptr %77, i64 2
+  %79 = load i16, ptr %78, align 2
+  %80 = zext i16 %79 to i64
+  store i64 %80, ptr %r3, align 4
+  %81 = load i64, ptr %r3, align 4
+  %82 = trunc i64 %81 to i16
+  %83 = load ptr, ptr %r6, align 8
+  %84 = getelementptr i8, ptr %83, i64 8
+  store i16 %82, ptr %84, align 2
+  %85 = load i64, ptr %r2, align 4
+  %86 = trunc i64 %85 to i16
+  %87 = load ptr, ptr %r6, align 8
+  %88 = getelementptr i8, ptr %87, i64 2
+  store i16 %86, ptr %88, align 2
+  %89 = load ptr, ptr %r6, align 8
+  %90 = getelementptr i8, ptr %89, i64 10
+  %91 = load i16, ptr %90, align 2
+  %92 = zext i16 %91 to i64
+  store i64 %92, ptr %r2, align 4
+  %93 = load ptr, ptr %r6, align 8
+  %94 = getelementptr i8, ptr %93, i64 4
+  %95 = load i16, ptr %94, align 2
+  %96 = zext i16 %95 to i64
+  store i64 %96, ptr %r3, align 4
+  %97 = load i64, ptr %r3, align 4
+  %98 = trunc i64 %97 to i16
+  %99 = load ptr, ptr %r6, align 8
+  %100 = getelementptr i8, ptr %99, i64 10
+  store i16 %98, ptr %100, align 2
+  %101 = load i64, ptr %r1, align 4
+  %102 = trunc i64 %101 to i16
+  %103 = load ptr, ptr %r6, align 8
+  %104 = getelementptr i8, ptr %103, i64 6
+  store i16 %102, ptr %104, align 2
+  %105 = load i64, ptr %r2, align 4
+  %106 = trunc i64 %105 to i16
+  %107 = load ptr, ptr %r6, align 8
+  %108 = getelementptr i8, ptr %107, i64 4
+  store i16 %106, ptr %108, align 2
+  store i64 3, ptr %r0, align 4
+  br label %bb_inst_41
 
-localFuncReturnBlock:                             ; preds = %bb_inst_24
-  %77 = load i64, ptr %callItemCnt, align 4
-  %78 = sub i64 %77, 1
-  %79 = getelementptr ptr, ptr %callStack, i64 %78
-  %80 = load ptr, ptr %79, align 8
-  %81 = sub i64 %77, 2
-  %82 = getelementptr i64, ptr %callStack, i64 %81
-  %83 = load i64, ptr %82, align 4
-  store i64 %83, ptr %r6, align 4
-  %84 = sub i64 %77, 3
-  %85 = getelementptr i64, ptr %callStack, i64 %84
-  %86 = load i64, ptr %85, align 4
-  store i64 %86, ptr %r7, align 4
-  %87 = sub i64 %77, 4
-  %88 = getelementptr i64, ptr %callStack, i64 %87
-  %89 = load i64, ptr %88, align 4
-  store i64 %89, ptr %r8, align 4
-  %90 = sub i64 %77, 5
-  %91 = getelementptr i64, ptr %callStack, i64 %90
-  %92 = load i64, ptr %91, align 4
-  store i64 %92, ptr %r9, align 4
-  %93 = sub i64 %77, 5
-  store i64 %93, ptr %callItemCnt, align 4
-  %94 = load i64, ptr %r10, align 4
-  %95 = add i64 %94, 64
-  store i64 %95, ptr %r10, align 4
-  indirectbr ptr %80, []
+bb_inst_41:                                       ; preds = %bb_inst_28, %bb_inst_24, %bb_inst_13, %bb_inst_10
+  %109 = load i64, ptr %callItemCnt, align 4
+  %110 = icmp eq i64 %109, 0
+  br i1 %110, label %exitBlock, label %localFuncReturnBlock
+
+exitBlock:                                        ; preds = %bb_inst_41
+  %111 = load i64, ptr %r0, align 4
+  ret i64 %111
+
+localFuncReturnBlock:                             ; preds = %bb_inst_41
+  %112 = load i64, ptr %callItemCnt, align 4
+  %113 = sub i64 %112, 1
+  %114 = getelementptr ptr, ptr %callStack, i64 %113
+  %115 = load ptr, ptr %114, align 8
+  %116 = sub i64 %112, 2
+  %117 = getelementptr i64, ptr %callStack, i64 %116
+  %118 = load i64, ptr %117, align 4
+  store i64 %118, ptr %r6, align 4
+  %119 = sub i64 %112, 3
+  %120 = getelementptr i64, ptr %callStack, i64 %119
+  %121 = load i64, ptr %120, align 4
+  store i64 %121, ptr %r7, align 4
+  %122 = sub i64 %112, 4
+  %123 = getelementptr i64, ptr %callStack, i64 %122
+  %124 = load i64, ptr %123, align 4
+  store i64 %124, ptr %r8, align 4
+  %125 = sub i64 %112, 5
+  %126 = getelementptr i64, ptr %callStack, i64 %125
+  %127 = load i64, ptr %126, align 4
+  store i64 %127, ptr %r9, align 4
+  %128 = sub i64 %112, 5
+  store i64 %128, ptr %callItemCnt, align 4
+  %129 = load i64, ptr %r10, align 4
+  %130 = add i64 %129, 64
+  store i64 %130, ptr %r10, align 4
+  indirectbr ptr %115, []
 }

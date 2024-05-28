@@ -150,6 +150,12 @@ $(OUTPUT)/%.inline.aot.o: %.bpf.inline.aot.c
 	$(call msg,CC,$@)
 	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
 
+generate_llvm_ir:
+	/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build \
+	 /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.o \
+	 --emit_llvm 2> xdp_map_access.ll
+	opt -O3 -S xdp_map_access.ll -opaque-pointers  -o xdp_map_access_opt.ll
+
 clean-aot:
 	rm -f $(AOT_OBJECTS)
 

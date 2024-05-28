@@ -66,6 +66,9 @@ int xdp_pass(struct xdp_md* ctx) {
   if (cntr_val) {
     *cntr_val += 1;
   };
+
+	if (data + sizeof(struct ethhdr) > data_end)
+		return XDP_DROP;
   swap_src_dst_mac(data);
   return XDP_TX;
 }
