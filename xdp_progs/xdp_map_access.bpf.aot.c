@@ -9,7 +9,8 @@
 #include "def.bpf.h"
 // #include "xdp_map_access_common.h"
 
-int counter = 0;
+unsigned int ctl_array[2] = { 0, 0 };
+unsigned long long cntrs_array[512] = { 0 };
 
 static void swap_src_dst_mac(void *data)
 {
@@ -32,22 +33,20 @@ int bpf_main(void *ctx_base)
 	struct xdp_md *ctx = (struct xdp_md *)ctx_base;
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
-	struct ethhdr *eth = data;
-	int rc = XDP_PASS;
-	long *value;
-	u16 h_proto;
-	u64 nh_off;
-	long dummy_value = 1;
+	__u32 ctl_flag_pos = 0;
+	__u32 cntr_pos = 0;
+	__u32 *flag = &ctl_array[ctl_flag_pos];
+	if (!flag || (*flag != 0)) {
+		return XDP_PASS;
+	};
 
-	nh_off = sizeof(*eth);
-	if (data + nh_off > data_end)
-		return rc;
+	__u64 *cntr_val = &cntrs_array[cntr_pos];
+	if (cntr_val) {
+		*cntr_val += 1;
+	};
 
-	h_proto = eth->h_proto;
-	
-	counter++;
-	// bpf_printk("counter %d\n", counter);
+	if (data + sizeof(struct ethhdr) > data_end)
+		return XDP_DROP;
 	swap_src_dst_mac(data);
-	rc = XDP_TX;
-	return rc;
+	return XDP_TX;
 }
