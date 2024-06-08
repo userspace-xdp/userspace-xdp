@@ -40,11 +40,17 @@ run_primary_commands() {
 # Function to run alternative commands
 run_alternative_commands() {
     # Example alternative commands, modify as needed
-    alt_commands=(
+    # alt_commands=(
         # 'make xdp_map_access/afxdp_llvm_aot'
-        # 'mv xdp_map_access/afxdp_llvm_aot xdp_map_access/afxdp_inline_map'
-        'make xdp_map_access/dpdk_llvm_aot'
-        'mv xdp_map_access/dpdk_llvm_aot xdp_map_access/dpdk_inline_map'
+    #     'mv xdp_map_access/afxdp_llvm_aot xdp_map_access/afxdp_inline_map'
+        # 'make xdp_map_access/dpdk_llvm_aot'
+        # 'mv xdp_map_access/dpdk_llvm_aot xdp_map_access/dpdk_inline_map'
+    # )
+    alt_commands=(
+        'make xdp_lb/afxdp_llvm_aot'
+        'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_optimized'
+        'make xdp_lb/dpdk_llvm_aot'
+        'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_optimized'
     )
 
     # Iterate over the alternative commands array and execute each command with trap

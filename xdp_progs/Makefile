@@ -67,7 +67,14 @@ $(call allow-override,CC,$(CROSS_COMPILE)cc)
 $(call allow-override,CXX,$(CROSS_COMPILE)g++)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
-AOT_OBJECTS = $(OUTPUT)/tcpclassify.aot.o $(OUTPUT)/xdp_map.aot.o $(OUTPUT)/xdp_csum.aot.o $(OUTPUT)/xdp_csum_only.aot.o $(OUTPUT)/xdp_hash_sum.aot.o  $(OUTPUT)/xdp_map_access.aot.o $(OUTPUT)/xdp_csum_only.inline.aot.o
+AOT_OBJECTS = $(OUTPUT)/tcpclassify.aot.o \
+	$(OUTPUT)/xdp_map.aot.o \
+	$(OUTPUT)/xdp_csum.aot.o \
+	$(OUTPUT)/xdp_csum_only.aot.o \
+	$(OUTPUT)/xdp_hash_sum.aot.o  \
+	$(OUTPUT)/xdp_map_access.aot.o \
+	$(OUTPUT)/xdp_csum_only.inline.aot.o \
+	$(OUTPUT)/xdp_lb.aot.o
 
 .PHONY: all 
 all: $(APPS) $(AOT_OBJECTS)
