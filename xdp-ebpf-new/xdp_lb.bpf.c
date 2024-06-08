@@ -336,7 +336,77 @@ OUT:
 // 	return 0;
 // }
 
-static uint32_t get_target_key(uint32_t src_ip, uint16_t src_port,
+
+struct hash_and_sum
+{
+	uint32_t sum;
+	uint32_t xxhash64_res;
+};
+
+// Simplified checksum calculation to demonstrate auto-vectorization
+static inline uint32_t calculate_checksum(const u8 *data, uint32_t len) {
+    uint32_t sum = 0;
+    for (uint32_t i = 0; i < len; ++i) {
+        sum += data[i];
+    }
+    return sum;
+}
+
+#define PRIME1 0x9E3779B1U
+#define PRIME2 0x85EBCA77U
+#define PRIME3 0xC2B2AE3DU
+#define PRIME4 0x27D4EB2FU
+#define PRIME5 0x165667B1U
+
+static __always_inline uint32_t rotl (uint32_t x, int r) {
+    return ((x << r) | (x >> (32 - r)));
+}
+// Normal stripe processing routine.
+static __always_inline uint32_t round_xxhash(uint32_t acc, const uint32_t input) {
+    return rotl(acc + (input * PRIME2), 13) * PRIME1;
+}
+
+static __always_inline uint32_t avalanche_step (const uint32_t h, const int rshift, const uint32_t prime) {
+    return (h ^ (h >> rshift)) * prime;
+}
+// Mixes all bits to finalize the hash.
+static __always_inline uint32_t avalanche (const uint32_t h) {
+    return avalanche_step(avalanche_step(avalanche_step(h, 15, PRIME2), 13, PRIME3), 16, 1);
+}
+
+static __always_inline uint32_t endian32 (const char *v) {
+    return (uint32_t)((uint8_t)(v[0]))|((uint32_t)((uint8_t)(v[1])) << 8)
+            |((uint32_t)((uint8_t)(v[2])) << 16)|((uint32_t)((uint8_t)(v[3])) << 24);
+}
+
+static __always_inline uint32_t fetch32 (const char *p, const uint32_t v) {
+    return round_xxhash(v, endian32(p));
+}
+
+// Processes the last 0-15 bytes of p.
+static __always_inline uint32_t finalize (const uint32_t h, const char *p, uint32_t len) {
+    return
+        (len >= 4) ? finalize(rotl(h + (endian32(p) * PRIME3), 17) * PRIME4, p + 4, len - 4) :
+        (len > 0)  ? finalize(rotl(h + ((uint8_t)(*p) * PRIME5), 11) * PRIME1, p + 1, len - 1) :
+        avalanche(h);
+}
+
+static __always_inline uint32_t h16bytes_4 (const char *p, uint32_t len, const uint32_t v1, const uint32_t v2, const uint32_t v3, const uint32_t v4) {
+    return
+        (len >= 16) ? h16bytes_4(p + 16, len - 16, fetch32(p, v1), fetch32(p+4, v2), fetch32(p+8, v3), fetch32(p+12, v4)) :
+        rotl(v1, 1) + rotl(v2, 7) + rotl(v3, 12) + rotl(v4, 18);
+}
+
+static __always_inline uint32_t h16bytes_3 (const char *p, uint32_t len, const uint32_t seed) {
+    return h16bytes_4(p, len, seed + PRIME1 + PRIME2, seed + PRIME2, seed, seed - PRIME1);
+}
+
+static __always_inline uint32_t xxhash32 (const char *input, uint32_t len, uint32_t seed) {
+    return finalize((len >= 16 ? h16bytes_3(input, len, seed) : seed + PRIME5) + len, (input) + (len & ~0xF), len & 0xF);
+}
+
+
+static __always_inline uint32_t get_target_key(uint32_t src_ip, uint16_t src_port,
 							   uint16_t dst_port)
 {
 	uint32_t key = (src_ip ^ src_port ^ dst_port) & 0x1;
@@ -350,6 +420,7 @@ int xdp_pass(struct xdp_md *ctx)
 	void *data_end = (void *)ctx->data_end;
 	void *data = (void *)ctx->data;
 	// bpf_printk("received packet %p %p\n", data, data_end);
+	struct hash_and_sum hash_and_sum_res;
 
 	struct ethhdr *eth = data;
 	if (CHECK_OUT_OF_BOUNDS(data, sizeof(struct ethhdr), data_end))
@@ -430,6 +501,18 @@ int xdp_pass(struct xdp_md *ctx)
 		// 	return XDP_DROP;
 		// bpf_printk("No tcp checksum\n");
 		// bpf_printk("sending packet to %d\n", key);
+		// calc the add sum
+			// we only measure pkt size < 1200
+		if (data + 1200 < data_end)
+			return XDP_PASS;
+		if (data + 60 > data_end)
+			return XDP_PASS;
+		hash_and_sum_res.sum = calculate_checksum(data, 60);
+		// calc the xxhash32 based on the sum
+		hash_and_sum_res.xxhash64_res = xxhash32(data, 60, hash_and_sum_res.sum);
+		// store the result in the ip payload to avoid optimization out
+		__builtin_memcpy(((void*)ip + sizeof(*ip)), &hash_and_sum_res, sizeof(hash_and_sum_res));
+
 		return XDP_TX;
 	}
 	// bpf_printk("pass\n");
