@@ -57,7 +57,7 @@ def plot_data(data):
     plt.bar(labels, values, color='skyblue')
     plt.xlabel('Configuration')
     plt.ylabel('Pkt/s')
-    plt.title('Ipackets by Configuration for size-64 in ' + root_dir)
+    # plt.title('Ipackets by Configuration for size-64 in ' + root_dir)
     plt.xticks(rotation=45)
     plt.tight_layout()  # Adjust layout to not cut off labels
     plt.savefig(os.path.join(root_dir, save_name))
