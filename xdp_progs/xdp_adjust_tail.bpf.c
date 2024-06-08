@@ -98,7 +98,10 @@ static __always_inline int send_icmp4_too_big(struct xdp_md *xdp)
 	void *data_end = (void *)(long)xdp->data_end;
 
 	if (data + (ICMP_TOOBIG_SIZE + headroom) > data_end) {
+	// if (data + (headroom) > data_end) {
 		bpf_printk("Invalid packet data + ICMP_TOOBIG_SIZE + headroom > data_end\n");
+		bpf_printk("data: %p, ICMP_TOOBIG_SIZE + headroom: %d, data_end: %p\n",
+			data, ICMP_TOOBIG_SIZE + headroom, data_end);
 		return XDP_DROP;
 	}
 

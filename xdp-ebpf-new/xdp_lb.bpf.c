@@ -496,13 +496,6 @@ int xdp_pass(struct xdp_md *ctx)
 		ip->check = 0;
 		ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
 
-		//   /* FIX TCP chksum */
-		// if (compute_tcp_csum(ip, (unsigned short *)tcp, data_end))
-		// 	return XDP_DROP;
-		// bpf_printk("No tcp checksum\n");
-		// bpf_printk("sending packet to %d\n", key);
-		// calc the add sum
-			// we only measure pkt size < 1200
 		if (data + 1200 < data_end)
 			return XDP_PASS;
 		if (data + 60 > data_end)
@@ -510,7 +503,7 @@ int xdp_pass(struct xdp_md *ctx)
 		hash_and_sum_res.sum = calculate_checksum(data, 60);
 		// calc the xxhash32 based on the sum
 		hash_and_sum_res.xxhash64_res = xxhash32(data, 60, hash_and_sum_res.sum);
-		// store the result in the ip payload to avoid optimization out
+		// simulate the destination payload
 		__builtin_memcpy(((void*)ip + sizeof(*ip)), &hash_and_sum_res, sizeof(hash_and_sum_res));
 
 		return XDP_TX;
