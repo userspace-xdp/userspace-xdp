@@ -40,25 +40,29 @@ run_primary_commands() {
 # Function to run alternative commands
 run_alternative_commands() {
     # Example alternative commands, modify as needed
-    if [ "$BASIC_XDP_NAME" == "xdp_lb" ]; then
+    if [ "$BASIC_XDP_NAME" == "xdp_map_access" ]; then
         alt_commands=(
-            'make xdp_lb/afxdp_llvm_aot'
-            'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_inline_map'
-            'make xdp_lb/dpdk_llvm_aot'
-            'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_inline_map'
+            'make xdp_map_access/afxdp_llvm_aot'
+            'mv xdp_map_access/afxdp_llvm_aot xdp_map_access/afxdp_inline_map'
+            'make xdp_map_access/dpdk_llvm_aot'
+            'mv xdp_map_access/dpdk_llvm_aot xdp_map_access/dpdk_inline_map'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/xdp_map_access.aot.o make xdp_map_access/afxdp_llvm_aot'
+            'mv xdp_map_access/afxdp_llvm_aot xdp_map_access/afxdp_add_type'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/xdp_map_access.aot.o make xdp_map_access/dpdk_llvm_aot'
+            'mv xdp_map_access/dpdk_llvm_aot xdp_map_access/dpdk_add_type'
         )
     fi
     if [ "$BASIC_XDP_NAME" == "xdp_lb" ]; then
         alt_commands=(
-            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/xdp_lb.aot.o make xdp_lb/dpdk_llvm_aot'
-            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.inline.aot.o make xdp_lb/afxdp_llvm_aot'
-            'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_inline_optimized'
-            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.inline.aot.o make xdp_lb/dpdk_llvm_aot'
-            'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_inline_optimized'
-            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.aot.o make xdp_lb/afxdp_llvm_aot'
-            'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_optimized'
-            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.aot.o make xdp_lb/dpdk_llvm_aot'
-            'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_optimized'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/xdp_lb.aot.o make xdp_lb/dpdk_llvm_aot'
+            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.inline.aot.o make xdp_lb/afxdp_llvm_aot'
+            # 'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_inline_optimized'
+            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.inline.aot.o make xdp_lb/dpdk_llvm_aot'
+            # 'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_inline_optimized'
+            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.aot.o make xdp_lb/afxdp_llvm_aot'
+            # 'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_optimized'
+            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.aot.o make xdp_lb/dpdk_llvm_aot'
+            # 'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_optimized'
         )
     fi
 

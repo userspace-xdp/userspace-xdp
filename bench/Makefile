@@ -330,7 +330,6 @@ $(BASIC_XDP_NAME)/afxdp_ubpf_jit: $(BASIC_XDP_NAME)
 .PHONY: plot_all_config
 plot_all_config:
 	NAME=xdp_map_access python3 plot_mode.py
-	NAME=xdp_map_access_no_lto python3 plot_mode.py
 	NAME=xdp_csum python3 plot_mode.py
 	NAME=xdp_csum_only python3 plot_mode.py
 	NAME=xdp_tx python3 plot_mode.py
@@ -346,7 +345,6 @@ plot_all_config:
 .PHONY: plot_all_size
 plot_all_size:
 	NAME=xdp_map_access python3 plot_size.py
-	NAME=xdp_map_access_no_lto python3 plot_size.py
 	NAME=xdp_csum python3 plot_size.py
 	NAME=xdp_csum_only python3 plot_size.py
 	NAME=xdp_tx python3 plot_size.py

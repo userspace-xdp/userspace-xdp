@@ -71,11 +71,13 @@ AOT_OBJECTS = $(OUTPUT)/tcpclassify.aot.o \
 	$(OUTPUT)/xdp_map.aot.o \
 	$(OUTPUT)/xdp_csum.aot.o \
 	$(OUTPUT)/xdp_csum_only.aot.o \
+	$(OUTPUT)/xdp_csum_only.inline.aot.o \
 	$(OUTPUT)/xdp_hash_sum.aot.o  \
 	$(OUTPUT)/xdp_map_access.aot.o \
-	$(OUTPUT)/xdp_csum_only.inline.aot.o \
+	$(OUTPUT)/xdp_map_access.inline.aot.o \
 	$(OUTPUT)/xdp_lb.aot.o \
 	$(OUTPUT)/xdp_lb.inline.aot.o \
+
 
 .PHONY: all 
 all: $(APPS) $(AOT_OBJECTS)

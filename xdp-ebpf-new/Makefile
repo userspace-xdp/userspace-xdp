@@ -67,7 +67,7 @@ $(call allow-override,CXX,$(CROSS_COMPILE)g++)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
 .PHONY: all 
-all: $(APPS) base.btf
+all: $(APPS) base.btf xdp_lb.aot.o
 
 .PHONY: clean
 clean:
@@ -138,14 +138,19 @@ $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 
 llvm_ir:
 	# generate llvm IR
-	/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build  .output/xdp_lb.bpf.o --emit_llvm 2> xdp_lb.ll
+	/home/yunwei/ebpf-xdp-dpdk/bpftime/build/tools/aot/bpftime-aot build  .output/xdp_lb.bpf.o --emit_llvm 2> xdp_lb.ll
 	# (optional) optimize llvm ir
-	opt -O3 -S xdp_lb.ll -opaque-pointers  -o xdp_lb.opt.ll
-aot_object:
+	# opt -O3 -S xdp_lb.ll -opaque-pointers  -o xdp_lb.opt.ll
+
+xdp_lb.aot.o:
 	# compile llvm IR to native code
 	opt -O3 -opaque-pointers -o xdp_lb.bc xdp_lb.opt.ll
 	llc -O3 -opaque-pointers -filetype=obj -o xdp_lb.aot.o xdp_lb.bc 
 
+.PHONY: build-aot
+build-aot:
+	opt -O3 -opaque-pointers -o xdp_lb.bc xdp_lb.opt.ll
+	llc -O3 -opaque-pointers -filetype=obj -o xdp_lb.aot.o xdp_lb.bc
 
 # delete failed targets
 .DELETE_ON_ERROR:
