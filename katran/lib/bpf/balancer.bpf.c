@@ -10,17 +10,17 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "katran/lib/linux_includes/bpf.h"
-#include "katran/lib/linux_includes/bpf_helpers.h"
-#include "katran/lib/linux_includes/jhash.h"
+#include "../linux_includes/bpf.h"
+#include "../linux_includes/bpf_helpers.h"
+#include "../linux_includes/jhash.h"
 
-#include "katran/lib/bpf/balancer_consts.h"
-#include "katran/lib/bpf/balancer_helpers.h"
-#include "katran/lib/bpf/balancer_maps.h"
-#include "katran/lib/bpf/balancer_structs.h"
-#include "katran/lib/bpf/handle_icmp.h"
-#include "katran/lib/bpf/pckt_encap.h"
-#include "katran/lib/bpf/pckt_parsing.h"
+#include "../bpf/balancer_consts.h"
+#include "../bpf/balancer_helpers.h"
+#include "../bpf/balancer_maps.h"
+#include "../bpf/balancer_structs.h"
+#include "../bpf/handle_icmp.h"
+#include "../bpf/pckt_encap.h"
+#include "../bpf/pckt_parsing.h"
 
 __attribute__((__always_inline__)) static inline __u32 get_packet_hash(
     struct packet_description* pckt,

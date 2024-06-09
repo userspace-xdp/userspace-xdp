@@ -34,10 +34,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "katran/lib/linux_includes/bpf.h"
+#include "../linux_includes/bpf.h"
 
-#include "katran/lib/bpf/balancer_consts.h"
-#include "katran/lib/bpf/balancer_helpers.h"
+#include "../bpf/balancer_consts.h"
+#include "../bpf/balancer_helpers.h"
 
 struct quic_long_header {
   __u8 flags;

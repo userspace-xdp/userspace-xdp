@@ -25,14 +25,14 @@
 #include <linux/ipv6.h>
 #include <stdbool.h>
 
-#include "katran/lib/linux_includes/bpf.h"
-#include "katran/lib/linux_includes/bpf_helpers.h"
+#include "../linux_includes/bpf.h"
+#include "../linux_includes/bpf_helpers.h"
 
-#include "katran/lib/bpf/balancer_consts.h"
-#include "katran/lib/bpf/balancer_structs.h"
-#include "katran/lib/bpf/control_data_maps.h"
-#include "katran/lib/bpf/csum_helpers.h"
-#include "katran/lib/bpf/introspection.h"
+#include "../bpf/balancer_consts.h"
+#include "../bpf/balancer_structs.h"
+#include "../bpf/control_data_maps.h"
+#include "../bpf/csum_helpers.h"
+#include "../bpf/introspection.h"
 
 #define bpf_printk(fmt, ...)                                   \
   ({                                                           \

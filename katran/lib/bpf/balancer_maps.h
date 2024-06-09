@@ -22,11 +22,11 @@
  * involving information pertaining to proper forwarding of packets
  */
 
-#include "katran/lib/linux_includes/bpf.h"
-#include "katran/lib/linux_includes/bpf_helpers.h"
+#include "../linux_includes/bpf.h"
+#include "../linux_includes/bpf_helpers.h"
 
-#include "katran/lib/bpf/balancer_consts.h"
-#include "katran/lib/bpf/balancer_structs.h"
+#include "../bpf/balancer_consts.h"
+#include "../bpf/balancer_structs.h"
 
 // map, which contains all the vips for which we are doing load balancing
 struct {

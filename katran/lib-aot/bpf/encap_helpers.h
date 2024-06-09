@@ -22,12 +22,12 @@
 #include <linux/udp.h>
 #include <string.h>
 
-#include "katran/lib/linux_includes/bpf.h"
-#include "katran/lib/linux_includes/bpf_endian.h"
-#include "katran/lib/linux_includes/bpf_helpers.h"
+#include "../linux_includes/bpf.h"
+#include "../linux_includes/bpf_endian.h"
+#include "../linux_includes/bpf_helpers.h"
 
-#include "katran/lib/bpf/balancer_consts.h"
-#include "katran/lib/bpf/csum_helpers.h"
+#include "../bpf/balancer_consts.h"
+#include "../bpf/csum_helpers.h"
 
 __attribute__((__always_inline__)) static inline void
 create_encap_ipv6_src(__u16 port, __be32 src, __u32* saddr) {
