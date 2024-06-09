@@ -6,3 +6,4 @@ loader
 unloader
 .output
 xdp_lb
+*.bc

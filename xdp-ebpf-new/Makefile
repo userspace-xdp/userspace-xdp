@@ -136,6 +136,17 @@ $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 	$(call msg,BINARY,$@)
 	$(Q)$(CXX) $(CFLAGS) $^ $(ALL_LDFLAGS) -lelf -lz -o $@
 
+llvm_ir:
+	# generate llvm IR
+	/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build  .output/xdp_lb.bpf.o --emit_llvm 2> xdp_lb.ll
+	# (optional) optimize llvm ir
+	opt -O3 -S xdp_lb.ll -opaque-pointers  -o xdp_lb.opt.ll
+aot_object:
+	# compile llvm IR to native code
+	opt -O3 -opaque-pointers -o xdp_lb.bc xdp_lb.opt.ll
+	llc -O3 -opaque-pointers -filetype=obj -o xdp_lb.aot.o xdp_lb.bc 
+
+
 # delete failed targets
 .DELETE_ON_ERROR:
 

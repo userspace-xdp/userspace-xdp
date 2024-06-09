@@ -1,4 +1,5 @@
 #define BPF_NO_GLOBAL_DATA
+#define __always_inline		inline __attribute__((always_inline))
 
 #ifndef BPF_NO_PRESERVE_ACCESS_INDEX
 #pragma clang attribute push(__attribute__((preserve_access_index)), apply_to = record)
@@ -198,10 +199,34 @@ enum bpf_map_type
 #pragma clang attribute pop
 #endif
 
-#include <bpf/bpf_helpers.h>
+// #include <bpf/bpf_helpers.h>
+
+// void * _bpf_helper_ext_0001();
+// [2024-06-08 21:36:47.617] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=config_map found at 4
+// [2024-06-08 21:36:47.617] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=targets_map found at 5
+// [2024-06-08 21:36:47.617] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=.rodata.str1.1 found at 6
+
+long _bpf_helper_ext_0006();
+__s64 _bpf_helper_ext_0028();
+#define bpf_csum_diff _bpf_helper_ext_0028
+#define bpf_printk(str) \
+    ({ \
+        char ____fmt[] = str; \
+        _bpf_helper_ext_0006(____fmt, sizeof(____fmt)); \
+    })
+
 #include <bpf/bpf_endian.h>
 
-#include "common.h"
+#define ETH_ALEN        6
+
+struct __attribute__((packed)) eth_addr {
+	unsigned char addr[ETH_ALEN];
+};
+
+struct ip_mac_pair {
+	struct eth_addr mac;
+	__u32 ip;
+};
 
 #define MAX_OPT_WORDS 10 // 40 bytes for options
 #define MAX_TARGET_COUNT 64
@@ -215,33 +240,64 @@ struct ipv4_psd_header
 	uint8_t proto;	   /* L4 protocol type. */
 	uint16_t len;	   /* L4 length. */
 };
-
+ 
+// #include "includes/hash_map.h"
 /**
  * Map that holds the information for the target servers
  * You can assume that this map will always have two elements populated when
  * loading the XDP program
  */
-struct
-{
-	__uint(type, BPF_MAP_TYPE_ARRAY);
-	__type(key, __u32);
-	__type(value, struct ip_mac_pair);
-	__uint(max_entries, MAX_TARGET_COUNT);
-} targets_map SEC(".maps");
+// struct
+// {
+// 	__uint(type, BPF_MAP_TYPE_ARRAY);
+// 	__type(key, __u32);
+// 	__type(value, struct ip_mac_pair);
+// 	__uint(max_entries, MAX_TARGET_COUNT);
+// } targets_map SEC(".maps");
 
-/**
- * Map that holds the IP and MAC address of the load balancer and the client.
- * The IP and MAC of the load balancer are in the first cell
- * and the information for the client are in the second cell.
- * This map is also populated when loading the XDP program.
- */
-struct
-{
-	__uint(type, BPF_MAP_TYPE_ARRAY);
-	__type(key, __u32);
-	__type(value, struct ip_mac_pair);
-	__uint(max_entries, MAX_TARGET_COUNT);
-} config_map SEC(".maps");
+const struct ip_mac_pair targets_map[MAX_TARGET_COUNT] = {
+	{
+		.mac = {{ 0xb8, 0x3f, 0xd2, 0x2a, 0xe5, 0x11 }},
+		.ip = 0xc0a80102,
+	},
+	{
+		.mac = {{ 0xb8, 0x3f, 0xd2, 0x2a, 0xe5, 0x11 }},
+		.ip = 0xc0a80103,
+	},
+};
+
+static void *bpf_map_lookup_targets_map(const void *key) {
+	return (void *)&targets_map[*(uint32_t *)key];
+}
+
+// /**
+//  * Map that holds the IP and MAC address of the load balancer and the client.
+//  * The IP and MAC of the load balancer are in the first cell
+//  * and the information for the client are in the second cell.
+//  * This map is also populated when loading the XDP program.
+//  */
+// struct
+// {
+// 	__uint(type, BPF_MAP_TYPE_ARRAY);
+// 	__type(key, __u32);
+// 	__type(value, struct ip_mac_pair);
+// 	__uint(max_entries, MAX_TARGET_COUNT);
+// } config_map SEC(".maps");
+
+const struct ip_mac_pair config_map[MAX_TARGET_COUNT] = {
+	{
+		.mac = {{ 0xb8, 0x3f, 0xd2, 0x2a, 0xe5, 0x11 }},
+		.ip = 0xc0a8010b,
+	},
+	{
+		.mac = {{ 0xb8, 0x3f, 0xd2, 0x2a, 0xe5, 0x11 }},
+		.ip = 0xc0a8010d,
+	},
+};
+
+static void *bpf_map_lookup_config_map(const void *key) {
+	return (void *)&config_map[*(uint32_t *)key];
+}
 
 static __always_inline __u16 csum_reduce_helper(__u32 csum)
 {
@@ -258,13 +314,13 @@ static __always_inline int compute_tcp_csum(struct iphdr *ip, struct tcphdr *tcp
 	int ret = 0;
 
 	tcp->check = 0;
-	csum = bpf_csum_diff(0, 0, (__be32 *)tcp, sizeof(struct tcphdr), 0);
+	csum = _bpf_helper_ext_0028(0, 0, (__be32 *)tcp, sizeof(struct tcphdr), 0);
 	psdh.src_addr = ip->saddr;
 	psdh.dst_addr = ip->daddr;
 	psdh.zero = 0;
 	psdh.proto = IPPROTO_TCP;
 	psdh.len = bpf_htons(bpf_ntohs(ip->tot_len) - sizeof(struct iphdr));
-	csum = bpf_csum_diff(0, 0, (__be32 *)&psdh, sizeof(struct ipv4_psd_header),
+	csum = _bpf_helper_ext_0028(0, 0, (__be32 *)&psdh, sizeof(struct ipv4_psd_header),
 						 csum);
 	uint32_t tcphdrlen = tcp->doff * 4;
 
@@ -282,7 +338,7 @@ static __always_inline int compute_tcp_csum(struct iphdr *ip, struct tcphdr *tcp
 			goto OUT;
 		}
 
-		csum = bpf_csum_diff(0, 0, (__be32 *)opt, sizeof(uint32_t), csum);
+		csum = _bpf_helper_ext_0028(0, 0, (__be32 *)opt, sizeof(uint32_t), csum);
 
 		parsed += sizeof(uint32_t);
 		if (parsed == tcphdrlen)
@@ -414,11 +470,11 @@ static __always_inline uint32_t get_target_key(uint32_t src_ip, uint16_t src_por
 	return key;
 }
 
-SEC("xdp")
-int xdp_pass(struct xdp_md *ctx)
+int bpf_main(void *ctx_base)
 {
-	void *data_end = (void *)ctx->data_end;
-	void *data = (void *)ctx->data;
+	struct xdp_md *ctx = (struct xdp_md *)ctx_base;
+	void *data_end = (void *)(long)ctx->data_end;
+	void *data = (void *)(long)ctx->data;
 	// bpf_printk("received packet %p %p\n", data, data_end);
 	struct hash_and_sum hash_and_sum_res;
 
@@ -437,7 +493,7 @@ int xdp_pass(struct xdp_md *ctx)
 	}
 
 	/* FIXME: Implement the load balancer logic */
-
+	// bpf_printk("iphdr\n");
 	if (ip->protocol == IPPROTO_TCP)
 	{
 		struct tcphdr *tcp = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
@@ -450,7 +506,7 @@ int xdp_pass(struct xdp_md *ctx)
 		}
 
 		uint32_t key = 1;
-		struct ip_mac_pair *client_cfg = bpf_map_lookup_elem(&config_map, &key);
+		struct ip_mac_pair *client_cfg = bpf_map_lookup_config_map(&key);
 		if (!client_cfg)
 		{
 			bpf_printk("Client config not found\n");
@@ -458,7 +514,6 @@ int xdp_pass(struct xdp_md *ctx)
 		}
 
 		struct ip_mac_pair *dst, *src;
-
 		if (data + 1200 < data_end)
 			return XDP_PASS;
 		if (data + 60 > data_end)
@@ -466,30 +521,32 @@ int xdp_pass(struct xdp_md *ctx)
 		hash_and_sum_res.sum = calculate_checksum(data, 60);
 		// calc the xxhash32 based on the sum
 		hash_and_sum_res.xxhash64_res = xxhash32(data, 60, hash_and_sum_res.sum);
-		
+
 		if (hash_and_sum_res.xxhash64_res / 2)
 		{
 			/* FIXME: Load balance the decision */
 			// key = 0;
 			key = get_target_key(ip->saddr, tcp->source, tcp->dest);
-			dst = bpf_map_lookup_elem(&targets_map, &key);
+			// dst = bpf_map_lookup_elem(&targets_map, &key);
+			dst = bpf_map_lookup_targets_map(&key);
 			if (!dst)
 				return XDP_ABORTED;
 
 			key = 0;
-			src = bpf_map_lookup_elem(&config_map, &key);
+			// src = bpf_map_lookup_elem(&config_map, &key);
+			src = bpf_map_lookup_config_map(&key);
 			if (!src)
 				return XDP_ABORTED;
 		}
 		else
 		{
 			key = 1;
-			dst = bpf_map_lookup_elem(&config_map, &key);
+			dst = bpf_map_lookup_targets_map(&key);
 			if (!dst)
 				return XDP_ABORTED;
 
 			key = 0;
-			src = bpf_map_lookup_elem(&config_map, &key);
+			src = bpf_map_lookup_config_map(&key);
 			if (!src)
 				return XDP_ABORTED;
 		}
@@ -504,20 +561,10 @@ int xdp_pass(struct xdp_md *ctx)
 		ip->check = 0;
 		ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
 
-		if (data + 1200 < data_end)
-			return XDP_PASS;
-		if (data + 60 > data_end)
-			return XDP_PASS;
-		hash_and_sum_res.sum = calculate_checksum(data, 60);
-		// calc the xxhash32 based on the sum
-		hash_and_sum_res.xxhash64_res = xxhash32(data, 60, hash_and_sum_res.sum);
-		// simulate the destination payload
-		__builtin_memcpy(((void*)ip + sizeof(*ip)), &hash_and_sum_res, sizeof(hash_and_sum_res));
-
 		return XDP_TX;
 	}
 	// bpf_printk("pass\n");
 	return XDP_PASS;
 }
 
-char LICENSE[] SEC("license") = "GPL";
+// char LICENSE[] SEC("license") = "GPL";

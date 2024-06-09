@@ -24,11 +24,11 @@ run_primary_commands() {
         'make $BASIC_XDP_NAME/dpdk_llvm_jit'
         'make $BASIC_XDP_NAME/dpdk_ubpf_jit'
         'make $BASIC_XDP_NAME/dpdk_intepreter'
-        # 'make $BASIC_XDP_NAME/drv_mode'
-        # 'make $BASIC_XDP_NAME/skb_mode'
-        # 'make $BASIC_XDP_NAME/afxdp_ubpf_jit'
-        # 'make $BASIC_XDP_NAME/afxdp_llvm_jit_copy'
-        # 'make $BASIC_XDP_NAME/afxdp_llvm_jit_zero_copy'
+        'make $BASIC_XDP_NAME/drv_mode'
+        'make $BASIC_XDP_NAME/skb_mode'
+        'make $BASIC_XDP_NAME/afxdp_ubpf_jit'
+        'make $BASIC_XDP_NAME/afxdp_llvm_jit_copy'
+        'make $BASIC_XDP_NAME/afxdp_llvm_jit_zero_copy'
     )
 
     # Iterate over the commands array and execute each command with trap
@@ -40,18 +40,27 @@ run_primary_commands() {
 # Function to run alternative commands
 run_alternative_commands() {
     # Example alternative commands, modify as needed
-    # alt_commands=(
-        # 'make xdp_map_access/afxdp_llvm_aot'
-    #     'mv xdp_map_access/afxdp_llvm_aot xdp_map_access/afxdp_inline_map'
-        # 'make xdp_map_access/dpdk_llvm_aot'
-        # 'mv xdp_map_access/dpdk_llvm_aot xdp_map_access/dpdk_inline_map'
-    # )
-    alt_commands=(
-        'make xdp_lb/afxdp_llvm_aot'
-        'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_optimized'
-        'make xdp_lb/dpdk_llvm_aot'
-        'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_optimized'
-    )
+    if [ "$BASIC_XDP_NAME" == "xdp_lb" ]; then
+        alt_commands=(
+            'make xdp_lb/afxdp_llvm_aot'
+            'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_inline_map'
+            'make xdp_lb/dpdk_llvm_aot'
+            'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_inline_map'
+        )
+    fi
+    if [ "$BASIC_XDP_NAME" == "xdp_lb" ]; then
+        alt_commands=(
+            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/xdp_lb.aot.o make xdp_lb/dpdk_llvm_aot'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.inline.aot.o make xdp_lb/afxdp_llvm_aot'
+            'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_inline_optimized'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.inline.aot.o make xdp_lb/dpdk_llvm_aot'
+            'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_inline_optimized'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.aot.o make xdp_lb/afxdp_llvm_aot'
+            'mv xdp_lb/afxdp_llvm_aot xdp_lb/afxdp_optimized'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.aot.o make xdp_lb/dpdk_llvm_aot'
+            'mv xdp_lb/dpdk_llvm_aot xdp_lb/dpdk_optimized'
+        )
+    fi
 
     # Iterate over the alternative commands array and execute each command with trap
     for cmd in "${alt_commands[@]}"; do

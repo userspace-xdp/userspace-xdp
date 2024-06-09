@@ -74,7 +74,8 @@ AOT_OBJECTS = $(OUTPUT)/tcpclassify.aot.o \
 	$(OUTPUT)/xdp_hash_sum.aot.o  \
 	$(OUTPUT)/xdp_map_access.aot.o \
 	$(OUTPUT)/xdp_csum_only.inline.aot.o \
-	$(OUTPUT)/xdp_lb.aot.o
+	$(OUTPUT)/xdp_lb.aot.o \
+	$(OUTPUT)/xdp_lb.inline.aot.o \
 
 .PHONY: all 
 all: $(APPS) $(AOT_OBJECTS)
@@ -147,15 +148,13 @@ $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 	$(Q)$(CXX) $(CFLAGS) $^ $(ALL_LDFLAGS) -lelf -lz -o $@
 
 $(OUTPUT)/%.aot.o: %.bpf.aot.c
-	$(call msg,CC,$@)
-	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
+	$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
 
 $(OUTPUT)/%.aot.o: %.bpf.aot.cpp
 	$(CXX) -O3 -fno-stack-protector -fno-permissive $(INCLUDES) -c $< -o $@
 
 $(OUTPUT)/%.inline.aot.o: %.bpf.inline.aot.c
-	$(call msg,CC,$@)
-	$(Q)$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
+	$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
 
 generate_llvm_ir:
 	mkdir -p xdp_map_access_ir

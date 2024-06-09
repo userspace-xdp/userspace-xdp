@@ -16,7 +16,7 @@ struct bpf_scratchpad {
 	};
 };
 
-#include "inline_csum.h"
+#include "includes/inline_csum.h"
 
 #define LOOP_LEN 32
 #define ETH_P_IP 0x0800

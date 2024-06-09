@@ -270,7 +270,7 @@ struct ipv4_psd_header
 // } config_map SEC(".maps");
 
 #define config_map ((uint64_t)4 << 32)
-
+#define targets_map ((uint64_t)5 << 32)
 
 static __always_inline __u16 csum_reduce_helper(__u32 csum)
 {
@@ -487,14 +487,21 @@ int bpf_main(void *ctx_base)
 		}
 
 		struct ip_mac_pair *dst, *src;
-
-		if (client_cfg->ip == bpf_ntohl(ip->saddr))
+		if (data + 1200 < data_end)
+			return XDP_PASS;
+		if (data + 60 > data_end)
+			return XDP_PASS;
+		hash_and_sum_res.sum = calculate_checksum(data, 60);
+		// calc the xxhash32 based on the sum
+		hash_and_sum_res.xxhash64_res = xxhash32(data, 60, hash_and_sum_res.sum);
+		
+		if (hash_and_sum_res.xxhash64_res / 2)
 		{
 			/* FIXME: Load balance the decision */
 			// key = 0;
 			key = get_target_key(ip->saddr, tcp->source, tcp->dest);
 			// dst = bpf_map_lookup_elem(&targets_map, &key);
-			// dst = _bpf_helper_ext_0001(&key);
+			dst = _bpf_helper_ext_0001(targets_map, &key);
 			if (!dst)
 				return XDP_ABORTED;
 
@@ -526,16 +533,6 @@ int bpf_main(void *ctx_base)
 		//   /* FIX IP checksum */
 		ip->check = 0;
 		ip->check = ~csum_reduce_helper(bpf_csum_diff(0, 0, (__be32 *)ip, sizeof(struct iphdr), 0));
-
-		if (data + 1200 < data_end)
-			return XDP_PASS;
-		if (data + 60 > data_end)
-			return XDP_PASS;
-		hash_and_sum_res.sum = calculate_checksum(data, 60);
-		// calc the xxhash32 based on the sum
-		hash_and_sum_res.xxhash64_res = xxhash32(data, 60, hash_and_sum_res.sum);
-		// simulate the destination payload
-		__builtin_memcpy(((void*)ip + sizeof(*ip)), &hash_and_sum_res, sizeof(hash_and_sum_res));
 
 		return XDP_TX;
 	}

@@ -54,10 +54,10 @@ Results: A hash function that would take about 40ns to exec in kernel eBPF or ub
 ```sh
 # generate llvm IR
 /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build  /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.o --emit_llvm 2> xdp_map_access.ll
-# compile llvm IR to native code
-clang -O3 -c -o xdp_map_access.o xdp_map_access.ll
 # (optional) optimize llvm ir
 opt -O3 -S xdp_map_access.ll -opaque-pointers  -o xdp_map_access_opt.ll
+# compile llvm IR to native code
+clang -O3 -c -o xdp_map_access.o xdp_map_access.ll
 # load the native code with aot runtime
 sudo -E AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.aot.o /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 ```
