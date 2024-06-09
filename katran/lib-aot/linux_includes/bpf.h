@@ -3121,8 +3121,8 @@ enum xdp_action {
  * new fields must be added to the end of this structure
  */
 struct xdp_md {
-  __u32 data;
-  __u32 data_end;
+  __u64 data;
+  __u64 data_end;
   __u32 data_meta;
   /* Below access go through struct xdp_rxq_info */
   __u32 ingress_ifindex; /* rxq->dev->ifindex */

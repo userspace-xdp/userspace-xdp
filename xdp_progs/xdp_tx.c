@@ -170,6 +170,7 @@ int main(int argc, char **argv)
 			printf("Failed to get katran lru FD\n");
 			return 1;
 		}
+		printf("lru map fd %d\n", value);
 		// struct flow_key lru_key = {};
 		// struct real_pos_lru lru_value = {};
 		// bpf_map_update_elem(value, &lru_key, &lru_value, 0);

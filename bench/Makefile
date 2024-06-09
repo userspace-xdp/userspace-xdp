@@ -137,6 +137,7 @@ RUN_XDP_KERNEL_SKB_COMMAND = SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = BPFTIME_ALLOW_EXTERNAL_MAPS=true $(ROOTDIR)/xdp_progs/xdp_tx \
 	/home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o $(NETDEV)
 TRAFFICGEN = remote64range
+BASIC_XDP_AOT_RES_NAME ?= .
 else ifeq ($(BASIC_XDP_NAME),katran-size)
 RUN_XDP_BASIC_COMMAND = $(ROOTDIR)/xdp_progs/xdp_tx /home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer.bpf.o $(NETDEV)
 RUN_XDP_KERNEL_DRV_COMMAND = DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
@@ -144,6 +145,7 @@ RUN_XDP_KERNEL_SKB_COMMAND = SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = BPFTIME_ALLOW_EXTERNAL_MAPS=true $(ROOTDIR)/xdp_progs/xdp_tx \
 	/home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o $(NETDEV)
 TRAFFICGEN = remote64to1024tcp
+BASIC_XDP_AOT_RES_NAME ?= .
 else
 $(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))
 endif
@@ -341,6 +343,7 @@ plot_all_config:
 	NAME=xdp_hash_sum python3 plot_mode.py
 	NAME=xdp-observer python3 plot_mode.py
 	NAME=xdp-tcpclassify python3 plot_mode.py
+	NAME=katran-range python3 plot_mode.py
 
 .PHONY: plot_all_size
 plot_all_size:

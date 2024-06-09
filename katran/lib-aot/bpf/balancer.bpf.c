@@ -167,7 +167,7 @@ __attribute__((__always_inline__)) static inline bool get_packet_dst(
       new_dst_lru.atime = cur_time;
     }
     new_dst_lru.pos = key;
-    bpf_map_update_elem(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);
+    bpf_map_update_elem_dyn(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);
   }
   return true;
 }
@@ -180,7 +180,7 @@ __attribute__((__always_inline__)) static inline void connection_table_lookup(
   struct real_pos_lru* dst_lru;
   __u64 cur_time;
   __u32 key;
-  dst_lru = bpf_map_lookup_elem(lru_map, &pckt->flow);
+  dst_lru = bpf_map_lookup_elem_dyn(lru_map, &pckt->flow);
   if (!dst_lru) {
     return;
   }
@@ -604,7 +604,7 @@ __attribute__((__always_inline__)) static inline int
 check_and_update_real_index_in_lru(
     struct packet_description* pckt,
     void* lru_map) {
-  struct real_pos_lru* dst_lru = bpf_map_lookup_elem(lru_map, &pckt->flow);
+  struct real_pos_lru* dst_lru = bpf_map_lookup_elem_dyn(lru_map, &pckt->flow);
   if (dst_lru) {
     if (dst_lru->pos == pckt->real_index) {
       return DST_MATCH_IN_LRU;
@@ -619,7 +619,7 @@ check_and_update_real_index_in_lru(
   }
   struct real_pos_lru new_dst_lru = {};
   new_dst_lru.pos = pckt->real_index;
-  bpf_map_update_elem(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);
+  bpf_map_update_elem_dyn(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);
   return DST_NOT_FOUND_IN_LRU;
 }
 
@@ -1042,6 +1042,12 @@ int balancer_ingress(struct xdp_md* ctx) {
     // pass to tcp/ip stack
     return XDP_PASS;
   }
+}
+
+int bpf_main(void *ctx_base)
+{
+	struct xdp_md *ctx = (struct xdp_md *)ctx_base;
+  return balancer_ingress(ctx);
 }
 
 char _license[] SEC("license") = "GPL";

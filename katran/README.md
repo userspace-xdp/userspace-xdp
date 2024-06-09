@@ -247,8 +247,9 @@ libbpf: map 'server_id_stats': created successfully, fd=18
 Found vip map
 Found ctl array
 Found lru mapping
-[2024-06-09 22:13:52][info][1316749] non-builtin map type: 9
+[2024-06-09 22:50:19][info][1334164] non-builtin map type: 9
 cache size 2000
+lru map fd 20
 load prog balancer_ingressXDP native mode
 attach maybe error
 ```
