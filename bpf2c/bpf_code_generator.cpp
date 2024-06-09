@@ -12,22 +12,24 @@
 // .\scripts\generate_expected_bpf2c_output.ps1 .\x64\Debug\
 
 #include "bpf_code_generator.h"
-#include "ebpf_api.h"
-#include "ebpf_version.h"
-#define ebpf_inst ebpf_inst_btf
+// #include "ebpf_api.h"
+// #include "ebpf_version.h"
+// #define ebpf_inst ebpf_inst_btf
 #include "libbtf/btf_map.h"
 #include "libbtf/btf_parse.h"
 #include "libbtf/btf_type_data.h"
-#include "spec_type_descriptors.hpp"
-#undef ebpf_inst
+// #include "spec_type_descriptors.hpp"
+// #undef ebpf_inst
 
-#include <windows.h>
+// #include <windows.h>
 #include <cassert>
-#include <format>
+// #include <format>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <cstring>
 #undef max
 
 #if !defined(_countof)
@@ -1781,7 +1783,7 @@ bpf_code_generator::set_pe_section_name(const bpf_code_generator::unsafe_string&
     pe_section_name_counter++;
     char shortname[9];
     int prefix_length = sizeof(shortname) - 3 - (int)(log10(pe_section_name_counter));
-    strncpy_s(shortname, sizeof(shortname), elf_section_name.raw().c_str(), prefix_length);
-    sprintf_s(shortname + prefix_length, sizeof(shortname) - prefix_length, "~%d", pe_section_name_counter);
+    strncpy(shortname, sizeof(shortname), elf_section_name.raw().c_str(), prefix_length);
+    sprintf(shortname + prefix_length, sizeof(shortname) - prefix_length, "~%d", pe_section_name_counter);
     current_program->pe_section_name = shortname;
 }

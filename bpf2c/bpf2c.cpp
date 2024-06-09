@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: MIT
 
 #include "bpf_code_generator.h"
-#include "ebpf_api.h"
-#include "ebpf_program_types.h"
-#include "hash.h"
+// #include "ebpf_api.h"
+// #include "ebpf_program_types.h"
+// #include "hash.h"
 
-#include <Windows.h>
-#include <ElfWrapper.h>
+// #include <Windows.h>
+// #include <ElfWrapper.h>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -25,13 +25,13 @@
 
 const char copyright_notice[] = "// Copyright (c) eBPF for Windows contributors\n// SPDX-License-Identifier: MIT\n";
 
-const char bpf2c_driver[] =
-#include "bpf2c_driver.template"
-    ;
+// const char bpf2c_driver[] =
+// #include "bpf2c_driver.template"
+//     ;
 
-const char bpf2c_dll[] =
-#include "bpf2c_dll.template"
-    ;
+// const char bpf2c_dll[] =
+// #include "bpf2c_dll.template"
+//     ;
 
 void
 emit_skeleton(std::ostream& out_stream, const std::string& c_name, const std::string& code)

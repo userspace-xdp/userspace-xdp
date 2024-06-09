@@ -20,3 +20,6 @@
 [submodule "external/dpdk"]
 	path = external/dpdk
 	url = https://github.com/DPDK/dpdk
+[submodule "bpf2c/libbtf"]
+	path = bpf2c/libbtf
+	url = https://github.com/Alan-Jowett/libbtf.git
