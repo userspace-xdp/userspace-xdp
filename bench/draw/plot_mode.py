@@ -47,12 +47,15 @@ def plot_data(data, target_file, ax):
     labels = list(data.keys())
     values = list(data.values())
 
-    ax.bar(labels, values, color='skyblue')
+    # Define a list of colors for the bars
+    colors = plt.cm.tab20(range(len(values)))  # Use a colormap to generate colors
+
+    ax.bar(labels, values, color=colors)
     # ax.set_xlabel('Configuration', fontsize=18)  # Set font size for x-axis label
-    ax.set_ylabel('Pkt/s', fontsize=18)  # Set font size for y-axis label
-    ax.set_title(f'{target_file}', fontsize=20)  # Set font size for title
+    ax.set_ylabel('Pkt/s', fontsize=25)  # Set font size for y-axis label
+    ax.set_title(f'{target_file}', fontsize=30)  # Set font size for title
     ax.set_xticks(range(len(labels)))  # Set the positions of the ticks
-    ax.set_xticklabels(labels, rotation=45, fontsize=16)  # Set font size for x-tick labels
+    ax.set_xticklabels(labels, rotation=45, fontsize=25)  # Set font size for x-tick labels
     ax.tick_params(axis='y', labelsize=16)  # Set font size for y-tick labels
     ax.grid(True)
 
