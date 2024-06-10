@@ -1,7 +1,6 @@
 #ifndef DEF_BPF_H
 #define DEF_BPF_H
 
-
 #ifndef BPF_NO_PRESERVE_ACCESS_INDEX
 #pragma clang attribute push(__attribute__((preserve_access_index)), apply_to = record)
 #endif
@@ -95,6 +94,12 @@ struct icmphdr {
 	} un;
 };
 
+enum {
+	BPF_ANY = 0,
+	BPF_NOEXIST = 1,
+	BPF_EXIST = 2,
+	BPF_F_LOCK = 4,
+};
 
 // here we use a sightly different one than kernel
 // BTF can help us

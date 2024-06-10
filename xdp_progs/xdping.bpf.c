@@ -132,9 +132,9 @@ int xdp_pass(struct xdp_md *ctx)
 	return XDP_TX;
 }
 
-SEC("xdp")
-int xdping_client(struct xdp_md *ctx)
-{
+// SEC("xdp")
+// int xdping_client(struct xdp_md *ctx)
+// {
 // 	void *data = (void *)(long)ctx->data;
 // 	struct pinginfo *pinginfo = NULL;
 // 	struct ethhdr *eth = data;
@@ -192,7 +192,7 @@ int xdping_client(struct xdp_md *ctx)
 // 	pinginfo->seq = seq;
 // 	pinginfo->start = bpf_ktime_get_ns();
 
-	return XDP_TX;
-}
+// 	return XDP_TX;
+// }
 
 char _license[] SEC("license") = "GPL";

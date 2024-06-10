@@ -42,28 +42,58 @@ run_alternative_commands() {
     # Example alternative commands, modify as needed
     if [ "$BASIC_XDP_NAME" == "xdp_tx" ]; then
         alt_commands=(
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_tx.base.aot.o make xdp_tx/afxdp_llvm_aot'
+            'mv -f xdp_tx/afxdp_llvm_aot/ xdp_tx/afxdp_llvm_aot_base/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_tx.base.aot.o make xdp_tx/dpdk_llvm_aot'
+            'mv -f xdp_tx/dpdk_llvm_aot/ xdp_tx/dpdk_llvm_aot_base/'            
             'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_tx.aot.o make xdp_tx/afxdp_llvm_aot'
+            'mv -f xdp_tx/afxdp_llvm_aot/ xdp_tx/afxdp_add_type/'
             'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_tx.aot.o make xdp_tx/dpdk_llvm_aot'
+            'mv -f xdp_tx/dpdk_llvm_aot/ xdp_tx/dpdk_add_type/'
         )
     fi
     if [ "$BASIC_XDP_NAME" == "xdping" ]; then
         alt_commands=(
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdping.base.aot.o make xdping/afxdp_llvm_aot'
+            'mv -f xdping/afxdp_llvm_aot/ xdping/afxdp_llvm_aot_base/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdping.base.aot.o make xdping/dpdk_llvm_aot'
+            'mv -f xdping/dpdk_llvm_aot/ xdping/dpdk_llvm_aot_base/'
             'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdping.aot.o make xdping/afxdp_llvm_aot'
-            'mv -f xdping/afxdp_llvm_aot/* xdping/afxdp_add_type/*'
+            'mv -f xdping/afxdp_llvm_aot/ xdping/afxdp_add_type/'
             'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdping.aot.o make xdping/dpdk_llvm_aot'
-            'mv -f xdping/dpdk_llvm_aot/* xdping/dpdk_add_type/*'
+            'mv -f xdping/dpdk_llvm_aot/ xdping/dpdk_add_type/'
+        )
+    fi
+    if [ "$BASIC_XDP_NAME" == "xdp_map" ]; then
+        alt_commands=(
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp-maps.base.aot.o make xdp_map_access/afxdp_llvm_aot'
+            'mv -f xdp_map_access/afxdp_llvm_aot/ xdp_map_access/afxdp_llvm_aot_base/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.base.aot.o make xdp_map_access/dpdk_llvm_aot'
+            'mv -f xdp_map_access/dpdk_llvm_aot/ xdp_map_access/dpdk_llvm_aot_base/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.inline.aot.o make xdp_map_access/afxdp_llvm_aot'
+            'mv -f xdp_map_access/afxdp_llvm_aot/ xdp_map_access/afxdp_inline_map/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.inline.aot.o make xdp_map_access/dpdk_llvm_aot'
+            'mv -f xdp_map_access/dpdk_llvm_aot/ xdp_map_access/dpdk_inline_map/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.aot.o make xdp_map_access/afxdp_llvm_aot'
+            'mv -f xdp_map_access/afxdp_llvm_aot/ xdp_map_access/afxdp_add_type/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.aot.o make xdp_map_access/dpdk_llvm_aot'
+            'mv -f xdp_map_access/dpdk_llvm_aot/ xdp_map_access/dpdk_add_type/'
         )
     fi
     if [ "$BASIC_XDP_NAME" == "xdp_map_access" ]; then
         alt_commands=(
-            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.inline.aot.o make xdp_map_access/afxdp_llvm_aot'
-            # 'mv -f xdp_map_access/afxdp_llvm_aot/* xdp_map_access/afxdp_inline_map/*'
-            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_lb.inline.aot.o make xdp_map_access/dpdk_llvm_aot'
-            # 'mv -f xdp_map_access/dpdk_llvm_aot/* xdp_map_access/dpdk_inline_map/*'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.base.aot.o make xdp_map_access/afxdp_llvm_aot'
+            'mv -f xdp_map_access/afxdp_llvm_aot/ xdp_map_access/afxdp_llvm_aot_base/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.base.aot.o make xdp_map_access/dpdk_llvm_aot'
+            'mv -f xdp_map_access/dpdk_llvm_aot/ xdp_map_access/dpdk_llvm_aot_base/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.inline.aot.o make xdp_map_access/afxdp_llvm_aot'
+            'mv -f xdp_map_access/afxdp_llvm_aot/ xdp_map_access/afxdp_inline_map/'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.inline.aot.o make xdp_map_access/dpdk_llvm_aot'
+            'mv -f xdp_map_access/dpdk_llvm_aot/ xdp_map_access/dpdk_inline_map/'
             'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.aot.o make xdp_map_access/afxdp_llvm_aot'
-            'mv -f xdp_map_access/afxdp_llvm_aot/* xdp_map_access/afxdp_add_type/*'
+            'mv -f xdp_map_access/afxdp_llvm_aot/ xdp_map_access/afxdp_add_type/'
             'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.aot.o make xdp_map_access/dpdk_llvm_aot'
-            'mv -f xdp_map_access/dpdk_llvm_aot/* xdp_map_access/dpdk_add_type/*'
+            'mv -f xdp_map_access/dpdk_llvm_aot/ xdp_map_access/dpdk_add_type/'
         )
     fi
     if [ "$BASIC_XDP_NAME" == "xdp_lb" ]; then

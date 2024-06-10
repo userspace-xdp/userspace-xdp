@@ -75,6 +75,7 @@ AOT_OBJECTS = $(OUTPUT)/xdp_tx.aot.o \
 	$(OUTPUT)/xdp_map_access.aot.o \
 	$(OUTPUT)/xdp_adjust_tail.aot.o \
 	$(OUTPUT)/xdp_csum.aot.o \
+	$(OUTPUT)/xdp-maps.aot.o \
 	$(OUTPUT)/xdp_csum_only.inline.aot.o \
 	$(OUTPUT)/xdp_map_access.inline.aot.o \
 	$(OUTPUT)/xdp_lb.inline.aot.o \
@@ -150,34 +151,21 @@ $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 	$(Q)$(CXX) $(CFLAGS) $^ $(ALL_LDFLAGS) -lelf -lz -o $@
 
 $(OUTPUT)/%.aot.o: %.bpf.c
-	clang -O3 -S -emit-llvm -Wno-unknown-attributes -Iaot-header/ -Iaot-header/map-ids/$*/ $< -o $(OUTPUT)/$*.aot.ll
-	/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build \
-	 $(OUTPUT)/$*.bpf.o \
-	 --emit_llvm 2>  $(OUTPUT)/$*.bpf.ll
+	# clang -O3 -S -emit-llvm -Wno-unknown-attributes -Iaot-header/ -Iaot-header/map-ids/$*/ $< -o .llvm_ir/$*.aot.ll
+	# /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build \
+	# 	$(OUTPUT)/$*.bpf.o \
+	# 	--emit_llvm 2>  .llvm_ir/$*.bpf.ll
+	# opt -O3 -S -opaque-pointers -o .llvm_ir/$*.bpf.opt.ll .llvm_ir/$*.bpf.ll
+	opt -O3 -opaque-pointers -o $(OUTPUT)/$*.bpf.bc .llvm_ir/$*.bpf.opt.ll
+	llc -O3 -opaque-pointers -filetype=obj -o $(OUTPUT)/$*.base.aot.o $(OUTPUT)/$*.bpf.bc
 	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/map-ids/$*/  -c $< -o $@
+
 
 $(OUTPUT)/%.aot.o: %.bpf.aot.cpp
 	$(CXX) -O3 -fno-stack-protector -fno-permissive $(INCLUDES) -c $< -o $@
 
 $(OUTPUT)/%.inline.aot.o: %.bpf.inline.aot.c
 	$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
-
-generate_llvm_ir:
-	mkdir -p xdp_map_access_ir
-	/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build \
-	 /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.o \
-	 --emit_llvm 2> xdp_map_access_ir/xdp_map_access.ll
-	opt -O3 -S xdp_map_access_ir/xdp_map_access.ll -opaque-pointers  -o xdp_map_access_ir/xdp_map_access_opt.ll
-	opt -O3 -opaque-pointers -o xdp_map_access_ir/xdp_map_access_opt.bc xdp_map_access_ir/xdp_map_access_inline.ll
-	llc -O3 -opaque-pointers -filetype=obj -o .output/xdp_map_access.aot.o xdp_map_access_ir/xdp_map_access_opt.bc 
-
-	mkdir -p tcp_classify_ir
-	/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build \
-	 /home/yunwei/ebpf-xdp-dpdk/xdp-tcpclassify/.output/main.bpf.o \
-	 --emit_llvm 2> tcp_classify_ir/res.ll
-	opt -O3 -S tcp_classify_ir/res.ll -opaque-pointers  -o tcp_classify_ir/res_opt.ll
-	opt -O3 -opaque-pointers -o tcp_classify_ir/res.bc tcp_classify_ir/res_inline.ll
-	llc -O3 -opaque-pointers -filetype=obj -o .output/tcp_classify_ir.aot.o tcp_classify_ir/res.bc 
 
 clean-aot:
 	rm -f $(AOT_OBJECTS)
