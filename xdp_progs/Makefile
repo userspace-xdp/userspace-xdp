@@ -22,7 +22,7 @@ INCLUDES := -I$(OUTPUT) -I../bpftime/third_party/libbpf/include/uapi -I$(dir $(V
 CFLAGS := -g -Wall
 ALL_LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
 
-APPS = xdp-tcpclassify xdp-maps xdping_no_check xdp_lb xdp_csum xdp_pass xdp_csum_only xdp_fw xdp_map_access xdp_tx_iptunnel xdping xdp_tx xdp_drop xdp_adjust_tail xdp_hash_sum
+APPS = xdp_firewall xdp-tcpclassify xdp-maps xdping_no_check xdp_lb xdp_csum xdp_pass xdp_csum_only xdp_fw xdp_map_access xdp_tx_iptunnel xdping xdp_tx xdp_drop xdp_adjust_tail xdp_hash_sum
 
 CARGO ?= $(shell which cargo)
 ifeq ($(strip $(CARGO)),)
@@ -76,6 +76,7 @@ AOT_OBJECTS = $(OUTPUT)/xdp_tx.aot.o \
 	$(OUTPUT)/xdp_adjust_tail.aot.o \
 	$(OUTPUT)/xdp_csum.aot.o \
 	$(OUTPUT)/xdp-maps.aot.o \
+	$(OUTPUT)/xdp_firewall.aot.o \
 	$(OUTPUT)/xdp-tcpclassify.aot.o \
 	$(OUTPUT)/xdp_csum_only.inline.aot.o \
 	$(OUTPUT)/xdp_map_access.inline.aot.o \
@@ -161,7 +162,6 @@ $(OUTPUT)/%.aot.o: %.bpf.c
 	llc -O3 -opaque-pointers -filetype=obj -o $(OUTPUT)/$*.base.aot.o $(OUTPUT)/$*.bpf.bc
 	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/inline-map-ids/$*/  -c $< -o $@
 	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/map-ids/$*/  -c $< -o $(OUTPUT)/$*.aot.inline.o
-
 
 $(OUTPUT)/%.aot.o: %.bpf.aot.cpp
 	$(CXX) -O3 -fno-stack-protector -fno-permissive $(INCLUDES) -c $< -o $@

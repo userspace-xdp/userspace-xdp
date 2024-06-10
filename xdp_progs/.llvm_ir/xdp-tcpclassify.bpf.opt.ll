@@ -129,7 +129,7 @@ bb_inst_75:                                       ; preds = %bb_inst_72
 
 bb_inst_81:                                       ; preds = %bb_inst_75, %bb_inst_72
   %77 = add i64 %2, -304
-  %78 = call i64 @_bpf_helper_ext_0130(i64 0, i64 %77, i64 300, i64 0, i64 undef)
+  %78 = call i64 @_bpf_helper_ext_0130(i64 17179869184, i64 %77, i64 300, i64 0, i64 undef)
   %79 = load i16, ptr %9, align 2
   %80 = getelementptr i8, ptr %9, i64 6
   %81 = load i16, ptr %80, align 2

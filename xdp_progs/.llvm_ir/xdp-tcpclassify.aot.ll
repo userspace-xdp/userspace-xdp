@@ -130,7 +130,7 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) local_unnamed_addr #0
 84:                                               ; preds = %26
   %85 = getelementptr inbounds %struct.event, %struct.event* %2, i64 0, i32 11, i64 0
   %86 = call i32 (%struct.xdp_md*, i32, i8*, i32, ...) bitcast (i32 (...)* @_bpf_helper_ext_0189 to i32 (%struct.xdp_md*, i32, i8*, i32, ...)*)(%struct.xdp_md* noundef nonnull %0, i32 noundef 0, i8* noundef nonnull %85, i32 noundef 4) #4
-  %87 = call i32 (i8*, i32, i8*, ...) bitcast (i32 (...)* @bpf_strncmp to i32 (i8*, i32, i8*, ...)*)(i8* noundef nonnull %85, i32 noundef 4, i8* noundef getelementptr inbounds ([5 x i8], [5 x i8]* @.str, i64 0, i64 0)) #4
+  %87 = call i32 (i8*, i32, i8*, ...) bitcast (i32 (...)* @_bpf_helper_ext_0182 to i32 (i8*, i32, i8*, ...)*)(i8* noundef nonnull %85, i32 noundef 4, i8* noundef getelementptr inbounds ([5 x i8], [5 x i8]* @.str, i64 0, i64 0)) #4
   %88 = icmp eq i32 %87, 0
   %89 = getelementptr inbounds %struct.event, %struct.event* %2, i64 0, i32 9
   %90 = zext i1 %88 to i32
@@ -188,7 +188,7 @@ declare i16 @llvm.bswap.i16(i16) #2
 
 declare i32 @_bpf_helper_ext_0189(...) local_unnamed_addr #3
 
-declare i32 @bpf_strncmp(...) local_unnamed_addr #3
+declare i32 @_bpf_helper_ext_0182(...) local_unnamed_addr #3
 
 declare i32 @_bpf_helper_ext_0130(...) local_unnamed_addr #3
 

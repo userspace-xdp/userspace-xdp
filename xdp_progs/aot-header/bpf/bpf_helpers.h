@@ -62,15 +62,21 @@ int _bpf_helper_ext_0006();
 #define bpf_trace_printk _bpf_helper_ext_0006
 int _bpf_helper_ext_0008();
 #define bpf_get_smp_processor_id _bpf_helper_ext_0008
+int _bpf_helper_ext_0028();
+#define bpf_csum_diff _bpf_helper_ext_0028
 int _bpf_helper_ext_0044();
 #define bpf_xdp_adjust_head _bpf_helper_ext_0044
 int _bpf_helper_ext_0065();
 #define bpf_xdp_adjust_tail _bpf_helper_ext_0065
-int _bpf_helper_ext_0028();
-#define bpf_csum_diff _bpf_helper_ext_0028
+int _bpf_helper_ext_0182();
+#define bpf_strncmp _bpf_helper_ext_0182
 int _bpf_helper_ext_0189();
 #define bpf_xdp_load_bytes _bpf_helper_ext_0189
 int _bpf_helper_ext_0190();
 #define bpf_xdp_store_bytes _bpf_helper_ext_0190
+
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
 
 #endif

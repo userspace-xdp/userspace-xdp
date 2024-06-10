@@ -74,3 +74,4 @@ xdp_hash_sum
 xdping_no_check
 xdp-maps
 xdp-tcpclassify 
+xdp_firewall

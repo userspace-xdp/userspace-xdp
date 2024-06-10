@@ -72,7 +72,7 @@ bb_inst_52:                                       ; preds = %bb_inst_42
   %19 = getelementptr inbounds i8, ptr %stackEnd, i64 -4
   store i32 1, ptr %19, align 4
   %20 = add i64 %2, -4
-  %21 = call i64 @_bpf_helper_ext_0001(i64 0, i64 %20, i64 undef, i64 undef, i64 undef)
+  %21 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20, i64 undef, i64 undef, i64 undef)
   %.not675 = icmp eq i64 %21, 0
   br i1 %.not675, label %bb_inst_61, label %bb_inst_77
 
@@ -514,25 +514,25 @@ bb_inst_295:                                      ; preds = %bb_inst_271
   %405 = xor i32 %401, %404
   %406 = and i32 %405, 1
   store i32 %406, ptr %19, align 4
-  %407 = call i64 @_bpf_helper_ext_0001(i64 0, i64 %20, i64 %393, i64 4294934528, i64 4292870144)
+  %407 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20, i64 %393, i64 4294934528, i64 4292870144)
   %408 = icmp eq i64 %407, 0
   br i1 %408, label %bb_inst_37, label %bb_inst_312
 
 bb_inst_312:                                      ; preds = %bb_inst_295
   store i32 0, ptr %19, align 4
-  %409 = call i64 @_bpf_helper_ext_0001(i64 0, i64 %20, i64 %393, i64 4294934528, i64 4292870144)
+  %409 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20, i64 %393, i64 4294934528, i64 4292870144)
   %410 = icmp eq i64 %409, 0
   br i1 %410, label %bb_inst_37, label %bb_inst_339
 
 bb_inst_321:                                      ; preds = %bb_inst_271
   store i32 1, ptr %19, align 4
-  %411 = call i64 @_bpf_helper_ext_0001(i64 0, i64 %20, i64 %389, i64 4294934528, i64 4292870144)
+  %411 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20, i64 %389, i64 4294934528, i64 4292870144)
   %412 = icmp eq i64 %411, 0
   br i1 %412, label %bb_inst_37, label %bb_inst_331
 
 bb_inst_331:                                      ; preds = %bb_inst_321
   store i32 0, ptr %19, align 4
-  %413 = call i64 @_bpf_helper_ext_0001(i64 0, i64 %20, i64 %389, i64 4294934528, i64 4292870144)
+  %413 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20, i64 %389, i64 4294934528, i64 4292870144)
   %414 = icmp eq i64 %413, 0
   br i1 %414, label %bb_inst_37, label %bb_inst_339
 

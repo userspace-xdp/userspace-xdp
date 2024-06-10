@@ -66,6 +66,8 @@ index = 0
 for name in os.listdir("/home/yunwei/ebpf-xdp-dpdk/bench/simple-NFs"):
     if name == "plot_mode.py" or name == "ipackets.png" or name == "Makefile":
         continue
+    if name == "katran":
+        continue
     # Collect the data
     root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench/simple-NFs", name)
     target_file = 'size-64.txt'
