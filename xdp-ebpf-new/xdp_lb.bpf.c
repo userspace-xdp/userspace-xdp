@@ -201,7 +201,17 @@ enum bpf_map_type
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 
-#include "common.h"
+
+#define ETH_ALEN        6
+
+struct __attribute__((packed)) eth_addr {
+	unsigned char addr[ETH_ALEN];
+};
+
+struct ip_mac_pair {
+	struct eth_addr mac;
+	__u32 ip;
+};
 
 #define MAX_OPT_WORDS 10 // 40 bytes for options
 #define MAX_TARGET_COUNT 64

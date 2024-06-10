@@ -1,6 +1,0 @@
-*.o
-*.swp
-build
-.vagrant
-loader
-unloader

@@ -22,7 +22,7 @@ INCLUDES := -I$(OUTPUT) -I../bpftime/third_party/libbpf/include/uapi -I$(dir $(V
 CFLAGS := -g -Wall
 ALL_LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
 
-APPS = xdping_no_check xdp_csum xdp_pass xdp_csum_only xdp_fw xdp_map_access xdp_tx_iptunnel xdping xdp_tx xdp_drop xdp_adjust_tail xdp_hash_sum
+APPS = xdp-maps xdping_no_check xdp_lb xdp_csum xdp_pass xdp_csum_only xdp_fw xdp_map_access xdp_tx_iptunnel xdping xdp_tx xdp_drop xdp_adjust_tail xdp_hash_sum
 
 CARGO ?= $(shell which cargo)
 ifeq ($(strip $(CARGO)),)
@@ -67,17 +67,17 @@ $(call allow-override,CC,$(CROSS_COMPILE)cc)
 $(call allow-override,CXX,$(CROSS_COMPILE)g++)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
-AOT_OBJECTS = $(OUTPUT)/tcpclassify.aot.o \
-	$(OUTPUT)/xdp_map.aot.o \
-	$(OUTPUT)/xdp_csum.aot.o \
+AOT_OBJECTS = $(OUTPUT)/xdp_tx.aot.o \
 	$(OUTPUT)/xdp_csum_only.aot.o \
-	$(OUTPUT)/xdp_csum_only.inline.aot.o \
 	$(OUTPUT)/xdp_hash_sum.aot.o  \
-	$(OUTPUT)/xdp_map_access.aot.o \
-	$(OUTPUT)/xdp_map_access.inline.aot.o \
+	$(OUTPUT)/xdping.aot.o \
 	$(OUTPUT)/xdp_lb.aot.o \
+	$(OUTPUT)/xdp_map_access.aot.o \
+	$(OUTPUT)/xdp_adjust_tail.aot.o \
+	$(OUTPUT)/xdp_csum.aot.o \
+	$(OUTPUT)/xdp_csum_only.inline.aot.o \
+	$(OUTPUT)/xdp_map_access.inline.aot.o \
 	$(OUTPUT)/xdp_lb.inline.aot.o \
-
 
 .PHONY: all 
 all: $(APPS) $(AOT_OBJECTS)
@@ -149,8 +149,12 @@ $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 	$(call msg,BINARY,$@)
 	$(Q)$(CXX) $(CFLAGS) $^ $(ALL_LDFLAGS) -lelf -lz -o $@
 
-$(OUTPUT)/%.aot.o: %.bpf.aot.c
-	$(CC) -O3 -fno-stack-protector $(INCLUDES) -c $< -o $@
+$(OUTPUT)/%.aot.o: %.bpf.c
+	clang -O3 -S -emit-llvm -Wno-unknown-attributes -Iaot-header/ -Iaot-header/map-ids/$*/ $< -o $(OUTPUT)/$*.aot.ll
+	/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build \
+	 $(OUTPUT)/$*.bpf.o \
+	 --emit_llvm 2>  $(OUTPUT)/$*.bpf.ll
+	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/map-ids/$*/  -c $< -o $@
 
 $(OUTPUT)/%.aot.o: %.bpf.aot.cpp
 	$(CXX) -O3 -fno-stack-protector -fno-permissive $(INCLUDES) -c $< -o $@

@@ -266,7 +266,7 @@ PING 10.0.0.10 (10.0.0.10) 650(678) bytes of data.
 run in userspace:
 
 ```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_adjust_tail -i veth6 xdp-ebpf-new/base.btf
+LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_adjust_tail -i enp24s0f1np1 xdp-ebpf-new/base.btf
 ```
 
 ## xdp_fw

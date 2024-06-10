@@ -10,7 +10,7 @@
  * to be more preice in case of v4)" where receiving packets bigger then
  * 600 bytes.
  */
-#include "vmlinux.h"
+#include "def.bpf.h"
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 
@@ -168,7 +168,7 @@ int xdp_pass(struct xdp_md *xdp)
 	struct ethhdr *eth = data;
 	__u16 h_proto;
 
-	if (eth + 1 > data_end) {
+	if ((void*)eth + 1 > data_end) {
 		bpf_printk("Invalid packet eth + 1 > data_end\n");
 		return XDP_DROP;
 	}
