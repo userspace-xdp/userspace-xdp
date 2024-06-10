@@ -3,4 +3,7 @@
 #ifndef BPF_MAP_IDS_H
 #define BPF_MAP_IDS_H
 
+#include "../common_map_helpers.h"
+
+
 #endif // BPF_MAP_IDS_H

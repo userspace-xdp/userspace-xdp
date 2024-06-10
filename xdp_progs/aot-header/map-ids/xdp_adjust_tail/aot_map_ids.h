@@ -3,6 +3,9 @@
 #ifndef BPF_MAP_IDS_H
 #define BPF_MAP_IDS_H
 
+#include "../common_map_helpers.h"
+
+
 static const unsigned long long icmpcnt_id = ((unsigned long long)4 << 32);
 
 #endif // BPF_MAP_IDS_H
