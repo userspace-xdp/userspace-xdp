@@ -33,8 +33,8 @@ remote256icmp:
 
 .PHONY: remote64range
 remote64range:
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-0.txt range_tcp 0
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-1000.txt range_tcp 1000
+	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-0.txt range_tcp 0
+	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-1000.txt range_tcp 1000
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-2000.txt range_tcp 2000
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-6000.txt range_tcp 6000
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-8000.txt range_tcp 8000
@@ -145,7 +145,7 @@ RUN_XDP_KERNEL_DRV_COMMAND = DRVMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_KERNEL_SKB_COMMAND = SKBMODE=1 $(RUN_XDP_BASIC_COMMAND)
 RUN_XDP_USERSPACE_COMMAND = BPFTIME_ALLOW_EXTERNAL_MAPS=true $(ROOTDIR)/xdp_progs/xdp_tx \
 	/home/yunwei/ebpf-xdp-dpdk/documents/katran/balancer_user.bpf.o $(NETDEV)
-TRAFFICGEN = remote64to1024tcp
+TRAFFICGEN = remote64tcp
 BASIC_XDP_AOT_RES_NAME ?= .
 else
 $(error Unsupported BASIC_XDP_NAME $(BASIC_XDP_NAME))

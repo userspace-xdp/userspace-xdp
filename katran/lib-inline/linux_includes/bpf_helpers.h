@@ -21,104 +21,12 @@
     bpf_trace_printk(____fmt, sizeof(____fmt), ##__VA_ARGS__); \
   })
 
-#define CONCATENATE_DETAIL(x, y) x##y
-
-/* helper functions called from eBPF programs written in C */
-// static void* (*bpf_map_lookup_elem)(void* map, void* key) = (void*)
-// BPF_FUNC_map_lookup_elem;
-void* _bpf_helper_ext_0001();
-static __always_inline void* bpf_map_lookup_elem_aot(const __u64* map, const void* key) {
-  return _bpf_helper_ext_0001(*map, key);
-}
-#define bpf_map_lookup_elem(a, b) bpf_map_lookup_elem_aot(CONCATENATE_DETAIL(a, _id), b)
-#define bpf_map_lookup_elem_dyn _bpf_helper_ext_0001
-// static int (*bpf_map_update_elem)(
-//     void* map,
-//     void* key,
-//     void* value,
-//     unsigned long long flags) = (void*)BPF_FUNC_map_update_elem;
-int _bpf_helper_ext_0002();
-static __always_inline int bpf_map_update_elem_aot(const __u64* map, void* key, void* value, unsigned long long flags) {
-  return _bpf_helper_ext_0002(*map, key, value, flags);
-}
-#define bpf_map_update_elem(a, b, c, d) bpf_map_update_elem_aot(CONCATENATE_DETAIL(a, _id), b, c, d)
-#define bpf_map_update_elem_dyn _bpf_helper_ext_0002
-// static int (*bpf_map_delete_elem)(void* map, void* key) = (void*)
-//     BPF_FUNC_map_delete_elem;
-int _bpf_helper_ext_0003();
-static __always_inline int bpf_map_delete_elem_aot(const __u64* map, const void* key) {
-  return _bpf_helper_ext_0003(*map, key);
-}
-#define bpf_map_delete_elem(a, b) bpf_map_delete_elem_aot(CONCATENATE_DETAIL(a, _id), b)
-#define bpf_map_delete_elem_dyn _bpf_helper_ext_0003
-// static int (*bpf_map_push_elem)(
-//     void* map,
-//     void* value,
-//     unsigned long long flags) = (void*)BPF_FUNC_map_push_elem;
-// static int (*bpf_map_pop_elem)(void* map, void* value) = (void*)
-//     BPF_FUNC_map_pop_elem;
-// static int (*bpf_map_peek_elem)(void* map, void* value) = (void*)
-//     BPF_FUNC_map_peek_elem;
-// static int (*bpf_probe_read)(void* dst, int size, const void* unsafe_ptr) =
-//     (void*)BPF_FUNC_probe_read;
-// static unsigned long long (*bpf_ktime_get_ns)(void) = (void*)
-//     BPF_FUNC_ktime_get_ns;
 int _bpf_helper_ext_0005();
 #define bpf_ktime_get_ns _bpf_helper_ext_0005
-// static int (*bpf_trace_printk)(const char* fmt, int fmt_size, ...) = (void*)
-//     BPF_FUNC_trace_printk;
 int _bpf_helper_ext_0006();
 #define bpf_trace_printk _bpf_helper_ext_0006
-// static void (*bpf_tail_call)(void* ctx, void* map, int index) = (void*)
-//     BPF_FUNC_tail_call;
-// static unsigned long long (*bpf_get_smp_processor_id)(void) = (void*)
-//     BPF_FUNC_get_smp_processor_id;
 int _bpf_helper_ext_0008();
 #define bpf_get_smp_processor_id _bpf_helper_ext_0008
-// static unsigned long long (*bpf_get_current_pid_tgid)(void) = (void*)
-//     BPF_FUNC_get_current_pid_tgid;
-// static unsigned long long (*bpf_get_current_uid_gid)(void) = (void*)
-//     BPF_FUNC_get_current_uid_gid;
-// static int (*bpf_get_current_comm)(void* buf, int buf_size) = (void*)
-//     BPF_FUNC_get_current_comm;
-// static unsigned long long (*bpf_perf_event_read)(
-//     void* map,
-//     unsigned long long flags) = (void*)BPF_FUNC_perf_event_read;
-// static int (*bpf_clone_redirect)(void* ctx, int ifindex, int flags) = (void*)
-//     BPF_FUNC_clone_redirect;
-// static int (*bpf_redirect)(int ifindex, int flags) = (void*)BPF_FUNC_redirect;
-// static int (*bpf_redirect_map)(void* map, int key, int flags) = (void*)
-//     BPF_FUNC_redirect_map;
-// static int (*bpf_perf_event_output)(
-//     void* ctx,
-//     void* map,
-//     unsigned long long flags,
-//     void* data,
-//     int size) = (void*)BPF_FUNC_perf_event_output;
-// static int (*bpf_get_stackid)(void* ctx, void* map, int flags) = (void*)
-//     BPF_FUNC_get_stackid;
-// static int (*bpf_probe_write_user)(void* dst, const void* src, int size) =
-//     (void*)BPF_FUNC_probe_write_user;
-// static int (*bpf_current_task_under_cgroup)(void* map, int index) = (void*)
-//     BPF_FUNC_current_task_under_cgroup;
-// static int (*bpf_skb_get_tunnel_key)(
-//     void* ctx,
-//     void* key,
-//     int size,
-//     int flags) = (void*)BPF_FUNC_skb_get_tunnel_key;
-// static int (*bpf_skb_set_tunnel_key)(
-//     void* ctx,
-//     void* key,
-//     int size,
-//     int flags) = (void*)BPF_FUNC_skb_set_tunnel_key;
-// static int (*bpf_skb_get_tunnel_opt)(void* ctx, void* md, int size) = (void*)
-//     BPF_FUNC_skb_get_tunnel_opt;
-// static int (*bpf_skb_set_tunnel_opt)(void* ctx, void* md, int size) = (void*)
-//     BPF_FUNC_skb_set_tunnel_opt;
-// static unsigned long long (*bpf_get_prandom_u32)(void) = (void*)
-//     BPF_FUNC_get_prandom_u32;
-// static int (*bpf_xdp_adjust_head)(void* ctx, int offset) = (void*)
-//     BPF_FUNC_xdp_adjust_head;
 int _bpf_helper_ext_0044();
 #define bpf_xdp_adjust_head _bpf_helper_ext_0044
 // static int (*bpf_xdp_adjust_meta)(void* ctx, int offset) = (void*)

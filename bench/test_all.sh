@@ -106,6 +106,10 @@ run_alternative_commands() {
     fi
     if [ "$BASIC_XDP_NAME" == "katran-size" ]; then
         alt_commands=(
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.inline.aot.o make katran-size/afxdp_llvm_aot'
+            'mv katran-size/afxdp_llvm_aot katran-size/afxdp_inline'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.inline.aot.o make katran-size/dpdk_llvm_aot'
+            'mv katran-size/dpdk_llvm_aot katran-size/dpdk_inline'
             'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.aot.o make katran-size/afxdp_llvm_aot'
             'mv katran-size/afxdp_llvm_aot katran-size/afxdp_add_type'
             'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.aot.o make katran-size/dpdk_llvm_aot'
@@ -114,10 +118,14 @@ run_alternative_commands() {
     fi
     if [ "$BASIC_XDP_NAME" == "katran-range" ]; then
         alt_commands=(
-            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.aot.o make katran-range/afxdp_llvm_aot'
-            'mv katran-range/afxdp_llvm_aot katran-range/afxdp_add_type'
-            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.aot.o make katran-range/dpdk_llvm_aot'
-            'mv katran-range/dpdk_llvm_aot katran-range/dpdk_add_type'
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.inline.aot.o make katran-range/afxdp_llvm_aot'
+            'mv katran-range/afxdp_llvm_aot katran-range/afxdp_inline'
+            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.inline.aot.o make katran-range/dpdk_llvm_aot'
+            # 'mv katran-range/dpdk_llvm_aot katran-range/dpdk_inline'
+            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.aot.o make katran-range/afxdp_llvm_aot'
+            # 'mv katran-range/afxdp_llvm_aot katran-range/afxdp_add_type'
+            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.aot.o make katran-range/dpdk_llvm_aot'
+            # 'mv katran-range/dpdk_llvm_aot katran-range/dpdk_add_type'
         )
     fi
     # Iterate over the alternative commands array and execute each command with trap

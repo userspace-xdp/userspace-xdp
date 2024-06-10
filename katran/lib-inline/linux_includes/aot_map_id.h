@@ -35,7 +35,67 @@ const unsigned long long server_id_map_id = (unsigned long long)16 << 32;
 const unsigned long long tpr_stats_map_id = (unsigned long long)17 << 32;
 const unsigned long long server_id_stats_id = (unsigned long long)18 << 32;
 
+#define CONCATENATE_DETAIL(x, y) x##y
+
+/* helper functions called from eBPF programs written in C */
+void* _bpf_helper_ext_0001();
+#define bpf_map_lookup_elem(a, b) bpf_map_lookup_elem_aot(CONCATENATE_DETAIL(a, _id), b)
+#define bpf_map_lookup_elem_dyn _bpf_helper_ext_0001
+int _bpf_helper_ext_0002();
+#define bpf_map_update_elem(a, b, c, d) bpf_map_update_elem_aot(CONCATENATE_DETAIL(a, _id), b, c, d)
+#define bpf_map_update_elem_dyn _bpf_helper_ext_0002
+int _bpf_helper_ext_0003();
+#define bpf_map_delete_elem(a, b) bpf_map_delete_elem_aot(CONCATENATE_DETAIL(a, _id), b)
+#define bpf_map_delete_elem_dyn _bpf_helper_ext_0003
 // const unsigned long long lru_map_id = 20 << 32;
+
+static unsigned int __ch_rings[512 * 65537] = {0};
+static unsigned int __lru_miss_stats[4096] = {0};
+struct __lb_stats {
+   unsigned long long v1;
+  unsigned long long v2;
+};
+static struct __lb_stats __reals_stats[4096] = {0};
+static struct __lb_stats __stats[1024] = {0};
+
+static __always_inline void* bpf_map_lookup_elem_aot(const __u64* map, const void* key) {
+  if (*map == ch_rings_id) {
+    unsigned int key_val = *(unsigned int*)key;
+    if (key_val >= 512 * 65537 || key_val < 0) {
+      return NULL;
+    }
+    return &__ch_rings[key_val];
+  }
+    if (*map == lru_miss_stats_id) {
+        unsigned int key_val = *(unsigned int*)key;
+        if (key_val >= 4096 || key_val < 0) {
+        return NULL;
+        }
+        return &__lru_miss_stats[key_val];
+    }
+    if (*map == reals_stats_id) {
+        unsigned int key_val = *(unsigned int*)key;
+        if (key_val >= 4096 || key_val < 0) {
+        return NULL;
+        }
+        return &__reals_stats[key_val];
+    }
+    if (*map == stats_id) {
+        unsigned int key_val = *(unsigned int*)key;
+        if (key_val >= 1024 || key_val < 0) {
+        return NULL;
+        }
+        return &__stats[key_val];
+    }
+  return _bpf_helper_ext_0001(*map, key);
+}
+
+static __always_inline int bpf_map_delete_elem_aot(const __u64* map, const void* key) {
+  return _bpf_helper_ext_0003(*map, key);
+}
+static __always_inline int bpf_map_update_elem_aot(const __u64* map, void* key, void* value, unsigned long long flags) {
+  return _bpf_helper_ext_0002(*map, key, value, flags);
+}
 
 #endif // __AOT_MAP_ID_H__
 
