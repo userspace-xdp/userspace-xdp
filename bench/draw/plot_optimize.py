@@ -21,7 +21,7 @@ def parse_file(file_path):
         ipackets = ipackets / run_seconds
     return ipackets
 
-dir_path_list = ["dpdk_ubpf", "dpdk_llvm_jit", "dpdk_llvm_aot_base", "dpdk_add_type", "dpdk_inline"]
+dir_path_list = ["dpdk_ubpf", "dpdk_llvm_jit", "dpdk_llvm_base", "dpdk_add_type", "dpdk_inline"]
 
 def collect_data(root_dir, target_file):
     """
