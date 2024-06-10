@@ -19,4 +19,7 @@ int _bpf_helper_ext_0003();
 #define bpf_map_delete_elem(a, b) bpf_map_delete_elem_aot(CONCATENATE_DETAIL(a, _id), b)
 #define bpf_map_delete_elem_dyn _bpf_helper_ext_0003
 
+int _bpf_helper_ext_0130();
+#define bpf_ringbuf_output(a, b, c, d) bpf_ringbuf_output_aot(CONCATENATE_DETAIL(a, _id), b, c, d)
+
 #endif // COMMON_MAP_HELPERS_H

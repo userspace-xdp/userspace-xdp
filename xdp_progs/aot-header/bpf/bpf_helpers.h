@@ -68,5 +68,9 @@ int _bpf_helper_ext_0065();
 #define bpf_xdp_adjust_tail _bpf_helper_ext_0065
 int _bpf_helper_ext_0028();
 #define bpf_csum_diff _bpf_helper_ext_0028
+int _bpf_helper_ext_0189();
+#define bpf_xdp_load_bytes _bpf_helper_ext_0189
+int _bpf_helper_ext_0190();
+#define bpf_xdp_store_bytes _bpf_helper_ext_0190
 
 #endif
