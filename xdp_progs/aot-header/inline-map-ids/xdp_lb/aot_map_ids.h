@@ -5,8 +5,18 @@
 
 #include "../common_map_helpers.h"
 
-
 static const unsigned long long config_map_id = ((unsigned long long)4 << 32);
 static const unsigned long long targets_map_id = ((unsigned long long)5 << 32);
+struct ip_mac_pair;
+struct ip_mac_pair __config_map[64];
+struct ip_mac_pair __targets_map[64];
+
+static __always_inline void* bpf_map_lookup_elem_aot(const unsigned long long* map, const void* key) {
+  if (*map == config_map_id)
+    return &__config_map[*(unsigned int*)key];
+    if (*map == targets_map_id)
+    return &__targets_map[*(unsigned int*)key];
+  return _bpf_helper_ext_0001(*map, key);
+}
 
 #endif // BPF_MAP_IDS_H

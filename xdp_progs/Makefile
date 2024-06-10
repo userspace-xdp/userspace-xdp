@@ -158,8 +158,8 @@ $(OUTPUT)/%.aot.o: %.bpf.c
 	# opt -O3 -S -opaque-pointers -o .llvm_ir/$*.bpf.opt.ll .llvm_ir/$*.bpf.ll
 	opt -O3 -opaque-pointers -o $(OUTPUT)/$*.bpf.bc .llvm_ir/$*.bpf.opt.ll
 	llc -O3 -opaque-pointers -filetype=obj -o $(OUTPUT)/$*.base.aot.o $(OUTPUT)/$*.bpf.bc
-	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/ -Iaot-header/inline-map-ids/$*/  -c $< -o $@
-	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/ -Iaot-header/map-ids/$*/  -c $< -o $@
+	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/inline-map-ids/$*/  -c $< -o $@
+	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/map-ids/$*/  -c $< -o $(OUTPUT)/$*.aot.inline.o
 
 
 $(OUTPUT)/%.aot.o: %.bpf.aot.cpp

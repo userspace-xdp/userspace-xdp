@@ -9,4 +9,15 @@
 static const unsigned long long ctl_array_id = ((unsigned long long)4 << 32);
 static const unsigned long long cntrs_array_id = ((unsigned long long)5 << 32);
 
+unsigned int __ctl_array[2] = { 0, 0 };
+unsigned long long __cntrs_array[512] = { 0 };
+
+static __always_inline void* bpf_map_lookup_elem_aot(const unsigned long long* map, const void* key) {
+  if (*map == ctl_array_id)
+    return &__ctl_array[*(unsigned int*)key];
+  if (*map == cntrs_array_id)
+    return &__cntrs_array[*(unsigned int*)key];
+  return _bpf_helper_ext_0001(*map, key);
+}
+
 #endif // BPF_MAP_IDS_H

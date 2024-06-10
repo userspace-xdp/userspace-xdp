@@ -198,10 +198,6 @@ enum bpf_map_type
 #pragma clang attribute pop
 #endif
 
-#include <bpf/bpf_helpers.h>
-#include <bpf/bpf_endian.h>
-
-
 #define ETH_ALEN        6
 
 struct __attribute__((packed)) eth_addr {
@@ -212,6 +208,9 @@ struct ip_mac_pair {
 	struct eth_addr mac;
 	__u32 ip;
 };
+
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_endian.h>
 
 #define MAX_OPT_WORDS 10 // 40 bytes for options
 #define MAX_TARGET_COUNT 64
