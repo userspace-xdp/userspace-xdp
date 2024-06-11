@@ -35,7 +35,7 @@ remote256icmp:
 remote64range:
 	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-0.txt range_tcp 0
 	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-1000.txt range_tcp 1000
-	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-2000.txt range_tcp 2000
+	# python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-2000.txt range_tcp 2000
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-6000.txt range_tcp 6000
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-8000.txt range_tcp 8000
 	python3 pktgen/remote.py 64 ./tmp-pktgen-res/range-8000.txt range_tcp 16000
