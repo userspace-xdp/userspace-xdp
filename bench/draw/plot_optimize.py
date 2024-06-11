@@ -60,13 +60,13 @@ def plot_data(data, target_file, ax):
     ax.grid(True)
 
 # Create subplots
-fig, axs = plt.subplots(1, 7, figsize=(6 * 7, 10))
+fig, axs = plt.subplots(1, 6, figsize=(6 * 6, 10))
 index = 0
 # Iterate over target files and plot each in a subplot
 for name in os.listdir("/home/yunwei/ebpf-xdp-dpdk/bench/draw"):
     if name == "plot_optimize.py" or name == "plot_mode.py" or name == "imgs" or name == "Makefile":
         continue
-    if name == "xdp_adjust_tail":
+    if name == "xdp_adjust_tail" or name == "xdp_firewall":
         continue
     # Collect the data
     root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench/draw", name)

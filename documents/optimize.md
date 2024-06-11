@@ -23,6 +23,10 @@ Solutions:
   - We have example of this, it is working(See `sumd-poc`)
   - We can also verified and make some code into native library, like the hash function.
 
+C[1] -> eBPF bytecode[2] -> LLVM IR[3] -> In JIT compiler and runtime[4] (dpdk_llvm_jit)
+C[1] -> eBPF bytecode[2] -> LLVM IR[3] -> opt and llc[5] -> Load in AOT runtime[6](dpdk_llvm_base)
+C[1] -> Source code transform[7] -> LLVM IR with more type information[8] -> Compare and add to the LLVM IR from bytecode[9] -> opt and llc[7] -> Load in AOT runtime[8] (dpdk_llvm_add type)
+
 Given a eBPF code:
 
 ```c
