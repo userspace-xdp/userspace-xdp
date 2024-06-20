@@ -153,7 +153,8 @@ $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 	$(Q)$(CXX) $(CFLAGS) $^ $(ALL_LDFLAGS) -lelf -lz -o $@
 
 $(OUTPUT)/%.aot.o: %.bpf.c
-	# clang -O3 -S -emit-llvm -Wno-unknown-attributes -Iaot-header/ -Iaot-header/map-ids/$*/ $< -o .llvm_ir/$*.aot.ll
+	clang -O3 -S -emit-llvm -Wno-unknown-attributes -Iaot-header/ -Iaot-header/map-ids/$*/ $< -o .llvm_ir/$*.aot.ll
+	clang -O3 -S -emit-llvm -Wno-unknown-attributes -Iaot-header/ -Iaot-header/inline-map-ids/$*/ $< -o .llvm_ir/$*.inline.aot.ll
 	# /home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build \
 	# 	$(OUTPUT)/$*.bpf.o \
 	# 	--emit_llvm 2>  .llvm_ir/$*.bpf.ll

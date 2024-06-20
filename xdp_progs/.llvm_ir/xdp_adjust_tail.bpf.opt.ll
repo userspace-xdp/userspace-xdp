@@ -13,61 +13,57 @@ declare i64 @_bpf_helper_ext_0065(i64, i64, i64, i64, i64) local_unnamed_addr
 
 define i64 @bpf_main(ptr %0, i64 %1) local_unnamed_addr {
 setupBlock:
-  %stackBegin170 = alloca [2058 x i64], align 8
-  %stackEnd = getelementptr inbounds [2058 x i64], ptr %stackBegin170, i64 0, i64 2048
+  %stackBegin166 = alloca [2058 x i64], align 8
+  %stackEnd = getelementptr inbounds [2058 x i64], ptr %stackBegin166, i64 0, i64 2048
   %2 = ptrtoint ptr %stackEnd to i64
   %3 = ptrtoint ptr %0 to i64
   %4 = getelementptr i8, ptr %0, i64 8
   %5 = load i64, ptr %4, align 4
   %6 = load i64, ptr %0, align 4
-  %7 = add i64 %6, 1
-  %.not = icmp ult i64 %5, %7
-  br i1 %.not, label %bb_inst_9, label %bb_inst_13
+  %7 = add i64 %6, 14
+  %8 = icmp ugt i64 %7, %5
+  br i1 %8, label %bb_inst_155, label %bb_inst_7
 
-bb_inst_9:                                        ; preds = %bb_inst_34, %setupBlock
-  %r3.0 = phi i64 [ %7, %setupBlock ], [ %13, %bb_inst_34 ]
-  %r2.0 = phi i64 [ 35, %setupBlock ], [ 24, %bb_inst_34 ]
-  %r1.0 = phi i64 [ 0, %setupBlock ], [ 35, %bb_inst_34 ]
-  %8 = call i64 @_bpf_helper_ext_0006(i64 %r1.0, i64 %r2.0, i64 %r3.0, i64 99, i64 undef)
-  br label %bb_inst_11
-
-bb_inst_11:                                       ; preds = %bb_inst_9, %bb_inst_52, %bb_inst_156, %bb_inst_64, %bb_inst_16, %bb_inst_13
-  %r6.0 = phi i64 [ 2, %bb_inst_13 ], [ 2, %bb_inst_16 ], [ 3, %bb_inst_64 ], [ 3, %bb_inst_156 ], [ 1, %bb_inst_52 ], [ 1, %bb_inst_9 ]
-  ret i64 %r6.0
-
-bb_inst_13:                                       ; preds = %setupBlock
+bb_inst_7:                                        ; preds = %setupBlock
   %9 = inttoptr i64 %6 to ptr
   %10 = getelementptr i8, ptr %9, i64 12
   %11 = load i16, ptr %10, align 2
-  %.not171 = icmp eq i16 %11, 8
-  br i1 %.not171, label %bb_inst_16, label %bb_inst_11
+  %.not = icmp eq i16 %11, 8
+  br i1 %.not, label %bb_inst_10, label %bb_inst_155
 
-bb_inst_16:                                       ; preds = %bb_inst_13
+bb_inst_10:                                       ; preds = %bb_inst_7
   %12 = sub i64 %5, %6
   %13 = and i64 %12, 4294967295
-  %.not172 = icmp ugt i64 %13, 98
-  br i1 %.not172, label %bb_inst_34, label %bb_inst_11
+  %.not167 = icmp ugt i64 %13, 98
+  br i1 %.not167, label %bb_inst_27, label %bb_inst_155
 
-bb_inst_34:                                       ; preds = %bb_inst_16
-  %14 = sub i64 98, %12
-  %15 = call i64 @_bpf_helper_ext_0065(i64 %3, i64 %14, i64 %13, i64 99, i64 undef)
-  %16 = call i64 @_bpf_helper_ext_0044(i64 %3, i64 4294967268, i64 %13, i64 99, i64 undef)
-  %17 = icmp eq i64 %16, 0
-  br i1 %17, label %bb_inst_47, label %bb_inst_9
+bb_inst_27:                                       ; preds = %bb_inst_10
+  %14 = call i64 @_bpf_helper_ext_0065(i64 %3, i64 0, i64 0, i64 99, i64 undef)
+  %.not168 = icmp eq i64 %14, 0
+  br i1 %.not168, label %bb_inst_31, label %bb_inst_155
 
-bb_inst_47:                                       ; preds = %bb_inst_34
+bb_inst_31:                                       ; preds = %bb_inst_27
+  %15 = call i64 @_bpf_helper_ext_0044(i64 %3, i64 4294967268, i64 0, i64 99, i64 undef)
+  %16 = icmp eq i64 %15, 0
+  br i1 %16, label %bb_inst_42, label %bb_inst_36
+
+bb_inst_36:                                       ; preds = %bb_inst_31
+  %17 = call i64 @_bpf_helper_ext_0006(i64 0, i64 24, i64 0, i64 99, i64 undef)
+  br label %bb_inst_155
+
+bb_inst_42:                                       ; preds = %bb_inst_31
   %18 = load i64, ptr %4, align 4
   %19 = load i64, ptr %0, align 4
   %20 = add i64 %19, 126
-  %.not173 = icmp ult i64 %18, %20
-  br i1 %.not173, label %bb_inst_52, label %bb_inst_64
+  %.not169 = icmp ult i64 %18, %20
+  br i1 %.not169, label %bb_inst_47, label %bb_inst_60
 
-bb_inst_52:                                       ; preds = %bb_inst_47
-  %21 = call i64 @_bpf_helper_ext_0006(i64 59, i64 62, i64 %13, i64 99, i64 undef)
-  %22 = call i64 @_bpf_helper_ext_0006(i64 121, i64 57, i64 %19, i64 126, i64 %18)
-  br label %bb_inst_11
+bb_inst_47:                                       ; preds = %bb_inst_42
+  %21 = call i64 @_bpf_helper_ext_0006(i64 24, i64 62, i64 0, i64 99, i64 undef)
+  %22 = call i64 @_bpf_helper_ext_0006(i64 86, i64 57, i64 %19, i64 126, i64 %18)
+  br label %bb_inst_155
 
-bb_inst_64:                                       ; preds = %bb_inst_47
+bb_inst_60:                                       ; preds = %bb_inst_42
   %23 = add i64 %19, 6
   %24 = add i64 %19, 28
   %25 = inttoptr i64 %24 to ptr
@@ -145,14 +141,18 @@ bb_inst_64:                                       ; preds = %bb_inst_47
   %76 = getelementptr inbounds i8, ptr %stackEnd, i64 -8
   store i64 0, ptr %76, align 8
   %77 = add i64 %2, -8
-  %78 = call i64 @_bpf_helper_ext_0001(i64 0, i64 %77, i64 %56, i64 20, i64 0)
+  %78 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %77, i64 %56, i64 20, i64 0)
   %79 = icmp eq i64 %78, 0
-  br i1 %79, label %bb_inst_11, label %bb_inst_156
+  br i1 %79, label %bb_inst_155, label %bb_inst_152
 
-bb_inst_156:                                      ; preds = %bb_inst_64
+bb_inst_152:                                      ; preds = %bb_inst_60
   %80 = inttoptr i64 %78 to ptr
   %81 = load i64, ptr %80, align 4
   %82 = add i64 %81, 1
   store i64 %82, ptr %80, align 4
-  br label %bb_inst_11
+  br label %bb_inst_155
+
+bb_inst_155:                                      ; preds = %bb_inst_152, %bb_inst_60, %bb_inst_47, %bb_inst_36, %bb_inst_27, %bb_inst_10, %bb_inst_7, %setupBlock
+  %r6.0 = phi i64 [ 1, %setupBlock ], [ 2, %bb_inst_7 ], [ 2, %bb_inst_10 ], [ 2, %bb_inst_27 ], [ 3, %bb_inst_60 ], [ 3, %bb_inst_152 ], [ 1, %bb_inst_47 ], [ 1, %bb_inst_36 ]
+  ret i64 %r6.0
 }
