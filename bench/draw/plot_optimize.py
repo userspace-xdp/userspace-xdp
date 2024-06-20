@@ -21,7 +21,7 @@ def parse_file(file_path):
         ipackets = ipackets / run_seconds
     return ipackets
 
-dir_path_list = ["dpdk_ubpf", "dpdk_llvm_jit", "dpdk_llvm_base", "dpdk_add_type", "dpdk_inline"]
+dir_path_list = ["dpdk_llvm_jit", "dpdk_llvm_base", "dpdk_add_type", "dpdk_inline"]
 
 def collect_data(root_dir, target_file):
     """
@@ -60,15 +60,11 @@ def plot_data(data, target_file, ax):
     ax.grid(True)
 
 # Create subplots
-fig, axs = plt.subplots(1, 6, figsize=(6 * 6, 10))
+fig, axs = plt.subplots(1, 9, figsize=(6 * 9, 10))
 index = 0
 # Iterate over target files and plot each in a subplot
-for name in os.listdir("/home/yunwei/ebpf-xdp-dpdk/bench/draw"):
-    if name == "plot_optimize.py" or name == "plot_mode.py" or name == "imgs" or name == "Makefile":
-        continue
-    if name == "xdp_adjust_tail" or name == "xdp_firewall":
-        continue
-    # Collect the data
+def plot_each(name):
+    global index
     root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench/draw", name)
     target_file = 'size-64.txt'
     if name == "xdping" or name == "xdp_adjust_tail":
@@ -81,6 +77,16 @@ for name in os.listdir("/home/yunwei/ebpf-xdp-dpdk/bench/draw"):
     # Plot the data in the corresponding subplot
     plot_data(data, name, axs[index])
     index += 1
+
+plot_each("xdp_tx")
+plot_each("xdping")
+plot_each("xdp_adjust_tail")
+plot_each("xdp-counter")
+plot_each("xdp-length")
+plot_each("xdp-load-balancer")
+plot_each("xdp_firewall")
+plot_each("xdp-httpdump")
+plot_each("katran")
 
 save_name = 'imgs/optimize.png'
 plt.tight_layout()  # Adjust layout to not cut off labels

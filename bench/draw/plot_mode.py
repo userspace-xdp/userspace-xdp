@@ -60,16 +60,12 @@ def plot_data(data, target_file, ax):
     ax.grid(True)
 
 # Create subplots
-fig, axs = plt.subplots(1, 7, figsize=(6 * 7, 10))
+fig, axs = plt.subplots(1, 9, figsize=(6 * 9, 10))
 index = 0
 # Iterate over target files and plot each in a subplot
-for name in os.listdir("/home/yunwei/ebpf-xdp-dpdk/bench/simple-NFs"):
-    if name == "plot_mode.py" or name == "ipackets.png" or name == "Makefile":
-        continue
-    if name == "katran":
-        continue
-    # Collect the data
-    root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench/simple-NFs", name)
+def plot_each(name):
+    global index
+    root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench/draw", name)
     target_file = 'size-64.txt'
     if name == "xdping" or name == "xdp_adjust_tail":
         target_file = 'size-256.txt'
@@ -82,6 +78,15 @@ for name in os.listdir("/home/yunwei/ebpf-xdp-dpdk/bench/simple-NFs"):
     plot_data(data, name, axs[index])
     index += 1
 
-save_name = 'ipackets.png'
+plot_each("xdp_tx")
+plot_each("xdping")
+plot_each("xdp_adjust_tail")
+plot_each("xdp-counter")
+plot_each("xdp-length")
+plot_each("xdp-load-balancer")
+plot_each("xdp_firewall")
+plot_each("xdp-httpdump")
+plot_each("katran")
+save_name = 'imgs/ipackets.png'
 plt.tight_layout()  # Adjust layout to not cut off labels
 plt.savefig(save_name)
