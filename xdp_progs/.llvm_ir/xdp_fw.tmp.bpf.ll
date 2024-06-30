@@ -1,7 +1,7 @@
 ; ModuleID = 'xdp_fw.bpf.c'
 source_filename = "xdp_fw.bpf.c"
-target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-pc-linux-gnu"
+target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n32:64-S128"
+target triple = "bpf"
 
 %struct.anon.1 = type { [1 x i32]*, %struct.flow_ctx_table_key*, %struct.flow_ctx_table_leaf*, [1024 x i32]* }
 %struct.flow_ctx_table_key = type { i16, i16, i16, i32, i32 }
@@ -22,7 +22,7 @@ target triple = "x86_64-pc-linux-gnu"
 @_license = dso_local global [4 x i8] c"GPL\00", section "license", align 1
 @llvm.compiler.used = appending global [4 x i8*] [i8* bitcast (i32 (%struct.xdp_md*)* @xdp_pass to i8*), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @_license, i32 0, i32 0), i8* bitcast (%struct.anon.2* @tx_port to i8*), i8* bitcast (%struct.anon.1* @flow_ctx_table to i8*)], section "llvm.metadata"
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
   %2 = alloca i32, align 4
   %3 = alloca %struct.xdp_md*, align 8
@@ -339,7 +339,7 @@ declare i1 @llvm.is.constant.i16(i16) #2
 ; Function Attrs: nofree nosync nounwind readnone speculatable willreturn
 declare i16 @llvm.bswap.i16(i16) #3
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define internal void @biflow(%struct.flow_ctx_table_key* noundef %0) #0 {
   %2 = alloca %struct.flow_ctx_table_key*, align 8
   %3 = alloca i32, align 4
@@ -405,17 +405,14 @@ define internal void @biflow(%struct.flow_ctx_table_key* noundef %0) #0 {
   ret void
 }
 
-attributes #0 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #0 = { noinline nounwind optnone "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
 attributes #1 = { argmemonly nofree nounwind willreturn writeonly }
 attributes #2 = { convergent nofree nosync nounwind readnone willreturn }
 attributes #3 = { nofree nosync nounwind readnone speculatable willreturn }
 
-!llvm.module.flags = !{!0, !1, !2, !3, !4}
-!llvm.ident = !{!5}
+!llvm.module.flags = !{!0, !1}
+!llvm.ident = !{!2}
 
 !0 = !{i32 1, !"wchar_size", i32 4}
-!1 = !{i32 7, !"PIC Level", i32 2}
-!2 = !{i32 7, !"PIE Level", i32 2}
-!3 = !{i32 7, !"uwtable", i32 1}
-!4 = !{i32 7, !"frame-pointer", i32 2}
-!5 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
+!1 = !{i32 7, !"frame-pointer", i32 2}
+!2 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}

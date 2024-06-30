@@ -1,7 +1,7 @@
 ; ModuleID = 'xdp_firewall.bpf.c'
 source_filename = "xdp_firewall.bpf.c"
-target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-pc-linux-gnu"
+target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n32:64-S128"
+target triple = "bpf"
 
 %struct.anon = type { [5 x i32]*, %struct.flow_key*, i64*, [32768 x i32]*, [1 x i32]* }
 %struct.flow_key = type { %union.anon, i32, [4 x i8] }
@@ -24,12 +24,12 @@ target triple = "x86_64-pc-linux-gnu"
 @l3_filter = dso_local global %struct.anon zeroinitializer, section ".maps", align 8
 @vrrp_vrid_filter = dso_local global %struct.anon.0 zeroinitializer, section ".maps", align 8
 @__const.layer3_filter.key = private unnamed_addr constant %struct.flow_key { %union.anon zeroinitializer, i32 0, [4 x i8] undef }, align 8
-@layer3_filter.____fmt = internal constant [24 x i8] c"only ipv4 is supported\0A\00", align 16
+@layer3_filter.____fmt = internal constant [24 x i8] c"only ipv4 is supported\0A\00", align 1
 @bpf_trace_printk = internal global i64 (i8*, i32, ...)* inttoptr (i64 6 to i64 (i8*, i32, ...)*), align 8
 @bpf_map_lookup_elem = internal global i8* (i8*, i8*)* inttoptr (i64 1 to i8* (i8*, i8*)*), align 8
 @llvm.compiler.used = appending global [4 x i8*] [i8* bitcast (i32 (%struct.xdp_md*)* @xdp_pass to i8*), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @_license, i32 0, i32 0), i8* bitcast (%struct.anon* @l3_filter to i8*), i8* bitcast (%struct.anon.0* @vrrp_vrid_filter to i8*)], section "llvm.metadata"
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
   %2 = alloca i32, align 4
   %3 = alloca %struct.vrrphdr*, align 8
@@ -582,7 +582,7 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
 ; Function Attrs: argmemonly nofree nounwind willreturn writeonly
 declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1 immarg) #1
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define internal void @swap_src_dst_mac(i8* noundef %0) #0 {
   %2 = alloca i8*, align 8
   %3 = alloca i16*, align 8
@@ -651,19 +651,16 @@ declare i16 @llvm.bswap.i16(i16) #3
 ; Function Attrs: argmemonly nofree nounwind willreturn
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg) #4
 
-attributes #0 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #0 = { noinline nounwind optnone "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
 attributes #1 = { argmemonly nofree nounwind willreturn writeonly }
 attributes #2 = { convergent nofree nosync nounwind readnone willreturn }
 attributes #3 = { nofree nosync nounwind readnone speculatable willreturn }
 attributes #4 = { argmemonly nofree nounwind willreturn }
 attributes #5 = { nounwind }
 
-!llvm.module.flags = !{!0, !1, !2, !3, !4}
-!llvm.ident = !{!5}
+!llvm.module.flags = !{!0, !1}
+!llvm.ident = !{!2}
 
 !0 = !{i32 1, !"wchar_size", i32 4}
-!1 = !{i32 7, !"PIC Level", i32 2}
-!2 = !{i32 7, !"PIE Level", i32 2}
-!3 = !{i32 7, !"uwtable", i32 1}
-!4 = !{i32 7, !"frame-pointer", i32 2}
-!5 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
+!1 = !{i32 7, !"frame-pointer", i32 2}
+!2 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}

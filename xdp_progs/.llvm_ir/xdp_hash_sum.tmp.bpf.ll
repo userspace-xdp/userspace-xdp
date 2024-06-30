@@ -1,7 +1,7 @@
 ; ModuleID = 'xdp_hash_sum.bpf.c'
 source_filename = "xdp_hash_sum.bpf.c"
-target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-pc-linux-gnu"
+target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n32:64-S128"
+target triple = "bpf"
 
 %struct.xdp_md = type { i64, i64, i32, i32, i32, i32 }
 %struct.ethhdr = type { [6 x i8], [6 x i8], i16 }
@@ -13,7 +13,7 @@ target triple = "x86_64-pc-linux-gnu"
 @_license = dso_local global [4 x i8] c"GPL\00", section "license", align 1
 @llvm.compiler.used = appending global [2 x i8*] [i8* bitcast (i32 (%struct.xdp_md*)* @xdp_pass to i8*), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @_license, i32 0, i32 0)], section "llvm.metadata"
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
   %2 = alloca i32, align 4
   %3 = alloca %struct.xdp_md*, align 8
@@ -141,7 +141,7 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
   ret i32 %80
 }
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define internal i32 @calculate_checksum(i8* noundef %0, i32 noundef %1) #0 {
   %3 = alloca i8*, align 8
   %4 = alloca i32, align 4
@@ -175,14 +175,14 @@ define internal i32 @calculate_checksum(i8* noundef %0, i32 noundef %1) #0 {
   %21 = load i32, i32* %6, align 4
   %22 = add i32 %21, 1
   store i32 %22, i32* %6, align 4
-  br label %7, !llvm.loop !6
+  br label %7, !llvm.loop !3
 
 23:                                               ; preds = %7
   %24 = load i32, i32* %5, align 4
   ret i32 %24
 }
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define internal i32 @xxhash32(i8* noundef %0, i32 noundef %1, i32 noundef %2) #0 {
   %4 = alloca i8*, align 8
   %5 = alloca i32, align 4
@@ -240,7 +240,7 @@ define internal i32 @xxhash32(i8* noundef %0, i32 noundef %1, i32 noundef %2) #0
 ; Function Attrs: argmemonly nofree nounwind willreturn
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg) #1
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define internal void @swap_src_dst_mac(i8* noundef %0) #0 {
   %2 = alloca i8*, align 8
   %3 = alloca i16*, align 8
@@ -300,7 +300,7 @@ define internal void @swap_src_dst_mac(i8* noundef %0) #0 {
   ret void
 }
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define internal i32 @finalize(i32 noundef %0, i8* noundef %1, i32 noundef %2) #0 {
   %4 = alloca i32, align 4
   %5 = alloca i32, align 4
@@ -447,7 +447,7 @@ define internal i32 @finalize(i32 noundef %0, i8* noundef %1, i32 noundef %2) #0
   ret i32 %115
 }
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define internal i32 @h16bytes_4(i8* noundef %0, i32 noundef %1, i32 noundef %2, i32 noundef %3, i32 noundef %4, i32 noundef %5) #0 {
   %7 = alloca i32, align 4
   %8 = alloca i32, align 4
@@ -747,18 +747,15 @@ define internal i32 @h16bytes_4(i8* noundef %0, i32 noundef %1, i32 noundef %2, 
   ret i32 %253
 }
 
-attributes #0 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #0 = { noinline nounwind optnone "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
 attributes #1 = { argmemonly nofree nounwind willreturn }
 attributes #2 = { nounwind }
 
-!llvm.module.flags = !{!0, !1, !2, !3, !4}
-!llvm.ident = !{!5}
+!llvm.module.flags = !{!0, !1}
+!llvm.ident = !{!2}
 
 !0 = !{i32 1, !"wchar_size", i32 4}
-!1 = !{i32 7, !"PIC Level", i32 2}
-!2 = !{i32 7, !"PIE Level", i32 2}
-!3 = !{i32 7, !"uwtable", i32 1}
-!4 = !{i32 7, !"frame-pointer", i32 2}
-!5 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
-!6 = distinct !{!6, !7}
-!7 = !{!"llvm.loop.mustprogress"}
+!1 = !{i32 7, !"frame-pointer", i32 2}
+!2 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
+!3 = distinct !{!3, !4}
+!4 = !{!"llvm.loop.mustprogress"}

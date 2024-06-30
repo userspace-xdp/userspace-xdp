@@ -1,7 +1,7 @@
 ; ModuleID = 'xdp_lb.bpf.c'
 source_filename = "xdp_lb.bpf.c"
-target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-pc-linux-gnu"
+target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n32:64-S128"
+target triple = "bpf"
 
 %struct.anon.1 = type { [2 x i32]*, i32*, %struct.ip_mac_pair*, [64 x i32]* }
 %struct.ip_mac_pair = type { %struct.eth_addr, i32 }
@@ -15,19 +15,19 @@ target triple = "x86_64-pc-linux-gnu"
 %struct.anon = type { i32, i32 }
 %struct.tcphdr = type { i16, i16, i32, i32, i16, i16, i16, i16 }
 
-@__const.xdp_pass.____fmt = private unnamed_addr constant [22 x i8] c"Out of bounds ethhdr\0A\00", align 16
+@__const.xdp_pass.____fmt = private unnamed_addr constant [22 x i8] c"Out of bounds ethhdr\0A\00", align 1
 @bpf_trace_printk = internal global i64 (i8*, i32, ...)* inttoptr (i64 6 to i64 (i8*, i32, ...)*), align 8
-@__const.xdp_pass.____fmt.1 = private unnamed_addr constant [21 x i8] c"Out of bounds iphdr\0A\00", align 16
-@__const.xdp_pass.____fmt.2 = private unnamed_addr constant [22 x i8] c"Out of bounds tcphdr\0A\00", align 16
+@__const.xdp_pass.____fmt.1 = private unnamed_addr constant [21 x i8] c"Out of bounds iphdr\0A\00", align 1
+@__const.xdp_pass.____fmt.2 = private unnamed_addr constant [22 x i8] c"Out of bounds tcphdr\0A\00", align 1
 @bpf_map_lookup_elem = internal global i8* (i8*, i8*)* inttoptr (i64 1 to i8* (i8*, i8*)*), align 8
 @config_map = dso_local global %struct.anon.1 zeroinitializer, section ".maps", align 8
-@__const.xdp_pass.____fmt.3 = private unnamed_addr constant [25 x i8] c"Client config not found\0A\00", align 16
+@__const.xdp_pass.____fmt.3 = private unnamed_addr constant [25 x i8] c"Client config not found\0A\00", align 1
 @targets_map = dso_local global %struct.anon.2 zeroinitializer, section ".maps", align 8
 @bpf_csum_diff = internal global i64 (i32*, i32, i32*, i32, i32)* inttoptr (i64 28 to i64 (i32*, i32, i32*, i32, i32)*), align 8
 @LICENSE = dso_local global [4 x i8] c"GPL\00", section "license", align 1
 @llvm.compiler.used = appending global [4 x i8*] [i8* bitcast (i32 (%struct.xdp_md*)* @xdp_pass to i8*), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @LICENSE, i32 0, i32 0), i8* bitcast (%struct.anon.2* @targets_map to i8*), i8* bitcast (%struct.anon.1* @config_map to i8*)], section "llvm.metadata"
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
   %2 = alloca i8*, align 8
   %3 = alloca i32, align 4
@@ -52,17 +52,17 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
   %22 = alloca i8*, align 8
   %23 = alloca %struct.hash_and_sum, align 4
   %24 = alloca %struct.ethhdr*, align 8
-  %25 = alloca [22 x i8], align 16
+  %25 = alloca [22 x i8], align 1
   %26 = alloca i64, align 8
   %27 = alloca %struct.iphdr*, align 8
-  %28 = alloca [21 x i8], align 16
+  %28 = alloca [21 x i8], align 1
   %29 = alloca i64, align 8
   %30 = alloca %struct.tcphdr*, align 8
-  %31 = alloca [22 x i8], align 16
+  %31 = alloca [22 x i8], align 1
   %32 = alloca i64, align 8
   %33 = alloca i32, align 4
   %34 = alloca %struct.ip_mac_pair*, align 8
-  %35 = alloca [25 x i8], align 16
+  %35 = alloca [25 x i8], align 1
   %36 = alloca i64, align 8
   %37 = alloca %struct.ip_mac_pair*, align 8
   %38 = alloca %struct.ip_mac_pair*, align 8
@@ -88,7 +88,7 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
 
 53:                                               ; preds = %1
   %54 = bitcast [22 x i8]* %25 to i8*
-  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 16 %54, i8* align 16 getelementptr inbounds ([22 x i8], [22 x i8]* @__const.xdp_pass.____fmt, i32 0, i32 0), i64 22, i1 false)
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 1 %54, i8* align 1 getelementptr inbounds ([22 x i8], [22 x i8]* @__const.xdp_pass.____fmt, i32 0, i32 0), i64 22, i1 false)
   %55 = load i64 (i8*, i32, ...)*, i64 (i8*, i32, ...)** @bpf_trace_printk, align 8
   %56 = getelementptr inbounds [22 x i8], [22 x i8]* %25, i64 0, i64 0
   %57 = call i64 (i8*, i32, ...) %55(i8* noundef %56, i32 noundef 22)
@@ -111,7 +111,7 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
 
 68:                                               ; preds = %59
   %69 = bitcast [21 x i8]* %28 to i8*
-  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 16 %69, i8* align 16 getelementptr inbounds ([21 x i8], [21 x i8]* @__const.xdp_pass.____fmt.1, i32 0, i32 0), i64 21, i1 false)
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 1 %69, i8* align 1 getelementptr inbounds ([21 x i8], [21 x i8]* @__const.xdp_pass.____fmt.1, i32 0, i32 0), i64 21, i1 false)
   %70 = load i64 (i8*, i32, ...)*, i64 (i8*, i32, ...)** @bpf_trace_printk, align 8
   %71 = getelementptr inbounds [21 x i8], [21 x i8]* %28, i64 0, i64 0
   %72 = call i64 (i8*, i32, ...) %70(i8* noundef %71, i32 noundef 21)
@@ -143,7 +143,7 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
 
 90:                                               ; preds = %80
   %91 = bitcast [22 x i8]* %31 to i8*
-  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 16 %91, i8* align 16 getelementptr inbounds ([22 x i8], [22 x i8]* @__const.xdp_pass.____fmt.2, i32 0, i32 0), i64 22, i1 false)
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 1 %91, i8* align 1 getelementptr inbounds ([22 x i8], [22 x i8]* @__const.xdp_pass.____fmt.2, i32 0, i32 0), i64 22, i1 false)
   %92 = load i64 (i8*, i32, ...)*, i64 (i8*, i32, ...)** @bpf_trace_printk, align 8
   %93 = getelementptr inbounds [22 x i8], [22 x i8]* %31, i64 0, i64 0
   %94 = call i64 (i8*, i32, ...) %92(i8* noundef %93, i32 noundef 22)
@@ -165,7 +165,7 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
 
 103:                                              ; preds = %96
   %104 = bitcast [25 x i8]* %35 to i8*
-  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 16 %104, i8* align 16 getelementptr inbounds ([25 x i8], [25 x i8]* @__const.xdp_pass.____fmt.3, i32 0, i32 0), i64 25, i1 false)
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 1 %104, i8* align 1 getelementptr inbounds ([25 x i8], [25 x i8]* @__const.xdp_pass.____fmt.3, i32 0, i32 0), i64 25, i1 false)
   %105 = load i64 (i8*, i32, ...)*, i64 (i8*, i32, ...)** @bpf_trace_printk, align 8
   %106 = getelementptr inbounds [25 x i8], [25 x i8]* %35, i64 0, i64 0
   %107 = call i64 (i8*, i32, ...) %105(i8* noundef %106, i32 noundef 25)
@@ -587,7 +587,7 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
 ; Function Attrs: argmemonly nofree nounwind willreturn
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg) #1
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define internal i32 @calculate_checksum(i8* noundef %0, i32 noundef %1) #0 {
   %3 = alloca i8*, align 8
   %4 = alloca i32, align 4
@@ -621,7 +621,7 @@ define internal i32 @calculate_checksum(i8* noundef %0, i32 noundef %1) #0 {
   %21 = load i32, i32* %6, align 4
   %22 = add i32 %21, 1
   store i32 %22, i32* %6, align 4
-  br label %7, !llvm.loop !6
+  br label %7, !llvm.loop !3
 
 23:                                               ; preds = %7
   %24 = load i32, i32* %5, align 4
@@ -634,7 +634,7 @@ declare i1 @llvm.is.constant.i32(i32) #2
 ; Function Attrs: nofree nosync nounwind readnone speculatable willreturn
 declare i32 @llvm.bswap.i32(i32) #3
 
-; Function Attrs: alwaysinline nounwind uwtable
+; Function Attrs: alwaysinline nounwind
 define internal i32 @finalize(i32 noundef %0, i8* noundef %1, i32 noundef %2) #4 {
   %4 = alloca i32, align 4
   %5 = alloca i32, align 4
@@ -781,7 +781,7 @@ define internal i32 @finalize(i32 noundef %0, i8* noundef %1, i32 noundef %2) #4
   ret i32 %115
 }
 
-; Function Attrs: alwaysinline nounwind uwtable
+; Function Attrs: alwaysinline nounwind
 define internal i32 @h16bytes_4(i8* noundef %0, i32 noundef %1, i32 noundef %2, i32 noundef %3, i32 noundef %4, i32 noundef %5) #4 {
   %7 = alloca i32, align 4
   %8 = alloca i32, align 4
@@ -1081,21 +1081,18 @@ define internal i32 @h16bytes_4(i8* noundef %0, i32 noundef %1, i32 noundef %2, 
   ret i32 %253
 }
 
-attributes #0 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #0 = { noinline nounwind optnone "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
 attributes #1 = { argmemonly nofree nounwind willreturn }
 attributes #2 = { convergent nofree nosync nounwind readnone willreturn }
 attributes #3 = { nofree nosync nounwind readnone speculatable willreturn }
-attributes #4 = { alwaysinline nounwind uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #4 = { alwaysinline nounwind "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
 attributes #5 = { nounwind }
 
-!llvm.module.flags = !{!0, !1, !2, !3, !4}
-!llvm.ident = !{!5}
+!llvm.module.flags = !{!0, !1}
+!llvm.ident = !{!2}
 
 !0 = !{i32 1, !"wchar_size", i32 4}
-!1 = !{i32 7, !"PIC Level", i32 2}
-!2 = !{i32 7, !"PIE Level", i32 2}
-!3 = !{i32 7, !"uwtable", i32 1}
-!4 = !{i32 7, !"frame-pointer", i32 2}
-!5 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
-!6 = distinct !{!6, !7}
-!7 = !{!"llvm.loop.mustprogress"}
+!1 = !{i32 7, !"frame-pointer", i32 2}
+!2 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
+!3 = distinct !{!3, !4}
+!4 = !{!"llvm.loop.mustprogress"}

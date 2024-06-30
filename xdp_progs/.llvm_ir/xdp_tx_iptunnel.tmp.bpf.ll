@@ -1,7 +1,7 @@
 ; ModuleID = 'xdp_tx_iptunnel.bpf.c'
 source_filename = "xdp_tx_iptunnel.bpf.c"
-target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-pc-linux-gnu"
+target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n32:64-S128"
+target triple = "bpf"
 
 %struct.anon = type { [6 x i32]*, i32*, i64*, [256 x i32]* }
 %struct.anon.0 = type { [1 x i32]*, %struct.vip*, %struct.iptnl_info*, [256 x i32]* }
@@ -23,18 +23,18 @@ target triple = "x86_64-pc-linux-gnu"
 @vip2tnl = dso_local global %struct.anon.0 zeroinitializer, section ".maps", align 8
 @handle_ipv4.____fmt = internal constant [13 x i8] c"handle_ipv4\0A\00", align 1
 @bpf_trace_printk = internal global i64 (i8*, i32, ...)* inttoptr (i64 6 to i64 (i8*, i32, ...)*), align 8
-@handle_ipv4.____fmt.1 = internal constant [22 x i8] c"handle_ipv4 1, valid\0A\00", align 16
-@handle_ipv4.____fmt.2 = internal constant [18 x i8] c"start map lookup\0A\00", align 16
+@handle_ipv4.____fmt.1 = internal constant [22 x i8] c"handle_ipv4 1, valid\0A\00", align 1
+@handle_ipv4.____fmt.2 = internal constant [18 x i8] c"start map lookup\0A\00", align 1
 @bpf_map_lookup_elem = internal global i8* (i8*, i8*)* inttoptr (i64 1 to i8* (i8*, i8*)*), align 8
 @handle_ipv4.____fmt.3 = internal constant [9 x i8] c"tnl: %p\0A\00", align 1
 @handle_ipv4.____fmt.4 = internal constant [12 x i8] c"map lookup\0A\00", align 1
 @bpf_xdp_adjust_head = internal global i64 (%struct.xdp_md*, i32)* inttoptr (i64 44 to i64 (%struct.xdp_md*, i32)*), align 8
 @handle_ipv4.____fmt.5 = internal constant [13 x i8] c"adjust head\0A\00", align 1
-@handle_ipv4.____fmt.6 = internal constant [30 x i8] c"handle_ipv4 2, not too small\0A\00", align 16
-@handle_ipv4.____fmt.7 = internal constant [20 x i8] c"handle_ipv4 XDP_TX\0A\00", align 16
+@handle_ipv4.____fmt.6 = internal constant [30 x i8] c"handle_ipv4 2, not too small\0A\00", align 1
+@handle_ipv4.____fmt.7 = internal constant [20 x i8] c"handle_ipv4 XDP_TX\0A\00", align 1
 @llvm.compiler.used = appending global [4 x i8*] [i8* bitcast (i32 (%struct.xdp_md*)* @xdp_pass to i8*), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @_license, i32 0, i32 0), i8* bitcast (%struct.anon* @rxcnt to i8*), i8* bitcast (%struct.anon.0* @vip2tnl to i8*)], section "llvm.metadata"
 
-; Function Attrs: noinline nounwind optnone uwtable
+; Function Attrs: noinline nounwind optnone
 define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
   %2 = alloca i32, align 4
   %3 = alloca i64*, align 8
@@ -529,7 +529,7 @@ define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 section "xdp" {
   %358 = load i32, i32* %27, align 4
   %359 = add nsw i32 %358, 1
   store i32 %359, i32* %27, align 4
-  br label %347, !llvm.loop !6
+  br label %347, !llvm.loop !3
 
 360:                                              ; preds = %347
   %361 = load i32, i32* %26, align 4
@@ -599,22 +599,19 @@ declare i1 @llvm.is.constant.i64(i64) #2
 ; Function Attrs: argmemonly nofree nounwind willreturn
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg) #4
 
-attributes #0 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #0 = { noinline nounwind optnone "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
 attributes #1 = { argmemonly nofree nounwind willreturn writeonly }
 attributes #2 = { convergent nofree nosync nounwind readnone willreturn }
 attributes #3 = { nofree nosync nounwind readnone speculatable willreturn }
 attributes #4 = { argmemonly nofree nounwind willreturn }
 attributes #5 = { nounwind }
 
-!llvm.module.flags = !{!0, !1, !2, !3, !4}
-!llvm.ident = !{!5}
+!llvm.module.flags = !{!0, !1}
+!llvm.ident = !{!2}
 
 !0 = !{i32 1, !"wchar_size", i32 4}
-!1 = !{i32 7, !"PIC Level", i32 2}
-!2 = !{i32 7, !"PIE Level", i32 2}
-!3 = !{i32 7, !"uwtable", i32 1}
-!4 = !{i32 7, !"frame-pointer", i32 2}
-!5 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
-!6 = distinct !{!6, !7, !8}
-!7 = !{!"llvm.loop.mustprogress"}
-!8 = !{!"llvm.loop.unroll.full"}
+!1 = !{i32 7, !"frame-pointer", i32 2}
+!2 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
+!3 = distinct !{!3, !4, !5}
+!4 = !{!"llvm.loop.mustprogress"}
+!5 = !{!"llvm.loop.unroll.full"}
