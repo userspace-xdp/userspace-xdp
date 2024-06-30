@@ -124,7 +124,7 @@ bb_inst_69:                                       ; preds = %bb_inst_38, %bb_ins
   %r4.0 = phi i64 [ %40, %bb_inst_62 ], [ %40, %bb_inst_64 ], [ %23, %bb_inst_46 ], [ %36, %bb_inst_38 ]
   %r8.0 = phi i64 [ 0, %bb_inst_62 ], [ %40, %bb_inst_64 ], [ %24, %bb_inst_46 ], [ 0, %bb_inst_38 ]
   %47 = add i64 %2, -32
-  %48 = call i64 @_bpf_helper_ext_0001(i64 0, i64 %47, i64 %r3.2, i64 %r4.0, i64 %36)
+  %48 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %47, i64 %r3.2, i64 %r4.0, i64 %36)
   %49 = icmp eq i64 %48, 0
   br i1 %49, label %bb_inst_80, label %bb_inst_75
 
@@ -147,7 +147,7 @@ bb_inst_81:                                       ; preds = %bb_inst_80
   %58 = getelementptr inbounds i8, ptr %stackEnd, i64 -4
   store i32 %57, ptr %58, align 4
   %59 = add i64 %2, -4
-  %60 = call i64 @_bpf_helper_ext_0001(i64 0, i64 %59, i64 %r3.2, i64 %r4.0, i64 %36)
+  %60 = call i64 @_bpf_helper_ext_0001(i64 21474836480, i64 %59, i64 %r3.2, i64 %r4.0, i64 %36)
   %61 = icmp eq i64 %60, 0
   br i1 %61, label %bb_inst_98, label %bb_inst_89
 

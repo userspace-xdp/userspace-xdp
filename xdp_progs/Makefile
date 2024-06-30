@@ -81,6 +81,8 @@ AOT_OBJECTS = $(OUTPUT)/xdp_tx.aot.o \
 	$(OUTPUT)/xdp_csum_only.inline.aot.o \
 	$(OUTPUT)/xdp_map_access.inline.aot.o \
 	$(OUTPUT)/xdp_lb.inline.aot.o \
+	# $(OUTPUT)/xdp_adjust_tail.inline.aot.o \
+	# $(OUTPUT)/xdp_firewall.inline.aot.o \
 
 .PHONY: all 
 all: $(APPS) $(AOT_OBJECTS)
@@ -122,10 +124,13 @@ $(LIBBLAZESYM_HEADER): $(LIBBLAZESYM_SRC)/target/release/libblazesym.a | $(OUTPU
 # Build BPF code
 $(OUTPUT)/%.bpf.o: %.bpf.c $(LIBBPF_OBJ) $(wildcard %.h) $(VMLINUX) | $(OUTPUT) $(BPFTOOL)
 	$(call msg,BPF,$@)
-	$(Q)$(CLANG) -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH)		      \
+	$(CLANG) -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH)		      \
 		     $(INCLUDES) $(CLANG_BPF_SYS_INCLUDES)		      \
 		     -c $(filter %.c,$^) -o $(patsubst %.bpf.o,%.tmp.bpf.o,$@)
-	$(Q)$(BPFTOOL) gen object $@ $(patsubst %.bpf.o,%.tmp.bpf.o,$@)
+	$(CLANG) -S -emit-llvm -D__TARGET_ARCH_$(ARCH)		      \
+		     $(INCLUDES) $(CLANG_BPF_SYS_INCLUDES)		      \
+		     $(filter %.c,$^) -o .llvm_ir/$*.tmp.bpf.ll
+	$(BPFTOOL) gen object $@ $(patsubst %.bpf.o,%.tmp.bpf.o,$@)
 
 # Generate BPF skeletons
 $(OUTPUT)/%.skel.h: $(OUTPUT)/%.bpf.o | $(OUTPUT) $(BPFTOOL)
@@ -161,8 +166,8 @@ $(OUTPUT)/%.aot.o: %.bpf.c
 	# opt -O3 -S -opaque-pointers -o .llvm_ir/$*.bpf.opt.ll .llvm_ir/$*.bpf.ll
 	opt -O3 -opaque-pointers -o $(OUTPUT)/$*.bpf.bc .llvm_ir/$*.bpf.opt.ll
 	llc -O3 -opaque-pointers -filetype=obj -o $(OUTPUT)/$*.base.aot.o $(OUTPUT)/$*.bpf.bc
-	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/inline-map-ids/$*/  -c $< -o $@
-	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/map-ids/$*/  -c $< -o $(OUTPUT)/$*.aot.inline.o
+	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/map-ids/$*/  -c $< -o $@
+	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/inline-map-ids/$*/  -c $< -o $(OUTPUT)/$*.aot.inline.o
 
 $(OUTPUT)/%.aot.o: %.bpf.aot.cpp
 	$(CXX) -O3 -fno-stack-protector -fno-permissive $(INCLUDES) -c $< -o $@

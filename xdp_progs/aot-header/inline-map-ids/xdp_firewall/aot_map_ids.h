@@ -4,7 +4,7 @@
 #define BPF_MAP_IDS_H
 
 #include "../common_map_helpers.h"
-// #include "hash_map.h"
+#include "hash_map.h"
 
 static const unsigned long long l3_filter_id = ((unsigned long long)4 << 32);
 static const unsigned long long vrrp_vrid_filter_id = ((unsigned long long)5 << 32);
@@ -14,25 +14,25 @@ struct vrrp_filter;
 
 struct vrrp_filter __vrrp_vrid_filter[256] = {};
 
-// DEFINE_BPFTIME_HASH_MAP(__l3_filter, 32768, sizeof(struct flow_key), sizeof(__u64));
+DEFINE_BPFTIME_HASH_MAP(__l3_filter, 32768, sizeof(struct flow_key), sizeof(__u64));
 
 static __always_inline void* bpf_map_lookup_elem_aot(const unsigned long long* map, const void* key) {
-  // if (*map == l3_filter_id)
-  //   return elem_lookup(&__l3_filter, key);
+  if (*map == l3_filter_id)
+    return elem_lookup(&__l3_filter, key);
     if (*map == vrrp_vrid_filter_id)
     return &__vrrp_vrid_filter[*(const __u32*)key];
   return _bpf_helper_ext_0001(*map, key);
 }
 static __always_inline int bpf_map_delete_elem_aot(const unsigned long long* map, const void* key) {
-    // if (*map == l3_filter_id)
-    //     return elem_delete(&__l3_filter, key);
+    if (*map == l3_filter_id)
+        return elem_delete(&__l3_filter, key);
     if (*map == vrrp_vrid_filter_id)
         return 0;
   return _bpf_helper_ext_0003(*map, key);
 }
 static __always_inline int bpf_map_update_elem_aot(const unsigned long long* map, void* key, void* value, unsigned long long flags) {
-    // if (*map == l3_filter_id)
-    //     return elem_update(&__l3_filter, key, value);
+    if (*map == l3_filter_id)
+        return elem_update(&__l3_filter, key, value);
   return _bpf_helper_ext_0002(*map, key, value, flags);
 }
 

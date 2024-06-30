@@ -1,6 +1,7 @@
 import os
 import re
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 # Directory to traverse
 
@@ -38,7 +39,7 @@ def collect_data(root_dir, target_file):
                 data[dir_name] = parse_file(file_path)
     return data
 
-def plot_data(data, target_file, ax):
+def plot_data(data, target_file, ax, colors):
     """
     Plot the collected data in a bar plot on a given axis.
     """
@@ -47,21 +48,30 @@ def plot_data(data, target_file, ax):
     labels = list(data.keys())
     values = list(data.values())
 
-    # Define a list of colors for the bars
-    colors = plt.cm.tab20(range(len(values)))  # Use a colormap to generate colors
+    # Create bars with assigned colors
+    bars = ax.bar(labels, values, color=[colors[label] for label in labels])
 
-    ax.bar(labels, values, color=colors)
     # ax.set_xlabel('Configuration', fontsize=18)  # Set font size for x-axis label
     ax.set_ylabel('Pkt/s', fontsize=25)  # Set font size for y-axis label
-    ax.set_title(f'{target_file}', fontsize=30)  # Set font size for title
-    ax.set_xticks(range(len(labels)))  # Set the positions of the ticks
-    ax.set_xticklabels(labels, rotation=45, fontsize=25)  # Set font size for x-tick labels
+    ax.set_title(f'{target_file}', fontsize=45)  # Set font size for title
+    ax.set_xticks([])  # Remove x-axis ticks
     ax.tick_params(axis='y', labelsize=16)  # Set font size for y-tick labels
     ax.grid(True)
+    return bars
+
+# Define a color map for the labels
+color_map = {
+    "afxdp_llvm": "tab:blue",
+    "dpdk_llvm": "tab:orange",
+    "drv_mode": "tab:green",
+    "skb_mode": "tab:red"
+}
 
 # Create subplots
 fig, axs = plt.subplots(1, 9, figsize=(6 * 9, 10))
 index = 0
+all_bars = []
+
 # Iterate over target files and plot each in a subplot
 def plot_each(name):
     global index
@@ -75,7 +85,8 @@ def plot_each(name):
     print("root_dir: %s\n" % root_dir)
     data = collect_data(root_dir, target_file)
     # Plot the data in the corresponding subplot
-    plot_data(data, name, axs[index])
+    bars = plot_data(data, name, axs[index], color_map)
+    all_bars.append(bars)
     index += 1
 
 plot_each("xdp_tx")
@@ -87,6 +98,15 @@ plot_each("xdp-load-balancer")
 plot_each("xdp_firewall")
 plot_each("xdp-httpdump")
 plot_each("katran")
+
+# Create a legend at the bottom with colored patches
+legend_labels = list(color_map.keys())
+legend_colors = [color_map[label] for label in legend_labels]
+legend_patches = [mpatches.Patch(color=color, label=label) for label, color in color_map.items()]
+
+# Add legend below the last subplot
+fig.legend(legend_patches, legend_labels, loc='lower center', fontsize=50, ncol=4)
+
 save_name = 'imgs/ipackets.png'
-plt.tight_layout()  # Adjust layout to not cut off labels
+plt.tight_layout(rect=[0, 0.1, 1, 1])  # Adjust layout to not cut off labels, reserving space for legend
 plt.savefig(save_name)
