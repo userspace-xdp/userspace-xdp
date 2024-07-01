@@ -1,13 +1,15 @@
 ; ModuleID = '.llvm_ir/xdp_lb.bpf.ll'
 source_filename = "bpf-jit"
 
-declare i64 @_bpf_helper_ext_0001(i64, i64, i64, i64, i64) local_unnamed_addr
+%struct.xdp_md = type { i64, i64, i32, i32, i32, i32 }
+
+declare i8* @_bpf_helper_ext_0001(...) local_unnamed_addr #3
 
 declare i64 @_bpf_helper_ext_0006(i64, i64, i64, i64, i64) local_unnamed_addr
 
 declare i64 @_bpf_helper_ext_0028(i64, i64, i64, i64, i64) local_unnamed_addr
 
-define i64 @bpf_main(ptr nocapture readonly %0, i64 %1) local_unnamed_addr {
+define i64 @bpf_main(%struct.xdp_md* nocapture noundef readonly %0, i64 %1) local_unnamed_addr {
 setupBlock:
   %stackBegin671 = alloca [2058 x i64], align 8
   %stackEnd = getelementptr inbounds [2058 x i64], ptr %stackBegin671, i64 0, i64 2048
@@ -514,25 +516,25 @@ bb_inst_295:                                      ; preds = %bb_inst_271
   %405 = xor i32 %401, %404
   %406 = and i32 %405, 1
   store i32 %406, ptr %19, align 4
-  %407 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20, i64 %393, i64 4294934528, i64 4292870144)
+  %407 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20)
   %408 = icmp eq i64 %407, 0
   br i1 %408, label %bb_inst_37, label %bb_inst_312
 
 bb_inst_312:                                      ; preds = %bb_inst_295
   store i32 0, ptr %19, align 4
-  %409 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20, i64 %393, i64 4294934528, i64 4292870144)
+  %409 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20)
   %410 = icmp eq i64 %409, 0
   br i1 %410, label %bb_inst_37, label %bb_inst_339
 
 bb_inst_321:                                      ; preds = %bb_inst_271
   store i32 1, ptr %19, align 4
-  %411 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20, i64 %389, i64 4294934528, i64 4292870144)
+  %411 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20)
   %412 = icmp eq i64 %411, 0
   br i1 %412, label %bb_inst_37, label %bb_inst_331
 
 bb_inst_331:                                      ; preds = %bb_inst_321
   store i32 0, ptr %19, align 4
-  %413 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20, i64 %389, i64 4294934528, i64 4292870144)
+  %413 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %20)
   %414 = icmp eq i64 %413, 0
   br i1 %414, label %bb_inst_37, label %bb_inst_339
 

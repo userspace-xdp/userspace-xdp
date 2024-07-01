@@ -2,7 +2,6 @@ import os
 import re
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import seaborn as sns
 
 # Directory to traverse
 run_seconds = 60
@@ -24,6 +23,14 @@ def parse_file(file_path):
 
 dir_path_list = ["dpdk_llvm_jit", "dpdk_llvm_base", "dpdk_add_type", "dpdk_inline"]
 
+# Define a mapping for display names
+display_name_map = {
+    "dpdk_llvm_jit": "dpdk_llvm_jit",
+    "dpdk_llvm_base": "dpdk_llvm_base",
+    "dpdk_add_type": "dpdk_transformed_ir",
+    "dpdk_inline": "dpdk_inline"
+}
+
 def collect_data(root_dir, target_file):
     """
     Traverse the directory, collect and aggregate data from target files.
@@ -39,19 +46,18 @@ def collect_data(root_dir, target_file):
                 data[dir_name] = parse_file(file_path)
     return data
 
-def plot_data(data, target_file, ax, colors):
+def plot_data(data, target_file, ax, colors, display_name_map):
     """
     Plot the collected data in a bar plot on a given axis.
     """
     # sort the data
     data = dict(sorted(data.items(), key=lambda item: item[0], reverse=True))
-    labels = list(data.keys())
+    labels = [display_name_map[label] for label in data.keys()]
     values = list(data.values())
 
     # Create bars with assigned colors
-    bars = ax.bar(labels, values, color=[colors[label] for label in labels])
+    bars = ax.bar(labels, values, color=[colors[label] for label in data.keys()])
 
-    # ax.set_xlabel('Configuration', fontsize=18)  # Set font size for x-axis label
     ax.set_ylabel('Pkt/s', fontsize=25)  # Set font size for y-axis label
     ax.set_title(f'{target_file}', fontsize=45)  # Set font size for title
     ax.set_xticks([])  # Remove x-axis ticks
@@ -85,7 +91,7 @@ def plot_each(name):
     print("root_dir: %s\n" % root_dir)
     data = collect_data(root_dir, target_file)
     # Plot the data in the corresponding subplot
-    bars = plot_data(data, name, axs[index], color_map)
+    bars = plot_data(data, name, axs[index], color_map, display_name_map)
     all_bars.append(bars)
     index += 1
 
@@ -100,9 +106,9 @@ plot_each("xdp-httpdump")
 plot_each("katran")
 
 # Create a legend at the bottom with colored patches
-legend_labels = list(color_map.keys())
-legend_colors = [color_map[label] for label in legend_labels]
-legend_patches = [mpatches.Patch(color=color, label=label) for label, color in color_map.items()]
+legend_labels = [display_name_map[label] for label in color_map.keys()]
+legend_colors = [color_map[label] for label in color_map.keys()]
+legend_patches = [mpatches.Patch(color=color, label=display_name_map[label]) for label, color in color_map.items()]
 
 # Add legend below the last subplot
 fig.legend(legend_patches, legend_labels, loc='lower center', fontsize=50, ncol=4)
