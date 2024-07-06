@@ -32,7 +32,7 @@ Run with 4 threads and 512 connections
 start nginx server
 
 ```sh
-nginx -c $(pwd)/nginx.conf -p $(pwd)
+sudo nginx -c $(pwd)/nginx.conf -p $(pwd)
 ```
 
 ## Test for no effect
@@ -41,9 +41,9 @@ You should test each for 10 seconds, and record the result in test-log.txt. repe
 
 ```console
 $ make test-log.txt
-wrk/wrk https://127.0.0.1:4043/index.html -c 512 -t 4 -d 10 >> test-log.txt
-wrk/wrk https://127.0.0.1:4043/data/example1k.txt -c 512 -t 4 -d 10 >> test-log.txt
-wrk/wrk https://127.0.0.1:4043/data/example2k.txt -c 512 -t 4 -d 10 >> test-log.txt
+wrk https://127.0.0.1:4043/index.html -c 512 -t 4 -d 10 >> test-log.txt
+wrk https://127.0.0.1:4043/data/example1k.txt -c 512 -t 4 -d 10 >> test-log.txt
+wrk https://127.0.0.1:4043/data/example2k.txt -c 512 -t 4 -d 10 >> test-log.txt
 ...
 ```
 
@@ -93,14 +93,17 @@ Note: you need to config bpftime to:
 in one console, start userspace sslsniff
 
 ```sh
-sudo BPFTIME_USE_JIT=true LD_PRELOAD=build/runtime/syscall-server/libbpftime-syscall-server.so example/sslsniff/sslsniff
+sudo BPFTIME_USE_JIT=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so /home/yunwei/ebpf-xdp-dpdk/bpftime/example/sslsniff/sslsniff
+
+sudo BPFTIME_USE_AOT_INSN=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so /home/yunwei/ebpf-xdp-dpdk/bpftime/example/sslsniff/sslsniff
 ```
 
 in another console, restart nginx
 
 ```sh
-sudo BPFTIME_USE_JIT=true LD_PRELOAD=build/runtime/agent/libbpftime-agent.so nginx -c nginx.conf -p benchmark/ssl-nginx
-# or sudo LD_PRELOAD=build/runtime/agent/libbpftime-agent.so nginx -c nginx.conf -p benchmark/ssl-nginx
+sudo BPFTIME_USE_JIT=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/agent/libbpftime-agent.so  nginx -c $(pwd)/nginx.conf -p $(pwd)
+
+sudo BPFTIME_USE_AOT_INSN=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/agent/libbpftime-agent.so  nginx -c $(pwd)/nginx.conf -p $(pwd)
 ```
 
 | Data Size | Requests/sec | Transfer/sec |
