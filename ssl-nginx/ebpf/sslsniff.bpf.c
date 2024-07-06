@@ -4,7 +4,6 @@
 // Based on sslsniff from BCC by Adrian Lopez & Mark Drayton.
 // 15-Aug-2023   Yusheng Zheng   Created this.
 #include <vmlinux.h>
-#include <bpf/bpf_core_read.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_tracing.h>

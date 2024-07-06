@@ -47,40 +47,25 @@ wrk https://127.0.0.1:4043/data/example2k.txt -c 512 -t 4 -d 10 >> test-log.txt
 ...
 ```
 
-| Data Size | Requests/sec | Transfer/sec |
+| Data Size | Requests/sec  | Transfer/sec  |
 |-----------|--------------|--------------|
-| 1K        |      12302.14 |        15.05MB |
-| 2K        |      11328.92 |        24.89MB |
-| 4K        |      10883.19 |        45.12MB |
-| 16K       |       7263.48 |       115.01MB |
-| 128K      |       2869.12 |       358.33MB |
-| 256K      |       1757.73 |       438.65MB |
+| 1K        |      59505.73 |        18.50MB |
+| 2K        |      59548.71 |        18.51MB |
+| 4K        |      56605.76 |        17.59MB |
+| 16K       |      58467.36 |        18.17MB |
+| 128K      |      56012.56 |        17.41MB |
+| 256K      |      56914.58 |        17.69MB |
 
-## Test for kernel sslsniff
+## test for kernel uprobe sslsniff
 
-In one console, it will hook nginx:
-
-```console
-$ sudo ./sslsniff 
-OpenSSL path: /lib/x86_64-linux-gnu/libssl.so.3
-GnuTLS path: /lib/x86_64-linux-gnu/libgnutls.so.30
-NSS path: /lib/x86_64-linux-gnu/libnspr4.so
-FUNC         TIME(s)            COMM             PID     LEN    
-lost 194 events on CPU #2
-lost 61 events on CPU #3
-^CTotal events: 260335 
-```
-
-This sslsniff is from bpftime/example/sslsniff/sslsniff. The userspace part modified to not print the packet content out.
-
-| Data Size | Requests/sec | Transfer/sec |
+| Data Size | Requests/sec  | Transfer/sec  |
 |-----------|--------------|--------------|
-| 1K        |       5344.41 |         6.54MB |
-| 2K        |       5880.44 |        12.92MB |
-| 4K        |       5620.01 |        23.30MB |
-| 16K       |       3688.97 |        58.42MB |
-| 128K      |       1925.22 |       240.46MB |
-| 256K      |       1242.59 |       310.10MB |
+| 1K        |      38853.67 |        12.08MB |
+| 2K        |      39644.41 |        12.32MB |
+| 4K        |      37273.69 |        11.59MB |
+| 16K       |      38810.10 |        12.07MB |
+| 128K      |      37800.53 |        11.75MB |
+| 256K      |      38972.52 |        12.11MB |
 
 ## test for userspace sslsniff
 
@@ -106,11 +91,27 @@ sudo BPFTIME_USE_JIT=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-ll
 sudo BPFTIME_USE_AOT_INSN=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/agent/libbpftime-agent.so  nginx -c $(pwd)/nginx.conf -p $(pwd)
 ```
 
-| Data Size | Requests/sec | Transfer/sec |
+content:
+```
+[2024-07-06 14:30:09.434] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=ssl_data found at 5
+[2024-07-06 14:30:09.434] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=start_ns found at 6
+[2024-07-06 14:30:09.434] [info] [bpftime_shm_json.cpp:270] bpf_map_handler name=bufs found at 7
+[2024-07-06 14:30:09.434] [info] [bpftime_shm_json.cpp:265] find prog fd=8 name=probe_SSL_rw_en
+[2024-07-06 14:30:09.434] [info] [bpftime_shm_json.cpp:265] find prog fd=9 name=probe_SSL_do_ha
+[2024-07-06 14:30:09.434] [info] [bpftime_shm_json.cpp:265] find prog fd=10 name=probe_SSL_read_
+[2024-07-06 14:30:09.434] [info] [bpftime_shm_json.cpp:265] find prog fd=11 name=probe_SSL_write
+[2024-07-06 14:30:09.434] [info] [bpftime_shm_json.cpp:265] find prog fd=12 name=probe_SSL_read_
+[2024-07-06 14:30:09.434] [info] [bpftime_shm_json.cpp:265] find prog fd=13 name=probe_SSL_write
+[2024-07-06 14:30:09.435] [info] [bpftime_shm_json.cpp:265] find prog fd=14 name=probe_SSL_do_ha
+```
+
+result:
+
+| Data Size | Requests/sec  | Transfer/sec  |
 |-----------|--------------|--------------|
-| 1K        |       9311.06 |        11.39MB |
-| 2K        |       9528.57 |        20.93MB |
-| 4K        |       9504.57 |        39.40MB |
-| 16K       |       6473.85 |       102.50MB |
-| 128K      |       2567.10 |       320.62MB |
-| 256K      |       1657.66 |       413.66MB |
+| 1K        |      45268.17 |        14.07MB |
+| 2K        |      45576.01 |        14.17MB |
+| 4K        |      45066.85 |        14.01MB |
+| 16K       |      44840.26 |        13.94MB |
+| 128K      |      44651.80 |        13.88MB |
+| 256K      |      45167.07 |        14.04MB |

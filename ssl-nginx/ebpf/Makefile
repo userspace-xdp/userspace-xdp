@@ -66,7 +66,7 @@ $(call allow-override,CC,$(CROSS_COMPILE)cc)
 $(call allow-override,LD,$(CROSS_COMPILE)ld)
 
 .PHONY: all
-all: $(APPS)
+all: $(APPS) aot-obj
 
 .PHONY: clean
 clean:
@@ -109,6 +109,33 @@ $(OUTPUT)/%.bpf.o: %.bpf.c $(LIBBPF_OBJ) $(wildcard %.h) $(VMLINUX) | $(OUTPUT) 
 		     $(INCLUDES) $(CLANG_BPF_SYS_INCLUDES)		      \
 		     -c $(filter %.c,$^) -o $(patsubst %.bpf.o,%.tmp.bpf.o,$@)
 	$(Q)$(BPFTOOL) gen object $@ $(patsubst %.bpf.o,%.tmp.bpf.o,$@)
+
+aot-obj: sslsniff.bpf.c
+	$(CLANG) -g -O3 -fno-stack-protector -Wno-unknown-attributes -D__TARGET_ARCH_$(ARCH)		      \
+		     -I$(dir $(VMLINUX)) -Iaot -I./	  -Iaot/map-ids    \
+		     -c aot/main/probe_SSL_read_enter.c -o $(OUTPUT)/probe_SSL_read_enter.aot.o
+	$(CLANG) -g -O3 -fno-stack-protector -Wno-unknown-attributes -D__TARGET_ARCH_$(ARCH)		      \
+		     -I$(dir $(VMLINUX)) -Iaot -I./	  -Iaot/map-ids    \
+		     -c aot/main/probe_SSL_write_enter.c -o $(OUTPUT)/probe_SSL_write_enter.aot.o
+	$(CLANG) -g -O3 -fno-stack-protector -Wno-unknown-attributes -D__TARGET_ARCH_$(ARCH)		      \
+		     -I$(dir $(VMLINUX)) -Iaot -I./	  -Iaot/map-ids    \
+		     -c aot/main/probe_SSL_read_exit.c -o $(OUTPUT)/probe_SSL_read_exit.aot.o
+	$(CLANG) -g -O3 -fno-stack-protector -Wno-unknown-attributes -D__TARGET_ARCH_$(ARCH)		      \
+		     -I$(dir $(VMLINUX)) -Iaot -I./	  -Iaot/map-ids    \
+		     -c aot/main/probe_SSL_write_exit.c -o $(OUTPUT)/probe_SSL_write_exit.aot.o
+	# inline
+	$(CLANG) -g -O3 -fno-stack-protector -Wno-unknown-attributes -D__TARGET_ARCH_$(ARCH)		      \
+		     -I$(dir $(VMLINUX)) -Iaot -I./	  -Iaot/inline-map-ids    \
+		     -c aot/main/probe_SSL_read_enter.c -o $(OUTPUT)/probe_SSL_read_enter.inline.aot.o
+	$(CLANG) -g -O3 -fno-stack-protector -Wno-unknown-attributes -D__TARGET_ARCH_$(ARCH)		      \
+		     -I$(dir $(VMLINUX)) -Iaot -I./	  -Iaot/inline-map-ids   \
+		     -c aot/main/probe_SSL_write_enter.c -o $(OUTPUT)/probe_SSL_write_enter.inline.aot.o
+	$(CLANG) -g -O3 -fno-stack-protector -Wno-unknown-attributes -D__TARGET_ARCH_$(ARCH)		      \
+		     -I$(dir $(VMLINUX)) -Iaot -I./	  -Iaot/inline-map-ids   \
+		     -c aot/main/probe_SSL_read_exit.c -o $(OUTPUT)/probe_SSL_read_exit.inline.aot.o
+	$(CLANG) -g -O3 -fno-stack-protector -Wno-unknown-attributes -D__TARGET_ARCH_$(ARCH)		      \
+		     -I$(dir $(VMLINUX)) -Iaot -I./	  -Iaot/inline-map-ids    \
+		     -c aot/main/probe_SSL_write_exit.c -o $(OUTPUT)/probe_SSL_write_exit.inline.aot.o
 
 # Generate BPF skeletons
 $(OUTPUT)/%.skel.h: $(OUTPUT)/%.bpf.o | $(OUTPUT) $(BPFTOOL)

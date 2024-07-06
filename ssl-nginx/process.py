@@ -11,7 +11,7 @@ req_sec_pattern = re.compile(r"Requests/sec:\s+(\d+\.\d+)")
 transfer_sec_pattern = re.compile(r"Transfer/sec:\s+(\d+\.\d+)([kKmM])B")
 
 # Path to the directory containing the data
-data_dir = Path('./res')  # <-- Update this path
+data_dir = Path('./')  # <-- Update this path
 
 # Function to calculate the average of a list
 def average(lst):
@@ -46,24 +46,28 @@ def process_globs(patterns):
                     results[data_size]['transfer_sec'].append(transfer_sec)
 
     # Calculate averages and prepare the Markdown table
-    markdown_table = "| Data Size | Requests/sec  |\n|-----------|--------------|\n"
+    markdown_table = "| Data Size | Requests/sec  | Transfer/sec  |\n|-----------|--------------|--------------|\n"
     for size in sorted(results.keys(), key=lambda s: int(s[:-1])):
         avg_req_sec = average(results[size]['req_sec'])
-        # avg_transfer_sec = average(results[size]['transfer_sec'])
-        markdown_table += f"| {size.ljust(9)} | {avg_req_sec:13.2f}  |\n"
-        # markdown_table += f"| {size.ljust(9)} | {avg_req_sec:13.2f} | {avg_transfer_sec:12.2f}MB |\n"
+        avg_transfer_sec = average(results[size]['transfer_sec'])
+        # markdown_table += f"| {size.ljust(9)} | {avg_req_sec:13.2f}  |\n"
+        markdown_table += f"| {size.ljust(9)} | {avg_req_sec:13.2f} | {avg_transfer_sec:12.2f}MB |\n"
 
 
     print(markdown_table)
 
-print("## SSL Nginx kernel uprobe\n")
-
-process_globs("test-log-kernel*.txt")
-
-print("## SSL Nginx userspace uprobe by bpftime\n")
-
-process_globs("test-log-user*.txt")
-
 print("## SSL Nginx no effect\n")
+results = defaultdict(lambda: defaultdict(list))
+process_globs("no-effect-log/test-log-*.txt")
 
-process_globs("test-log-no-effect*.txt")
+print("##kernel uprobe\n")
+results = defaultdict(lambda: defaultdict(list))
+process_globs("kernel-log/test-log-*.txt")
+
+print("##userspace uprobe bpftime JIT basic\n")
+results = defaultdict(lambda: defaultdict(list))
+process_globs("bpftime-log/test-log-*.txt")
+
+print("##userspace uprobe bpftime AOT basic\n")
+results = defaultdict(lambda: defaultdict(list))
+process_globs("basic-aot-log/test-log-*.txt")

@@ -10,17 +10,17 @@
 #define TASK_COMM_LEN 16
 
 struct probe_SSL_data_t {
-    __u64 timestamp_ns;
-    __u64 delta_ns;
-    __u32 pid;
-    __u32 tid;
-    __u32 uid;
-    __u32 len;
-    __u32 fd;
+    unsigned long long timestamp_ns;
+    unsigned long long delta_ns;
+    unsigned int pid;
+    unsigned int tid;
+    unsigned int uid;
+    unsigned int len;
+    unsigned int fd;
     int buf_filled;
     int rw;
     char comm[TASK_COMM_LEN];
-    __u8 buf[MAX_BUF_SIZE];
+    unsigned char buf[MAX_BUF_SIZE];
     int is_handshake;
 };
 
