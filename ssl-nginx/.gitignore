@@ -1,0 +1,7 @@
+access.log
+nginx.pid
+nginx-error.txt
+wrk
+/test-log-*.txt
+/result
+/sslsniff
