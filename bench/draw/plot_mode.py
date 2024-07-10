@@ -107,6 +107,6 @@ legend_patches = [mpatches.Patch(color=color, label=label) for label, color in c
 # Add legend below the last subplot
 fig.legend(legend_patches, legend_labels, loc='lower center', fontsize=50, ncol=4)
 
-save_name = 'imgs/ipackets.png'
+save_name = 'imgs/ipackets.pdf'
 plt.tight_layout(rect=[0, 0.1, 1, 1])  # Adjust layout to not cut off labels, reserving space for legend
 plt.savefig(save_name)

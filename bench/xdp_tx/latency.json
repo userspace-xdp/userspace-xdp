@@ -1,0 +1,54 @@
+{
+  "DPDK": {
+    "time": 60,
+    "nbPkts": 5574,
+    "minCycles": 12172,
+    "avgCycles": 78605,
+    "maxCycles": 225796,
+    "min_us": 5.80,
+    "avg_us": 37.43,
+    "max_us": 107.52,
+    "RxMB": 0,
+    "TxMB": 0,
+    "Skipped": 2
+  },
+  "AF_XDP": {
+    "time": 60,
+    "nbPkts": 5583,
+    "minCycles": 49248,
+    "avgCycles": 129572,
+    "maxCycles": 378544,
+    "min_us": 23.45,
+    "avg_us": 61.70,
+    "max_us": 180.26,
+    "RxMB": 0,
+    "TxMB": 0,
+    "Skipped": 2
+  },
+  "drv_mode": {
+    "time": 60,
+    "nbPkts": 5590,
+    "minCycles": 59592,
+    "avgCycles": 378285,
+    "maxCycles": 523988,
+    "min_us": 28.38,
+    "avg_us": 180.14,
+    "max_us": 249.52,
+    "RxMB": 0,
+    "TxMB": 0,
+    "Skipped": 1
+  },
+  "skb_mode": {
+    "time": 60,
+    "nbPkts": 5575,
+    "minCycles": 201872,
+    "avgCycles": 824763,
+    "maxCycles": 1312412,
+    "min_us": 96.13,
+    "avg_us": 392.74,
+    "max_us": 624.96,
+    "RxMB": 0,
+    "TxMB": 0,
+    "Skipped": 2
+  }
+}
