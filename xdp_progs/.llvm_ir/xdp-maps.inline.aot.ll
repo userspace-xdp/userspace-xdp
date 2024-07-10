@@ -6,433 +6,694 @@ target triple = "x86_64-pc-linux-gnu"
 %struct.bpftime_hash_map_t = type { i32, i32, i32, i8* }
 %struct.anon = type { [1 x i32]*, [8192 x i32]*, i32*, i32* }
 %struct.xdp_md = type { i64, i64, i32, i32, i32, i32 }
+%struct.ethhdr = type { [6 x i8], [6 x i8], i16 }
 
 @__packet_size_distribute_data = dso_local global [6656 x i8] zeroinitializer, align 16
-@__packet_size_distribute = dso_local local_unnamed_addr global %struct.bpftime_hash_map_t { i32 128, i32 16, i32 32, i8* getelementptr inbounds ([6656 x i8], [6656 x i8]* @__packet_size_distribute_data, i32 0, i32 0) }, align 8
-@__license = dso_local local_unnamed_addr global [4 x i8] c"GPL\00", align 1
-@packet_size_distribute = dso_local local_unnamed_addr global %struct.anon zeroinitializer, align 8
+@__packet_size_distribute = dso_local global %struct.bpftime_hash_map_t { i32 128, i32 16, i32 32, i8* getelementptr inbounds ([6656 x i8], [6656 x i8]* @__packet_size_distribute_data, i32 0, i32 0) }, align 8
+@packet_size_distribute_id = internal constant i64 17179869184, align 8
+@__license = dso_local global [4 x i8] c"GPL\00", align 1
+@packet_size_distribute = dso_local global %struct.anon zeroinitializer, align 8
 
-; Function Attrs: nofree nosync nounwind uwtable
-define dso_local i32 @bpf_main(i8* nocapture noundef readonly %0) local_unnamed_addr #0 {
-  %2 = bitcast i8* %0 to %struct.xdp_md*
-  %3 = tail call i32 @xdp_pass(%struct.xdp_md* noundef %2)
-  ret i32 %3
+; Function Attrs: noinline nounwind optnone uwtable
+define dso_local i32 @bpf_main(i8* noundef %0) #0 {
+  %2 = alloca i8*, align 8
+  %3 = alloca %struct.xdp_md*, align 8
+  store i8* %0, i8** %2, align 8
+  %4 = load i8*, i8** %2, align 8
+  %5 = bitcast i8* %4 to %struct.xdp_md*
+  store %struct.xdp_md* %5, %struct.xdp_md** %3, align 8
+  %6 = load %struct.xdp_md*, %struct.xdp_md** %3, align 8
+  %7 = call i32 @xdp_pass(%struct.xdp_md* noundef %6)
+  ret i32 %7
 }
 
-; Function Attrs: argmemonly mustprogress nofree nosync nounwind willreturn
-declare void @llvm.lifetime.start.p0i8(i64 immarg, i8* nocapture) #1
-
-; Function Attrs: nofree nosync nounwind uwtable
-define dso_local i32 @xdp_pass(%struct.xdp_md* nocapture noundef readonly %0) local_unnamed_addr #0 {
+; Function Attrs: noinline nounwind optnone uwtable
+define dso_local i32 @xdp_pass(%struct.xdp_md* noundef %0) #0 {
   %2 = alloca i32, align 4
-  %3 = alloca i32, align 4
-  %4 = getelementptr inbounds %struct.xdp_md, %struct.xdp_md* %0, i64 0, i32 0
-  %5 = load i64, i64* %4, align 8, !tbaa !5
-  %6 = inttoptr i64 %5 to i8*
-  %7 = getelementptr inbounds %struct.xdp_md, %struct.xdp_md* %0, i64 0, i32 1
-  %8 = load i64, i64* %7, align 8, !tbaa !11
-  %9 = inttoptr i64 %8 to i8*
-  %10 = bitcast i32* %2 to i8*
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %10) #2
-  %11 = sub i64 %8, %5
-  %12 = trunc i64 %11 to i32
-  store i32 %12, i32* %2, align 4, !tbaa !12
-  %13 = bitcast i32* %3 to i8*
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %13) #2
-  store i32 0, i32* %3, align 4, !tbaa !12
-  %14 = load i32, i32* getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 1), align 4, !tbaa !13
-  %15 = icmp eq i32 %14, 0
-  br i1 %15, label %109, label %16
+  %3 = alloca i64*, align 8
+  %4 = alloca i8*, align 8
+  %5 = alloca i8*, align 8
+  %6 = alloca i64, align 8
+  %7 = alloca i8*, align 8
+  %8 = alloca i64*, align 8
+  %9 = alloca i8*, align 8
+  %10 = alloca i32, align 4
+  %11 = alloca %struct.xdp_md*, align 8
+  %12 = alloca i8*, align 8
+  %13 = alloca i8*, align 8
+  %14 = alloca i32, align 4
+  %15 = alloca %struct.ethhdr*, align 8
+  %16 = alloca i64, align 8
+  %17 = alloca i32, align 4
+  %18 = alloca i32*, align 8
+  store %struct.xdp_md* %0, %struct.xdp_md** %11, align 8
+  %19 = load %struct.xdp_md*, %struct.xdp_md** %11, align 8
+  %20 = getelementptr inbounds %struct.xdp_md, %struct.xdp_md* %19, i32 0, i32 0
+  %21 = load i64, i64* %20, align 8
+  %22 = inttoptr i64 %21 to i8*
+  store i8* %22, i8** %12, align 8
+  %23 = load %struct.xdp_md*, %struct.xdp_md** %11, align 8
+  %24 = getelementptr inbounds %struct.xdp_md, %struct.xdp_md* %23, i32 0, i32 1
+  %25 = load i64, i64* %24, align 8
+  %26 = inttoptr i64 %25 to i8*
+  store i8* %26, i8** %13, align 8
+  %27 = load i8*, i8** %13, align 8
+  %28 = load i8*, i8** %12, align 8
+  %29 = ptrtoint i8* %27 to i64
+  %30 = ptrtoint i8* %28 to i64
+  %31 = sub i64 %29, %30
+  %32 = trunc i64 %31 to i32
+  store i32 %32, i32* %14, align 4
+  %33 = load i8*, i8** %12, align 8
+  %34 = bitcast i8* %33 to %struct.ethhdr*
+  store %struct.ethhdr* %34, %struct.ethhdr** %15, align 8
+  store i32 0, i32* %17, align 4
+  %35 = bitcast i32* %14 to i8*
+  store i64* @packet_size_distribute_id, i64** %8, align 8
+  store i8* %35, i8** %9, align 8
+  %36 = load i64*, i64** %8, align 8
+  %37 = load i64, i64* %36, align 8
+  %38 = icmp eq i64 %37, 17179869184
+  br i1 %38, label %39, label %42
 
-16:                                               ; preds = %1
-  %17 = trunc i64 %11 to i32
-  %18 = zext i32 %14 to i64
-  %19 = and i32 %17, 255
-  %20 = icmp eq i32 %14, 1
-  br i1 %20, label %75, label %21, !llvm.loop !16
+39:                                               ; preds = %1
+  %40 = load i8*, i8** %9, align 8
+  %41 = call i8* @elem_lookup(%struct.bpftime_hash_map_t* noundef @__packet_size_distribute, i8* noundef %40) #2
+  store i8* %41, i8** %7, align 8
+  br label %47
 
-21:                                               ; preds = %16
-  %22 = add nsw i64 %18, -1
-  %23 = add nsw i64 %18, -2
-  %24 = and i64 %22, 3
-  %25 = icmp ult i64 %23, 3
-  br i1 %25, label %58, label %26
+42:                                               ; preds = %1
+  %43 = load i64*, i64** %8, align 8
+  %44 = load i64, i64* %43, align 8
+  %45 = load i8*, i8** %9, align 8
+  %46 = call i8* (i64, i8*, ...) bitcast (i8* (...)* @_bpf_helper_ext_0001 to i8* (i64, i8*, ...)*)(i64 noundef %44, i8* noundef %45) #2
+  store i8* %46, i8** %7, align 8
+  br label %47
 
-26:                                               ; preds = %21
-  %27 = and i64 %22, -4
-  br label %28
+47:                                               ; preds = %39, %42
+  %48 = load i8*, i8** %7, align 8
+  %49 = bitcast i8* %48 to i32*
+  store i32* %49, i32** %18, align 8
+  %50 = load i32*, i32** %18, align 8
+  %51 = icmp ne i32* %50, null
+  br i1 %51, label %52, label %56
 
-28:                                               ; preds = %28, %26
-  %29 = phi i64 [ 1, %26 ], [ %55, %28 ]
-  %30 = phi i32 [ %19, %26 ], [ %54, %28 ]
-  %31 = phi i64 [ 0, %26 ], [ %56, %28 ]
-  %32 = getelementptr inbounds i8, i8* %10, i64 %29
-  %33 = load i8, i8* %32, align 1, !tbaa !18
-  %34 = mul i32 %30, 31
-  %35 = zext i8 %33 to i32
-  %36 = add i32 %34, %35
-  %37 = add nuw nsw i64 %29, 1
-  %38 = getelementptr inbounds i8, i8* %10, i64 %37
-  %39 = load i8, i8* %38, align 1, !tbaa !18
-  %40 = mul i32 %36, 31
-  %41 = zext i8 %39 to i32
-  %42 = add i32 %40, %41
-  %43 = add nuw nsw i64 %29, 2
-  %44 = getelementptr inbounds i8, i8* %10, i64 %43
-  %45 = load i8, i8* %44, align 1, !tbaa !18
-  %46 = mul i32 %42, 31
-  %47 = zext i8 %45 to i32
-  %48 = add i32 %46, %47
-  %49 = add nuw nsw i64 %29, 3
-  %50 = getelementptr inbounds i8, i8* %10, i64 %49
-  %51 = load i8, i8* %50, align 1, !tbaa !18
-  %52 = mul i32 %48, 31
-  %53 = zext i8 %51 to i32
-  %54 = add i32 %52, %53
-  %55 = add nuw nsw i64 %29, 4
-  %56 = add i64 %31, 4
-  %57 = icmp eq i64 %56, %27
-  br i1 %57, label %58, label %28, !llvm.loop !16
+52:                                               ; preds = %47
+  %53 = load i32*, i32** %18, align 8
+  %54 = load i32, i32* %53, align 4
+  %55 = add nsw i32 %54, 1
+  store i32 %55, i32* %17, align 4
+  br label %56
 
-58:                                               ; preds = %28, %21
-  %59 = phi i32 [ undef, %21 ], [ %54, %28 ]
-  %60 = phi i64 [ 1, %21 ], [ %55, %28 ]
-  %61 = phi i32 [ %19, %21 ], [ %54, %28 ]
-  %62 = icmp eq i64 %24, 0
-  br i1 %62, label %75, label %63
+56:                                               ; preds = %52, %47
+  %57 = bitcast i32* %14 to i8*
+  %58 = bitcast i32* %17 to i8*
+  store i64* @packet_size_distribute_id, i64** %3, align 8
+  store i8* %57, i8** %4, align 8
+  store i8* %58, i8** %5, align 8
+  store i64 0, i64* %6, align 8
+  %59 = load i64*, i64** %3, align 8
+  %60 = load i64, i64* %59, align 8
+  %61 = icmp eq i64 %60, 17179869184
+  br i1 %61, label %62, label %66
 
-63:                                               ; preds = %58, %63
-  %64 = phi i64 [ %72, %63 ], [ %60, %58 ]
-  %65 = phi i32 [ %71, %63 ], [ %61, %58 ]
-  %66 = phi i64 [ %73, %63 ], [ 0, %58 ]
-  %67 = getelementptr inbounds i8, i8* %10, i64 %64
-  %68 = load i8, i8* %67, align 1, !tbaa !18
-  %69 = mul i32 %65, 31
-  %70 = zext i8 %68 to i32
-  %71 = add i32 %69, %70
-  %72 = add nuw nsw i64 %64, 1
-  %73 = add i64 %66, 1
-  %74 = icmp eq i64 %73, %24
-  br i1 %74, label %75, label %63, !llvm.loop !19
+62:                                               ; preds = %56
+  %63 = load i8*, i8** %4, align 8
+  %64 = load i8*, i8** %5, align 8
+  %65 = call i32 @elem_update(%struct.bpftime_hash_map_t* noundef @__packet_size_distribute, i8* noundef %63, i8* noundef %64) #2
+  store i32 %65, i32* %2, align 4
+  br label %73
 
-75:                                               ; preds = %58, %63, %16
-  %76 = phi i32 [ %19, %16 ], [ %59, %58 ], [ %71, %63 ]
-  %77 = load i32, i32* getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 0), align 8, !tbaa !21
-  %78 = urem i32 %76, %77
-  %79 = load i8*, i8** getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 3), align 8, !tbaa !22
-  %80 = add i32 %14, 4
-  %81 = load i32, i32* getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 2), align 8, !tbaa !23
-  %82 = add i32 %81, %80
+66:                                               ; preds = %56
+  %67 = load i64*, i64** %3, align 8
+  %68 = load i64, i64* %67, align 8
+  %69 = load i8*, i8** %4, align 8
+  %70 = load i8*, i8** %5, align 8
+  %71 = load i64, i64* %6, align 8
+  %72 = call i32 (i64, i8*, i8*, i64, ...) bitcast (i32 (...)* @_bpf_helper_ext_0002 to i32 (i64, i8*, i8*, i64, ...)*)(i64 noundef %68, i8* noundef %69, i8* noundef %70, i64 noundef %71) #2
+  store i32 %72, i32* %2, align 4
+  br label %73
+
+73:                                               ; preds = %62, %66
+  %74 = load i32, i32* %2, align 4
+  store i64 14, i64* %16, align 8
+  %75 = load i8*, i8** %12, align 8
+  %76 = load i64, i64* %16, align 8
+  %77 = getelementptr i8, i8* %75, i64 %76
+  %78 = load i8*, i8** %13, align 8
+  %79 = icmp ugt i8* %77, %78
+  br i1 %79, label %80, label %81
+
+80:                                               ; preds = %73
+  store i32 1, i32* %10, align 4
   br label %83
 
-83:                                               ; preds = %105, %75
-  %84 = phi i32 [ %107, %105 ], [ %78, %75 ]
-  %85 = mul i32 %84, %82
-  %86 = zext i32 %85 to i64
-  %87 = getelementptr inbounds i8, i8* %79, i64 %86
-  %88 = bitcast i8* %87 to i32*
-  %89 = load i32, i32* %88, align 4, !tbaa !12
-  %90 = icmp eq i32 %89, 0
-  br i1 %90, label %124, label %91
+81:                                               ; preds = %73
+  %82 = load i8*, i8** %12, align 8
+  call void @swap_src_dst_mac(i8* noundef %82)
+  store i32 3, i32* %10, align 4
+  br label %83
 
-91:                                               ; preds = %83
-  %92 = add i32 %85, 4
-  %93 = zext i32 %92 to i64
-  %94 = getelementptr inbounds i8, i8* %79, i64 %93
-  br label %97
-
-95:                                               ; preds = %97
-  %96 = icmp eq i64 %104, %18
-  br i1 %96, label %114, label %97, !llvm.loop !24
-
-97:                                               ; preds = %95, %91
-  %98 = phi i64 [ 0, %91 ], [ %104, %95 ]
-  %99 = getelementptr inbounds i8, i8* %94, i64 %98
-  %100 = load i8, i8* %99, align 1, !tbaa !18
-  %101 = getelementptr inbounds i8, i8* %10, i64 %98
-  %102 = load i8, i8* %101, align 1, !tbaa !18
-  %103 = icmp eq i8 %100, %102
-  %104 = add nuw nsw i64 %98, 1
-  br i1 %103, label %95, label %105
-
-105:                                              ; preds = %97
-  %106 = add i32 %84, 1
-  %107 = urem i32 %106, %77
-  %108 = icmp eq i32 %107, %78
-  br i1 %108, label %124, label %83, !llvm.loop !25
-
-109:                                              ; preds = %1
-  %110 = load i8*, i8** getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 3), align 8, !tbaa !22
-  %111 = bitcast i8* %110 to i32*
-  %112 = load i32, i32* %111, align 4, !tbaa !12
-  %113 = icmp eq i32 %112, 0
-  br i1 %113, label %216, label %117
-
-114:                                              ; preds = %95
-  %115 = add i32 %85, %80
-  %116 = zext i32 %115 to i64
-  br label %117
-
-117:                                              ; preds = %114, %109
-  %118 = phi i8* [ %110, %109 ], [ %79, %114 ]
-  %119 = phi i64 [ 4, %109 ], [ %116, %114 ]
-  %120 = getelementptr inbounds i8, i8* %118, i64 %119
-  %121 = bitcast i8* %120 to i32*
-  %122 = load i32, i32* %121, align 4, !tbaa !12
-  %123 = add nsw i32 %122, 1
-  store i32 %123, i32* %3, align 4, !tbaa !12
-  br label %124
-
-124:                                              ; preds = %83, %105, %117
-  %125 = phi i8* [ %118, %117 ], [ %79, %105 ], [ %79, %83 ]
-  br i1 %15, label %216, label %126
-
-126:                                              ; preds = %124
-  %127 = zext i32 %14 to i64
-  %128 = add nsw i64 %127, -1
-  %129 = and i64 %127, 3
-  %130 = icmp ult i64 %128, 3
-  br i1 %130, label %163, label %131
-
-131:                                              ; preds = %126
-  %132 = and i64 %127, 4294967292
-  br label %133
-
-133:                                              ; preds = %133, %131
-  %134 = phi i64 [ 0, %131 ], [ %160, %133 ]
-  %135 = phi i32 [ 0, %131 ], [ %159, %133 ]
-  %136 = phi i64 [ 0, %131 ], [ %161, %133 ]
-  %137 = mul i32 %135, 31
-  %138 = getelementptr inbounds i8, i8* %10, i64 %134
-  %139 = load i8, i8* %138, align 4, !tbaa !18
-  %140 = zext i8 %139 to i32
-  %141 = add i32 %137, %140
-  %142 = or i64 %134, 1
-  %143 = mul i32 %141, 31
-  %144 = getelementptr inbounds i8, i8* %10, i64 %142
-  %145 = load i8, i8* %144, align 1, !tbaa !18
-  %146 = zext i8 %145 to i32
-  %147 = add i32 %143, %146
-  %148 = or i64 %134, 2
-  %149 = mul i32 %147, 31
-  %150 = getelementptr inbounds i8, i8* %10, i64 %148
-  %151 = load i8, i8* %150, align 2, !tbaa !18
-  %152 = zext i8 %151 to i32
-  %153 = add i32 %149, %152
-  %154 = or i64 %134, 3
-  %155 = mul i32 %153, 31
-  %156 = getelementptr inbounds i8, i8* %10, i64 %154
-  %157 = load i8, i8* %156, align 1, !tbaa !18
-  %158 = zext i8 %157 to i32
-  %159 = add i32 %155, %158
-  %160 = add nuw nsw i64 %134, 4
-  %161 = add i64 %136, 4
-  %162 = icmp eq i64 %161, %132
-  br i1 %162, label %163, label %133, !llvm.loop !16
-
-163:                                              ; preds = %133, %126
-  %164 = phi i32 [ undef, %126 ], [ %159, %133 ]
-  %165 = phi i64 [ 0, %126 ], [ %160, %133 ]
-  %166 = phi i32 [ 0, %126 ], [ %159, %133 ]
-  %167 = icmp eq i64 %129, 0
-  br i1 %167, label %180, label %168
-
-168:                                              ; preds = %163, %168
-  %169 = phi i64 [ %177, %168 ], [ %165, %163 ]
-  %170 = phi i32 [ %176, %168 ], [ %166, %163 ]
-  %171 = phi i64 [ %178, %168 ], [ 0, %163 ]
-  %172 = mul i32 %170, 31
-  %173 = getelementptr inbounds i8, i8* %10, i64 %169
-  %174 = load i8, i8* %173, align 1, !tbaa !18
-  %175 = zext i8 %174 to i32
-  %176 = add i32 %172, %175
-  %177 = add nuw nsw i64 %169, 1
-  %178 = add i64 %171, 1
-  %179 = icmp eq i64 %178, %129
-  br i1 %179, label %180, label %168, !llvm.loop !26
-
-180:                                              ; preds = %168, %163
-  %181 = phi i32 [ %164, %163 ], [ %176, %168 ]
-  %182 = load i32, i32* getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 0), align 8
-  %183 = urem i32 %181, %182
-  %184 = add i32 %14, 4
-  %185 = load i32, i32* getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 2), align 8, !tbaa !23
-  %186 = add i32 %184, %185
-  br label %187
-
-187:                                              ; preds = %209, %180
-  %188 = phi i32 [ %211, %209 ], [ %183, %180 ]
-  %189 = mul i32 %188, %186
-  %190 = add i32 %189, 4
-  %191 = zext i32 %190 to i64
-  %192 = getelementptr inbounds i8, i8* %125, i64 %191
-  %193 = zext i32 %189 to i64
-  %194 = getelementptr inbounds i8, i8* %125, i64 %193
-  %195 = bitcast i8* %194 to i32*
-  %196 = load i32, i32* %195, align 4, !tbaa !12
-  %197 = icmp eq i32 %196, 0
-  br i1 %197, label %200, label %201
-
-198:                                              ; preds = %201
-  %199 = icmp eq i64 %208, %127
-  br i1 %199, label %200, label %201, !llvm.loop !27
-
-200:                                              ; preds = %187, %198
-  br label %227
-
-201:                                              ; preds = %187, %198
-  %202 = phi i64 [ %208, %198 ], [ 0, %187 ]
-  %203 = getelementptr inbounds i8, i8* %192, i64 %202
-  %204 = load i8, i8* %203, align 1, !tbaa !18
-  %205 = getelementptr inbounds i8, i8* %10, i64 %202
-  %206 = load i8, i8* %205, align 1, !tbaa !18
-  %207 = icmp eq i8 %204, %206
-  %208 = add nuw nsw i64 %202, 1
-  br i1 %207, label %198, label %209
-
-209:                                              ; preds = %201
-  %210 = add i32 %188, 1
-  %211 = urem i32 %210, %182
-  %212 = icmp eq i32 %211, %183
-  br i1 %212, label %257, label %187, !llvm.loop !28
-
-213:                                              ; preds = %227
-  %214 = add i32 %233, 4
-  %215 = load i8*, i8** getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 3), align 8, !tbaa !22
-  br label %216
-
-216:                                              ; preds = %109, %213, %124
-  %217 = phi i8* [ %125, %124 ], [ %215, %213 ], [ %110, %109 ]
-  %218 = phi i32 [ 0, %124 ], [ %188, %213 ], [ 0, %109 ]
-  %219 = phi i32 [ 4, %124 ], [ %214, %213 ], [ 4, %109 ]
-  %220 = load i32, i32* getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 2), align 8, !tbaa !23
-  %221 = add i32 %220, %219
-  %222 = mul i32 %221, %218
-  %223 = add i32 %222, %219
-  %224 = zext i32 %223 to i64
-  %225 = getelementptr inbounds i8, i8* %217, i64 %224
-  %226 = icmp eq i32 %220, 0
-  br i1 %226, label %241, label %248
-
-227:                                              ; preds = %200, %227
-  %228 = phi i64 [ %232, %227 ], [ 0, %200 ]
-  %229 = getelementptr inbounds i8, i8* %10, i64 %228
-  %230 = load i8, i8* %229, align 1, !tbaa !18
-  %231 = getelementptr inbounds i8, i8* %192, i64 %228
-  store i8 %230, i8* %231, align 1, !tbaa !18
-  %232 = add nuw nsw i64 %228, 1
-  %233 = load i32, i32* getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 1), align 4, !tbaa !13
-  %234 = zext i32 %233 to i64
-  %235 = icmp ult i64 %232, %234
-  br i1 %235, label %227, label %213, !llvm.loop !29
-
-236:                                              ; preds = %248
-  %237 = load i8*, i8** getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 3), align 8, !tbaa !22
-  %238 = load i32, i32* getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 1), align 4, !tbaa !13
-  %239 = add i32 %254, 4
-  %240 = add i32 %239, %238
-  br label %241
-
-241:                                              ; preds = %236, %216
-  %242 = phi i32 [ %240, %236 ], [ %219, %216 ]
-  %243 = phi i8* [ %237, %236 ], [ %217, %216 ]
-  %244 = mul i32 %242, %218
-  %245 = zext i32 %244 to i64
-  %246 = getelementptr inbounds i8, i8* %243, i64 %245
-  %247 = bitcast i8* %246 to i32*
-  store i32 1, i32* %247, align 4, !tbaa !12
-  br label %257
-
-248:                                              ; preds = %216, %248
-  %249 = phi i64 [ %253, %248 ], [ 0, %216 ]
-  %250 = getelementptr inbounds i8, i8* %13, i64 %249
-  %251 = load i8, i8* %250, align 1, !tbaa !18
-  %252 = getelementptr inbounds i8, i8* %225, i64 %249
-  store i8 %251, i8* %252, align 1, !tbaa !18
-  %253 = add nuw nsw i64 %249, 1
-  %254 = load i32, i32* getelementptr inbounds (%struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* @__packet_size_distribute, i64 0, i32 2), align 8, !tbaa !23
-  %255 = zext i32 %254 to i64
-  %256 = icmp ult i64 %253, %255
-  br i1 %256, label %248, label %236, !llvm.loop !30
-
-257:                                              ; preds = %209, %241
-  %258 = getelementptr i8, i8* %6, i64 14
-  %259 = icmp ugt i8* %258, %9
-  br i1 %259, label %278, label %260
-
-260:                                              ; preds = %257
-  %261 = inttoptr i64 %5 to i16*
-  %262 = load i16, i16* %261, align 2, !tbaa !31
-  %263 = getelementptr inbounds i8, i8* %6, i64 2
-  %264 = bitcast i8* %263 to i16*
-  %265 = load i16, i16* %264, align 2, !tbaa !31
-  %266 = getelementptr inbounds i8, i8* %6, i64 4
-  %267 = bitcast i8* %266 to i16*
-  %268 = load i16, i16* %267, align 2, !tbaa !31
-  %269 = getelementptr inbounds i8, i8* %6, i64 6
-  %270 = bitcast i8* %269 to i16*
-  %271 = load i16, i16* %270, align 2, !tbaa !31
-  store i16 %271, i16* %261, align 2, !tbaa !31
-  %272 = getelementptr inbounds i8, i8* %6, i64 8
-  %273 = bitcast i8* %272 to i16*
-  %274 = load i16, i16* %273, align 2, !tbaa !31
-  store i16 %274, i16* %264, align 2, !tbaa !31
-  %275 = getelementptr inbounds i8, i8* %6, i64 10
-  %276 = bitcast i8* %275 to i16*
-  %277 = load i16, i16* %276, align 2, !tbaa !31
-  store i16 %277, i16* %267, align 2, !tbaa !31
-  store i16 %262, i16* %270, align 2, !tbaa !31
-  store i16 %265, i16* %273, align 2, !tbaa !31
-  store i16 %268, i16* %276, align 2, !tbaa !31
-  br label %278
-
-278:                                              ; preds = %257, %260
-  %279 = phi i32 [ 3, %260 ], [ 1, %257 ]
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %13) #2
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %10) #2
-  ret i32 %279
+83:                                               ; preds = %81, %80
+  %84 = load i32, i32* %10, align 4
+  ret i32 %84
 }
 
-; Function Attrs: argmemonly mustprogress nofree nosync nounwind willreturn
-declare void @llvm.lifetime.end.p0i8(i64 immarg, i8* nocapture) #1
+; Function Attrs: noinline nounwind optnone uwtable
+define internal void @swap_src_dst_mac(i8* noundef %0) #0 {
+  %2 = alloca i8*, align 8
+  %3 = alloca i16*, align 8
+  %4 = alloca [3 x i16], align 2
+  store i8* %0, i8** %2, align 8
+  %5 = load i8*, i8** %2, align 8
+  %6 = bitcast i8* %5 to i16*
+  store i16* %6, i16** %3, align 8
+  %7 = load i16*, i16** %3, align 8
+  %8 = getelementptr inbounds i16, i16* %7, i64 0
+  %9 = load i16, i16* %8, align 2
+  %10 = getelementptr inbounds [3 x i16], [3 x i16]* %4, i64 0, i64 0
+  store i16 %9, i16* %10, align 2
+  %11 = load i16*, i16** %3, align 8
+  %12 = getelementptr inbounds i16, i16* %11, i64 1
+  %13 = load i16, i16* %12, align 2
+  %14 = getelementptr inbounds [3 x i16], [3 x i16]* %4, i64 0, i64 1
+  store i16 %13, i16* %14, align 2
+  %15 = load i16*, i16** %3, align 8
+  %16 = getelementptr inbounds i16, i16* %15, i64 2
+  %17 = load i16, i16* %16, align 2
+  %18 = getelementptr inbounds [3 x i16], [3 x i16]* %4, i64 0, i64 2
+  store i16 %17, i16* %18, align 2
+  %19 = load i16*, i16** %3, align 8
+  %20 = getelementptr inbounds i16, i16* %19, i64 3
+  %21 = load i16, i16* %20, align 2
+  %22 = load i16*, i16** %3, align 8
+  %23 = getelementptr inbounds i16, i16* %22, i64 0
+  store i16 %21, i16* %23, align 2
+  %24 = load i16*, i16** %3, align 8
+  %25 = getelementptr inbounds i16, i16* %24, i64 4
+  %26 = load i16, i16* %25, align 2
+  %27 = load i16*, i16** %3, align 8
+  %28 = getelementptr inbounds i16, i16* %27, i64 1
+  store i16 %26, i16* %28, align 2
+  %29 = load i16*, i16** %3, align 8
+  %30 = getelementptr inbounds i16, i16* %29, i64 5
+  %31 = load i16, i16* %30, align 2
+  %32 = load i16*, i16** %3, align 8
+  %33 = getelementptr inbounds i16, i16* %32, i64 2
+  store i16 %31, i16* %33, align 2
+  %34 = getelementptr inbounds [3 x i16], [3 x i16]* %4, i64 0, i64 0
+  %35 = load i16, i16* %34, align 2
+  %36 = load i16*, i16** %3, align 8
+  %37 = getelementptr inbounds i16, i16* %36, i64 3
+  store i16 %35, i16* %37, align 2
+  %38 = getelementptr inbounds [3 x i16], [3 x i16]* %4, i64 0, i64 1
+  %39 = load i16, i16* %38, align 2
+  %40 = load i16*, i16** %3, align 8
+  %41 = getelementptr inbounds i16, i16* %40, i64 4
+  store i16 %39, i16* %41, align 2
+  %42 = getelementptr inbounds [3 x i16], [3 x i16]* %4, i64 0, i64 2
+  %43 = load i16, i16* %42, align 2
+  %44 = load i16*, i16** %3, align 8
+  %45 = getelementptr inbounds i16, i16* %44, i64 5
+  store i16 %43, i16* %45, align 2
+  ret void
+}
 
-attributes #0 = { nofree nosync nounwind uwtable "frame-pointer"="none" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #1 = { argmemonly mustprogress nofree nosync nounwind willreturn }
+; Function Attrs: noinline nounwind optnone uwtable
+define internal i8* @elem_lookup(%struct.bpftime_hash_map_t* noundef %0, i8* noundef %1) #0 {
+  %3 = alloca i8*, align 8
+  %4 = alloca %struct.bpftime_hash_map_t*, align 8
+  %5 = alloca i8*, align 8
+  %6 = alloca i32, align 4
+  %7 = alloca i32, align 4
+  %8 = alloca i8*, align 8
+  %9 = alloca i32, align 4
+  %10 = alloca i32, align 4
+  store %struct.bpftime_hash_map_t* %0, %struct.bpftime_hash_map_t** %4, align 8
+  store i8* %1, i8** %5, align 8
+  %11 = load i8*, i8** %5, align 8
+  %12 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %4, align 8
+  %13 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %12, i32 0, i32 1
+  %14 = load i32, i32* %13, align 4
+  %15 = call i32 @hash_func(i8* noundef %11, i32 noundef %14)
+  %16 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %4, align 8
+  %17 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %16, i32 0, i32 0
+  %18 = load i32, i32* %17, align 8
+  %19 = urem i32 %15, %18
+  store i32 %19, i32* %6, align 4
+  %20 = load i32, i32* %6, align 4
+  store i32 %20, i32* %7, align 4
+  br label %21
+
+21:                                               ; preds = %70, %2
+  %22 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %4, align 8
+  %23 = load i32, i32* %6, align 4
+  %24 = call i32 @is_empty(%struct.bpftime_hash_map_t* noundef %22, i32 noundef %23)
+  %25 = icmp ne i32 %24, 0
+  br i1 %25, label %26, label %27
+
+26:                                               ; preds = %21
+  store i8* null, i8** %3, align 8
+  br label %75
+
+27:                                               ; preds = %21
+  %28 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %4, align 8
+  %29 = load i32, i32* %6, align 4
+  %30 = call i8* @get_key(%struct.bpftime_hash_map_t* noundef %28, i32 noundef %29)
+  store i8* %30, i8** %8, align 8
+  store i32 1, i32* %9, align 4
+  store i32 0, i32* %10, align 4
+  br label %31
+
+31:                                               ; preds = %53, %27
+  %32 = load i32, i32* %10, align 4
+  %33 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %4, align 8
+  %34 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %33, i32 0, i32 1
+  %35 = load i32, i32* %34, align 4
+  %36 = icmp ult i32 %32, %35
+  br i1 %36, label %37, label %56
+
+37:                                               ; preds = %31
+  %38 = load i8*, i8** %8, align 8
+  %39 = load i32, i32* %10, align 4
+  %40 = zext i32 %39 to i64
+  %41 = getelementptr inbounds i8, i8* %38, i64 %40
+  %42 = load i8, i8* %41, align 1
+  %43 = zext i8 %42 to i32
+  %44 = load i8*, i8** %5, align 8
+  %45 = load i32, i32* %10, align 4
+  %46 = zext i32 %45 to i64
+  %47 = getelementptr inbounds i8, i8* %44, i64 %46
+  %48 = load i8, i8* %47, align 1
+  %49 = zext i8 %48 to i32
+  %50 = icmp ne i32 %43, %49
+  br i1 %50, label %51, label %52
+
+51:                                               ; preds = %37
+  store i32 0, i32* %9, align 4
+  br label %56
+
+52:                                               ; preds = %37
+  br label %53
+
+53:                                               ; preds = %52
+  %54 = load i32, i32* %10, align 4
+  %55 = add i32 %54, 1
+  store i32 %55, i32* %10, align 4
+  br label %31, !llvm.loop !6
+
+56:                                               ; preds = %51, %31
+  %57 = load i32, i32* %9, align 4
+  %58 = icmp ne i32 %57, 0
+  br i1 %58, label %59, label %63
+
+59:                                               ; preds = %56
+  %60 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %4, align 8
+  %61 = load i32, i32* %6, align 4
+  %62 = call i8* @get_value(%struct.bpftime_hash_map_t* noundef %60, i32 noundef %61)
+  store i8* %62, i8** %3, align 8
+  br label %75
+
+63:                                               ; preds = %56
+  %64 = load i32, i32* %6, align 4
+  %65 = add i32 %64, 1
+  %66 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %4, align 8
+  %67 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %66, i32 0, i32 0
+  %68 = load i32, i32* %67, align 8
+  %69 = urem i32 %65, %68
+  store i32 %69, i32* %6, align 4
+  br label %70
+
+70:                                               ; preds = %63
+  %71 = load i32, i32* %6, align 4
+  %72 = load i32, i32* %7, align 4
+  %73 = icmp ne i32 %71, %72
+  br i1 %73, label %21, label %74, !llvm.loop !8
+
+74:                                               ; preds = %70
+  store i8* null, i8** %3, align 8
+  br label %75
+
+75:                                               ; preds = %74, %59, %26
+  %76 = load i8*, i8** %3, align 8
+  ret i8* %76
+}
+
+declare i8* @_bpf_helper_ext_0001(...) #1
+
+; Function Attrs: noinline nounwind optnone uwtable
+define internal i32 @hash_func(i8* noundef %0, i32 noundef %1) #0 {
+  %3 = alloca i8*, align 8
+  %4 = alloca i32, align 4
+  %5 = alloca i32, align 4
+  %6 = alloca i32, align 4
+  store i8* %0, i8** %3, align 8
+  store i32 %1, i32* %4, align 4
+  store i32 0, i32* %5, align 4
+  store i32 0, i32* %6, align 4
+  br label %7
+
+7:                                                ; preds = %21, %2
+  %8 = load i32, i32* %6, align 4
+  %9 = load i32, i32* %4, align 4
+  %10 = icmp ult i32 %8, %9
+  br i1 %10, label %11, label %24
+
+11:                                               ; preds = %7
+  %12 = load i32, i32* %5, align 4
+  %13 = mul i32 %12, 31
+  %14 = load i8*, i8** %3, align 8
+  %15 = load i32, i32* %6, align 4
+  %16 = zext i32 %15 to i64
+  %17 = getelementptr inbounds i8, i8* %14, i64 %16
+  %18 = load i8, i8* %17, align 1
+  %19 = zext i8 %18 to i32
+  %20 = add i32 %13, %19
+  store i32 %20, i32* %5, align 4
+  br label %21
+
+21:                                               ; preds = %11
+  %22 = load i32, i32* %6, align 4
+  %23 = add i32 %22, 1
+  store i32 %23, i32* %6, align 4
+  br label %7, !llvm.loop !9
+
+24:                                               ; preds = %7
+  %25 = load i32, i32* %5, align 4
+  ret i32 %25
+}
+
+; Function Attrs: noinline nounwind optnone uwtable
+define internal i32 @is_empty(%struct.bpftime_hash_map_t* noundef %0, i32 noundef %1) #0 {
+  %3 = alloca %struct.bpftime_hash_map_t*, align 8
+  %4 = alloca i32, align 4
+  store %struct.bpftime_hash_map_t* %0, %struct.bpftime_hash_map_t** %3, align 8
+  store i32 %1, i32* %4, align 4
+  %5 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %6 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %5, i32 0, i32 3
+  %7 = load i8*, i8** %6, align 8
+  %8 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %9 = load i32, i32* %4, align 4
+  %10 = call i32 @get_elem_offset(%struct.bpftime_hash_map_t* noundef %8, i32 noundef %9)
+  %11 = zext i32 %10 to i64
+  %12 = getelementptr inbounds i8, i8* %7, i64 %11
+  %13 = bitcast i8* %12 to i32*
+  %14 = load i32, i32* %13, align 4
+  %15 = icmp eq i32 %14, 0
+  %16 = zext i1 %15 to i32
+  ret i32 %16
+}
+
+; Function Attrs: noinline nounwind optnone uwtable
+define internal i8* @get_key(%struct.bpftime_hash_map_t* noundef %0, i32 noundef %1) #0 {
+  %3 = alloca %struct.bpftime_hash_map_t*, align 8
+  %4 = alloca i32, align 4
+  store %struct.bpftime_hash_map_t* %0, %struct.bpftime_hash_map_t** %3, align 8
+  store i32 %1, i32* %4, align 4
+  %5 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %6 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %5, i32 0, i32 3
+  %7 = load i8*, i8** %6, align 8
+  %8 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %9 = load i32, i32* %4, align 4
+  %10 = call i32 @get_elem_offset(%struct.bpftime_hash_map_t* noundef %8, i32 noundef %9)
+  %11 = add i32 %10, 4
+  %12 = zext i32 %11 to i64
+  %13 = getelementptr inbounds i8, i8* %7, i64 %12
+  ret i8* %13
+}
+
+; Function Attrs: noinline nounwind optnone uwtable
+define internal i8* @get_value(%struct.bpftime_hash_map_t* noundef %0, i32 noundef %1) #0 {
+  %3 = alloca %struct.bpftime_hash_map_t*, align 8
+  %4 = alloca i32, align 4
+  store %struct.bpftime_hash_map_t* %0, %struct.bpftime_hash_map_t** %3, align 8
+  store i32 %1, i32* %4, align 4
+  %5 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %6 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %5, i32 0, i32 3
+  %7 = load i8*, i8** %6, align 8
+  %8 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %9 = load i32, i32* %4, align 4
+  %10 = call i32 @get_elem_offset(%struct.bpftime_hash_map_t* noundef %8, i32 noundef %9)
+  %11 = add i32 %10, 4
+  %12 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %13 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %12, i32 0, i32 1
+  %14 = load i32, i32* %13, align 4
+  %15 = add i32 %11, %14
+  %16 = zext i32 %15 to i64
+  %17 = getelementptr inbounds i8, i8* %7, i64 %16
+  ret i8* %17
+}
+
+; Function Attrs: noinline nounwind optnone uwtable
+define internal i32 @get_elem_offset(%struct.bpftime_hash_map_t* noundef %0, i32 noundef %1) #0 {
+  %3 = alloca %struct.bpftime_hash_map_t*, align 8
+  %4 = alloca i32, align 4
+  store %struct.bpftime_hash_map_t* %0, %struct.bpftime_hash_map_t** %3, align 8
+  store i32 %1, i32* %4, align 4
+  %5 = load i32, i32* %4, align 4
+  %6 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %7 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %6, i32 0, i32 1
+  %8 = load i32, i32* %7, align 4
+  %9 = add i32 4, %8
+  %10 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %11 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %10, i32 0, i32 2
+  %12 = load i32, i32* %11, align 8
+  %13 = add i32 %9, %12
+  %14 = mul i32 %5, %13
+  ret i32 %14
+}
+
+; Function Attrs: noinline nounwind optnone uwtable
+define internal i32 @elem_update(%struct.bpftime_hash_map_t* noundef %0, i8* noundef %1, i8* noundef %2) #0 {
+  %4 = alloca i32, align 4
+  %5 = alloca %struct.bpftime_hash_map_t*, align 8
+  %6 = alloca i8*, align 8
+  %7 = alloca i8*, align 8
+  %8 = alloca i32, align 4
+  %9 = alloca i32, align 4
+  %10 = alloca i8*, align 8
+  %11 = alloca i32, align 4
+  %12 = alloca i32, align 4
+  %13 = alloca i32, align 4
+  %14 = alloca i8*, align 8
+  %15 = alloca i32, align 4
+  store %struct.bpftime_hash_map_t* %0, %struct.bpftime_hash_map_t** %5, align 8
+  store i8* %1, i8** %6, align 8
+  store i8* %2, i8** %7, align 8
+  %16 = load i8*, i8** %6, align 8
+  %17 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %18 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %17, i32 0, i32 1
+  %19 = load i32, i32* %18, align 4
+  %20 = call i32 @hash_func(i8* noundef %16, i32 noundef %19)
+  %21 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %22 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %21, i32 0, i32 0
+  %23 = load i32, i32* %22, align 8
+  %24 = urem i32 %20, %23
+  store i32 %24, i32* %8, align 4
+  %25 = load i32, i32* %8, align 4
+  store i32 %25, i32* %9, align 4
+  br label %26
+
+26:                                               ; preds = %118, %3
+  %27 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %28 = load i32, i32* %8, align 4
+  %29 = call i8* @get_key(%struct.bpftime_hash_map_t* noundef %27, i32 noundef %28)
+  store i8* %29, i8** %10, align 8
+  %30 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %31 = load i32, i32* %8, align 4
+  %32 = call i32 @is_empty(%struct.bpftime_hash_map_t* noundef %30, i32 noundef %31)
+  store i32 %32, i32* %11, align 4
+  %33 = load i32, i32* %11, align 4
+  %34 = icmp ne i32 %33, 0
+  br i1 %34, label %62, label %35
+
+35:                                               ; preds = %26
+  store i32 1, i32* %11, align 4
+  store i32 0, i32* %12, align 4
+  br label %36
+
+36:                                               ; preds = %58, %35
+  %37 = load i32, i32* %12, align 4
+  %38 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %39 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %38, i32 0, i32 1
+  %40 = load i32, i32* %39, align 4
+  %41 = icmp ult i32 %37, %40
+  br i1 %41, label %42, label %61
+
+42:                                               ; preds = %36
+  %43 = load i8*, i8** %10, align 8
+  %44 = load i32, i32* %12, align 4
+  %45 = zext i32 %44 to i64
+  %46 = getelementptr inbounds i8, i8* %43, i64 %45
+  %47 = load i8, i8* %46, align 1
+  %48 = zext i8 %47 to i32
+  %49 = load i8*, i8** %6, align 8
+  %50 = load i32, i32* %12, align 4
+  %51 = zext i32 %50 to i64
+  %52 = getelementptr inbounds i8, i8* %49, i64 %51
+  %53 = load i8, i8* %52, align 1
+  %54 = zext i8 %53 to i32
+  %55 = icmp ne i32 %48, %54
+  br i1 %55, label %56, label %57
+
+56:                                               ; preds = %42
+  store i32 0, i32* %11, align 4
+  br label %61
+
+57:                                               ; preds = %42
+  br label %58
+
+58:                                               ; preds = %57
+  %59 = load i32, i32* %12, align 4
+  %60 = add i32 %59, 1
+  store i32 %60, i32* %12, align 4
+  br label %36, !llvm.loop !10
+
+61:                                               ; preds = %56, %36
+  br label %62
+
+62:                                               ; preds = %61, %26
+  %63 = load i32, i32* %11, align 4
+  %64 = icmp ne i32 %63, 0
+  br i1 %64, label %65, label %111
+
+65:                                               ; preds = %62
+  store i32 0, i32* %13, align 4
+  br label %66
+
+66:                                               ; preds = %82, %65
+  %67 = load i32, i32* %13, align 4
+  %68 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %69 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %68, i32 0, i32 1
+  %70 = load i32, i32* %69, align 4
+  %71 = icmp ult i32 %67, %70
+  br i1 %71, label %72, label %85
+
+72:                                               ; preds = %66
+  %73 = load i8*, i8** %6, align 8
+  %74 = load i32, i32* %13, align 4
+  %75 = zext i32 %74 to i64
+  %76 = getelementptr inbounds i8, i8* %73, i64 %75
+  %77 = load i8, i8* %76, align 1
+  %78 = load i8*, i8** %10, align 8
+  %79 = load i32, i32* %13, align 4
+  %80 = zext i32 %79 to i64
+  %81 = getelementptr inbounds i8, i8* %78, i64 %80
+  store i8 %77, i8* %81, align 1
+  br label %82
+
+82:                                               ; preds = %72
+  %83 = load i32, i32* %13, align 4
+  %84 = add i32 %83, 1
+  store i32 %84, i32* %13, align 4
+  br label %66, !llvm.loop !11
+
+85:                                               ; preds = %66
+  %86 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %87 = load i32, i32* %8, align 4
+  %88 = call i8* @get_value(%struct.bpftime_hash_map_t* noundef %86, i32 noundef %87)
+  store i8* %88, i8** %14, align 8
+  store i32 0, i32* %15, align 4
+  br label %89
+
+89:                                               ; preds = %105, %85
+  %90 = load i32, i32* %15, align 4
+  %91 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %92 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %91, i32 0, i32 2
+  %93 = load i32, i32* %92, align 8
+  %94 = icmp ult i32 %90, %93
+  br i1 %94, label %95, label %108
+
+95:                                               ; preds = %89
+  %96 = load i8*, i8** %7, align 8
+  %97 = load i32, i32* %15, align 4
+  %98 = zext i32 %97 to i64
+  %99 = getelementptr inbounds i8, i8* %96, i64 %98
+  %100 = load i8, i8* %99, align 1
+  %101 = load i8*, i8** %14, align 8
+  %102 = load i32, i32* %15, align 4
+  %103 = zext i32 %102 to i64
+  %104 = getelementptr inbounds i8, i8* %101, i64 %103
+  store i8 %100, i8* %104, align 1
+  br label %105
+
+105:                                              ; preds = %95
+  %106 = load i32, i32* %15, align 4
+  %107 = add i32 %106, 1
+  store i32 %107, i32* %15, align 4
+  br label %89, !llvm.loop !12
+
+108:                                              ; preds = %89
+  %109 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %110 = load i32, i32* %8, align 4
+  call void @set_filled(%struct.bpftime_hash_map_t* noundef %109, i32 noundef %110)
+  store i32 1, i32* %4, align 4
+  br label %123
+
+111:                                              ; preds = %62
+  %112 = load i32, i32* %8, align 4
+  %113 = add i32 %112, 1
+  %114 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %5, align 8
+  %115 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %114, i32 0, i32 0
+  %116 = load i32, i32* %115, align 8
+  %117 = urem i32 %113, %116
+  store i32 %117, i32* %8, align 4
+  br label %118
+
+118:                                              ; preds = %111
+  %119 = load i32, i32* %8, align 4
+  %120 = load i32, i32* %9, align 4
+  %121 = icmp ne i32 %119, %120
+  br i1 %121, label %26, label %122, !llvm.loop !13
+
+122:                                              ; preds = %118
+  store i32 0, i32* %4, align 4
+  br label %123
+
+123:                                              ; preds = %122, %108
+  %124 = load i32, i32* %4, align 4
+  ret i32 %124
+}
+
+declare i32 @_bpf_helper_ext_0002(...) #1
+
+; Function Attrs: noinline nounwind optnone uwtable
+define internal void @set_filled(%struct.bpftime_hash_map_t* noundef %0, i32 noundef %1) #0 {
+  %3 = alloca %struct.bpftime_hash_map_t*, align 8
+  %4 = alloca i32, align 4
+  store %struct.bpftime_hash_map_t* %0, %struct.bpftime_hash_map_t** %3, align 8
+  store i32 %1, i32* %4, align 4
+  %5 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %6 = getelementptr inbounds %struct.bpftime_hash_map_t, %struct.bpftime_hash_map_t* %5, i32 0, i32 3
+  %7 = load i8*, i8** %6, align 8
+  %8 = load %struct.bpftime_hash_map_t*, %struct.bpftime_hash_map_t** %3, align 8
+  %9 = load i32, i32* %4, align 4
+  %10 = call i32 @get_elem_offset(%struct.bpftime_hash_map_t* noundef %8, i32 noundef %9)
+  %11 = zext i32 %10 to i64
+  %12 = getelementptr inbounds i8, i8* %7, i64 %11
+  %13 = bitcast i8* %12 to i32*
+  store i32 1, i32* %13, align 4
+  ret void
+}
+
+attributes #0 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #1 = { "frame-pointer"="all" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
 attributes #2 = { nounwind }
 
-!llvm.module.flags = !{!0, !1, !2, !3}
-!llvm.ident = !{!4}
+!llvm.module.flags = !{!0, !1, !2, !3, !4}
+!llvm.ident = !{!5}
 
 !0 = !{i32 1, !"wchar_size", i32 4}
 !1 = !{i32 7, !"PIC Level", i32 2}
 !2 = !{i32 7, !"PIE Level", i32 2}
 !3 = !{i32 7, !"uwtable", i32 1}
-!4 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
-!5 = !{!6, !7, i64 0}
-!6 = !{!"xdp_md", !7, i64 0, !7, i64 8, !10, i64 16, !10, i64 20, !10, i64 24, !10, i64 28}
-!7 = !{!"long long", !8, i64 0}
-!8 = !{!"omnipotent char", !9, i64 0}
-!9 = !{!"Simple C/C++ TBAA"}
-!10 = !{!"int", !8, i64 0}
-!11 = !{!6, !7, i64 8}
-!12 = !{!10, !10, i64 0}
-!13 = !{!14, !10, i64 4}
-!14 = !{!"", !10, i64 0, !10, i64 4, !10, i64 8, !15, i64 16}
-!15 = !{!"any pointer", !8, i64 0}
-!16 = distinct !{!16, !17}
-!17 = !{!"llvm.loop.mustprogress"}
-!18 = !{!8, !8, i64 0}
-!19 = distinct !{!19, !20}
-!20 = !{!"llvm.loop.unroll.disable"}
-!21 = !{!14, !10, i64 0}
-!22 = !{!14, !15, i64 16}
-!23 = !{!14, !10, i64 8}
-!24 = distinct !{!24, !17}
-!25 = distinct !{!25, !17}
-!26 = distinct !{!26, !20}
-!27 = distinct !{!27, !17}
-!28 = distinct !{!28, !17}
-!29 = distinct !{!29, !17}
-!30 = distinct !{!30, !17}
-!31 = !{!32, !32, i64 0}
-!32 = !{!"short", !8, i64 0}
+!4 = !{i32 7, !"frame-pointer", i32 2}
+!5 = !{!"Ubuntu clang version 14.0.0-1ubuntu1.1"}
+!6 = distinct !{!6, !7}
+!7 = !{!"llvm.loop.mustprogress"}
+!8 = distinct !{!8, !7}
+!9 = distinct !{!9, !7}
+!10 = distinct !{!10, !7}
+!11 = distinct !{!11, !7}
+!12 = distinct !{!12, !7}
+!13 = distinct !{!13, !7}

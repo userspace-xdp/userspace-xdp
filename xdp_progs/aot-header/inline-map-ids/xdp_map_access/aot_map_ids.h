@@ -20,4 +20,11 @@ static __always_inline void* bpf_map_lookup_elem_aot(const unsigned long long* m
   return _bpf_helper_ext_0001(*map, key);
 }
 
+unsigned long long bpf_map_lookup_elem__ctl_array(unsigned long long key) {
+    return (unsigned long long)&__ctl_array[*(unsigned int*)key];
+}
+unsigned long long bpf_map_lookup_elem__cntrs_array(unsigned long long key) {
+    return (unsigned long long)&__ctl_array[*(unsigned int*)key];
+}
+
 #endif // BPF_MAP_IDS_H
