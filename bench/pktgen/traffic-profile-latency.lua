@@ -12,7 +12,7 @@ pkt_size	= 64;
 local dstip = "192.168.1.13";
 local srcip = "192.168.1.11";
 local netmask = "/24";
-local total_time = 10;
+local total_time = 30;
 
 -- Stop the port sending and reset to
 pktgen.stop(sendport);
@@ -52,6 +52,7 @@ function getLatency(a)
     if a.rate < 0 then a.rate = default_rate end
 
     pktgen.set(a.sendport, "count", 0)
+    pktgen.set(a.sendport, "burst", 4)
     pktgen.set(a.sendport, "rate", a.rate)
     pktgen.set(a.sendport, "size", a.pktsize)
 
@@ -110,10 +111,10 @@ pktgen.sleep(2)
 min_latency = getLatency{
     sendport=0,
     recvport=0,
-    rate=0.1,
+    rate=0.00001,
     pktsize=pkt_size,
     sleeptime=total_time,
-    iterations=2
+    iterations=1
 }
 
 print("Done")

@@ -383,92 +383,46 @@ Take aways:
 
 ## different latency
 
+setting:
+
+```sh
+sudo ethtool -C enp24s0f1np1 rx-usecs 0
+sudo ethtool -C enp24s0f1np1 rx-frames 0
+sudo ethtool -C enp24s0f1np1 tx-usecs 0
+sudo ethtool -C enp24s0f1np1 tx-frames 0
+sudo ethtool -C enp24s0f1np1 adaptive-rx off adaptive-tx off
+sudo ethtool -L enp24s0f1np1 combined 1
+```
+
+in GRUB: `intel_idle.max_cstate=0 processor.max_cstate=1 intel_pstate=disable`
+
 DPDK:
 
 ```txt
 time   nbPkts      minCycles      avgCycles      maxCycles       min_us       avg_us       max_us   RxMB   TxMB  Skipped
-  30       51          11782         115282         219246         5.61        54.90       104.40      0      0        1
+  30       47          11702         116169         219866         5.57        55.32       104.70      0      0        1
 ```
 
 AF_XDP:
 
 ```txt
 time   nbPkts      minCycles      avgCycles      maxCycles       min_us       avg_us       max_us   RxMB   TxMB  Skipped
-  31       51          45870         123887         205076        21.84        58.99        97.66      0      0        1
+  31       47          25974       95350558     1120031726        12.37     45405.03    533348.44      0      0        1
 ```
 
 drv_mode:
 
 ```txt
 time   nbPkts      minCycles      avgCycles      maxCycles       min_us       avg_us       max_us   RxMB   TxMB  Skipped
-  30       53         178014         277515         326856        84.77       132.15       155.65      0      0        1
-```
-
-After setting the coalesce
-
-```sh
-$ sudo ethtool -C enp24s0f1np1 rx-usecs 0
-sudo ethtool -C enp24s0f1np1 rx-frames 0
-sudo ethtool -C enp24s0f1np1 tx-usecs 0
-sudo ethtool -C enp24s0f1np1 tx-frames 0
-sudo ethtool -C enp24s0f1np1 adaptive-rx off adaptive-tx off
-yunwei@octopus3:~$ sudo ethtool -c enp24s0f1np1
-Coalesce parameters for enp24s0f1np1:
-Adaptive RX: off  TX: off
-stats-block-usecs: n/a
-sample-interval: n/a
-pkt-rate-low: n/a
-pkt-rate-high: n/a
-
-rx-usecs: 0
-rx-frames: 0
-rx-usecs-irq: n/a
-rx-frames-irq: n/a
-
-tx-usecs: 0
-tx-frames: 0
-tx-usecs-irq: n/a
-tx-frames-irq: n/a
-
-rx-usecs-low: n/a
-rx-frame-low: n/a
-tx-usecs-low: n/a
-tx-frame-low: n/a
-
-rx-usecs-high: n/a
-rx-frame-high: n/a
-tx-usecs-high: n/a
-tx-frame-high: n/a
-
-CQE mode RX: on  TX: off
-```
-
-after set rx-usec and tx-usec:
-
-```txt
-Latency Samples
-time   nbPkts      minCycles      avgCycles      maxCycles       min_us       avg_us       max_us   RxMB   TxMB  Skipped
-  30       52         208578         280172         321396        99.32       133.42       153.05      0      0        1
-Done
-```
-
-after Adaptive RX: off  TX: off:
-
-```txt
-Latency Samples
-time   nbPkts      minCycles      avgCycles      maxCycles       min_us       avg_us       max_us   RxMB   TxMB  Skipped
-  30       44          43016         256944         312262        20.48       122.35       148.70      0      0        1
-Done
+  30       50          24458          35100          90480        11.65        16.71        43.09      0      0        1
 ```
 
 skb_mode:
 
 ```txt
 time   nbPkts      minCycles      avgCycles      maxCycles       min_us       avg_us       max_us   RxMB   TxMB  Skipped
-  30       52         128996         300344         344242        61.43       143.02       163.92      0      0        1
+  30       53          43426          55551          83162        20.68        26.45        39.60      0      0        1
 ```
-
-
 
 ## Case: xdp_map_access
 
