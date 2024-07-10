@@ -3,8 +3,8 @@ source_filename = "bpf-jit"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-pc-linux-gnu"
 
-@ctl_array = global [2 x i32] zeroinitializer, align 4
-@cntrs_array = global [512 x i64] zeroinitializer, align 8
+@ctl_array = dso_local global [2 x i32] zeroinitializer, align 4
+@cntrs_array = dso_local global [512 x i64] zeroinitializer, align 16
 
 declare i64 @_bpf_helper_ext_0001(i64, i64, i64, i64, i64) local_unnamed_addr
 

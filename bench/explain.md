@@ -536,3 +536,64 @@ Disassembly of section .text:
  264:   0f 83 67 ff ff ff       jae    1d1 <bpf_main+0x1d1>
  26a:   e9 b8 fe ff ff          jmp    127 <bpf_main+0x127>
 ```
+
+## why inline is sometimes slower
+
+The inline array map:
+
+```sh
+$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/libbpf AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.inline.o /home/yunwei/linux/tools/perf/perf  stat -e cache-references,cache-misses  /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+ Performance counter stats for '/home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1 --socket-mem=512 -a 0000:18:00.1 -- -p 0x1':
+
+     2,784,437,704      cache-references                                                      
+         2,816,325      cache-misses                     #    0.10% of all cache refs         
+
+      34.156326527 seconds time elapsed
+
+      33.157537000 seconds user
+       0.112045000 seconds sys
+$ objdump -S /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.inline.o
+
+/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.inline.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <bpf_main>:
+   0:   b8 02 00 00 00          mov    $0x2,%eax
+   5:   83 3d 00 00 00 00 00    cmpl   $0x0,0x0(%rip)        # c <bpf_main+0xc>
+   c:   74 01                   je     f <bpf_main+0xf>
+   e:   c3                      ret    
+   f:   48 8b 0f                mov    (%rdi),%rcx
+  12:   48 8b 47 08             mov    0x8(%rdi),%rax
+  16:   48 ff 05 00 00 00 00    incq   0x0(%rip)        # 1d <bpf_main+0x1d>
+  1d:   48 8d 51 0e             lea    0xe(%rcx),%rdx
+  21:   48 39 c2                cmp    %rax,%rdx
+  24:   b8 01 00 00 00          mov    $0x1,%eax
+  29:   77 e3                   ja     e <bpf_main+0xe>
+  2b:   8b 01                   mov    (%rcx),%eax
+  2d:   0f b7 51 06             movzwl 0x6(%rcx),%edx
+  31:   66 89 11                mov    %dx,(%rcx)
+  34:   8b 51 08                mov    0x8(%rcx),%edx
+  37:   0f b7 71 04             movzwl 0x4(%rcx),%esi
+  3b:   89 51 02                mov    %edx,0x2(%rcx)
+  3e:   66 89 71 0a             mov    %si,0xa(%rcx)
+  42:   89 41 06                mov    %eax,0x6(%rcx)
+  45:   b8 03 00 00 00          mov    $0x3,%eax
+  4a:   c3                      ret    
+```
+
+The baseline:
+
+```sh
+$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/libbpf AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.base.aot.o /home/yunwei/linux/tools/perf/perf  stat -e cache-references,cache-misses  /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+Performance counter stats for '/home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1 --socket-mem=512 -a 0000:18:00.1 -- -p 0x1':
+
+     1,347,400,460      cache-references                                                      
+         2,766,264      cache-misses                     #    0.21% of all cache refs         
+
+      28.270561299 seconds time elapsed
+
+      27.263325000 seconds user
+       0.104089000 seconds sys
+```
