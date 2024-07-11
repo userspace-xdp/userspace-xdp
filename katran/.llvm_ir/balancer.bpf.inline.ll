@@ -3,8 +3,6 @@ source_filename = "bpf-jit"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-pc-linux-gnu"
 
-declare i64 @__lddw_helper_map_by_fd(i32) local_unnamed_addr
-
 declare i64 @_bpf_helper_ext_0001(i64, i64, i64, i64, i64) local_unnamed_addr
 
 declare i64 @_bpf_helper_ext_0002(i64, i64, i64, i64, i64) local_unnamed_addr
@@ -529,14 +527,14 @@ bb_inst_318:                                      ; preds = %bb_inst_314, %bb_in
   %300 = load <2 x i64>, ptr %99, align 8
   store <2 x i64> %300, ptr %104, align 8
   %301 = add i64 %2, -96
-  %302 = call i64 @__lddw_helper_map_by_fd(i32 5)
+  %302 = shl i64 5, 32
   %303 = call i64 @_bpf_helper_ext_0001(i64 %302, i64 %301, i64 %r3.3, i64 %r4.0, i64 %r5.2)
   %.not2926 = icmp eq i64 %303, 0
   br i1 %.not2926, label %bb_inst_333, label %bb_inst_350
 
 bb_inst_333:                                      ; preds = %bb_inst_318
   store i16 0, ptr %102, align 8
-  %304 = call i64 @__lddw_helper_map_by_fd(i32 5)
+  %304 = shl i64 5, 32
   %305 = call i64 @_bpf_helper_ext_0001(i64 %304, i64 %301, i64 %r3.3, i64 %r4.0, i64 %r5.2)
   %306 = icmp eq i64 %305, 0
   br i1 %306, label %bb_inst_942, label %bb_inst_343
@@ -568,7 +566,7 @@ bb_inst_355:                                      ; preds = %bb_inst_350
   %317 = getelementptr inbounds i8, ptr %stackEnd, i64 -108
   store i32 512, ptr %317, align 4
   %318 = add i64 %2, -108
-  %319 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %319 = shl i64 13, 32
   %320 = call i64 @_bpf_helper_ext_0001(i64 %319, i64 %318, i64 %r3.3, i64 %r4.0, i64 %r5.2)
   %321 = icmp eq i64 %320, 0
   br i1 %321, label %bb_inst_942, label %bb_inst_366
@@ -602,7 +600,7 @@ bb_inst_376:                                      ; preds = %bb_inst_374, %bb_in
   %337 = getelementptr inbounds i8, ptr %stackEnd, i64 -112
   store i32 %336, ptr %337, align 8
   %338 = add i64 %2, -112
-  %339 = call i64 @__lddw_helper_map_by_fd(i32 8)
+  %339 = shl i64 8, 32
   %340 = call i64 @_bpf_helper_ext_0001(i64 %339, i64 %338, i64 %r3.3, i64 %r4.0, i64 %r5.2)
   %.not2928 = icmp eq i64 %340, 0
   br i1 %.not2928, label %bb_inst_387, label %bb_inst_401
@@ -611,7 +609,7 @@ bb_inst_387:                                      ; preds = %bb_inst_376
   %341 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 515, ptr %341, align 8
   %342 = add i64 %2, -16
-  %343 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %343 = shl i64 13, 32
   %344 = call i64 @_bpf_helper_ext_0001(i64 %343, i64 %342, i64 0, i64 %r4.0, i64 %r5.2)
   %345 = icmp eq i64 %344, 0
   br i1 %345, label %bb_inst_942, label %bb_inst_395
@@ -621,7 +619,7 @@ bb_inst_395:                                      ; preds = %bb_inst_387
   %347 = load i64, ptr %346, align 4
   %348 = add i64 %347, 1
   store i64 %348, ptr %346, align 4
-  %349 = call i64 @__lddw_helper_map_by_fd(i32 6)
+  %349 = shl i64 6, 32
   %350 = load i64, ptr %316, align 8
   %.pre3044 = inttoptr i64 %350 to ptr
   br label %bb_inst_401
@@ -646,7 +644,7 @@ bb_inst_408:                                      ; preds = %bb_inst_405
   %358 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 523, ptr %358, align 8
   %359 = add i64 %2, -16
-  %360 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %360 = shl i64 13, 32
   %361 = call i64 @_bpf_helper_ext_0001(i64 %360, i64 %359, i64 %r3.4, i64 %r4.0, i64 %r5.2)
   %362 = icmp eq i64 %361, 0
   br i1 %362, label %bb_inst_942, label %bb_inst_417
@@ -676,7 +674,7 @@ bb_inst_430:                                      ; preds = %bb_inst_136
   %375 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 524, ptr %375, align 8
   %376 = add i64 %2, -16
-  %377 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %377 = shl i64 13, 32
   %378 = call i64 @_bpf_helper_ext_0001(i64 %377, i64 %376, i64 %114, i64 %121, i64 undef)
   %379 = icmp eq i64 %378, 0
   br i1 %379, label %bb_inst_942, label %bb_inst_439
@@ -749,7 +747,7 @@ bb_inst_498:                                      ; preds = %bb_inst_496
   %408 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 525, ptr %408, align 8
   %409 = add i64 %2, -16
-  %410 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %410 = shl i64 13, 32
   %411 = call i64 @_bpf_helper_ext_0001(i64 %410, i64 %409, i64 %25, i64 %44, i64 undef)
   %412 = icmp eq i64 %411, 0
   br i1 %412, label %bb_inst_942, label %bb_inst_507
@@ -824,14 +822,14 @@ bb_inst_543:                                      ; preds = %bb_inst_539, %bb_in
   store i16 %440, ptr %22, align 8
   store i32 %277, ptr %23, align 8
   %446 = add i64 %2, -96
-  %447 = call i64 @__lddw_helper_map_by_fd(i32 5)
+  %447 = shl i64 5, 32
   %448 = call i64 @_bpf_helper_ext_0001(i64 %447, i64 %446, i64 %441, i64 %r4.2, i64 %r5.3)
   %.not2889 = icmp eq i64 %448, 0
   br i1 %.not2889, label %bb_inst_555, label %bb_inst_570
 
 bb_inst_555:                                      ; preds = %bb_inst_543
   store i16 0, ptr %22, align 8
-  %449 = call i64 @__lddw_helper_map_by_fd(i32 5)
+  %449 = shl i64 5, 32
   %450 = call i64 @_bpf_helper_ext_0001(i64 %449, i64 %446, i64 %441, i64 %r4.2, i64 %r5.3)
   %451 = icmp eq i64 %450, 0
   br i1 %451, label %bb_inst_942, label %bb_inst_564
@@ -862,7 +860,7 @@ bb_inst_574:                                      ; preds = %bb_inst_570
   %461 = getelementptr inbounds i8, ptr %stackEnd, i64 -108
   store i32 512, ptr %461, align 4
   %462 = add i64 %2, -108
-  %463 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %463 = shl i64 13, 32
   %464 = call i64 @_bpf_helper_ext_0001(i64 %463, i64 %462, i64 %441, i64 %r4.2, i64 %r5.3)
   %465 = icmp eq i64 %464, 0
   br i1 %465, label %bb_inst_942, label %bb_inst_584
@@ -896,7 +894,7 @@ bb_inst_594:                                      ; preds = %bb_inst_592, %bb_in
   %481 = getelementptr inbounds i8, ptr %stackEnd, i64 -112
   store i32 %480, ptr %481, align 8
   %482 = add i64 %2, -112
-  %483 = call i64 @__lddw_helper_map_by_fd(i32 8)
+  %483 = shl i64 8, 32
   %484 = call i64 @_bpf_helper_ext_0001(i64 %483, i64 %482, i64 %441, i64 %r4.2, i64 %r5.3)
   %.not2891 = icmp eq i64 %484, 0
   br i1 %.not2891, label %bb_inst_605, label %bb_inst_619
@@ -905,7 +903,7 @@ bb_inst_605:                                      ; preds = %bb_inst_594
   %485 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 515, ptr %485, align 8
   %486 = add i64 %2, -16
-  %487 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %487 = shl i64 13, 32
   %488 = call i64 @_bpf_helper_ext_0001(i64 %487, i64 %486, i64 0, i64 %r4.2, i64 %r5.3)
   %489 = icmp eq i64 %488, 0
   br i1 %489, label %bb_inst_942, label %bb_inst_613
@@ -915,7 +913,7 @@ bb_inst_613:                                      ; preds = %bb_inst_605
   %491 = load i64, ptr %490, align 4
   %492 = add i64 %491, 1
   store i64 %492, ptr %490, align 4
-  %493 = call i64 @__lddw_helper_map_by_fd(i32 6)
+  %493 = shl i64 6, 32
   %494 = load i64, ptr %460, align 8
   %.pre3050 = inttoptr i64 %494 to ptr
   br label %bb_inst_619
@@ -942,7 +940,7 @@ bb_inst_626:                                      ; preds = %bb_inst_623
   %503 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 523, ptr %503, align 8
   %504 = add i64 %2, -16
-  %505 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %505 = shl i64 13, 32
   %506 = call i64 @_bpf_helper_ext_0001(i64 %505, i64 %504, i64 %r3.5, i64 %r4.2, i64 %r5.3)
   %507 = icmp eq i64 %506, 0
   br i1 %507, label %bb_inst_942, label %bb_inst_634
@@ -976,7 +974,7 @@ bb_inst_646:                                      ; preds = %bb_inst_405
   %520 = getelementptr inbounds i8, ptr %stackEnd, i64 -120
   store i32 0, ptr %520, align 8
   %521 = add i64 %2, -120
-  %522 = call i64 @__lddw_helper_map_by_fd(i32 14)
+  %522 = shl i64 14, 32
   %523 = call i64 @_bpf_helper_ext_0001(i64 %522, i64 %521, i64 %r3.4, i64 %r4.0, i64 %r5.2)
   %524 = icmp eq i64 %523, 0
   br i1 %524, label %bb_inst_942, label %bb_inst_656
@@ -1019,7 +1017,7 @@ bb_inst_680:                                      ; preds = %bb_inst_623
   %543 = getelementptr inbounds i8, ptr %stackEnd, i64 -120
   store i32 0, ptr %543, align 8
   %544 = add i64 %2, -120
-  %545 = call i64 @__lddw_helper_map_by_fd(i32 14)
+  %545 = shl i64 14, 32
   %546 = call i64 @_bpf_helper_ext_0001(i64 %545, i64 %544, i64 %r3.5, i64 %r4.2, i64 %r5.3)
   %547 = icmp eq i64 %546, 0
   br i1 %547, label %bb_inst_942, label %bb_inst_688
@@ -1128,7 +1126,7 @@ bb_inst_744:                                      ; preds = %bb_inst_734.bb_inst
   %592 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 %591, ptr %592, align 8
   %593 = add i64 %2, -16
-  %594 = call i64 @__lddw_helper_map_by_fd(i32 9)
+  %594 = shl i64 9, 32
   %595 = call i64 @_bpf_helper_ext_0001(i64 %594, i64 %593, i64 %r3.6, i64 %r4.2, i64 %r5.3)
   %596 = getelementptr inbounds i8, ptr %stackEnd, i64 -176
   store i64 %595, ptr %596, align 8
@@ -1144,7 +1142,7 @@ bb_inst_756:                                      ; preds = %bb_inst_754
   %598 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 513, ptr %598, align 8
   %599 = add i64 %2, -16
-  %600 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %600 = shl i64 13, 32
   %601 = call i64 @_bpf_helper_ext_0001(i64 %600, i64 %599, i64 %r3.6, i64 %r4.2, i64 %r5.3)
   %602 = icmp eq i64 %601, 0
   br i1 %602, label %bb_inst_942, label %bb_inst_764
@@ -1169,7 +1167,7 @@ bb_inst_774:                                      ; preds = %bb_inst_764, %bb_in
   call void @llvm.memset.p0.i64(ptr noundef nonnull align 8 dereferenceable(16) %613, i8 0, i64 16, i1 false)
   store i32 514, ptr %614, align 8
   %615 = add i64 %2, -120
-  %616 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %616 = shl i64 13, 32
   %617 = call i64 @_bpf_helper_ext_0001(i64 %616, i64 %615, i64 %r3.6, i64 %r4.2, i64 %r5.3)
   %618 = icmp eq i64 %617, 0
   br i1 %618, label %bb_inst_803, label %bb_inst_787
@@ -1279,7 +1277,7 @@ bb_inst_815:                                      ; preds = %bb_inst_809, %bb_in
   %675 = getelementptr inbounds i8, ptr %stackEnd, i64 -20
   store i32 %674, ptr %675, align 4
   %676 = add i64 %2, -20
-  %677 = call i64 @__lddw_helper_map_by_fd(i32 7)
+  %677 = shl i64 7, 32
   %678 = call i64 @_bpf_helper_ext_0001(i64 %677, i64 %676, i64 %657, i64 %667, i64 %653)
   %679 = icmp eq i64 %678, 0
   br i1 %679, label %bb_inst_942, label %bb_inst_908
@@ -1293,7 +1291,7 @@ bb_inst_908:                                      ; preds = %bb_inst_815
 
 bb_inst_911:                                      ; preds = %bb_inst_908
   store i32 521, ptr %614, align 8
-  %682 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %682 = shl i64 13, 32
   %683 = call i64 @_bpf_helper_ext_0001(i64 %682, i64 %615, i64 %657, i64 %667, i64 %653)
   %684 = icmp eq i64 %683, 0
   br i1 %684, label %bb_inst_922, label %bb_inst_919
@@ -1313,14 +1311,14 @@ bb_inst_922:                                      ; preds = %bb_inst_919, %bb_in
 bb_inst_923:                                      ; preds = %bb_inst_922, %bb_inst_908
   %r1.2.in = phi i32 [ %681, %bb_inst_908 ], [ %689, %bb_inst_922 ]
   store i32 %r1.2.in, ptr %18, align 8
-  %690 = call i64 @__lddw_helper_map_by_fd(i32 9)
+  %690 = shl i64 9, 32
   %691 = call i64 @_bpf_helper_ext_0001(i64 %690, i64 %676, i64 %657, i64 %667, i64 %653)
   %.not2901 = icmp eq i64 %691, 0
   br i1 %.not2901, label %bb_inst_930, label %bb_inst_944
 
 bb_inst_930:                                      ; preds = %bb_inst_923
   store i32 521, ptr %614, align 8
-  %692 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %692 = shl i64 13, 32
   %693 = call i64 @_bpf_helper_ext_0001(i64 %692, i64 %615, i64 %657, i64 %667, i64 %653)
   %694 = icmp eq i64 %693, 0
   br i1 %694, label %bb_inst_942, label %bb_inst_938
@@ -1377,7 +1375,7 @@ bb_inst_965:                                      ; preds = %bb_inst_956, %bb_in
   %r4.3 = phi i64 [ %667, %bb_inst_944 ], [ %667, %bb_inst_947 ], [ 0, %bb_inst_956 ]
   store i32 0, ptr %613, align 8
   %713 = add i64 %2, -16
-  %714 = call i64 @__lddw_helper_map_by_fd(i32 12)
+  %714 = shl i64 12, 32
   %715 = call i64 @_bpf_helper_ext_0001(i64 %714, i64 %713, i64 %r3.7, i64 %r4.3, i64 %653)
   %716 = icmp eq i64 %715, 0
   br i1 %716, label %bb_inst_942, label %bb_inst_973
@@ -1407,7 +1405,7 @@ bb_inst_979:                                      ; preds = %bb_inst_973
 bb_inst_982:                                      ; preds = %bb_inst_979
   %730 = load i32, ptr %18, align 8
   store i32 %730, ptr %614, align 8
-  %731 = call i64 @__lddw_helper_map_by_fd(i32 11)
+  %731 = shl i64 11, 32
   %732 = call i64 @_bpf_helper_ext_0001(i64 %731, i64 %615, i64 %727, i64 %724, i64 %653)
   %733 = icmp eq i64 %732, 0
   br i1 %733, label %bb_inst_942, label %bb_inst_990
@@ -1434,14 +1432,14 @@ bb_inst_997:                                      ; preds = %bb_inst_2241, %bb_i
   %r4.4 = phi i64 [ %724, %bb_inst_993 ], [ %r4.2, %bb_inst_744 ], [ %r4.11, %bb_inst_2241 ]
   %r5.5 = phi i64 [ %653, %bb_inst_993 ], [ %r5.3, %bb_inst_744 ], [ %r5.3, %bb_inst_2241 ]
   %742 = add i64 %2, -104
-  %743 = call i64 @__lddw_helper_map_by_fd(i32 4)
+  %743 = shl i64 4, 32
   %744 = call i64 @_bpf_helper_ext_0001(i64 %743, i64 %742, i64 %r3.9, i64 %r4.4, i64 %r5.5)
   %745 = icmp eq i64 %744, 0
   br i1 %745, label %bb_inst_942, label %bb_inst_1005
 
 bb_inst_1005:                                     ; preds = %bb_inst_997
   %746 = add i64 %2, -100
-  %747 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %747 = shl i64 13, 32
   %748 = call i64 @_bpf_helper_ext_0001(i64 %747, i64 %746, i64 %r3.9, i64 %r4.4, i64 %r5.5)
   %749 = icmp eq i64 %748, 0
   br i1 %749, label %bb_inst_942, label %bb_inst_1011
@@ -1457,7 +1455,7 @@ bb_inst_1011:                                     ; preds = %bb_inst_1005
   %755 = add <2 x i64> %753, %754
   store <2 x i64> %755, ptr %752, align 4
   %756 = add i64 %2, -32
-  %757 = call i64 @__lddw_helper_map_by_fd(i32 10)
+  %757 = shl i64 10, 32
   %758 = call i64 @_bpf_helper_ext_0001(i64 %757, i64 %756, i64 %r3.9, i64 %r4.4, i64 %r5.5)
   %759 = icmp eq i64 %758, 0
   br i1 %759, label %bb_inst_942, label %bb_inst_1025
@@ -1643,7 +1641,7 @@ bb_inst_1145:                                     ; preds = %bb_inst_673
   %871 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 %870, ptr %871, align 8
   %872 = add i64 %2, -16
-  %873 = call i64 @__lddw_helper_map_by_fd(i32 18)
+  %873 = shl i64 18, 32
   %874 = call i64 @_bpf_helper_ext_0001(i64 %873, i64 %872, i64 %r3.4, i64 %r4.0, i64 %r5.2)
   %875 = icmp eq i64 %874, 0
   br i1 %875, label %bb_inst_1221, label %bb_inst_1221.sink.split
@@ -1702,7 +1700,7 @@ bb_inst_1185:                                     ; preds = %bb_inst_1178
   %912 = getelementptr inbounds i8, ptr %stackEnd, i64 -20
   store i32 %911, ptr %912, align 4
   %913 = add i64 %2, -20
-  %914 = call i64 @__lddw_helper_map_by_fd(i32 16)
+  %914 = shl i64 16, 32
   %915 = call i64 @_bpf_helper_ext_0001(i64 %914, i64 %913, i64 1, i64 %r4.0, i64 %r5.2)
   %916 = icmp eq i64 %915, 0
   br i1 %916, label %bb_inst_1212, label %bb_inst_1197
@@ -1716,7 +1714,7 @@ bb_inst_1197:                                     ; preds = %bb_inst_1185
 
 bb_inst_1200:                                     ; preds = %bb_inst_1197
   store i32 %918, ptr %96, align 8
-  %920 = call i64 @__lddw_helper_map_by_fd(i32 9)
+  %920 = shl i64 9, 32
   %921 = call i64 @_bpf_helper_ext_0001(i64 %920, i64 %913, i64 1, i64 %r4.0, i64 %r5.2)
   %922 = getelementptr inbounds i8, ptr %stackEnd, i64 -168
   store i64 %921, ptr %922, align 8
@@ -1809,7 +1807,7 @@ bb_inst_1248:                                     ; preds = %bb_inst_1238.bb_ins
   %957 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 %956, ptr %957, align 8
   %958 = add i64 %2, -16
-  %959 = call i64 @__lddw_helper_map_by_fd(i32 9)
+  %959 = shl i64 9, 32
   %960 = call i64 @_bpf_helper_ext_0001(i64 %959, i64 %958, i64 %r3.10, i64 %r4.0, i64 %r5.2)
   %961 = getelementptr inbounds i8, ptr %stackEnd, i64 -168
   store i64 %960, ptr %961, align 8
@@ -1825,7 +1823,7 @@ bb_inst_1261:                                     ; preds = %bb_inst_1259
   %963 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 513, ptr %963, align 8
   %964 = add i64 %2, -16
-  %965 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %965 = shl i64 13, 32
   %966 = call i64 @_bpf_helper_ext_0001(i64 %965, i64 %964, i64 %r3.10, i64 %r4.0, i64 %r5.2)
   %967 = icmp eq i64 %966, 0
   br i1 %967, label %bb_inst_942, label %bb_inst_1270
@@ -1852,7 +1850,7 @@ bb_inst_1281:                                     ; preds = %bb_inst_1270, %bb_i
   call void @llvm.memset.p0.i64(ptr noundef nonnull align 8 dereferenceable(16) %979, i8 0, i64 16, i1 false)
   store i32 514, ptr %980, align 8
   %981 = add i64 %2, -120
-  %982 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %982 = shl i64 13, 32
   %983 = call i64 @_bpf_helper_ext_0001(i64 %982, i64 %981, i64 %r3.10, i64 %r4.0, i64 %r5.2)
   %984 = icmp eq i64 %983, 0
   br i1 %984, label %bb_inst_1311, label %bb_inst_1295
@@ -2089,7 +2087,7 @@ bb_inst_1340:                                     ; preds = %bb_inst_1326, %bb_i
   %1147 = getelementptr inbounds i8, ptr %stackEnd, i64 -20
   store i32 %1146, ptr %1147, align 4
   %1148 = add i64 %2, -20
-  %1149 = call i64 @__lddw_helper_map_by_fd(i32 7)
+  %1149 = shl i64 7, 32
   %1150 = call i64 @_bpf_helper_ext_0001(i64 %1149, i64 %1148, i64 %1137, i64 %1123, i64 %1131)
   %1151 = icmp eq i64 %1150, 0
   br i1 %1151, label %bb_inst_942, label %bb_inst_1588
@@ -2105,7 +2103,7 @@ bb_inst_1588:                                     ; preds = %bb_inst_1340
 
 bb_inst_1593:                                     ; preds = %bb_inst_1588
   store i32 521, ptr %980, align 8
-  %1156 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %1156 = shl i64 13, 32
   %1157 = call i64 @_bpf_helper_ext_0001(i64 %1156, i64 %981, i64 %1137, i64 %1123, i64 %1131)
   %1158 = icmp eq i64 %1157, 0
   br i1 %1158, label %bb_inst_1604, label %bb_inst_1601
@@ -2125,14 +2123,14 @@ bb_inst_1604:                                     ; preds = %bb_inst_1601, %bb_i
 bb_inst_1605:                                     ; preds = %bb_inst_1604, %bb_inst_1588
   %r1.5.in = phi i32 [ %1153, %bb_inst_1588 ], [ %1163, %bb_inst_1604 ]
   store i32 %r1.5.in, ptr %96, align 8
-  %1164 = call i64 @__lddw_helper_map_by_fd(i32 9)
+  %1164 = shl i64 9, 32
   %1165 = call i64 @_bpf_helper_ext_0001(i64 %1164, i64 %1148, i64 %1137, i64 %1123, i64 %1131)
   %.not2936 = icmp eq i64 %1165, 0
   br i1 %.not2936, label %bb_inst_1613, label %bb_inst_1622
 
 bb_inst_1613:                                     ; preds = %bb_inst_1605
   store i32 521, ptr %980, align 8
-  %1166 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %1166 = shl i64 13, 32
   %1167 = call i64 @_bpf_helper_ext_0001(i64 %1166, i64 %981, i64 %1137, i64 %1123, i64 %1131)
   %1168 = icmp eq i64 %1167, 0
   br i1 %1168, label %bb_inst_942, label %bb_inst_938
@@ -2175,7 +2173,7 @@ bb_inst_1642:                                     ; preds = %bb_inst_1633, %bb_i
   %r4.6 = phi i64 [ %1123, %bb_inst_1622 ], [ %1123, %bb_inst_1623 ], [ 0, %bb_inst_1633 ]
   store i32 0, ptr %979, align 8
   %1183 = add i64 %2, -16
-  %1184 = call i64 @__lddw_helper_map_by_fd(i32 12)
+  %1184 = shl i64 12, 32
   %1185 = call i64 @_bpf_helper_ext_0001(i64 %1184, i64 %1183, i64 %r3.13, i64 %r4.6, i64 %1131)
   %1186 = icmp eq i64 %1185, 0
   br i1 %1186, label %bb_inst_942, label %bb_inst_1650
@@ -2232,7 +2230,7 @@ bb_inst_1669:                                     ; preds = %bb_inst_1664
 bb_inst_1672:                                     ; preds = %bb_inst_1669
   %1211 = load i32, ptr %96, align 8
   store i32 %1211, ptr %980, align 8
-  %1212 = call i64 @__lddw_helper_map_by_fd(i32 11)
+  %1212 = shl i64 11, 32
   %1213 = call i64 @_bpf_helper_ext_0001(i64 %1212, i64 %981, i64 %1208, i64 %r4.6, i64 %1131)
   %1214 = icmp eq i64 %1213, 0
   br i1 %1214, label %bb_inst_942, label %bb_inst_1680
@@ -2260,14 +2258,14 @@ bb_inst_1688:                                     ; preds = %bb_inst_2178, %bb_i
   %r4.7 = phi i64 [ %r4.6, %bb_inst_1683 ], [ %r4.0, %bb_inst_1248 ], [ %r4.9, %bb_inst_2178 ]
   %r5.6 = phi i64 [ %1131, %bb_inst_1683 ], [ %r5.2, %bb_inst_1248 ], [ %r5.2, %bb_inst_2178 ]
   %1223 = add i64 %2, -104
-  %1224 = call i64 @__lddw_helper_map_by_fd(i32 4)
+  %1224 = shl i64 4, 32
   %1225 = call i64 @_bpf_helper_ext_0001(i64 %1224, i64 %1223, i64 %r3.15, i64 %r4.7, i64 %r5.6)
   %1226 = icmp eq i64 %1225, 0
   br i1 %1226, label %bb_inst_942, label %bb_inst_1696
 
 bb_inst_1696:                                     ; preds = %bb_inst_1688
   %1227 = add i64 %2, -100
-  %1228 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %1228 = shl i64 13, 32
   %1229 = call i64 @_bpf_helper_ext_0001(i64 %1228, i64 %1227, i64 %r3.15, i64 %r4.7, i64 %r5.6)
   %1230 = icmp eq i64 %1229, 0
   br i1 %1230, label %bb_inst_942, label %bb_inst_1702
@@ -2283,7 +2281,7 @@ bb_inst_1702:                                     ; preds = %bb_inst_1696
   %1236 = add <2 x i64> %1234, %1235
   store <2 x i64> %1236, ptr %1233, align 4
   %1237 = add i64 %2, -32
-  %1238 = call i64 @__lddw_helper_map_by_fd(i32 10)
+  %1238 = shl i64 10, 32
   %1239 = call i64 @_bpf_helper_ext_0001(i64 %1238, i64 %1237, i64 %r3.15, i64 %r4.7, i64 %r5.6)
   %1240 = icmp eq i64 %1239, 0
   br i1 %1240, label %bb_inst_942, label %bb_inst_1717
@@ -2735,7 +2733,7 @@ bb_inst_2032:                                     ; preds = %bb_inst_707
   %1537 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 %1536, ptr %1537, align 8
   %1538 = add i64 %2, -16
-  %1539 = call i64 @__lddw_helper_map_by_fd(i32 18)
+  %1539 = shl i64 18, 32
   %1540 = call i64 @_bpf_helper_ext_0001(i64 %1539, i64 %1538, i64 %r3.5, i64 %r4.2, i64 %r5.3)
   %1541 = icmp eq i64 %1540, 0
   br i1 %1541, label %bb_inst_718, label %bb_inst_718.sink.split
@@ -2794,7 +2792,7 @@ bb_inst_2073:                                     ; preds = %bb_inst_2066
   %1578 = getelementptr inbounds i8, ptr %stackEnd, i64 -20
   store i32 %1577, ptr %1578, align 4
   %1579 = add i64 %2, -20
-  %1580 = call i64 @__lddw_helper_map_by_fd(i32 16)
+  %1580 = shl i64 16, 32
   %1581 = call i64 @_bpf_helper_ext_0001(i64 %1580, i64 %1579, i64 1, i64 %r4.2, i64 %r5.3)
   %1582 = icmp eq i64 %1581, 0
   br i1 %1582, label %bb_inst_2101, label %bb_inst_2085
@@ -2808,7 +2806,7 @@ bb_inst_2085:                                     ; preds = %bb_inst_2073
 
 bb_inst_2088:                                     ; preds = %bb_inst_2085
   store i32 %1584, ptr %18, align 8
-  %1586 = call i64 @__lddw_helper_map_by_fd(i32 9)
+  %1586 = shl i64 9, 32
   %1587 = call i64 @_bpf_helper_ext_0001(i64 %1586, i64 %1579, i64 1, i64 %r4.2, i64 %r5.3)
   %1588 = getelementptr inbounds i8, ptr %stackEnd, i64 -176
   store i64 %1587, ptr %1588, align 8
@@ -2839,7 +2837,7 @@ bb_inst_2109:                                     ; preds = %bb_inst_2019
   %1600 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 514, ptr %1600, align 8
   %1601 = add i64 %2, -16
-  %1602 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %1602 = shl i64 13, 32
   %1603 = call i64 @_bpf_helper_ext_0001(i64 %1602, i64 %1601, i64 1, i64 %r4.0, i64 %r5.2)
   %1604 = icmp eq i64 %1603, 0
   br i1 %1604, label %bb_inst_2175, label %bb_inst_2118
@@ -2876,7 +2874,7 @@ bb_inst_2140:                                     ; preds = %bb_inst_2024
   %1619 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 %1618, ptr %1619, align 8
   %1620 = add i64 %2, -16
-  %1621 = call i64 @__lddw_helper_map_by_fd(i32 18)
+  %1621 = shl i64 18, 32
   %1622 = call i64 @_bpf_helper_ext_0001(i64 %1621, i64 %1620, i64 1, i64 %r4.0, i64 %r5.2)
   %1623 = icmp eq i64 %1622, 0
   br i1 %1623, label %bb_inst_2178, label %bb_inst_2152
@@ -2942,7 +2940,7 @@ bb_inst_2184:                                     ; preds = %bb_inst_2156
   %1647 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 514, ptr %1647, align 8
   %1648 = add i64 %2, -16
-  %1649 = call i64 @__lddw_helper_map_by_fd(i32 13)
+  %1649 = shl i64 13, 32
   %1650 = call i64 @_bpf_helper_ext_0001(i64 %1649, i64 %1648, i64 1, i64 %r4.2, i64 %r5.3)
   %1651 = icmp eq i64 %1650, 0
   br i1 %1651, label %bb_inst_2241.sink.split.sink.split, label %bb_inst_2193
@@ -2980,7 +2978,7 @@ bb_inst_2215:                                     ; preds = %bb_inst_2161
   %1667 = getelementptr inbounds i8, ptr %stackEnd, i64 -16
   store i32 %1666, ptr %1667, align 8
   %1668 = add i64 %2, -16
-  %1669 = call i64 @__lddw_helper_map_by_fd(i32 18)
+  %1669 = shl i64 18, 32
   %1670 = call i64 @_bpf_helper_ext_0001(i64 %1669, i64 %1668, i64 1, i64 %r4.2, i64 %r5.3)
   %1671 = icmp eq i64 %1670, 0
   br i1 %1671, label %bb_inst_2241, label %bb_inst_2241.sink.split

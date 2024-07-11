@@ -120,11 +120,11 @@ run_alternative_commands() {
     if [ "$BASIC_XDP_NAME" == "katran-size" ]; then
         alt_commands=(
             # baseline
-            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.base.aot.o make katran-size/dpdk_llvm_aot'
-            'mv katran-size/dpdk_llvm_aot katran-size/dpdk_aot_base'
-            # inline
             # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.base.aot.o make katran-size/dpdk_llvm_aot'
             # 'mv katran-size/dpdk_llvm_aot katran-size/dpdk_aot_base'
+            # inline
+            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.bpf.inline.o make katran-size/dpdk_llvm_aot'
+            'mv katran-size/dpdk_llvm_aot katran-size/dpdk_bpf_inline'
             # llvm inline
             # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/katran/balancer.inline.aot.o make katran-size/afxdp_llvm_aot'
             # 'mv katran-size/afxdp_llvm_aot katran-size/afxdp_inline'

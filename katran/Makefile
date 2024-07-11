@@ -16,3 +16,6 @@ llvm-aot:
 llvm-bpf:
 	opt -O3 -S -opaque-pointers -o .llvm_ir/balancer.bpf.opt.ll .llvm_ir/balancer.bpf.ll
 	clang -O3 -mllvm -opaque-pointers -c .llvm_ir/balancer.bpf.opt.ll -o balancer.base.aot.o
+	clang -O3 -S -emit-llvm -mllvm -opaque-pointers -c .llvm_ir/balancer.bpf.inline.ll -o opt.ll
+	clang -O3 -mllvm -opaque-pointers -c .llvm_ir/balancer.bpf.inline.ll -o balancer.bpf.inline.o
+
