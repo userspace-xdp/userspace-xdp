@@ -2,6 +2,7 @@ import os
 import re
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from collections import OrderedDict
 
 # Directory to traverse
 run_seconds = 60
@@ -21,14 +22,14 @@ def parse_file(file_path):
         ipackets = ipackets / run_seconds
     return ipackets
 
-dir_path_list = ["dpdk_llvm_jit", "dpdk_llvm_base", "dpdk_add_type", "dpdk_inline"]
+dir_path_list = ["dpdk_llvm_base", "dpdk_bpf_inline", "dpdk_add_type", "dpdk_inline"]
 
 # Define a mapping for display names
 display_name_map = {
-    "dpdk_llvm_jit": "dpdk_llvm_jit",
-    "dpdk_llvm_base": "dpdk_llvm_base",
-    "dpdk_add_type": "dpdk_transformed_ir",
-    "dpdk_inline": "dpdk_inline"
+    "dpdk_llvm_base": "dpdk_aot_base",
+    "dpdk_bpf_inline": "dpdk_bpf_inline",
+    "dpdk_add_type": "dpdk_llvm_ir",
+    "dpdk_inline": "dpdk_llvm_ir_inline"
 }
 
 def collect_data(root_dir, target_file):
@@ -44,14 +45,18 @@ def collect_data(root_dir, target_file):
                     continue
                 file_path = os.path.join(dirpath, filename)
                 data[dir_name] = parse_file(file_path)
-    return data
+    # Order the data according to dir_path_list
+    ordered_data = OrderedDict()
+    for dir_name in dir_path_list:
+        if dir_name in data:
+            ordered_data[dir_name] = data[dir_name]
+
+    return ordered_data
 
 def plot_data(data, target_file, ax, colors, display_name_map):
     """
     Plot the collected data in a bar plot on a given axis.
     """
-    # sort the data
-    data = dict(sorted(data.items(), key=lambda item: item[0], reverse=True))
     labels = [display_name_map[label] for label in data.keys()]
     values = list(data.values())
 
@@ -67,8 +72,8 @@ def plot_data(data, target_file, ax, colors, display_name_map):
 
 # Define a color map for the labels
 color_map = {
-    "dpdk_llvm_jit": "tab:red",
     "dpdk_llvm_base": "tab:green",
+    "dpdk_bpf_inline": "tab:red",
     "dpdk_add_type": "tab:blue",
     "dpdk_inline": "tab:orange"
 }
@@ -113,6 +118,6 @@ legend_patches = [mpatches.Patch(color=color, label=display_name_map[label]) for
 # Add legend below the last subplot
 fig.legend(legend_patches, legend_labels, loc='lower center', fontsize=50, ncol=4)
 
-save_name = 'imgs/optimize.pdf'
 plt.tight_layout(rect=[0, 0.1, 1, 1])  # Adjust layout to not cut off labels, reserving space for legend
-plt.savefig(save_name)
+plt.savefig('imgs/optimize.pdf')
+plt.savefig('imgs/optimize.png')

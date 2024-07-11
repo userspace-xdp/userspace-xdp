@@ -1,5 +1,7 @@
-; ModuleID = '.llvm_ir/xdp_map_access.bpf.ll'
+; ModuleID = '/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.llvm_ir/xdp_map_access.bpf.ll'
 source_filename = "bpf-jit"
+
+declare i64 @__lddw_helper_map_by_fd(i32) local_unnamed_addr
 
 declare i64 @_bpf_helper_ext_0001(i64, i64, i64, i64, i64) local_unnamed_addr
 
@@ -16,53 +18,55 @@ setupBlock:
   %7 = getelementptr inbounds i8, ptr %stackEnd, i64 -8
   store i32 0, ptr %7, align 8
   %8 = add i64 %2, -4
-  %9 = call i64 @_bpf_helper_ext_0001(i64 17179869184, i64 %8, i64 undef, i64 undef, i64 undef)
-  %10 = icmp eq i64 %9, 0
-  br i1 %10, label %bb_inst_41, label %bb_inst_13
+  %9 = call i64 @__lddw_helper_map_by_fd(i32 4)
+  %10 = call i64 @_bpf_helper_ext_0001(i64 %9, i64 %8, i64 undef, i64 undef, i64 undef)
+  %11 = icmp eq i64 %10, 0
+  br i1 %11, label %bb_inst_41, label %bb_inst_13
 
 bb_inst_13:                                       ; preds = %setupBlock
-  %11 = inttoptr i64 %9 to ptr
-  %12 = load i32, ptr %11, align 4
-  %.not = icmp eq i32 %12, 0
+  %12 = inttoptr i64 %10 to ptr
+  %13 = load i32, ptr %12, align 4
+  %.not = icmp eq i32 %13, 0
   br i1 %.not, label %bb_inst_15, label %bb_inst_41
 
 bb_inst_15:                                       ; preds = %bb_inst_13
-  %13 = add i64 %2, -8
-  %14 = call i64 @_bpf_helper_ext_0001(i64 21474836480, i64 %13, i64 undef, i64 undef, i64 undef)
-  %15 = icmp eq i64 %14, 0
-  br i1 %15, label %bb_inst_24, label %bb_inst_21
+  %14 = add i64 %2, -8
+  %15 = call i64 @__lddw_helper_map_by_fd(i32 5)
+  %16 = call i64 @_bpf_helper_ext_0001(i64 %15, i64 %14, i64 undef, i64 undef, i64 undef)
+  %17 = icmp eq i64 %16, 0
+  br i1 %17, label %bb_inst_24, label %bb_inst_21
 
 bb_inst_21:                                       ; preds = %bb_inst_15
-  %16 = inttoptr i64 %14 to ptr
-  %17 = load i64, ptr %16, align 4
-  %18 = add i64 %17, 1
-  store i64 %18, ptr %16, align 4
+  %18 = inttoptr i64 %16 to ptr
+  %19 = load i64, ptr %18, align 4
+  %20 = add i64 %19, 1
+  store i64 %20, ptr %18, align 4
   br label %bb_inst_24
 
 bb_inst_24:                                       ; preds = %bb_inst_21, %bb_inst_15
-  %19 = add i64 %3, 14
-  %20 = icmp ugt i64 %19, %5
-  br i1 %20, label %bb_inst_41, label %bb_inst_28
+  %21 = add i64 %3, 14
+  %22 = icmp ugt i64 %21, %5
+  br i1 %22, label %bb_inst_41, label %bb_inst_28
 
 bb_inst_28:                                       ; preds = %bb_inst_24
-  %21 = inttoptr i64 %3 to ptr
-  %22 = load i16, ptr %21, align 2
-  %23 = getelementptr i8, ptr %21, i64 6
+  %23 = inttoptr i64 %3 to ptr
   %24 = load i16, ptr %23, align 2
-  store i16 %24, ptr %21, align 2
-  %25 = getelementptr i8, ptr %21, i64 8
+  %25 = getelementptr i8, ptr %23, i64 6
   %26 = load i16, ptr %25, align 2
-  %27 = getelementptr i8, ptr %21, i64 2
+  store i16 %26, ptr %23, align 2
+  %27 = getelementptr i8, ptr %23, i64 8
   %28 = load i16, ptr %27, align 2
-  store i16 %28, ptr %25, align 2
-  store i16 %26, ptr %27, align 2
-  %29 = getelementptr i8, ptr %21, i64 10
+  %29 = getelementptr i8, ptr %23, i64 2
   %30 = load i16, ptr %29, align 2
-  %31 = getelementptr i8, ptr %21, i64 4
+  store i16 %30, ptr %27, align 2
+  store i16 %28, ptr %29, align 2
+  %31 = getelementptr i8, ptr %23, i64 10
   %32 = load i16, ptr %31, align 2
-  store i16 %32, ptr %29, align 2
-  store i16 %22, ptr %23, align 2
-  store i16 %30, ptr %31, align 2
+  %33 = getelementptr i8, ptr %23, i64 4
+  %34 = load i16, ptr %33, align 2
+  store i16 %34, ptr %31, align 2
+  store i16 %24, ptr %25, align 2
+  store i16 %32, ptr %33, align 2
   br label %bb_inst_41
 
 bb_inst_41:                                       ; preds = %bb_inst_28, %bb_inst_24, %bb_inst_13, %setupBlock
