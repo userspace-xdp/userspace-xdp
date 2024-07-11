@@ -12,3 +12,7 @@ build-inline:
 llvm-bpf:
 	/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/tools/aot/bpftime-aot build  balancer.bpf.o --emit_llvm 2> balancer.bpf.ll
 	opt -O3 -S balancer.bpf.ll -opaque-pointers  -o balancer.opt.ll
+
+aot-baseline:
+	opt -O3 -S -opaque-pointers -o /home/yunwei/ebpf-xdp-dpdk/katran/.llvm_ir/balancer.bpf.opt.ll /home/yunwei/ebpf-xdp-dpdk/katran/.llvm_ir/balancer.bpf.ll
+	clang -O3 -mllvm -opaque-pointers -c /home/yunwei/ebpf-xdp-dpdk/katran/.llvm_ir/balancer.bpf.opt.ll -o balancer.base.aot.o
