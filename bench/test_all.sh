@@ -45,8 +45,8 @@ run_alternative_commands() {
             # baseline
             # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/$BASIC_XDP_NAME.base.aot.o make $BASIC_XDP_NAME/afxdp_llvm_aot'
             # 'mv -f $BASIC_XDP_NAME/afxdp_llvm_aot/ $BASIC_XDP_NAME/afxdp_llvm_aot_base/'
-            'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/$BASIC_XDP_NAME.base.aot.o make $BASIC_XDP_NAME/dpdk_llvm_aot'
-            'mv -f $BASIC_XDP_NAME/dpdk_llvm_aot/ $BASIC_XDP_NAME/dpdk_llvm_aot_base/'     
+            # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/$BASIC_XDP_NAME.base.aot.o make $BASIC_XDP_NAME/dpdk_llvm_aot'
+            # 'mv -f $BASIC_XDP_NAME/dpdk_llvm_aot/ $BASIC_XDP_NAME/dpdk_llvm_aot_base/'     
             # llvm ir optimize       
             # 'BASIC_XDP_AOT_RES_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/$BASIC_XDP_NAME.aot.o make $BASIC_XDP_NAME/afxdp_llvm_aot'
             # 'mv -f $BASIC_XDP_NAME/afxdp_llvm_aot/ $BASIC_XDP_NAME/afxdp_add_type/'
