@@ -2198,87 +2198,88 @@ bb_inst_52:                                       ; preds = %bb_inst_42
   %91 = load i64, ptr %r2, align 4
   %92 = add i64 %91, -4
   store i64 %92, ptr %r2, align 4
-  store i64 0, ptr %r1, align 4
-  %93 = load i64, ptr %r1, align 4
-  %94 = load i64, ptr %r2, align 4
-  %95 = load i64, ptr %r3, align 4
-  %96 = load i64, ptr %r4, align 4
-  %97 = load i64, ptr %r5, align 4
-  %98 = call i64 @_bpf_helper_ext_0001(i64 %93, i64 %94, i64 %95, i64 %96, i64 %97)
-  store i64 %98, ptr %r0, align 4
+  %93 = call i64 @__lddw_helper_map_by_fd(i32 4)
+  store i64 %93, ptr %r1, align 4
+  %94 = load i64, ptr %r1, align 4
+  %95 = load i64, ptr %r2, align 4
+  %96 = load i64, ptr %r3, align 4
+  %97 = load i64, ptr %r4, align 4
+  %98 = load i64, ptr %r5, align 4
+  %99 = call i64 @_bpf_helper_ext_0001(i64 %94, i64 %95, i64 %96, i64 %97, i64 %98)
+  store i64 %99, ptr %r0, align 4
   br label %bb_inst_60
 
 bb_inst_60:                                       ; preds = %bb_inst_52
-  %99 = load i64, ptr %r0, align 4
-  %100 = icmp ne i64 %99, 0
-  br i1 %100, label %bb_inst_77, label %bb_inst_61
+  %100 = load i64, ptr %r0, align 4
+  %101 = icmp ne i64 %100, 0
+  br i1 %101, label %bb_inst_77, label %bb_inst_61
 
 bb_inst_61:                                       ; preds = %bb_inst_60
   store i64 748844888709537908, ptr %r1, align 4
-  %101 = load i64, ptr %r1, align 4
-  %102 = load ptr, ptr %r10, align 8
-  %103 = getelementptr i8, ptr %102, i64 -16
-  store i64 %101, ptr %103, align 4
+  %102 = load i64, ptr %r1, align 4
+  %103 = load ptr, ptr %r10, align 8
+  %104 = getelementptr i8, ptr %103, i64 -16
+  store i64 %102, ptr %104, align 4
   store i64 8029390814170213999, ptr %r1, align 4
-  %104 = load i64, ptr %r1, align 4
-  %105 = load ptr, ptr %r10, align 8
-  %106 = getelementptr i8, ptr %105, i64 -24
-  store i64 %104, ptr %106, align 4
+  %105 = load i64, ptr %r1, align 4
+  %106 = load ptr, ptr %r10, align 8
+  %107 = getelementptr i8, ptr %106, i64 -24
+  store i64 %105, ptr %107, align 4
   store i64 7142837026506239043, ptr %r1, align 4
-  %107 = load i64, ptr %r1, align 4
-  %108 = load ptr, ptr %r10, align 8
-  %109 = getelementptr i8, ptr %108, i64 -32
-  store i64 %107, ptr %109, align 4
+  %108 = load i64, ptr %r1, align 4
+  %109 = load ptr, ptr %r10, align 8
+  %110 = getelementptr i8, ptr %109, i64 -32
+  store i64 %108, ptr %110, align 4
   store i64 0, ptr %r7, align 4
-  %110 = load i64, ptr %r7, align 4
-  %111 = trunc i64 %110 to i8
-  %112 = load ptr, ptr %r10, align 8
-  %113 = getelementptr i8, ptr %112, i64 -8
-  store i8 %111, ptr %113, align 1
-  %114 = load i64, ptr %r10, align 4
-  store i64 %114, ptr %r1, align 4
-  %115 = load i64, ptr %r1, align 4
-  %116 = add i64 %115, -32
-  store i64 %116, ptr %r1, align 4
+  %111 = load i64, ptr %r7, align 4
+  %112 = trunc i64 %111 to i8
+  %113 = load ptr, ptr %r10, align 8
+  %114 = getelementptr i8, ptr %113, i64 -8
+  store i8 %112, ptr %114, align 1
+  %115 = load i64, ptr %r10, align 4
+  store i64 %115, ptr %r1, align 4
+  %116 = load i64, ptr %r1, align 4
+  %117 = add i64 %116, -32
+  store i64 %117, ptr %r1, align 4
   store i64 25, ptr %r2, align 4
-  %117 = load i64, ptr %r1, align 4
-  %118 = load i64, ptr %r2, align 4
-  %119 = load i64, ptr %r3, align 4
-  %120 = load i64, ptr %r4, align 4
-  %121 = load i64, ptr %r5, align 4
-  %122 = call i64 @_bpf_helper_ext_0006(i64 %117, i64 %118, i64 %119, i64 %120, i64 %121)
-  store i64 %122, ptr %r0, align 4
+  %118 = load i64, ptr %r1, align 4
+  %119 = load i64, ptr %r2, align 4
+  %120 = load i64, ptr %r3, align 4
+  %121 = load i64, ptr %r4, align 4
+  %122 = load i64, ptr %r5, align 4
+  %123 = call i64 @_bpf_helper_ext_0006(i64 %118, i64 %119, i64 %120, i64 %121, i64 %122)
+  store i64 %123, ptr %r0, align 4
   br label %bb_inst_76
 
 bb_inst_76:                                       ; preds = %bb_inst_61
   br label %bb_inst_37
 
 bb_inst_77:                                       ; preds = %bb_inst_60
-  %123 = load i64, ptr %r9, align 4
-  %124 = load ptr, ptr %r10, align 8
-  %125 = getelementptr i8, ptr %124, i64 -56
-  store i64 %123, ptr %125, align 4
+  %124 = load i64, ptr %r9, align 4
+  %125 = load ptr, ptr %r10, align 8
+  %126 = getelementptr i8, ptr %125, i64 -56
+  store i64 %124, ptr %126, align 4
   store i64 2, ptr %r7, align 4
-  %126 = load i64, ptr %r8, align 4
-  store i64 %126, ptr %r1, align 4
-  %127 = load i64, ptr %r1, align 4
-  %128 = add i64 %127, 1200
-  store i64 %128, ptr %r1, align 4
-  %129 = load i64, ptr %r1, align 4
-  %130 = load i64, ptr %r6, align 4
-  %131 = icmp ugt i64 %130, %129
-  br i1 %131, label %bb_inst_37, label %bb_inst_82
+  %127 = load i64, ptr %r8, align 4
+  store i64 %127, ptr %r1, align 4
+  %128 = load i64, ptr %r1, align 4
+  %129 = add i64 %128, 1200
+  store i64 %129, ptr %r1, align 4
+  %130 = load i64, ptr %r1, align 4
+  %131 = load i64, ptr %r6, align 4
+  %132 = icmp ugt i64 %131, %130
+  br i1 %132, label %bb_inst_37, label %bb_inst_82
 
 bb_inst_82:                                       ; preds = %bb_inst_77
-  %132 = load i64, ptr %r8, align 4
-  store i64 %132, ptr %r1, align 4
-  %133 = load i64, ptr %r1, align 4
-  %134 = add i64 %133, 60
-  store i64 %134, ptr %r1, align 4
-  %135 = load i64, ptr %r6, align 4
-  %136 = load i64, ptr %r1, align 4
-  %137 = icmp ugt i64 %136, %135
-  br i1 %137, label %bb_inst_37, label %bb_inst_85
+  %133 = load i64, ptr %r8, align 4
+  store i64 %133, ptr %r1, align 4
+  %134 = load i64, ptr %r1, align 4
+  %135 = add i64 %134, 60
+  store i64 %135, ptr %r1, align 4
+  %136 = load i64, ptr %r6, align 4
+  %137 = load i64, ptr %r1, align 4
+  %138 = icmp ugt i64 %137, %136
+  br i1 %138, label %bb_inst_37, label %bb_inst_85
 
 bb_inst_85:                                       ; preds = %bb_inst_82
   store i64 0, ptr %r1, align 4
@@ -2286,1736 +2287,1740 @@ bb_inst_85:                                       ; preds = %bb_inst_82
   br label %bb_inst_87
 
 bb_inst_87:                                       ; preds = %bb_inst_85, %bb_inst_87
-  %138 = load i64, ptr %r8, align 4
-  store i64 %138, ptr %r2, align 4
-  %139 = load i64, ptr %r2, align 4
-  %140 = load i64, ptr %r1, align 4
-  %141 = add i64 %139, %140
-  store i64 %141, ptr %r2, align 4
-  %142 = load ptr, ptr %r2, align 8
-  %143 = getelementptr i8, ptr %142, i64 0
-  %144 = load i8, ptr %143, align 1
-  %145 = zext i8 %144 to i64
-  store i64 %145, ptr %r2, align 4
-  %146 = load i64, ptr %r6, align 4
-  %147 = load i64, ptr %r2, align 4
-  %148 = add i64 %146, %147
-  store i64 %148, ptr %r6, align 4
-  %149 = load i64, ptr %r1, align 4
-  %150 = add i64 %149, 1
-  store i64 %150, ptr %r1, align 4
-  %151 = load i64, ptr %r1, align 4
-  %152 = icmp ne i64 %151, 60
-  br i1 %152, label %bb_inst_87, label %bb_inst_93
+  %139 = load i64, ptr %r8, align 4
+  store i64 %139, ptr %r2, align 4
+  %140 = load i64, ptr %r2, align 4
+  %141 = load i64, ptr %r1, align 4
+  %142 = add i64 %140, %141
+  store i64 %142, ptr %r2, align 4
+  %143 = load ptr, ptr %r2, align 8
+  %144 = getelementptr i8, ptr %143, i64 0
+  %145 = load i8, ptr %144, align 1
+  %146 = zext i8 %145 to i64
+  store i64 %146, ptr %r2, align 4
+  %147 = load i64, ptr %r6, align 4
+  %148 = load i64, ptr %r2, align 4
+  %149 = add i64 %147, %148
+  store i64 %149, ptr %r6, align 4
+  %150 = load i64, ptr %r1, align 4
+  %151 = add i64 %150, 1
+  store i64 %151, ptr %r1, align 4
+  %152 = load i64, ptr %r1, align 4
+  %153 = icmp ne i64 %152, 60
+  br i1 %153, label %bb_inst_87, label %bb_inst_93
 
 bb_inst_93:                                       ; preds = %bb_inst_87
   store i64 60, ptr %r4, align 4
-  %153 = load i64, ptr %r6, align 4
-  store i64 %153, ptr %r2, align 4
-  %154 = load i64, ptr %r2, align 4
-  %155 = add i64 %154, 1640531535
-  store i64 %155, ptr %r2, align 4
-  %156 = load i64, ptr %r8, align 4
-  store i64 %156, ptr %r7, align 4
-  %157 = load i64, ptr %r6, align 4
-  store i64 %157, ptr %r9, align 4
-  %158 = load i64, ptr %r9, align 4
-  %159 = add i64 %158, -2048144777
-  store i64 %159, ptr %r9, align 4
-  %160 = load i64, ptr %r6, align 4
-  store i64 %160, ptr %r8, align 4
-  %161 = load i64, ptr %r8, align 4
-  %162 = add i64 %161, 606290984
-  store i64 %162, ptr %r8, align 4
-  %163 = load i64, ptr %r7, align 4
-  %164 = load ptr, ptr %r10, align 8
-  %165 = getelementptr i8, ptr %164, i64 -64
-  store i64 %163, ptr %165, align 4
+  %154 = load i64, ptr %r6, align 4
+  store i64 %154, ptr %r2, align 4
+  %155 = load i64, ptr %r2, align 4
+  %156 = add i64 %155, 1640531535
+  store i64 %156, ptr %r2, align 4
+  %157 = load i64, ptr %r8, align 4
+  store i64 %157, ptr %r7, align 4
+  %158 = load i64, ptr %r6, align 4
+  store i64 %158, ptr %r9, align 4
+  %159 = load i64, ptr %r9, align 4
+  %160 = add i64 %159, -2048144777
+  store i64 %160, ptr %r9, align 4
+  %161 = load i64, ptr %r6, align 4
+  store i64 %161, ptr %r8, align 4
+  %162 = load i64, ptr %r8, align 4
+  %163 = add i64 %162, 606290984
+  store i64 %163, ptr %r8, align 4
+  %164 = load i64, ptr %r7, align 4
+  %165 = load ptr, ptr %r10, align 8
+  %166 = getelementptr i8, ptr %165, i64 -64
+  store i64 %164, ptr %166, align 4
   br label %bb_inst_102
 
 bb_inst_102:                                      ; preds = %bb_inst_93, %bb_inst_102
-  %166 = load i64, ptr %r2, align 4
-  %167 = load ptr, ptr %r10, align 8
-  %168 = getelementptr i8, ptr %167, i64 -40
-  store i64 %166, ptr %168, align 4
-  %169 = load ptr, ptr %r7, align 8
-  %170 = getelementptr i8, ptr %169, i64 13
-  %171 = load i8, ptr %170, align 1
-  %172 = zext i8 %171 to i64
-  store i64 %172, ptr %r3, align 4
-  %173 = load i64, ptr %r3, align 4
-  %174 = shl i64 %173, 8
-  store i64 %174, ptr %r3, align 4
-  %175 = load ptr, ptr %r7, align 8
-  %176 = getelementptr i8, ptr %175, i64 12
-  %177 = load i8, ptr %176, align 1
-  %178 = zext i8 %177 to i64
-  store i64 %178, ptr %r1, align 4
-  %179 = load i64, ptr %r3, align 4
-  %180 = load i64, ptr %r1, align 4
-  %181 = or i64 %179, %180
-  store i64 %181, ptr %r3, align 4
-  %182 = load ptr, ptr %r7, align 8
-  %183 = getelementptr i8, ptr %182, i64 1
-  %184 = load i8, ptr %183, align 1
-  %185 = zext i8 %184 to i64
-  store i64 %185, ptr %r1, align 4
-  %186 = load i64, ptr %r1, align 4
-  %187 = shl i64 %186, 8
-  store i64 %187, ptr %r1, align 4
-  %188 = load ptr, ptr %r7, align 8
-  %189 = getelementptr i8, ptr %188, i64 0
-  %190 = load i8, ptr %189, align 1
-  %191 = zext i8 %190 to i64
-  store i64 %191, ptr %r2, align 4
-  %192 = load i64, ptr %r1, align 4
-  %193 = load i64, ptr %r2, align 4
-  %194 = or i64 %192, %193
-  store i64 %194, ptr %r1, align 4
-  %195 = load ptr, ptr %r7, align 8
-  %196 = getelementptr i8, ptr %195, i64 5
-  %197 = load i8, ptr %196, align 1
-  %198 = zext i8 %197 to i64
-  store i64 %198, ptr %r5, align 4
-  %199 = load i64, ptr %r5, align 4
-  %200 = shl i64 %199, 8
-  store i64 %200, ptr %r5, align 4
-  %201 = load ptr, ptr %r7, align 8
-  %202 = getelementptr i8, ptr %201, i64 4
-  %203 = load i8, ptr %202, align 1
-  %204 = zext i8 %203 to i64
-  store i64 %204, ptr %r2, align 4
-  %205 = load i64, ptr %r5, align 4
-  %206 = load i64, ptr %r2, align 4
-  %207 = or i64 %205, %206
-  store i64 %207, ptr %r5, align 4
-  %208 = load ptr, ptr %r7, align 8
-  %209 = getelementptr i8, ptr %208, i64 2
-  %210 = load i8, ptr %209, align 1
-  %211 = zext i8 %210 to i64
-  store i64 %211, ptr %r2, align 4
-  %212 = load i64, ptr %r2, align 4
-  %213 = shl i64 %212, 16
-  store i64 %213, ptr %r2, align 4
-  %214 = load i64, ptr %r1, align 4
-  %215 = load i64, ptr %r2, align 4
-  %216 = or i64 %214, %215
-  store i64 %216, ptr %r1, align 4
-  %217 = load ptr, ptr %r7, align 8
-  %218 = getelementptr i8, ptr %217, i64 14
-  %219 = load i8, ptr %218, align 1
-  %220 = zext i8 %219 to i64
-  store i64 %220, ptr %r2, align 4
-  %221 = load i64, ptr %r2, align 4
-  %222 = shl i64 %221, 16
-  store i64 %222, ptr %r2, align 4
-  %223 = load i64, ptr %r3, align 4
-  %224 = load i64, ptr %r2, align 4
-  %225 = or i64 %223, %224
-  store i64 %225, ptr %r3, align 4
-  %226 = load ptr, ptr %r7, align 8
-  %227 = getelementptr i8, ptr %226, i64 9
-  %228 = load i8, ptr %227, align 1
-  %229 = zext i8 %228 to i64
-  store i64 %229, ptr %r2, align 4
-  %230 = load i64, ptr %r2, align 4
-  %231 = shl i64 %230, 8
-  store i64 %231, ptr %r2, align 4
-  %232 = load ptr, ptr %r7, align 8
-  %233 = getelementptr i8, ptr %232, i64 8
-  %234 = load i8, ptr %233, align 1
-  %235 = zext i8 %234 to i64
-  store i64 %235, ptr %r0, align 4
-  %236 = load i64, ptr %r2, align 4
-  %237 = load i64, ptr %r0, align 4
-  %238 = or i64 %236, %237
-  store i64 %238, ptr %r2, align 4
-  %239 = load ptr, ptr %r7, align 8
-  %240 = getelementptr i8, ptr %239, i64 10
-  %241 = load i8, ptr %240, align 1
-  %242 = zext i8 %241 to i64
-  store i64 %242, ptr %r0, align 4
-  %243 = load i64, ptr %r0, align 4
-  %244 = shl i64 %243, 16
-  store i64 %244, ptr %r0, align 4
-  %245 = load i64, ptr %r2, align 4
-  %246 = load i64, ptr %r0, align 4
-  %247 = or i64 %245, %246
-  store i64 %247, ptr %r2, align 4
-  %248 = load ptr, ptr %r7, align 8
-  %249 = getelementptr i8, ptr %248, i64 11
-  %250 = load i8, ptr %249, align 1
-  %251 = zext i8 %250 to i64
-  store i64 %251, ptr %r0, align 4
-  %252 = load i64, ptr %r0, align 4
-  %253 = shl i64 %252, 24
-  store i64 %253, ptr %r0, align 4
-  %254 = load i64, ptr %r2, align 4
-  %255 = load i64, ptr %r0, align 4
-  %256 = or i64 %254, %255
-  store i64 %256, ptr %r2, align 4
-  %257 = load ptr, ptr %r7, align 8
-  %258 = getelementptr i8, ptr %257, i64 15
-  %259 = load i8, ptr %258, align 1
-  %260 = zext i8 %259 to i64
-  store i64 %260, ptr %r0, align 4
-  %261 = load i64, ptr %r0, align 4
-  %262 = shl i64 %261, 24
-  store i64 %262, ptr %r0, align 4
-  %263 = load i64, ptr %r3, align 4
-  %264 = load i64, ptr %r0, align 4
-  %265 = or i64 %263, %264
-  store i64 %265, ptr %r3, align 4
-  %266 = load ptr, ptr %r7, align 8
-  %267 = getelementptr i8, ptr %266, i64 3
-  %268 = load i8, ptr %267, align 1
-  %269 = zext i8 %268 to i64
-  store i64 %269, ptr %r0, align 4
-  %270 = load i64, ptr %r0, align 4
-  %271 = shl i64 %270, 24
-  store i64 %271, ptr %r0, align 4
-  %272 = load i64, ptr %r1, align 4
-  %273 = load i64, ptr %r0, align 4
-  %274 = or i64 %272, %273
-  store i64 %274, ptr %r1, align 4
-  %275 = load ptr, ptr %r7, align 8
-  %276 = getelementptr i8, ptr %275, i64 6
-  %277 = load i8, ptr %276, align 1
-  %278 = zext i8 %277 to i64
-  store i64 %278, ptr %r0, align 4
-  %279 = load i64, ptr %r0, align 4
-  %280 = shl i64 %279, 16
-  store i64 %280, ptr %r0, align 4
-  %281 = load i64, ptr %r5, align 4
-  %282 = load i64, ptr %r0, align 4
-  %283 = or i64 %281, %282
-  store i64 %283, ptr %r5, align 4
-  %284 = load ptr, ptr %r7, align 8
-  %285 = getelementptr i8, ptr %284, i64 7
-  %286 = load i8, ptr %285, align 1
-  %287 = zext i8 %286 to i64
-  store i64 %287, ptr %r0, align 4
-  %288 = load i64, ptr %r0, align 4
-  %289 = shl i64 %288, 24
-  store i64 %289, ptr %r0, align 4
-  %290 = load i64, ptr %r5, align 4
-  %291 = load i64, ptr %r0, align 4
-  %292 = or i64 %290, %291
-  store i64 %292, ptr %r5, align 4
-  %293 = load i64, ptr %r5, align 4
-  %294 = mul i64 %293, -2048144777
-  store i64 %294, ptr %r5, align 4
-  %295 = load i64, ptr %r5, align 4
-  %296 = load i64, ptr %r9, align 4
-  %297 = add i64 %295, %296
-  store i64 %297, ptr %r5, align 4
-  %298 = load i64, ptr %r1, align 4
-  %299 = mul i64 %298, -2048144777
-  store i64 %299, ptr %r1, align 4
-  %300 = load i64, ptr %r1, align 4
-  %301 = load i64, ptr %r8, align 4
-  %302 = add i64 %300, %301
-  store i64 %302, ptr %r1, align 4
-  %303 = load i64, ptr %r3, align 4
-  %304 = mul i64 %303, -2048144777
-  store i64 %304, ptr %r3, align 4
-  %305 = load ptr, ptr %r10, align 8
-  %306 = getelementptr i8, ptr %305, i64 -40
-  %307 = load i64, ptr %306, align 4
-  store i64 %307, ptr %r0, align 4
-  %308 = load i64, ptr %r3, align 4
-  %309 = load i64, ptr %r0, align 4
-  %310 = add i64 %308, %309
-  store i64 %310, ptr %r3, align 4
-  %311 = load i64, ptr %r2, align 4
-  %312 = mul i64 %311, -2048144777
-  store i64 %312, ptr %r2, align 4
-  %313 = load i64, ptr %r2, align 4
-  %314 = load i64, ptr %r6, align 4
-  %315 = add i64 %313, %314
-  store i64 %315, ptr %r2, align 4
-  %316 = load i64, ptr %r1, align 4
-  store i64 %316, ptr %r8, align 4
-  %317 = load i64, ptr %r8, align 4
-  %318 = shl i64 %317, 13
-  store i64 %318, ptr %r8, align 4
+  %167 = load i64, ptr %r2, align 4
+  %168 = load ptr, ptr %r10, align 8
+  %169 = getelementptr i8, ptr %168, i64 -40
+  store i64 %167, ptr %169, align 4
+  %170 = load ptr, ptr %r7, align 8
+  %171 = getelementptr i8, ptr %170, i64 13
+  %172 = load i8, ptr %171, align 1
+  %173 = zext i8 %172 to i64
+  store i64 %173, ptr %r3, align 4
+  %174 = load i64, ptr %r3, align 4
+  %175 = shl i64 %174, 8
+  store i64 %175, ptr %r3, align 4
+  %176 = load ptr, ptr %r7, align 8
+  %177 = getelementptr i8, ptr %176, i64 12
+  %178 = load i8, ptr %177, align 1
+  %179 = zext i8 %178 to i64
+  store i64 %179, ptr %r1, align 4
+  %180 = load i64, ptr %r3, align 4
+  %181 = load i64, ptr %r1, align 4
+  %182 = or i64 %180, %181
+  store i64 %182, ptr %r3, align 4
+  %183 = load ptr, ptr %r7, align 8
+  %184 = getelementptr i8, ptr %183, i64 1
+  %185 = load i8, ptr %184, align 1
+  %186 = zext i8 %185 to i64
+  store i64 %186, ptr %r1, align 4
+  %187 = load i64, ptr %r1, align 4
+  %188 = shl i64 %187, 8
+  store i64 %188, ptr %r1, align 4
+  %189 = load ptr, ptr %r7, align 8
+  %190 = getelementptr i8, ptr %189, i64 0
+  %191 = load i8, ptr %190, align 1
+  %192 = zext i8 %191 to i64
+  store i64 %192, ptr %r2, align 4
+  %193 = load i64, ptr %r1, align 4
+  %194 = load i64, ptr %r2, align 4
+  %195 = or i64 %193, %194
+  store i64 %195, ptr %r1, align 4
+  %196 = load ptr, ptr %r7, align 8
+  %197 = getelementptr i8, ptr %196, i64 5
+  %198 = load i8, ptr %197, align 1
+  %199 = zext i8 %198 to i64
+  store i64 %199, ptr %r5, align 4
+  %200 = load i64, ptr %r5, align 4
+  %201 = shl i64 %200, 8
+  store i64 %201, ptr %r5, align 4
+  %202 = load ptr, ptr %r7, align 8
+  %203 = getelementptr i8, ptr %202, i64 4
+  %204 = load i8, ptr %203, align 1
+  %205 = zext i8 %204 to i64
+  store i64 %205, ptr %r2, align 4
+  %206 = load i64, ptr %r5, align 4
+  %207 = load i64, ptr %r2, align 4
+  %208 = or i64 %206, %207
+  store i64 %208, ptr %r5, align 4
+  %209 = load ptr, ptr %r7, align 8
+  %210 = getelementptr i8, ptr %209, i64 2
+  %211 = load i8, ptr %210, align 1
+  %212 = zext i8 %211 to i64
+  store i64 %212, ptr %r2, align 4
+  %213 = load i64, ptr %r2, align 4
+  %214 = shl i64 %213, 16
+  store i64 %214, ptr %r2, align 4
+  %215 = load i64, ptr %r1, align 4
+  %216 = load i64, ptr %r2, align 4
+  %217 = or i64 %215, %216
+  store i64 %217, ptr %r1, align 4
+  %218 = load ptr, ptr %r7, align 8
+  %219 = getelementptr i8, ptr %218, i64 14
+  %220 = load i8, ptr %219, align 1
+  %221 = zext i8 %220 to i64
+  store i64 %221, ptr %r2, align 4
+  %222 = load i64, ptr %r2, align 4
+  %223 = shl i64 %222, 16
+  store i64 %223, ptr %r2, align 4
+  %224 = load i64, ptr %r3, align 4
+  %225 = load i64, ptr %r2, align 4
+  %226 = or i64 %224, %225
+  store i64 %226, ptr %r3, align 4
+  %227 = load ptr, ptr %r7, align 8
+  %228 = getelementptr i8, ptr %227, i64 9
+  %229 = load i8, ptr %228, align 1
+  %230 = zext i8 %229 to i64
+  store i64 %230, ptr %r2, align 4
+  %231 = load i64, ptr %r2, align 4
+  %232 = shl i64 %231, 8
+  store i64 %232, ptr %r2, align 4
+  %233 = load ptr, ptr %r7, align 8
+  %234 = getelementptr i8, ptr %233, i64 8
+  %235 = load i8, ptr %234, align 1
+  %236 = zext i8 %235 to i64
+  store i64 %236, ptr %r0, align 4
+  %237 = load i64, ptr %r2, align 4
+  %238 = load i64, ptr %r0, align 4
+  %239 = or i64 %237, %238
+  store i64 %239, ptr %r2, align 4
+  %240 = load ptr, ptr %r7, align 8
+  %241 = getelementptr i8, ptr %240, i64 10
+  %242 = load i8, ptr %241, align 1
+  %243 = zext i8 %242 to i64
+  store i64 %243, ptr %r0, align 4
+  %244 = load i64, ptr %r0, align 4
+  %245 = shl i64 %244, 16
+  store i64 %245, ptr %r0, align 4
+  %246 = load i64, ptr %r2, align 4
+  %247 = load i64, ptr %r0, align 4
+  %248 = or i64 %246, %247
+  store i64 %248, ptr %r2, align 4
+  %249 = load ptr, ptr %r7, align 8
+  %250 = getelementptr i8, ptr %249, i64 11
+  %251 = load i8, ptr %250, align 1
+  %252 = zext i8 %251 to i64
+  store i64 %252, ptr %r0, align 4
+  %253 = load i64, ptr %r0, align 4
+  %254 = shl i64 %253, 24
+  store i64 %254, ptr %r0, align 4
+  %255 = load i64, ptr %r2, align 4
+  %256 = load i64, ptr %r0, align 4
+  %257 = or i64 %255, %256
+  store i64 %257, ptr %r2, align 4
+  %258 = load ptr, ptr %r7, align 8
+  %259 = getelementptr i8, ptr %258, i64 15
+  %260 = load i8, ptr %259, align 1
+  %261 = zext i8 %260 to i64
+  store i64 %261, ptr %r0, align 4
+  %262 = load i64, ptr %r0, align 4
+  %263 = shl i64 %262, 24
+  store i64 %263, ptr %r0, align 4
+  %264 = load i64, ptr %r3, align 4
+  %265 = load i64, ptr %r0, align 4
+  %266 = or i64 %264, %265
+  store i64 %266, ptr %r3, align 4
+  %267 = load ptr, ptr %r7, align 8
+  %268 = getelementptr i8, ptr %267, i64 3
+  %269 = load i8, ptr %268, align 1
+  %270 = zext i8 %269 to i64
+  store i64 %270, ptr %r0, align 4
+  %271 = load i64, ptr %r0, align 4
+  %272 = shl i64 %271, 24
+  store i64 %272, ptr %r0, align 4
+  %273 = load i64, ptr %r1, align 4
+  %274 = load i64, ptr %r0, align 4
+  %275 = or i64 %273, %274
+  store i64 %275, ptr %r1, align 4
+  %276 = load ptr, ptr %r7, align 8
+  %277 = getelementptr i8, ptr %276, i64 6
+  %278 = load i8, ptr %277, align 1
+  %279 = zext i8 %278 to i64
+  store i64 %279, ptr %r0, align 4
+  %280 = load i64, ptr %r0, align 4
+  %281 = shl i64 %280, 16
+  store i64 %281, ptr %r0, align 4
+  %282 = load i64, ptr %r5, align 4
+  %283 = load i64, ptr %r0, align 4
+  %284 = or i64 %282, %283
+  store i64 %284, ptr %r5, align 4
+  %285 = load ptr, ptr %r7, align 8
+  %286 = getelementptr i8, ptr %285, i64 7
+  %287 = load i8, ptr %286, align 1
+  %288 = zext i8 %287 to i64
+  store i64 %288, ptr %r0, align 4
+  %289 = load i64, ptr %r0, align 4
+  %290 = shl i64 %289, 24
+  store i64 %290, ptr %r0, align 4
+  %291 = load i64, ptr %r5, align 4
+  %292 = load i64, ptr %r0, align 4
+  %293 = or i64 %291, %292
+  store i64 %293, ptr %r5, align 4
+  %294 = load i64, ptr %r5, align 4
+  %295 = mul i64 %294, -2048144777
+  store i64 %295, ptr %r5, align 4
+  %296 = load i64, ptr %r5, align 4
+  %297 = load i64, ptr %r9, align 4
+  %298 = add i64 %296, %297
+  store i64 %298, ptr %r5, align 4
+  %299 = load i64, ptr %r1, align 4
+  %300 = mul i64 %299, -2048144777
+  store i64 %300, ptr %r1, align 4
+  %301 = load i64, ptr %r1, align 4
+  %302 = load i64, ptr %r8, align 4
+  %303 = add i64 %301, %302
+  store i64 %303, ptr %r1, align 4
+  %304 = load i64, ptr %r3, align 4
+  %305 = mul i64 %304, -2048144777
+  store i64 %305, ptr %r3, align 4
+  %306 = load ptr, ptr %r10, align 8
+  %307 = getelementptr i8, ptr %306, i64 -40
+  %308 = load i64, ptr %307, align 4
+  store i64 %308, ptr %r0, align 4
+  %309 = load i64, ptr %r3, align 4
+  %310 = load i64, ptr %r0, align 4
+  %311 = add i64 %309, %310
+  store i64 %311, ptr %r3, align 4
+  %312 = load i64, ptr %r2, align 4
+  %313 = mul i64 %312, -2048144777
+  store i64 %313, ptr %r2, align 4
+  %314 = load i64, ptr %r2, align 4
+  %315 = load i64, ptr %r6, align 4
+  %316 = add i64 %314, %315
+  store i64 %316, ptr %r2, align 4
+  %317 = load i64, ptr %r1, align 4
+  store i64 %317, ptr %r8, align 4
+  %318 = load i64, ptr %r8, align 4
+  %319 = shl i64 %318, 13
+  store i64 %319, ptr %r8, align 4
   store i64 4294443008, ptr %r0, align 4
-  %319 = load i64, ptr %r1, align 4
-  %320 = load i64, ptr %r0, align 4
-  %321 = and i64 %319, %320
-  store i64 %321, ptr %r1, align 4
-  %322 = load i64, ptr %r1, align 4
-  %323 = lshr i64 %322, 19
-  store i64 %323, ptr %r1, align 4
-  %324 = load i64, ptr %r8, align 4
-  %325 = load i64, ptr %r1, align 4
-  %326 = or i64 %324, %325
-  store i64 %326, ptr %r8, align 4
-  %327 = load i64, ptr %r5, align 4
-  store i64 %327, ptr %r9, align 4
-  %328 = load i64, ptr %r9, align 4
-  %329 = shl i64 %328, 13
-  store i64 %329, ptr %r9, align 4
-  %330 = load i64, ptr %r5, align 4
-  %331 = load i64, ptr %r0, align 4
-  %332 = and i64 %330, %331
-  store i64 %332, ptr %r5, align 4
-  %333 = load i64, ptr %r5, align 4
-  %334 = lshr i64 %333, 19
-  store i64 %334, ptr %r5, align 4
-  %335 = load i64, ptr %r9, align 4
-  %336 = load i64, ptr %r5, align 4
-  %337 = or i64 %335, %336
-  store i64 %337, ptr %r9, align 4
-  %338 = load i64, ptr %r2, align 4
-  store i64 %338, ptr %r6, align 4
-  %339 = load i64, ptr %r6, align 4
-  %340 = shl i64 %339, 13
-  store i64 %340, ptr %r6, align 4
-  %341 = load i64, ptr %r2, align 4
-  %342 = load i64, ptr %r0, align 4
-  %343 = and i64 %341, %342
-  store i64 %343, ptr %r2, align 4
-  %344 = load i64, ptr %r2, align 4
-  %345 = lshr i64 %344, 19
-  store i64 %345, ptr %r2, align 4
-  %346 = load i64, ptr %r6, align 4
-  %347 = load i64, ptr %r2, align 4
-  %348 = or i64 %346, %347
-  store i64 %348, ptr %r6, align 4
-  %349 = load i64, ptr %r3, align 4
-  store i64 %349, ptr %r1, align 4
-  %350 = load i64, ptr %r1, align 4
-  %351 = load i64, ptr %r0, align 4
-  %352 = and i64 %350, %351
-  store i64 %352, ptr %r1, align 4
-  %353 = load i64, ptr %r3, align 4
-  %354 = shl i64 %353, 13
-  store i64 %354, ptr %r3, align 4
-  %355 = load i64, ptr %r1, align 4
-  %356 = lshr i64 %355, 19
-  store i64 %356, ptr %r1, align 4
-  %357 = load i64, ptr %r3, align 4
-  %358 = load i64, ptr %r1, align 4
-  %359 = or i64 %357, %358
-  store i64 %359, ptr %r3, align 4
-  %360 = load i64, ptr %r7, align 4
-  %361 = add i64 %360, 16
-  store i64 %361, ptr %r7, align 4
-  %362 = load i64, ptr %r3, align 4
-  %363 = mul i64 %362, -1640531535
-  store i64 %363, ptr %r3, align 4
-  %364 = load i64, ptr %r6, align 4
-  %365 = mul i64 %364, -1640531535
-  store i64 %365, ptr %r6, align 4
-  %366 = load i64, ptr %r9, align 4
-  %367 = mul i64 %366, -1640531535
-  store i64 %367, ptr %r9, align 4
-  %368 = load i64, ptr %r8, align 4
-  %369 = mul i64 %368, -1640531535
-  store i64 %369, ptr %r8, align 4
-  %370 = load i64, ptr %r4, align 4
-  %371 = add i64 %370, -16
-  store i64 %371, ptr %r4, align 4
-  %372 = load i64, ptr %r4, align 4
-  store i64 %372, ptr %r1, align 4
-  %373 = load i64, ptr %r1, align 4
-  %374 = shl i64 %373, 32
-  store i64 %374, ptr %r1, align 4
-  %375 = load i64, ptr %r1, align 4
-  %376 = lshr i64 %375, 32
-  store i64 %376, ptr %r1, align 4
-  %377 = load i64, ptr %r3, align 4
-  store i64 %377, ptr %r2, align 4
-  %378 = load i64, ptr %r1, align 4
-  %379 = icmp ugt i64 %378, 15
-  br i1 %379, label %bb_inst_102, label %bb_inst_185
+  %320 = load i64, ptr %r1, align 4
+  %321 = load i64, ptr %r0, align 4
+  %322 = and i64 %320, %321
+  store i64 %322, ptr %r1, align 4
+  %323 = load i64, ptr %r1, align 4
+  %324 = lshr i64 %323, 19
+  store i64 %324, ptr %r1, align 4
+  %325 = load i64, ptr %r8, align 4
+  %326 = load i64, ptr %r1, align 4
+  %327 = or i64 %325, %326
+  store i64 %327, ptr %r8, align 4
+  %328 = load i64, ptr %r5, align 4
+  store i64 %328, ptr %r9, align 4
+  %329 = load i64, ptr %r9, align 4
+  %330 = shl i64 %329, 13
+  store i64 %330, ptr %r9, align 4
+  %331 = load i64, ptr %r5, align 4
+  %332 = load i64, ptr %r0, align 4
+  %333 = and i64 %331, %332
+  store i64 %333, ptr %r5, align 4
+  %334 = load i64, ptr %r5, align 4
+  %335 = lshr i64 %334, 19
+  store i64 %335, ptr %r5, align 4
+  %336 = load i64, ptr %r9, align 4
+  %337 = load i64, ptr %r5, align 4
+  %338 = or i64 %336, %337
+  store i64 %338, ptr %r9, align 4
+  %339 = load i64, ptr %r2, align 4
+  store i64 %339, ptr %r6, align 4
+  %340 = load i64, ptr %r6, align 4
+  %341 = shl i64 %340, 13
+  store i64 %341, ptr %r6, align 4
+  %342 = load i64, ptr %r2, align 4
+  %343 = load i64, ptr %r0, align 4
+  %344 = and i64 %342, %343
+  store i64 %344, ptr %r2, align 4
+  %345 = load i64, ptr %r2, align 4
+  %346 = lshr i64 %345, 19
+  store i64 %346, ptr %r2, align 4
+  %347 = load i64, ptr %r6, align 4
+  %348 = load i64, ptr %r2, align 4
+  %349 = or i64 %347, %348
+  store i64 %349, ptr %r6, align 4
+  %350 = load i64, ptr %r3, align 4
+  store i64 %350, ptr %r1, align 4
+  %351 = load i64, ptr %r1, align 4
+  %352 = load i64, ptr %r0, align 4
+  %353 = and i64 %351, %352
+  store i64 %353, ptr %r1, align 4
+  %354 = load i64, ptr %r3, align 4
+  %355 = shl i64 %354, 13
+  store i64 %355, ptr %r3, align 4
+  %356 = load i64, ptr %r1, align 4
+  %357 = lshr i64 %356, 19
+  store i64 %357, ptr %r1, align 4
+  %358 = load i64, ptr %r3, align 4
+  %359 = load i64, ptr %r1, align 4
+  %360 = or i64 %358, %359
+  store i64 %360, ptr %r3, align 4
+  %361 = load i64, ptr %r7, align 4
+  %362 = add i64 %361, 16
+  store i64 %362, ptr %r7, align 4
+  %363 = load i64, ptr %r3, align 4
+  %364 = mul i64 %363, -1640531535
+  store i64 %364, ptr %r3, align 4
+  %365 = load i64, ptr %r6, align 4
+  %366 = mul i64 %365, -1640531535
+  store i64 %366, ptr %r6, align 4
+  %367 = load i64, ptr %r9, align 4
+  %368 = mul i64 %367, -1640531535
+  store i64 %368, ptr %r9, align 4
+  %369 = load i64, ptr %r8, align 4
+  %370 = mul i64 %369, -1640531535
+  store i64 %370, ptr %r8, align 4
+  %371 = load i64, ptr %r4, align 4
+  %372 = add i64 %371, -16
+  store i64 %372, ptr %r4, align 4
+  %373 = load i64, ptr %r4, align 4
+  store i64 %373, ptr %r1, align 4
+  %374 = load i64, ptr %r1, align 4
+  %375 = shl i64 %374, 32
+  store i64 %375, ptr %r1, align 4
+  %376 = load i64, ptr %r1, align 4
+  %377 = lshr i64 %376, 32
+  store i64 %377, ptr %r1, align 4
+  %378 = load i64, ptr %r3, align 4
+  store i64 %378, ptr %r2, align 4
+  %379 = load i64, ptr %r1, align 4
+  %380 = icmp ugt i64 %379, 15
+  br i1 %380, label %bb_inst_102, label %bb_inst_185
 
 bb_inst_185:                                      ; preds = %bb_inst_102
   store i64 4261412864, ptr %r1, align 4
-  %380 = load i64, ptr %r9, align 4
-  store i64 %380, ptr %r2, align 4
-  %381 = load i64, ptr %r2, align 4
-  %382 = load i64, ptr %r1, align 4
-  %383 = and i64 %381, %382
-  store i64 %383, ptr %r2, align 4
-  %384 = load i64, ptr %r2, align 4
-  %385 = lshr i64 %384, 25
-  store i64 %385, ptr %r2, align 4
-  %386 = load i64, ptr %r9, align 4
-  %387 = shl i64 %386, 7
-  store i64 %387, ptr %r9, align 4
-  %388 = load i64, ptr %r9, align 4
-  %389 = load i64, ptr %r2, align 4
-  %390 = or i64 %388, %389
-  store i64 %390, ptr %r9, align 4
+  %381 = load i64, ptr %r9, align 4
+  store i64 %381, ptr %r2, align 4
+  %382 = load i64, ptr %r2, align 4
+  %383 = load i64, ptr %r1, align 4
+  %384 = and i64 %382, %383
+  store i64 %384, ptr %r2, align 4
+  %385 = load i64, ptr %r2, align 4
+  %386 = lshr i64 %385, 25
+  store i64 %386, ptr %r2, align 4
+  %387 = load i64, ptr %r9, align 4
+  %388 = shl i64 %387, 7
+  store i64 %388, ptr %r9, align 4
+  %389 = load i64, ptr %r9, align 4
+  %390 = load i64, ptr %r2, align 4
+  %391 = or i64 %389, %390
+  store i64 %391, ptr %r9, align 4
   store i64 2147483648, ptr %r1, align 4
-  %391 = load i64, ptr %r8, align 4
-  store i64 %391, ptr %r2, align 4
-  %392 = load i64, ptr %r2, align 4
-  %393 = load i64, ptr %r1, align 4
-  %394 = and i64 %392, %393
-  store i64 %394, ptr %r2, align 4
-  %395 = load i64, ptr %r2, align 4
-  %396 = lshr i64 %395, 31
-  store i64 %396, ptr %r2, align 4
-  %397 = load i64, ptr %r8, align 4
-  %398 = shl i64 %397, 1
-  store i64 %398, ptr %r8, align 4
-  %399 = load i64, ptr %r8, align 4
-  %400 = load i64, ptr %r2, align 4
-  %401 = or i64 %399, %400
-  store i64 %401, ptr %r8, align 4
-  %402 = load i64, ptr %r8, align 4
-  %403 = load i64, ptr %r9, align 4
-  %404 = add i64 %402, %403
-  store i64 %404, ptr %r8, align 4
+  %392 = load i64, ptr %r8, align 4
+  store i64 %392, ptr %r2, align 4
+  %393 = load i64, ptr %r2, align 4
+  %394 = load i64, ptr %r1, align 4
+  %395 = and i64 %393, %394
+  store i64 %395, ptr %r2, align 4
+  %396 = load i64, ptr %r2, align 4
+  %397 = lshr i64 %396, 31
+  store i64 %397, ptr %r2, align 4
+  %398 = load i64, ptr %r8, align 4
+  %399 = shl i64 %398, 1
+  store i64 %399, ptr %r8, align 4
+  %400 = load i64, ptr %r8, align 4
+  %401 = load i64, ptr %r2, align 4
+  %402 = or i64 %400, %401
+  store i64 %402, ptr %r8, align 4
+  %403 = load i64, ptr %r8, align 4
+  %404 = load i64, ptr %r9, align 4
+  %405 = add i64 %403, %404
+  store i64 %405, ptr %r8, align 4
   store i64 4293918720, ptr %r1, align 4
-  %405 = load i64, ptr %r6, align 4
-  store i64 %405, ptr %r2, align 4
-  %406 = load i64, ptr %r2, align 4
-  %407 = load i64, ptr %r1, align 4
-  %408 = and i64 %406, %407
-  store i64 %408, ptr %r2, align 4
-  %409 = load i64, ptr %r2, align 4
-  %410 = lshr i64 %409, 20
-  store i64 %410, ptr %r2, align 4
-  %411 = load i64, ptr %r6, align 4
-  %412 = shl i64 %411, 12
-  store i64 %412, ptr %r6, align 4
-  %413 = load i64, ptr %r6, align 4
-  %414 = load i64, ptr %r2, align 4
-  %415 = or i64 %413, %414
-  store i64 %415, ptr %r6, align 4
-  %416 = load i64, ptr %r8, align 4
-  %417 = load i64, ptr %r6, align 4
-  %418 = add i64 %416, %417
-  store i64 %418, ptr %r8, align 4
+  %406 = load i64, ptr %r6, align 4
+  store i64 %406, ptr %r2, align 4
+  %407 = load i64, ptr %r2, align 4
+  %408 = load i64, ptr %r1, align 4
+  %409 = and i64 %407, %408
+  store i64 %409, ptr %r2, align 4
+  %410 = load i64, ptr %r2, align 4
+  %411 = lshr i64 %410, 20
+  store i64 %411, ptr %r2, align 4
+  %412 = load i64, ptr %r6, align 4
+  %413 = shl i64 %412, 12
+  store i64 %413, ptr %r6, align 4
+  %414 = load i64, ptr %r6, align 4
+  %415 = load i64, ptr %r2, align 4
+  %416 = or i64 %414, %415
+  store i64 %416, ptr %r6, align 4
+  %417 = load i64, ptr %r8, align 4
+  %418 = load i64, ptr %r6, align 4
+  %419 = add i64 %417, %418
+  store i64 %419, ptr %r8, align 4
   store i64 4294950912, ptr %r1, align 4
-  %419 = load i64, ptr %r3, align 4
-  store i64 %419, ptr %r2, align 4
-  %420 = load i64, ptr %r2, align 4
-  %421 = load i64, ptr %r1, align 4
-  %422 = and i64 %420, %421
-  store i64 %422, ptr %r2, align 4
-  %423 = load i64, ptr %r2, align 4
-  %424 = lshr i64 %423, 14
-  store i64 %424, ptr %r2, align 4
-  %425 = load i64, ptr %r3, align 4
-  %426 = shl i64 %425, 18
-  store i64 %426, ptr %r3, align 4
-  %427 = load i64, ptr %r3, align 4
-  %428 = load i64, ptr %r2, align 4
-  %429 = or i64 %427, %428
-  store i64 %429, ptr %r3, align 4
-  %430 = load i64, ptr %r8, align 4
-  %431 = load i64, ptr %r3, align 4
-  %432 = add i64 %430, %431
-  store i64 %432, ptr %r8, align 4
+  %420 = load i64, ptr %r3, align 4
+  store i64 %420, ptr %r2, align 4
+  %421 = load i64, ptr %r2, align 4
+  %422 = load i64, ptr %r1, align 4
+  %423 = and i64 %421, %422
+  store i64 %423, ptr %r2, align 4
+  %424 = load i64, ptr %r2, align 4
+  %425 = lshr i64 %424, 14
+  store i64 %425, ptr %r2, align 4
+  %426 = load i64, ptr %r3, align 4
+  %427 = shl i64 %426, 18
+  store i64 %427, ptr %r3, align 4
+  %428 = load i64, ptr %r3, align 4
+  %429 = load i64, ptr %r2, align 4
+  %430 = or i64 %428, %429
+  store i64 %430, ptr %r3, align 4
+  %431 = load i64, ptr %r8, align 4
+  %432 = load i64, ptr %r3, align 4
+  %433 = add i64 %431, %432
+  store i64 %433, ptr %r8, align 4
   store i64 12, ptr %r3, align 4
-  %433 = load ptr, ptr %r10, align 8
-  %434 = getelementptr i8, ptr %433, i64 -64
-  %435 = load i64, ptr %434, align 4
-  store i64 %435, ptr %r9, align 4
-  %436 = load i64, ptr %r9, align 4
-  store i64 %436, ptr %r0, align 4
-  %437 = load i64, ptr %r0, align 4
-  %438 = add i64 %437, 48
-  store i64 %438, ptr %r0, align 4
-  %439 = load i64, ptr %r8, align 4
-  %440 = add i64 %439, 60
-  store i64 %440, ptr %r8, align 4
+  %434 = load ptr, ptr %r10, align 8
+  %435 = getelementptr i8, ptr %434, i64 -64
+  %436 = load i64, ptr %435, align 4
+  store i64 %436, ptr %r9, align 4
+  %437 = load i64, ptr %r9, align 4
+  store i64 %437, ptr %r0, align 4
+  %438 = load i64, ptr %r0, align 4
+  %439 = add i64 %438, 48
+  store i64 %439, ptr %r0, align 4
+  %440 = load i64, ptr %r8, align 4
+  %441 = add i64 %440, 60
+  store i64 %441, ptr %r8, align 4
   store i64 4, ptr %r2, align 4
   store i64 4294934528, ptr %r4, align 4
   store i64 4292870144, ptr %r5, align 4
-  %441 = load i64, ptr %r0, align 4
-  %442 = load ptr, ptr %r10, align 8
-  %443 = getelementptr i8, ptr %442, i64 -72
-  store i64 %441, ptr %443, align 4
+  %442 = load i64, ptr %r0, align 4
+  %443 = load ptr, ptr %r10, align 8
+  %444 = getelementptr i8, ptr %443, i64 -72
+  store i64 %442, ptr %444, align 4
   br label %bb_inst_227
 
 bb_inst_227:                                      ; preds = %bb_inst_185, %bb_inst_252
-  %444 = load i64, ptr %r3, align 4
-  store i64 %444, ptr %r1, align 4
-  %445 = load i64, ptr %r1, align 4
-  %446 = shl i64 %445, 32
-  store i64 %446, ptr %r1, align 4
-  %447 = load i64, ptr %r1, align 4
-  %448 = lshr i64 %447, 32
-  store i64 %448, ptr %r1, align 4
-  %449 = load i64, ptr %r1, align 4
-  %450 = load i64, ptr %r2, align 4
-  %451 = icmp ugt i64 %450, %449
-  br i1 %451, label %bb_inst_257, label %bb_inst_231
+  %445 = load i64, ptr %r3, align 4
+  store i64 %445, ptr %r1, align 4
+  %446 = load i64, ptr %r1, align 4
+  %447 = shl i64 %446, 32
+  store i64 %447, ptr %r1, align 4
+  %448 = load i64, ptr %r1, align 4
+  %449 = lshr i64 %448, 32
+  store i64 %449, ptr %r1, align 4
+  %450 = load i64, ptr %r1, align 4
+  %451 = load i64, ptr %r2, align 4
+  %452 = icmp ugt i64 %451, %450
+  br i1 %452, label %bb_inst_257, label %bb_inst_231
 
 bb_inst_231:                                      ; preds = %bb_inst_227
-  %452 = load ptr, ptr %r0, align 8
-  %453 = getelementptr i8, ptr %452, i64 1
-  %454 = load i8, ptr %453, align 1
-  %455 = zext i8 %454 to i64
-  store i64 %455, ptr %r1, align 4
-  %456 = load i64, ptr %r1, align 4
-  %457 = shl i64 %456, 8
-  store i64 %457, ptr %r1, align 4
-  %458 = load ptr, ptr %r0, align 8
-  %459 = getelementptr i8, ptr %458, i64 0
-  %460 = load i8, ptr %459, align 1
-  %461 = zext i8 %460 to i64
-  store i64 %461, ptr %r6, align 4
-  %462 = load i64, ptr %r1, align 4
-  %463 = load i64, ptr %r6, align 4
-  %464 = or i64 %462, %463
-  store i64 %464, ptr %r1, align 4
-  %465 = load ptr, ptr %r0, align 8
-  %466 = getelementptr i8, ptr %465, i64 2
-  %467 = load i8, ptr %466, align 1
-  %468 = zext i8 %467 to i64
-  store i64 %468, ptr %r6, align 4
-  %469 = load i64, ptr %r6, align 4
-  %470 = shl i64 %469, 16
-  store i64 %470, ptr %r6, align 4
-  %471 = load i64, ptr %r1, align 4
-  %472 = load i64, ptr %r6, align 4
-  %473 = or i64 %471, %472
-  store i64 %473, ptr %r1, align 4
-  %474 = load ptr, ptr %r0, align 8
-  %475 = getelementptr i8, ptr %474, i64 3
-  %476 = load i8, ptr %475, align 1
-  %477 = zext i8 %476 to i64
-  store i64 %477, ptr %r6, align 4
-  %478 = load i64, ptr %r6, align 4
-  %479 = shl i64 %478, 24
-  store i64 %479, ptr %r6, align 4
-  %480 = load i64, ptr %r1, align 4
-  %481 = load i64, ptr %r6, align 4
-  %482 = or i64 %480, %481
-  store i64 %482, ptr %r1, align 4
-  %483 = load i64, ptr %r1, align 4
-  %484 = mul i64 %483, -1028477379
-  store i64 %484, ptr %r1, align 4
-  %485 = load i64, ptr %r1, align 4
-  %486 = load i64, ptr %r8, align 4
-  %487 = add i64 %485, %486
-  store i64 %487, ptr %r1, align 4
-  %488 = load i64, ptr %r1, align 4
-  store i64 %488, ptr %r6, align 4
-  %489 = load i64, ptr %r6, align 4
-  %490 = load i64, ptr %r4, align 4
-  %491 = and i64 %489, %490
-  store i64 %491, ptr %r6, align 4
-  %492 = load i64, ptr %r1, align 4
-  %493 = shl i64 %492, 17
-  store i64 %493, ptr %r1, align 4
-  %494 = load i64, ptr %r6, align 4
-  %495 = lshr i64 %494, 15
-  store i64 %495, ptr %r6, align 4
-  %496 = load i64, ptr %r1, align 4
-  %497 = load i64, ptr %r6, align 4
-  %498 = or i64 %496, %497
-  store i64 %498, ptr %r1, align 4
+  %453 = load ptr, ptr %r0, align 8
+  %454 = getelementptr i8, ptr %453, i64 1
+  %455 = load i8, ptr %454, align 1
+  %456 = zext i8 %455 to i64
+  store i64 %456, ptr %r1, align 4
+  %457 = load i64, ptr %r1, align 4
+  %458 = shl i64 %457, 8
+  store i64 %458, ptr %r1, align 4
+  %459 = load ptr, ptr %r0, align 8
+  %460 = getelementptr i8, ptr %459, i64 0
+  %461 = load i8, ptr %460, align 1
+  %462 = zext i8 %461 to i64
+  store i64 %462, ptr %r6, align 4
+  %463 = load i64, ptr %r1, align 4
+  %464 = load i64, ptr %r6, align 4
+  %465 = or i64 %463, %464
+  store i64 %465, ptr %r1, align 4
+  %466 = load ptr, ptr %r0, align 8
+  %467 = getelementptr i8, ptr %466, i64 2
+  %468 = load i8, ptr %467, align 1
+  %469 = zext i8 %468 to i64
+  store i64 %469, ptr %r6, align 4
+  %470 = load i64, ptr %r6, align 4
+  %471 = shl i64 %470, 16
+  store i64 %471, ptr %r6, align 4
+  %472 = load i64, ptr %r1, align 4
+  %473 = load i64, ptr %r6, align 4
+  %474 = or i64 %472, %473
+  store i64 %474, ptr %r1, align 4
+  %475 = load ptr, ptr %r0, align 8
+  %476 = getelementptr i8, ptr %475, i64 3
+  %477 = load i8, ptr %476, align 1
+  %478 = zext i8 %477 to i64
+  store i64 %478, ptr %r6, align 4
+  %479 = load i64, ptr %r6, align 4
+  %480 = shl i64 %479, 24
+  store i64 %480, ptr %r6, align 4
+  %481 = load i64, ptr %r1, align 4
+  %482 = load i64, ptr %r6, align 4
+  %483 = or i64 %481, %482
+  store i64 %483, ptr %r1, align 4
+  %484 = load i64, ptr %r1, align 4
+  %485 = mul i64 %484, -1028477379
+  store i64 %485, ptr %r1, align 4
+  %486 = load i64, ptr %r1, align 4
+  %487 = load i64, ptr %r8, align 4
+  %488 = add i64 %486, %487
+  store i64 %488, ptr %r1, align 4
+  %489 = load i64, ptr %r1, align 4
+  store i64 %489, ptr %r6, align 4
+  %490 = load i64, ptr %r6, align 4
+  %491 = load i64, ptr %r4, align 4
+  %492 = and i64 %490, %491
+  store i64 %492, ptr %r6, align 4
+  %493 = load i64, ptr %r1, align 4
+  %494 = shl i64 %493, 17
+  store i64 %494, ptr %r1, align 4
+  %495 = load i64, ptr %r6, align 4
+  %496 = lshr i64 %495, 15
+  store i64 %496, ptr %r6, align 4
+  %497 = load i64, ptr %r1, align 4
+  %498 = load i64, ptr %r6, align 4
+  %499 = or i64 %497, %498
+  store i64 %499, ptr %r1, align 4
   store i64 4294967292, ptr %r6, align 4
   store i64 4, ptr %r7, align 4
-  %499 = load i64, ptr %r1, align 4
-  %500 = mul i64 %499, 668265263
-  store i64 %500, ptr %r1, align 4
+  %500 = load i64, ptr %r1, align 4
+  %501 = mul i64 %500, 668265263
+  store i64 %501, ptr %r1, align 4
   br label %bb_inst_252
 
 bb_inst_252:                                      ; preds = %bb_inst_231, %bb_inst_258
-  %501 = load i64, ptr %r1, align 4
-  store i64 %501, ptr %r8, align 4
-  %502 = load i64, ptr %r6, align 4
-  %503 = load i64, ptr %r3, align 4
-  %504 = add i64 %502, %503
-  store i64 %504, ptr %r6, align 4
-  %505 = load i64, ptr %r0, align 4
-  %506 = load i64, ptr %r7, align 4
-  %507 = add i64 %505, %506
-  store i64 %507, ptr %r0, align 4
-  %508 = load i64, ptr %r6, align 4
-  store i64 %508, ptr %r3, align 4
+  %502 = load i64, ptr %r1, align 4
+  store i64 %502, ptr %r8, align 4
+  %503 = load i64, ptr %r6, align 4
+  %504 = load i64, ptr %r3, align 4
+  %505 = add i64 %503, %504
+  store i64 %505, ptr %r6, align 4
+  %506 = load i64, ptr %r0, align 4
+  %507 = load i64, ptr %r7, align 4
+  %508 = add i64 %506, %507
+  store i64 %508, ptr %r0, align 4
+  %509 = load i64, ptr %r6, align 4
+  store i64 %509, ptr %r3, align 4
   br label %bb_inst_227
 
 bb_inst_257:                                      ; preds = %bb_inst_227
-  %509 = load i64, ptr %r1, align 4
-  %510 = icmp eq i64 %509, 0
-  br i1 %510, label %bb_inst_271, label %bb_inst_258
+  %510 = load i64, ptr %r1, align 4
+  %511 = icmp eq i64 %510, 0
+  br i1 %511, label %bb_inst_271, label %bb_inst_258
 
 bb_inst_258:                                      ; preds = %bb_inst_257
-  %511 = load ptr, ptr %r0, align 8
-  %512 = getelementptr i8, ptr %511, i64 0
-  %513 = load i8, ptr %512, align 1
-  %514 = zext i8 %513 to i64
-  store i64 %514, ptr %r1, align 4
-  %515 = load i64, ptr %r1, align 4
-  %516 = mul i64 %515, 374761393
-  store i64 %516, ptr %r1, align 4
-  %517 = load i64, ptr %r1, align 4
-  %518 = load i64, ptr %r8, align 4
-  %519 = add i64 %517, %518
-  store i64 %519, ptr %r1, align 4
-  %520 = load i64, ptr %r1, align 4
-  store i64 %520, ptr %r6, align 4
-  %521 = load i64, ptr %r6, align 4
-  %522 = load i64, ptr %r5, align 4
-  %523 = and i64 %521, %522
-  store i64 %523, ptr %r6, align 4
-  %524 = load i64, ptr %r1, align 4
-  %525 = shl i64 %524, 11
-  store i64 %525, ptr %r1, align 4
-  %526 = load i64, ptr %r6, align 4
-  %527 = lshr i64 %526, 21
-  store i64 %527, ptr %r6, align 4
-  %528 = load i64, ptr %r1, align 4
-  %529 = load i64, ptr %r6, align 4
-  %530 = or i64 %528, %529
-  store i64 %530, ptr %r1, align 4
+  %512 = load ptr, ptr %r0, align 8
+  %513 = getelementptr i8, ptr %512, i64 0
+  %514 = load i8, ptr %513, align 1
+  %515 = zext i8 %514 to i64
+  store i64 %515, ptr %r1, align 4
+  %516 = load i64, ptr %r1, align 4
+  %517 = mul i64 %516, 374761393
+  store i64 %517, ptr %r1, align 4
+  %518 = load i64, ptr %r1, align 4
+  %519 = load i64, ptr %r8, align 4
+  %520 = add i64 %518, %519
+  store i64 %520, ptr %r1, align 4
+  %521 = load i64, ptr %r1, align 4
+  store i64 %521, ptr %r6, align 4
+  %522 = load i64, ptr %r6, align 4
+  %523 = load i64, ptr %r5, align 4
+  %524 = and i64 %522, %523
+  store i64 %524, ptr %r6, align 4
+  %525 = load i64, ptr %r1, align 4
+  %526 = shl i64 %525, 11
+  store i64 %526, ptr %r1, align 4
+  %527 = load i64, ptr %r6, align 4
+  %528 = lshr i64 %527, 21
+  store i64 %528, ptr %r6, align 4
+  %529 = load i64, ptr %r1, align 4
+  %530 = load i64, ptr %r6, align 4
+  %531 = or i64 %529, %530
+  store i64 %531, ptr %r1, align 4
   store i64 4294967295, ptr %r6, align 4
   store i64 1, ptr %r7, align 4
-  %531 = load i64, ptr %r1, align 4
-  %532 = mul i64 %531, -1640531535
-  store i64 %532, ptr %r1, align 4
+  %532 = load i64, ptr %r1, align 4
+  %533 = mul i64 %532, -1640531535
+  store i64 %533, ptr %r1, align 4
   br label %bb_inst_252
 
 bb_inst_271:                                      ; preds = %bb_inst_257
   store i64 4294934528, ptr %r1, align 4
-  %533 = load i64, ptr %r8, align 4
-  store i64 %533, ptr %r2, align 4
-  %534 = load i64, ptr %r2, align 4
-  %535 = load i64, ptr %r1, align 4
-  %536 = and i64 %534, %535
-  store i64 %536, ptr %r2, align 4
-  %537 = load i64, ptr %r2, align 4
-  %538 = lshr i64 %537, 15
-  store i64 %538, ptr %r2, align 4
-  %539 = load i64, ptr %r2, align 4
-  %540 = load i64, ptr %r8, align 4
-  %541 = xor i64 %539, %540
-  store i64 %541, ptr %r2, align 4
-  %542 = load i64, ptr %r2, align 4
-  %543 = mul i64 %542, -2048144777
-  store i64 %543, ptr %r2, align 4
+  %534 = load i64, ptr %r8, align 4
+  store i64 %534, ptr %r2, align 4
+  %535 = load i64, ptr %r2, align 4
+  %536 = load i64, ptr %r1, align 4
+  %537 = and i64 %535, %536
+  store i64 %537, ptr %r2, align 4
+  %538 = load i64, ptr %r2, align 4
+  %539 = lshr i64 %538, 15
+  store i64 %539, ptr %r2, align 4
+  %540 = load i64, ptr %r2, align 4
+  %541 = load i64, ptr %r8, align 4
+  %542 = xor i64 %540, %541
+  store i64 %542, ptr %r2, align 4
+  %543 = load i64, ptr %r2, align 4
+  %544 = mul i64 %543, -2048144777
+  store i64 %544, ptr %r2, align 4
   store i64 4294959104, ptr %r1, align 4
-  %544 = load i64, ptr %r2, align 4
-  store i64 %544, ptr %r3, align 4
-  %545 = load i64, ptr %r3, align 4
-  %546 = load i64, ptr %r1, align 4
-  %547 = and i64 %545, %546
-  store i64 %547, ptr %r3, align 4
-  %548 = load i64, ptr %r3, align 4
-  %549 = lshr i64 %548, 13
-  store i64 %549, ptr %r3, align 4
-  %550 = load i64, ptr %r3, align 4
-  %551 = load i64, ptr %r2, align 4
-  %552 = xor i64 %550, %551
-  store i64 %552, ptr %r3, align 4
-  %553 = load i64, ptr %r3, align 4
-  %554 = mul i64 %553, -1028477379
-  store i64 %554, ptr %r3, align 4
+  %545 = load i64, ptr %r2, align 4
+  store i64 %545, ptr %r3, align 4
+  %546 = load i64, ptr %r3, align 4
+  %547 = load i64, ptr %r1, align 4
+  %548 = and i64 %546, %547
+  store i64 %548, ptr %r3, align 4
+  %549 = load i64, ptr %r3, align 4
+  %550 = lshr i64 %549, 13
+  store i64 %550, ptr %r3, align 4
+  %551 = load i64, ptr %r3, align 4
+  %552 = load i64, ptr %r2, align 4
+  %553 = xor i64 %551, %552
+  store i64 %553, ptr %r3, align 4
+  %554 = load i64, ptr %r3, align 4
+  %555 = mul i64 %554, -1028477379
+  store i64 %555, ptr %r3, align 4
   store i64 4294901760, ptr %r1, align 4
-  %555 = load i64, ptr %r3, align 4
-  store i64 %555, ptr %r2, align 4
-  %556 = load i64, ptr %r2, align 4
-  %557 = load i64, ptr %r1, align 4
-  %558 = and i64 %556, %557
-  store i64 %558, ptr %r2, align 4
-  %559 = load i64, ptr %r2, align 4
-  %560 = lshr i64 %559, 16
-  store i64 %560, ptr %r2, align 4
-  %561 = load i64, ptr %r2, align 4
-  %562 = load i64, ptr %r3, align 4
-  %563 = xor i64 %561, %562
-  store i64 %563, ptr %r2, align 4
-  %564 = load i64, ptr %r2, align 4
-  %565 = shl i64 %564, 32
-  store i64 %565, ptr %r2, align 4
-  %566 = load i64, ptr %r2, align 4
-  %567 = lshr i64 %566, 32
-  store i64 %567, ptr %r2, align 4
+  %556 = load i64, ptr %r3, align 4
+  store i64 %556, ptr %r2, align 4
+  %557 = load i64, ptr %r2, align 4
+  %558 = load i64, ptr %r1, align 4
+  %559 = and i64 %557, %558
+  store i64 %559, ptr %r2, align 4
+  %560 = load i64, ptr %r2, align 4
+  %561 = lshr i64 %560, 16
+  store i64 %561, ptr %r2, align 4
+  %562 = load i64, ptr %r2, align 4
+  %563 = load i64, ptr %r3, align 4
+  %564 = xor i64 %562, %563
+  store i64 %564, ptr %r2, align 4
+  %565 = load i64, ptr %r2, align 4
+  %566 = shl i64 %565, 32
+  store i64 %566, ptr %r2, align 4
+  %567 = load i64, ptr %r2, align 4
+  %568 = lshr i64 %567, 32
+  store i64 %568, ptr %r2, align 4
   store i64 2, ptr %r1, align 4
-  %568 = load i64, ptr %r2, align 4
-  %569 = load i64, ptr %r1, align 4
-  %570 = icmp ugt i64 %569, %568
-  br i1 %570, label %bb_inst_321, label %bb_inst_295
+  %569 = load i64, ptr %r2, align 4
+  %570 = load i64, ptr %r1, align 4
+  %571 = icmp ugt i64 %570, %569
+  br i1 %571, label %bb_inst_321, label %bb_inst_295
 
 bb_inst_295:                                      ; preds = %bb_inst_271
-  %571 = load ptr, ptr %r10, align 8
-  %572 = getelementptr i8, ptr %571, i64 -48
-  %573 = load i64, ptr %572, align 4
-  store i64 %573, ptr %r3, align 4
-  %574 = load ptr, ptr %r3, align 8
-  %575 = getelementptr i8, ptr %574, i64 0
-  %576 = load i16, ptr %575, align 2
-  %577 = zext i16 %576 to i64
-  store i64 %577, ptr %r1, align 4
-  %578 = load ptr, ptr %r10, align 8
-  %579 = getelementptr i8, ptr %578, i64 -56
-  %580 = load i64, ptr %579, align 4
-  store i64 %580, ptr %r2, align 4
-  %581 = load ptr, ptr %r2, align 8
-  %582 = getelementptr i8, ptr %581, i64 12
-  %583 = load i32, ptr %582, align 4
-  %584 = zext i32 %583 to i64
-  store i64 %584, ptr %r2, align 4
-  %585 = load i64, ptr %r2, align 4
-  %586 = load i64, ptr %r1, align 4
-  %587 = xor i64 %585, %586
-  store i64 %587, ptr %r2, align 4
-  %588 = load ptr, ptr %r3, align 8
-  %589 = getelementptr i8, ptr %588, i64 2
-  %590 = load i16, ptr %589, align 2
-  %591 = zext i16 %590 to i64
-  store i64 %591, ptr %r1, align 4
-  %592 = load i64, ptr %r2, align 4
-  %593 = load i64, ptr %r1, align 4
-  %594 = xor i64 %592, %593
-  store i64 %594, ptr %r2, align 4
-  %595 = load i64, ptr %r2, align 4
-  %596 = and i64 %595, 1
-  store i64 %596, ptr %r2, align 4
-  %597 = load i64, ptr %r2, align 4
-  %598 = trunc i64 %597 to i32
-  %599 = load ptr, ptr %r10, align 8
-  %600 = getelementptr i8, ptr %599, i64 -4
-  store i32 %598, ptr %600, align 4
-  %601 = load i64, ptr %r10, align 4
-  store i64 %601, ptr %r2, align 4
-  %602 = load i64, ptr %r2, align 4
-  %603 = add i64 %602, -4
-  store i64 %603, ptr %r2, align 4
-  store i64 0, ptr %r1, align 4
-  %604 = load i64, ptr %r1, align 4
-  %605 = load i64, ptr %r2, align 4
-  %606 = load i64, ptr %r3, align 4
-  %607 = load i64, ptr %r4, align 4
-  %608 = load i64, ptr %r5, align 4
-  %609 = call i64 @_bpf_helper_ext_0001(i64 %604, i64 %605, i64 %606, i64 %607, i64 %608)
-  store i64 %609, ptr %r0, align 4
+  %572 = load ptr, ptr %r10, align 8
+  %573 = getelementptr i8, ptr %572, i64 -48
+  %574 = load i64, ptr %573, align 4
+  store i64 %574, ptr %r3, align 4
+  %575 = load ptr, ptr %r3, align 8
+  %576 = getelementptr i8, ptr %575, i64 0
+  %577 = load i16, ptr %576, align 2
+  %578 = zext i16 %577 to i64
+  store i64 %578, ptr %r1, align 4
+  %579 = load ptr, ptr %r10, align 8
+  %580 = getelementptr i8, ptr %579, i64 -56
+  %581 = load i64, ptr %580, align 4
+  store i64 %581, ptr %r2, align 4
+  %582 = load ptr, ptr %r2, align 8
+  %583 = getelementptr i8, ptr %582, i64 12
+  %584 = load i32, ptr %583, align 4
+  %585 = zext i32 %584 to i64
+  store i64 %585, ptr %r2, align 4
+  %586 = load i64, ptr %r2, align 4
+  %587 = load i64, ptr %r1, align 4
+  %588 = xor i64 %586, %587
+  store i64 %588, ptr %r2, align 4
+  %589 = load ptr, ptr %r3, align 8
+  %590 = getelementptr i8, ptr %589, i64 2
+  %591 = load i16, ptr %590, align 2
+  %592 = zext i16 %591 to i64
+  store i64 %592, ptr %r1, align 4
+  %593 = load i64, ptr %r2, align 4
+  %594 = load i64, ptr %r1, align 4
+  %595 = xor i64 %593, %594
+  store i64 %595, ptr %r2, align 4
+  %596 = load i64, ptr %r2, align 4
+  %597 = and i64 %596, 1
+  store i64 %597, ptr %r2, align 4
+  %598 = load i64, ptr %r2, align 4
+  %599 = trunc i64 %598 to i32
+  %600 = load ptr, ptr %r10, align 8
+  %601 = getelementptr i8, ptr %600, i64 -4
+  store i32 %599, ptr %601, align 4
+  %602 = load i64, ptr %r10, align 4
+  store i64 %602, ptr %r2, align 4
+  %603 = load i64, ptr %r2, align 4
+  %604 = add i64 %603, -4
+  store i64 %604, ptr %r2, align 4
+  %605 = call i64 @__lddw_helper_map_by_fd(i32 5)
+  store i64 %605, ptr %r1, align 4
+  %606 = load i64, ptr %r1, align 4
+  %607 = load i64, ptr %r2, align 4
+  %608 = load i64, ptr %r3, align 4
+  %609 = load i64, ptr %r4, align 4
+  %610 = load i64, ptr %r5, align 4
+  %611 = call i64 @_bpf_helper_ext_0001(i64 %606, i64 %607, i64 %608, i64 %609, i64 %610)
+  store i64 %611, ptr %r0, align 4
   br label %bb_inst_309
 
 bb_inst_309:                                      ; preds = %bb_inst_295
-  %610 = load i64, ptr %r0, align 4
-  store i64 %610, ptr %r6, align 4
+  %612 = load i64, ptr %r0, align 4
+  store i64 %612, ptr %r6, align 4
   store i64 0, ptr %r7, align 4
-  %611 = load i64, ptr %r6, align 4
-  %612 = icmp eq i64 %611, 0
-  br i1 %612, label %bb_inst_37, label %bb_inst_312
+  %613 = load i64, ptr %r6, align 4
+  %614 = icmp eq i64 %613, 0
+  br i1 %614, label %bb_inst_37, label %bb_inst_312
 
 bb_inst_312:                                      ; preds = %bb_inst_309
   store i64 0, ptr %r7, align 4
-  %613 = load i64, ptr %r7, align 4
-  %614 = trunc i64 %613 to i32
-  %615 = load ptr, ptr %r10, align 8
-  %616 = getelementptr i8, ptr %615, i64 -4
-  store i32 %614, ptr %616, align 4
-  %617 = load i64, ptr %r10, align 4
-  store i64 %617, ptr %r2, align 4
-  %618 = load i64, ptr %r2, align 4
-  %619 = add i64 %618, -4
+  %615 = load i64, ptr %r7, align 4
+  %616 = trunc i64 %615 to i32
+  %617 = load ptr, ptr %r10, align 8
+  %618 = getelementptr i8, ptr %617, i64 -4
+  store i32 %616, ptr %618, align 4
+  %619 = load i64, ptr %r10, align 4
   store i64 %619, ptr %r2, align 4
-  store i64 0, ptr %r1, align 4
-  %620 = load i64, ptr %r1, align 4
-  %621 = load i64, ptr %r2, align 4
-  %622 = load i64, ptr %r3, align 4
-  %623 = load i64, ptr %r4, align 4
-  %624 = load i64, ptr %r5, align 4
-  %625 = call i64 @_bpf_helper_ext_0001(i64 %620, i64 %621, i64 %622, i64 %623, i64 %624)
-  store i64 %625, ptr %r0, align 4
+  %620 = load i64, ptr %r2, align 4
+  %621 = add i64 %620, -4
+  store i64 %621, ptr %r2, align 4
+  %622 = call i64 @__lddw_helper_map_by_fd(i32 4)
+  store i64 %622, ptr %r1, align 4
+  %623 = load i64, ptr %r1, align 4
+  %624 = load i64, ptr %r2, align 4
+  %625 = load i64, ptr %r3, align 4
+  %626 = load i64, ptr %r4, align 4
+  %627 = load i64, ptr %r5, align 4
+  %628 = call i64 @_bpf_helper_ext_0001(i64 %623, i64 %624, i64 %625, i64 %626, i64 %627)
+  store i64 %628, ptr %r0, align 4
   br label %bb_inst_319
 
 bb_inst_319:                                      ; preds = %bb_inst_312
-  %626 = load i64, ptr %r0, align 4
-  %627 = icmp eq i64 %626, 0
-  br i1 %627, label %bb_inst_37, label %bb_inst_320
+  %629 = load i64, ptr %r0, align 4
+  %630 = icmp eq i64 %629, 0
+  br i1 %630, label %bb_inst_37, label %bb_inst_320
 
 bb_inst_320:                                      ; preds = %bb_inst_319
   br label %bb_inst_339
 
 bb_inst_321:                                      ; preds = %bb_inst_271
   store i64 1, ptr %r1, align 4
-  %628 = load i64, ptr %r1, align 4
-  %629 = trunc i64 %628 to i32
-  %630 = load ptr, ptr %r10, align 8
-  %631 = getelementptr i8, ptr %630, i64 -4
-  store i32 %629, ptr %631, align 4
-  %632 = load i64, ptr %r10, align 4
-  store i64 %632, ptr %r2, align 4
-  %633 = load i64, ptr %r2, align 4
-  %634 = add i64 %633, -4
-  store i64 %634, ptr %r2, align 4
-  store i64 0, ptr %r1, align 4
-  %635 = load i64, ptr %r1, align 4
+  %631 = load i64, ptr %r1, align 4
+  %632 = trunc i64 %631 to i32
+  %633 = load ptr, ptr %r10, align 8
+  %634 = getelementptr i8, ptr %633, i64 -4
+  store i32 %632, ptr %634, align 4
+  %635 = load i64, ptr %r10, align 4
+  store i64 %635, ptr %r2, align 4
   %636 = load i64, ptr %r2, align 4
-  %637 = load i64, ptr %r3, align 4
-  %638 = load i64, ptr %r4, align 4
-  %639 = load i64, ptr %r5, align 4
-  %640 = call i64 @_bpf_helper_ext_0001(i64 %635, i64 %636, i64 %637, i64 %638, i64 %639)
-  store i64 %640, ptr %r0, align 4
+  %637 = add i64 %636, -4
+  store i64 %637, ptr %r2, align 4
+  %638 = call i64 @__lddw_helper_map_by_fd(i32 4)
+  store i64 %638, ptr %r1, align 4
+  %639 = load i64, ptr %r1, align 4
+  %640 = load i64, ptr %r2, align 4
+  %641 = load i64, ptr %r3, align 4
+  %642 = load i64, ptr %r4, align 4
+  %643 = load i64, ptr %r5, align 4
+  %644 = call i64 @_bpf_helper_ext_0001(i64 %639, i64 %640, i64 %641, i64 %642, i64 %643)
+  store i64 %644, ptr %r0, align 4
   br label %bb_inst_328
 
 bb_inst_328:                                      ; preds = %bb_inst_321
-  %641 = load i64, ptr %r0, align 4
-  store i64 %641, ptr %r6, align 4
+  %645 = load i64, ptr %r0, align 4
+  store i64 %645, ptr %r6, align 4
   store i64 0, ptr %r7, align 4
-  %642 = load i64, ptr %r6, align 4
-  %643 = icmp eq i64 %642, 0
-  br i1 %643, label %bb_inst_37, label %bb_inst_331
+  %646 = load i64, ptr %r6, align 4
+  %647 = icmp eq i64 %646, 0
+  br i1 %647, label %bb_inst_37, label %bb_inst_331
 
 bb_inst_331:                                      ; preds = %bb_inst_328
   store i64 0, ptr %r7, align 4
-  %644 = load i64, ptr %r7, align 4
-  %645 = trunc i64 %644 to i32
-  %646 = load ptr, ptr %r10, align 8
-  %647 = getelementptr i8, ptr %646, i64 -4
-  store i32 %645, ptr %647, align 4
-  %648 = load i64, ptr %r10, align 4
-  store i64 %648, ptr %r2, align 4
-  %649 = load i64, ptr %r2, align 4
-  %650 = add i64 %649, -4
-  store i64 %650, ptr %r2, align 4
-  store i64 0, ptr %r1, align 4
-  %651 = load i64, ptr %r1, align 4
-  %652 = load i64, ptr %r2, align 4
-  %653 = load i64, ptr %r3, align 4
-  %654 = load i64, ptr %r4, align 4
-  %655 = load i64, ptr %r5, align 4
-  %656 = call i64 @_bpf_helper_ext_0001(i64 %651, i64 %652, i64 %653, i64 %654, i64 %655)
-  store i64 %656, ptr %r0, align 4
+  %648 = load i64, ptr %r7, align 4
+  %649 = trunc i64 %648 to i32
+  %650 = load ptr, ptr %r10, align 8
+  %651 = getelementptr i8, ptr %650, i64 -4
+  store i32 %649, ptr %651, align 4
+  %652 = load i64, ptr %r10, align 4
+  store i64 %652, ptr %r2, align 4
+  %653 = load i64, ptr %r2, align 4
+  %654 = add i64 %653, -4
+  store i64 %654, ptr %r2, align 4
+  %655 = call i64 @__lddw_helper_map_by_fd(i32 4)
+  store i64 %655, ptr %r1, align 4
+  %656 = load i64, ptr %r1, align 4
+  %657 = load i64, ptr %r2, align 4
+  %658 = load i64, ptr %r3, align 4
+  %659 = load i64, ptr %r4, align 4
+  %660 = load i64, ptr %r5, align 4
+  %661 = call i64 @_bpf_helper_ext_0001(i64 %656, i64 %657, i64 %658, i64 %659, i64 %660)
+  store i64 %661, ptr %r0, align 4
   br label %bb_inst_338
 
 bb_inst_338:                                      ; preds = %bb_inst_331
-  %657 = load i64, ptr %r0, align 4
-  %658 = icmp eq i64 %657, 0
-  br i1 %658, label %bb_inst_37, label %bb_inst_339
+  %662 = load i64, ptr %r0, align 4
+  %663 = icmp eq i64 %662, 0
+  br i1 %663, label %bb_inst_37, label %bb_inst_339
 
 bb_inst_339:                                      ; preds = %bb_inst_338, %bb_inst_320
   store i64 0, ptr %r1, align 4
-  %659 = load i64, ptr %r9, align 4
-  store i64 %659, ptr %r2, align 4
-  %660 = load i64, ptr %r2, align 4
-  %661 = load i64, ptr %r1, align 4
-  %662 = add i64 %660, %661
-  store i64 %662, ptr %r2, align 4
-  %663 = load ptr, ptr %r6, align 8
-  %664 = getelementptr i8, ptr %663, i64 4
-  %665 = load i16, ptr %664, align 2
-  %666 = zext i16 %665 to i64
-  store i64 %666, ptr %r1, align 4
-  %667 = load i64, ptr %r1, align 4
-  %668 = trunc i64 %667 to i16
-  %669 = load ptr, ptr %r2, align 8
-  %670 = getelementptr i8, ptr %669, i64 4
-  store i16 %668, ptr %670, align 2
-  %671 = load ptr, ptr %r6, align 8
-  %672 = getelementptr i8, ptr %671, i64 2
-  %673 = load i16, ptr %672, align 2
-  %674 = zext i16 %673 to i64
-  store i64 %674, ptr %r1, align 4
-  %675 = load i64, ptr %r1, align 4
-  %676 = trunc i64 %675 to i16
-  %677 = load ptr, ptr %r2, align 8
-  %678 = getelementptr i8, ptr %677, i64 2
-  store i16 %676, ptr %678, align 2
-  %679 = load ptr, ptr %r6, align 8
-  %680 = getelementptr i8, ptr %679, i64 0
-  %681 = load i16, ptr %680, align 2
-  %682 = zext i16 %681 to i64
-  store i64 %682, ptr %r1, align 4
-  %683 = load i64, ptr %r1, align 4
-  %684 = trunc i64 %683 to i16
-  %685 = load ptr, ptr %r9, align 8
-  %686 = getelementptr i8, ptr %685, i64 0
-  store i16 %684, ptr %686, align 2
+  %664 = load i64, ptr %r9, align 4
+  store i64 %664, ptr %r2, align 4
+  %665 = load i64, ptr %r2, align 4
+  %666 = load i64, ptr %r1, align 4
+  %667 = add i64 %665, %666
+  store i64 %667, ptr %r2, align 4
+  %668 = load ptr, ptr %r6, align 8
+  %669 = getelementptr i8, ptr %668, i64 4
+  %670 = load i16, ptr %669, align 2
+  %671 = zext i16 %670 to i64
+  store i64 %671, ptr %r1, align 4
+  %672 = load i64, ptr %r1, align 4
+  %673 = trunc i64 %672 to i16
+  %674 = load ptr, ptr %r2, align 8
+  %675 = getelementptr i8, ptr %674, i64 4
+  store i16 %673, ptr %675, align 2
+  %676 = load ptr, ptr %r6, align 8
+  %677 = getelementptr i8, ptr %676, i64 2
+  %678 = load i16, ptr %677, align 2
+  %679 = zext i16 %678 to i64
+  store i64 %679, ptr %r1, align 4
+  %680 = load i64, ptr %r1, align 4
+  %681 = trunc i64 %680 to i16
+  %682 = load ptr, ptr %r2, align 8
+  %683 = getelementptr i8, ptr %682, i64 2
+  store i16 %681, ptr %683, align 2
+  %684 = load ptr, ptr %r6, align 8
+  %685 = getelementptr i8, ptr %684, i64 0
+  %686 = load i16, ptr %685, align 2
+  %687 = zext i16 %686 to i64
+  store i64 %687, ptr %r1, align 4
+  %688 = load i64, ptr %r1, align 4
+  %689 = trunc i64 %688 to i16
+  %690 = load ptr, ptr %r9, align 8
+  %691 = getelementptr i8, ptr %690, i64 0
+  store i16 %689, ptr %691, align 2
   store i64 6, ptr %r1, align 4
-  %687 = load i64, ptr %r9, align 4
-  store i64 %687, ptr %r2, align 4
-  %688 = load i64, ptr %r2, align 4
-  %689 = load i64, ptr %r1, align 4
-  %690 = add i64 %688, %689
-  store i64 %690, ptr %r2, align 4
-  %691 = load ptr, ptr %r0, align 8
-  %692 = getelementptr i8, ptr %691, i64 4
-  %693 = load i16, ptr %692, align 2
-  %694 = zext i16 %693 to i64
-  store i64 %694, ptr %r1, align 4
-  %695 = load i64, ptr %r1, align 4
-  %696 = trunc i64 %695 to i16
-  %697 = load ptr, ptr %r2, align 8
-  %698 = getelementptr i8, ptr %697, i64 4
-  store i16 %696, ptr %698, align 2
-  %699 = load ptr, ptr %r0, align 8
-  %700 = getelementptr i8, ptr %699, i64 0
-  %701 = load i16, ptr %700, align 2
-  %702 = zext i16 %701 to i64
-  store i64 %702, ptr %r1, align 4
-  %703 = load i64, ptr %r1, align 4
-  %704 = trunc i64 %703 to i16
-  %705 = load ptr, ptr %r9, align 8
-  %706 = getelementptr i8, ptr %705, i64 6
-  store i16 %704, ptr %706, align 2
-  %707 = load ptr, ptr %r0, align 8
-  %708 = getelementptr i8, ptr %707, i64 2
-  %709 = load i16, ptr %708, align 2
-  %710 = zext i16 %709 to i64
-  store i64 %710, ptr %r1, align 4
-  %711 = load i64, ptr %r1, align 4
-  %712 = trunc i64 %711 to i16
-  %713 = load ptr, ptr %r2, align 8
-  %714 = getelementptr i8, ptr %713, i64 2
-  store i16 %712, ptr %714, align 2
-  %715 = load ptr, ptr %r6, align 8
-  %716 = getelementptr i8, ptr %715, i64 8
-  %717 = load i32, ptr %716, align 4
-  %718 = zext i32 %717 to i64
-  store i64 %718, ptr %r1, align 4
-  %719 = load i64, ptr %r1, align 4
-  %720 = lshr i64 %719, 0
-  %721 = and i64 %720, 255
-  %722 = lshr i64 %719, 8
-  %723 = and i64 %722, 255
-  %724 = lshr i64 %719, 16
-  %725 = and i64 %724, 255
-  %726 = lshr i64 %719, 24
-  %727 = and i64 %726, 255
-  %728 = shl i64 %721, 8
-  %729 = or i64 %728, %723
-  %730 = shl i64 %729, 8
-  %731 = or i64 %730, %725
-  %732 = shl i64 %731, 8
-  %733 = or i64 %732, %727
-  store i64 %733, ptr %r1, align 4
-  %734 = load ptr, ptr %r10, align 8
-  %735 = getelementptr i8, ptr %734, i64 -56
-  %736 = load i64, ptr %735, align 4
-  store i64 %736, ptr %r7, align 4
-  %737 = load i64, ptr %r1, align 4
-  %738 = trunc i64 %737 to i32
-  %739 = load ptr, ptr %r7, align 8
-  %740 = getelementptr i8, ptr %739, i64 16
-  store i32 %738, ptr %740, align 4
-  %741 = load ptr, ptr %r0, align 8
-  %742 = getelementptr i8, ptr %741, i64 8
-  %743 = load i32, ptr %742, align 4
-  %744 = zext i32 %743 to i64
-  store i64 %744, ptr %r1, align 4
-  %745 = load i64, ptr %r1, align 4
-  %746 = lshr i64 %745, 0
-  %747 = and i64 %746, 255
-  %748 = lshr i64 %745, 8
-  %749 = and i64 %748, 255
-  %750 = lshr i64 %745, 16
-  %751 = and i64 %750, 255
-  %752 = lshr i64 %745, 24
-  %753 = and i64 %752, 255
-  %754 = shl i64 %747, 8
-  %755 = or i64 %754, %749
-  %756 = shl i64 %755, 8
-  %757 = or i64 %756, %751
-  %758 = shl i64 %757, 8
-  %759 = or i64 %758, %753
-  store i64 %759, ptr %r1, align 4
-  %760 = load i64, ptr %r1, align 4
-  %761 = trunc i64 %760 to i32
-  %762 = load ptr, ptr %r7, align 8
-  %763 = getelementptr i8, ptr %762, i64 12
-  store i32 %761, ptr %763, align 4
+  %692 = load i64, ptr %r9, align 4
+  store i64 %692, ptr %r2, align 4
+  %693 = load i64, ptr %r2, align 4
+  %694 = load i64, ptr %r1, align 4
+  %695 = add i64 %693, %694
+  store i64 %695, ptr %r2, align 4
+  %696 = load ptr, ptr %r0, align 8
+  %697 = getelementptr i8, ptr %696, i64 4
+  %698 = load i16, ptr %697, align 2
+  %699 = zext i16 %698 to i64
+  store i64 %699, ptr %r1, align 4
+  %700 = load i64, ptr %r1, align 4
+  %701 = trunc i64 %700 to i16
+  %702 = load ptr, ptr %r2, align 8
+  %703 = getelementptr i8, ptr %702, i64 4
+  store i16 %701, ptr %703, align 2
+  %704 = load ptr, ptr %r0, align 8
+  %705 = getelementptr i8, ptr %704, i64 0
+  %706 = load i16, ptr %705, align 2
+  %707 = zext i16 %706 to i64
+  store i64 %707, ptr %r1, align 4
+  %708 = load i64, ptr %r1, align 4
+  %709 = trunc i64 %708 to i16
+  %710 = load ptr, ptr %r9, align 8
+  %711 = getelementptr i8, ptr %710, i64 6
+  store i16 %709, ptr %711, align 2
+  %712 = load ptr, ptr %r0, align 8
+  %713 = getelementptr i8, ptr %712, i64 2
+  %714 = load i16, ptr %713, align 2
+  %715 = zext i16 %714 to i64
+  store i64 %715, ptr %r1, align 4
+  %716 = load i64, ptr %r1, align 4
+  %717 = trunc i64 %716 to i16
+  %718 = load ptr, ptr %r2, align 8
+  %719 = getelementptr i8, ptr %718, i64 2
+  store i16 %717, ptr %719, align 2
+  %720 = load ptr, ptr %r6, align 8
+  %721 = getelementptr i8, ptr %720, i64 8
+  %722 = load i32, ptr %721, align 4
+  %723 = zext i32 %722 to i64
+  store i64 %723, ptr %r1, align 4
+  %724 = load i64, ptr %r1, align 4
+  %725 = lshr i64 %724, 0
+  %726 = and i64 %725, 255
+  %727 = lshr i64 %724, 8
+  %728 = and i64 %727, 255
+  %729 = lshr i64 %724, 16
+  %730 = and i64 %729, 255
+  %731 = lshr i64 %724, 24
+  %732 = and i64 %731, 255
+  %733 = shl i64 %726, 8
+  %734 = or i64 %733, %728
+  %735 = shl i64 %734, 8
+  %736 = or i64 %735, %730
+  %737 = shl i64 %736, 8
+  %738 = or i64 %737, %732
+  store i64 %738, ptr %r1, align 4
+  %739 = load ptr, ptr %r10, align 8
+  %740 = getelementptr i8, ptr %739, i64 -56
+  %741 = load i64, ptr %740, align 4
+  store i64 %741, ptr %r7, align 4
+  %742 = load i64, ptr %r1, align 4
+  %743 = trunc i64 %742 to i32
+  %744 = load ptr, ptr %r7, align 8
+  %745 = getelementptr i8, ptr %744, i64 16
+  store i32 %743, ptr %745, align 4
+  %746 = load ptr, ptr %r0, align 8
+  %747 = getelementptr i8, ptr %746, i64 8
+  %748 = load i32, ptr %747, align 4
+  %749 = zext i32 %748 to i64
+  store i64 %749, ptr %r1, align 4
+  %750 = load i64, ptr %r1, align 4
+  %751 = lshr i64 %750, 0
+  %752 = and i64 %751, 255
+  %753 = lshr i64 %750, 8
+  %754 = and i64 %753, 255
+  %755 = lshr i64 %750, 16
+  %756 = and i64 %755, 255
+  %757 = lshr i64 %750, 24
+  %758 = and i64 %757, 255
+  %759 = shl i64 %752, 8
+  %760 = or i64 %759, %754
+  %761 = shl i64 %760, 8
+  %762 = or i64 %761, %756
+  %763 = shl i64 %762, 8
+  %764 = or i64 %763, %758
+  store i64 %764, ptr %r1, align 4
+  %765 = load i64, ptr %r1, align 4
+  %766 = trunc i64 %765 to i32
+  %767 = load ptr, ptr %r7, align 8
+  %768 = getelementptr i8, ptr %767, i64 12
+  store i32 %766, ptr %768, align 4
   store i64 0, ptr %r6, align 4
-  %764 = load i64, ptr %r6, align 4
-  %765 = trunc i64 %764 to i16
-  %766 = load ptr, ptr %r7, align 8
-  %767 = getelementptr i8, ptr %766, i64 10
-  store i16 %765, ptr %767, align 2
+  %769 = load i64, ptr %r6, align 4
+  %770 = trunc i64 %769 to i16
+  %771 = load ptr, ptr %r7, align 8
+  %772 = getelementptr i8, ptr %771, i64 10
+  store i16 %770, ptr %772, align 2
   store i64 0, ptr %r1, align 4
   store i64 0, ptr %r2, align 4
-  %768 = load i64, ptr %r7, align 4
-  store i64 %768, ptr %r3, align 4
+  %773 = load i64, ptr %r7, align 4
+  store i64 %773, ptr %r3, align 4
   store i64 20, ptr %r4, align 4
   store i64 0, ptr %r5, align 4
-  %769 = load i64, ptr %r1, align 4
-  %770 = load i64, ptr %r2, align 4
-  %771 = load i64, ptr %r3, align 4
-  %772 = load i64, ptr %r4, align 4
-  %773 = load i64, ptr %r5, align 4
-  %774 = call i64 @_bpf_helper_ext_0028(i64 %769, i64 %770, i64 %771, i64 %772, i64 %773)
-  store i64 %774, ptr %r0, align 4
+  %774 = load i64, ptr %r1, align 4
+  %775 = load i64, ptr %r2, align 4
+  %776 = load i64, ptr %r3, align 4
+  %777 = load i64, ptr %r4, align 4
+  %778 = load i64, ptr %r5, align 4
+  %779 = call i64 @_bpf_helper_ext_0028(i64 %774, i64 %775, i64 %776, i64 %777, i64 %778)
+  store i64 %779, ptr %r0, align 4
   br label %bb_inst_372
 
 bb_inst_372:                                      ; preds = %bb_inst_339
   store i64 4294901760, ptr %r1, align 4
-  %775 = load i64, ptr %r0, align 4
-  store i64 %775, ptr %r2, align 4
-  %776 = load i64, ptr %r2, align 4
-  %777 = load i64, ptr %r1, align 4
-  %778 = and i64 %776, %777
-  store i64 %778, ptr %r2, align 4
-  %779 = load i64, ptr %r0, align 4
-  %780 = and i64 %779, 65535
-  store i64 %780, ptr %r0, align 4
+  %780 = load i64, ptr %r0, align 4
+  store i64 %780, ptr %r2, align 4
   %781 = load i64, ptr %r2, align 4
-  %782 = lshr i64 %781, 16
-  store i64 %782, ptr %r2, align 4
-  %783 = load i64, ptr %r2, align 4
+  %782 = load i64, ptr %r1, align 4
+  %783 = and i64 %781, %782
+  store i64 %783, ptr %r2, align 4
   %784 = load i64, ptr %r0, align 4
-  %785 = add i64 %783, %784
-  store i64 %785, ptr %r2, align 4
+  %785 = and i64 %784, 65535
+  store i64 %785, ptr %r0, align 4
   %786 = load i64, ptr %r2, align 4
-  store i64 %786, ptr %r1, align 4
-  %787 = load i64, ptr %r1, align 4
-  %788 = lshr i64 %787, 16
-  store i64 %788, ptr %r1, align 4
-  %789 = load i64, ptr %r1, align 4
-  %790 = load i64, ptr %r2, align 4
-  %791 = add i64 %789, %790
+  %787 = lshr i64 %786, 16
+  store i64 %787, ptr %r2, align 4
+  %788 = load i64, ptr %r2, align 4
+  %789 = load i64, ptr %r0, align 4
+  %790 = add i64 %788, %789
+  store i64 %790, ptr %r2, align 4
+  %791 = load i64, ptr %r2, align 4
   store i64 %791, ptr %r1, align 4
   %792 = load i64, ptr %r1, align 4
-  %793 = xor i64 %792, -1
+  %793 = lshr i64 %792, 16
   store i64 %793, ptr %r1, align 4
   %794 = load i64, ptr %r1, align 4
-  %795 = trunc i64 %794 to i16
-  %796 = load ptr, ptr %r7, align 8
-  %797 = getelementptr i8, ptr %796, i64 10
-  store i16 %795, ptr %797, align 2
+  %795 = load i64, ptr %r2, align 4
+  %796 = add i64 %794, %795
+  store i64 %796, ptr %r1, align 4
+  %797 = load i64, ptr %r1, align 4
+  %798 = xor i64 %797, -1
+  store i64 %798, ptr %r1, align 4
+  %799 = load i64, ptr %r1, align 4
+  %800 = trunc i64 %799 to i16
+  %801 = load ptr, ptr %r7, align 8
+  %802 = getelementptr i8, ptr %801, i64 10
+  store i16 %800, ptr %802, align 2
   store i64 0, ptr %r2, align 4
   br label %bb_inst_385
 
 bb_inst_385:                                      ; preds = %bb_inst_372, %bb_inst_385
-  %798 = load i64, ptr %r9, align 4
-  store i64 %798, ptr %r1, align 4
-  %799 = load i64, ptr %r1, align 4
-  %800 = load i64, ptr %r6, align 4
-  %801 = add i64 %799, %800
-  store i64 %801, ptr %r1, align 4
-  %802 = load ptr, ptr %r1, align 8
-  %803 = getelementptr i8, ptr %802, i64 0
-  %804 = load i8, ptr %803, align 1
-  %805 = zext i8 %804 to i64
-  store i64 %805, ptr %r1, align 4
-  %806 = load i64, ptr %r2, align 4
-  %807 = load i64, ptr %r1, align 4
-  %808 = add i64 %806, %807
-  store i64 %808, ptr %r2, align 4
-  %809 = load i64, ptr %r6, align 4
-  %810 = add i64 %809, 1
-  store i64 %810, ptr %r6, align 4
-  %811 = load i64, ptr %r6, align 4
-  %812 = icmp ne i64 %811, 60
-  br i1 %812, label %bb_inst_385, label %bb_inst_391
+  %803 = load i64, ptr %r9, align 4
+  store i64 %803, ptr %r1, align 4
+  %804 = load i64, ptr %r1, align 4
+  %805 = load i64, ptr %r6, align 4
+  %806 = add i64 %804, %805
+  store i64 %806, ptr %r1, align 4
+  %807 = load ptr, ptr %r1, align 8
+  %808 = getelementptr i8, ptr %807, i64 0
+  %809 = load i8, ptr %808, align 1
+  %810 = zext i8 %809 to i64
+  store i64 %810, ptr %r1, align 4
+  %811 = load i64, ptr %r2, align 4
+  %812 = load i64, ptr %r1, align 4
+  %813 = add i64 %811, %812
+  store i64 %813, ptr %r2, align 4
+  %814 = load i64, ptr %r6, align 4
+  %815 = add i64 %814, 1
+  store i64 %815, ptr %r6, align 4
+  %816 = load i64, ptr %r6, align 4
+  %817 = icmp ne i64 %816, 60
+  br i1 %817, label %bb_inst_385, label %bb_inst_391
 
 bb_inst_391:                                      ; preds = %bb_inst_385
   store i64 60, ptr %r5, align 4
-  %813 = load i64, ptr %r2, align 4
-  store i64 %813, ptr %r4, align 4
-  %814 = load i64, ptr %r4, align 4
-  %815 = add i64 %814, 1640531535
-  store i64 %815, ptr %r4, align 4
-  %816 = load i64, ptr %r2, align 4
-  store i64 %816, ptr %r0, align 4
-  %817 = load i64, ptr %r0, align 4
-  %818 = add i64 %817, -2048144777
-  store i64 %818, ptr %r0, align 4
-  %819 = load i64, ptr %r2, align 4
-  store i64 %819, ptr %r1, align 4
-  %820 = load i64, ptr %r1, align 4
-  %821 = add i64 %820, 606290984
-  store i64 %821, ptr %r1, align 4
-  %822 = load i64, ptr %r2, align 4
-  %823 = load ptr, ptr %r10, align 8
-  %824 = getelementptr i8, ptr %823, i64 -48
-  store i64 %822, ptr %824, align 4
-  %825 = load i64, ptr %r2, align 4
-  store i64 %825, ptr %r6, align 4
-  %826 = load i64, ptr %r9, align 4
-  store i64 %826, ptr %r7, align 4
+  %818 = load i64, ptr %r2, align 4
+  store i64 %818, ptr %r4, align 4
+  %819 = load i64, ptr %r4, align 4
+  %820 = add i64 %819, 1640531535
+  store i64 %820, ptr %r4, align 4
+  %821 = load i64, ptr %r2, align 4
+  store i64 %821, ptr %r0, align 4
+  %822 = load i64, ptr %r0, align 4
+  %823 = add i64 %822, -2048144777
+  store i64 %823, ptr %r0, align 4
+  %824 = load i64, ptr %r2, align 4
+  store i64 %824, ptr %r1, align 4
+  %825 = load i64, ptr %r1, align 4
+  %826 = add i64 %825, 606290984
+  store i64 %826, ptr %r1, align 4
+  %827 = load i64, ptr %r2, align 4
+  %828 = load ptr, ptr %r10, align 8
+  %829 = getelementptr i8, ptr %828, i64 -48
+  store i64 %827, ptr %829, align 4
+  %830 = load i64, ptr %r2, align 4
+  store i64 %830, ptr %r6, align 4
+  %831 = load i64, ptr %r9, align 4
+  store i64 %831, ptr %r7, align 4
   br label %bb_inst_401
 
 bb_inst_401:                                      ; preds = %bb_inst_391, %bb_inst_401
-  %827 = load i64, ptr %r4, align 4
-  %828 = load ptr, ptr %r10, align 8
-  %829 = getelementptr i8, ptr %828, i64 -40
-  store i64 %827, ptr %829, align 4
-  %830 = load ptr, ptr %r7, align 8
-  %831 = getelementptr i8, ptr %830, i64 13
-  %832 = load i8, ptr %831, align 1
-  %833 = zext i8 %832 to i64
-  store i64 %833, ptr %r3, align 4
-  %834 = load i64, ptr %r3, align 4
-  %835 = shl i64 %834, 8
-  store i64 %835, ptr %r3, align 4
-  %836 = load ptr, ptr %r7, align 8
-  %837 = getelementptr i8, ptr %836, i64 12
-  %838 = load i8, ptr %837, align 1
-  %839 = zext i8 %838 to i64
-  store i64 %839, ptr %r2, align 4
-  %840 = load i64, ptr %r3, align 4
-  %841 = load i64, ptr %r2, align 4
-  %842 = or i64 %840, %841
-  store i64 %842, ptr %r3, align 4
-  %843 = load ptr, ptr %r7, align 8
-  %844 = getelementptr i8, ptr %843, i64 1
-  %845 = load i8, ptr %844, align 1
-  %846 = zext i8 %845 to i64
-  store i64 %846, ptr %r2, align 4
-  %847 = load i64, ptr %r2, align 4
-  %848 = shl i64 %847, 8
-  store i64 %848, ptr %r2, align 4
-  %849 = load ptr, ptr %r7, align 8
-  %850 = getelementptr i8, ptr %849, i64 0
-  %851 = load i8, ptr %850, align 1
-  %852 = zext i8 %851 to i64
-  store i64 %852, ptr %r4, align 4
-  %853 = load i64, ptr %r2, align 4
-  %854 = load i64, ptr %r4, align 4
-  %855 = or i64 %853, %854
-  store i64 %855, ptr %r2, align 4
-  %856 = load ptr, ptr %r7, align 8
-  %857 = getelementptr i8, ptr %856, i64 5
-  %858 = load i8, ptr %857, align 1
-  %859 = zext i8 %858 to i64
-  store i64 %859, ptr %r9, align 4
-  %860 = load i64, ptr %r9, align 4
-  %861 = shl i64 %860, 8
-  store i64 %861, ptr %r9, align 4
-  %862 = load ptr, ptr %r7, align 8
-  %863 = getelementptr i8, ptr %862, i64 4
-  %864 = load i8, ptr %863, align 1
-  %865 = zext i8 %864 to i64
-  store i64 %865, ptr %r4, align 4
-  %866 = load i64, ptr %r9, align 4
-  %867 = load i64, ptr %r4, align 4
-  %868 = or i64 %866, %867
-  store i64 %868, ptr %r9, align 4
-  %869 = load ptr, ptr %r7, align 8
-  %870 = getelementptr i8, ptr %869, i64 2
-  %871 = load i8, ptr %870, align 1
-  %872 = zext i8 %871 to i64
-  store i64 %872, ptr %r4, align 4
-  %873 = load i64, ptr %r4, align 4
-  %874 = shl i64 %873, 16
-  store i64 %874, ptr %r4, align 4
-  %875 = load i64, ptr %r2, align 4
-  %876 = load i64, ptr %r4, align 4
-  %877 = or i64 %875, %876
-  store i64 %877, ptr %r2, align 4
-  %878 = load ptr, ptr %r7, align 8
-  %879 = getelementptr i8, ptr %878, i64 14
-  %880 = load i8, ptr %879, align 1
-  %881 = zext i8 %880 to i64
-  store i64 %881, ptr %r4, align 4
-  %882 = load i64, ptr %r4, align 4
-  %883 = shl i64 %882, 16
-  store i64 %883, ptr %r4, align 4
-  %884 = load i64, ptr %r3, align 4
-  %885 = load i64, ptr %r4, align 4
-  %886 = or i64 %884, %885
-  store i64 %886, ptr %r3, align 4
-  %887 = load ptr, ptr %r7, align 8
-  %888 = getelementptr i8, ptr %887, i64 9
-  %889 = load i8, ptr %888, align 1
-  %890 = zext i8 %889 to i64
-  store i64 %890, ptr %r4, align 4
-  %891 = load i64, ptr %r4, align 4
-  %892 = shl i64 %891, 8
-  store i64 %892, ptr %r4, align 4
-  %893 = load ptr, ptr %r7, align 8
-  %894 = getelementptr i8, ptr %893, i64 8
-  %895 = load i8, ptr %894, align 1
-  %896 = zext i8 %895 to i64
-  store i64 %896, ptr %r8, align 4
-  %897 = load i64, ptr %r4, align 4
-  %898 = load i64, ptr %r8, align 4
-  %899 = or i64 %897, %898
-  store i64 %899, ptr %r4, align 4
-  %900 = load ptr, ptr %r7, align 8
-  %901 = getelementptr i8, ptr %900, i64 10
-  %902 = load i8, ptr %901, align 1
-  %903 = zext i8 %902 to i64
-  store i64 %903, ptr %r8, align 4
-  %904 = load i64, ptr %r8, align 4
-  %905 = shl i64 %904, 16
-  store i64 %905, ptr %r8, align 4
-  %906 = load i64, ptr %r4, align 4
-  %907 = load i64, ptr %r8, align 4
-  %908 = or i64 %906, %907
-  store i64 %908, ptr %r4, align 4
-  %909 = load ptr, ptr %r7, align 8
-  %910 = getelementptr i8, ptr %909, i64 11
-  %911 = load i8, ptr %910, align 1
-  %912 = zext i8 %911 to i64
-  store i64 %912, ptr %r8, align 4
-  %913 = load i64, ptr %r8, align 4
-  %914 = shl i64 %913, 24
-  store i64 %914, ptr %r8, align 4
-  %915 = load i64, ptr %r4, align 4
-  %916 = load i64, ptr %r8, align 4
-  %917 = or i64 %915, %916
-  store i64 %917, ptr %r4, align 4
-  %918 = load ptr, ptr %r7, align 8
-  %919 = getelementptr i8, ptr %918, i64 15
-  %920 = load i8, ptr %919, align 1
-  %921 = zext i8 %920 to i64
-  store i64 %921, ptr %r8, align 4
-  %922 = load i64, ptr %r8, align 4
-  %923 = shl i64 %922, 24
-  store i64 %923, ptr %r8, align 4
-  %924 = load i64, ptr %r3, align 4
-  %925 = load i64, ptr %r8, align 4
-  %926 = or i64 %924, %925
-  store i64 %926, ptr %r3, align 4
-  %927 = load ptr, ptr %r7, align 8
-  %928 = getelementptr i8, ptr %927, i64 3
-  %929 = load i8, ptr %928, align 1
-  %930 = zext i8 %929 to i64
-  store i64 %930, ptr %r8, align 4
-  %931 = load i64, ptr %r8, align 4
-  %932 = shl i64 %931, 24
-  store i64 %932, ptr %r8, align 4
-  %933 = load i64, ptr %r2, align 4
-  %934 = load i64, ptr %r8, align 4
-  %935 = or i64 %933, %934
-  store i64 %935, ptr %r2, align 4
-  %936 = load ptr, ptr %r7, align 8
-  %937 = getelementptr i8, ptr %936, i64 6
-  %938 = load i8, ptr %937, align 1
-  %939 = zext i8 %938 to i64
-  store i64 %939, ptr %r8, align 4
-  %940 = load i64, ptr %r8, align 4
-  %941 = shl i64 %940, 16
-  store i64 %941, ptr %r8, align 4
-  %942 = load i64, ptr %r9, align 4
-  %943 = load i64, ptr %r8, align 4
-  %944 = or i64 %942, %943
-  store i64 %944, ptr %r9, align 4
-  %945 = load ptr, ptr %r7, align 8
-  %946 = getelementptr i8, ptr %945, i64 7
-  %947 = load i8, ptr %946, align 1
-  %948 = zext i8 %947 to i64
-  store i64 %948, ptr %r8, align 4
-  %949 = load i64, ptr %r8, align 4
-  %950 = shl i64 %949, 24
-  store i64 %950, ptr %r8, align 4
-  %951 = load i64, ptr %r9, align 4
-  %952 = load i64, ptr %r8, align 4
-  %953 = or i64 %951, %952
-  store i64 %953, ptr %r9, align 4
-  %954 = load i64, ptr %r9, align 4
-  %955 = mul i64 %954, -2048144777
-  store i64 %955, ptr %r9, align 4
+  %832 = load i64, ptr %r4, align 4
+  %833 = load ptr, ptr %r10, align 8
+  %834 = getelementptr i8, ptr %833, i64 -40
+  store i64 %832, ptr %834, align 4
+  %835 = load ptr, ptr %r7, align 8
+  %836 = getelementptr i8, ptr %835, i64 13
+  %837 = load i8, ptr %836, align 1
+  %838 = zext i8 %837 to i64
+  store i64 %838, ptr %r3, align 4
+  %839 = load i64, ptr %r3, align 4
+  %840 = shl i64 %839, 8
+  store i64 %840, ptr %r3, align 4
+  %841 = load ptr, ptr %r7, align 8
+  %842 = getelementptr i8, ptr %841, i64 12
+  %843 = load i8, ptr %842, align 1
+  %844 = zext i8 %843 to i64
+  store i64 %844, ptr %r2, align 4
+  %845 = load i64, ptr %r3, align 4
+  %846 = load i64, ptr %r2, align 4
+  %847 = or i64 %845, %846
+  store i64 %847, ptr %r3, align 4
+  %848 = load ptr, ptr %r7, align 8
+  %849 = getelementptr i8, ptr %848, i64 1
+  %850 = load i8, ptr %849, align 1
+  %851 = zext i8 %850 to i64
+  store i64 %851, ptr %r2, align 4
+  %852 = load i64, ptr %r2, align 4
+  %853 = shl i64 %852, 8
+  store i64 %853, ptr %r2, align 4
+  %854 = load ptr, ptr %r7, align 8
+  %855 = getelementptr i8, ptr %854, i64 0
+  %856 = load i8, ptr %855, align 1
+  %857 = zext i8 %856 to i64
+  store i64 %857, ptr %r4, align 4
+  %858 = load i64, ptr %r2, align 4
+  %859 = load i64, ptr %r4, align 4
+  %860 = or i64 %858, %859
+  store i64 %860, ptr %r2, align 4
+  %861 = load ptr, ptr %r7, align 8
+  %862 = getelementptr i8, ptr %861, i64 5
+  %863 = load i8, ptr %862, align 1
+  %864 = zext i8 %863 to i64
+  store i64 %864, ptr %r9, align 4
+  %865 = load i64, ptr %r9, align 4
+  %866 = shl i64 %865, 8
+  store i64 %866, ptr %r9, align 4
+  %867 = load ptr, ptr %r7, align 8
+  %868 = getelementptr i8, ptr %867, i64 4
+  %869 = load i8, ptr %868, align 1
+  %870 = zext i8 %869 to i64
+  store i64 %870, ptr %r4, align 4
+  %871 = load i64, ptr %r9, align 4
+  %872 = load i64, ptr %r4, align 4
+  %873 = or i64 %871, %872
+  store i64 %873, ptr %r9, align 4
+  %874 = load ptr, ptr %r7, align 8
+  %875 = getelementptr i8, ptr %874, i64 2
+  %876 = load i8, ptr %875, align 1
+  %877 = zext i8 %876 to i64
+  store i64 %877, ptr %r4, align 4
+  %878 = load i64, ptr %r4, align 4
+  %879 = shl i64 %878, 16
+  store i64 %879, ptr %r4, align 4
+  %880 = load i64, ptr %r2, align 4
+  %881 = load i64, ptr %r4, align 4
+  %882 = or i64 %880, %881
+  store i64 %882, ptr %r2, align 4
+  %883 = load ptr, ptr %r7, align 8
+  %884 = getelementptr i8, ptr %883, i64 14
+  %885 = load i8, ptr %884, align 1
+  %886 = zext i8 %885 to i64
+  store i64 %886, ptr %r4, align 4
+  %887 = load i64, ptr %r4, align 4
+  %888 = shl i64 %887, 16
+  store i64 %888, ptr %r4, align 4
+  %889 = load i64, ptr %r3, align 4
+  %890 = load i64, ptr %r4, align 4
+  %891 = or i64 %889, %890
+  store i64 %891, ptr %r3, align 4
+  %892 = load ptr, ptr %r7, align 8
+  %893 = getelementptr i8, ptr %892, i64 9
+  %894 = load i8, ptr %893, align 1
+  %895 = zext i8 %894 to i64
+  store i64 %895, ptr %r4, align 4
+  %896 = load i64, ptr %r4, align 4
+  %897 = shl i64 %896, 8
+  store i64 %897, ptr %r4, align 4
+  %898 = load ptr, ptr %r7, align 8
+  %899 = getelementptr i8, ptr %898, i64 8
+  %900 = load i8, ptr %899, align 1
+  %901 = zext i8 %900 to i64
+  store i64 %901, ptr %r8, align 4
+  %902 = load i64, ptr %r4, align 4
+  %903 = load i64, ptr %r8, align 4
+  %904 = or i64 %902, %903
+  store i64 %904, ptr %r4, align 4
+  %905 = load ptr, ptr %r7, align 8
+  %906 = getelementptr i8, ptr %905, i64 10
+  %907 = load i8, ptr %906, align 1
+  %908 = zext i8 %907 to i64
+  store i64 %908, ptr %r8, align 4
+  %909 = load i64, ptr %r8, align 4
+  %910 = shl i64 %909, 16
+  store i64 %910, ptr %r8, align 4
+  %911 = load i64, ptr %r4, align 4
+  %912 = load i64, ptr %r8, align 4
+  %913 = or i64 %911, %912
+  store i64 %913, ptr %r4, align 4
+  %914 = load ptr, ptr %r7, align 8
+  %915 = getelementptr i8, ptr %914, i64 11
+  %916 = load i8, ptr %915, align 1
+  %917 = zext i8 %916 to i64
+  store i64 %917, ptr %r8, align 4
+  %918 = load i64, ptr %r8, align 4
+  %919 = shl i64 %918, 24
+  store i64 %919, ptr %r8, align 4
+  %920 = load i64, ptr %r4, align 4
+  %921 = load i64, ptr %r8, align 4
+  %922 = or i64 %920, %921
+  store i64 %922, ptr %r4, align 4
+  %923 = load ptr, ptr %r7, align 8
+  %924 = getelementptr i8, ptr %923, i64 15
+  %925 = load i8, ptr %924, align 1
+  %926 = zext i8 %925 to i64
+  store i64 %926, ptr %r8, align 4
+  %927 = load i64, ptr %r8, align 4
+  %928 = shl i64 %927, 24
+  store i64 %928, ptr %r8, align 4
+  %929 = load i64, ptr %r3, align 4
+  %930 = load i64, ptr %r8, align 4
+  %931 = or i64 %929, %930
+  store i64 %931, ptr %r3, align 4
+  %932 = load ptr, ptr %r7, align 8
+  %933 = getelementptr i8, ptr %932, i64 3
+  %934 = load i8, ptr %933, align 1
+  %935 = zext i8 %934 to i64
+  store i64 %935, ptr %r8, align 4
+  %936 = load i64, ptr %r8, align 4
+  %937 = shl i64 %936, 24
+  store i64 %937, ptr %r8, align 4
+  %938 = load i64, ptr %r2, align 4
+  %939 = load i64, ptr %r8, align 4
+  %940 = or i64 %938, %939
+  store i64 %940, ptr %r2, align 4
+  %941 = load ptr, ptr %r7, align 8
+  %942 = getelementptr i8, ptr %941, i64 6
+  %943 = load i8, ptr %942, align 1
+  %944 = zext i8 %943 to i64
+  store i64 %944, ptr %r8, align 4
+  %945 = load i64, ptr %r8, align 4
+  %946 = shl i64 %945, 16
+  store i64 %946, ptr %r8, align 4
+  %947 = load i64, ptr %r9, align 4
+  %948 = load i64, ptr %r8, align 4
+  %949 = or i64 %947, %948
+  store i64 %949, ptr %r9, align 4
+  %950 = load ptr, ptr %r7, align 8
+  %951 = getelementptr i8, ptr %950, i64 7
+  %952 = load i8, ptr %951, align 1
+  %953 = zext i8 %952 to i64
+  store i64 %953, ptr %r8, align 4
+  %954 = load i64, ptr %r8, align 4
+  %955 = shl i64 %954, 24
+  store i64 %955, ptr %r8, align 4
   %956 = load i64, ptr %r9, align 4
-  %957 = load i64, ptr %r0, align 4
-  %958 = add i64 %956, %957
+  %957 = load i64, ptr %r8, align 4
+  %958 = or i64 %956, %957
   store i64 %958, ptr %r9, align 4
-  %959 = load i64, ptr %r2, align 4
+  %959 = load i64, ptr %r9, align 4
   %960 = mul i64 %959, -2048144777
-  store i64 %960, ptr %r2, align 4
-  %961 = load i64, ptr %r2, align 4
-  %962 = load i64, ptr %r1, align 4
+  store i64 %960, ptr %r9, align 4
+  %961 = load i64, ptr %r9, align 4
+  %962 = load i64, ptr %r0, align 4
   %963 = add i64 %961, %962
-  store i64 %963, ptr %r2, align 4
-  %964 = load i64, ptr %r3, align 4
+  store i64 %963, ptr %r9, align 4
+  %964 = load i64, ptr %r2, align 4
   %965 = mul i64 %964, -2048144777
-  store i64 %965, ptr %r3, align 4
-  %966 = load ptr, ptr %r10, align 8
-  %967 = getelementptr i8, ptr %966, i64 -40
-  %968 = load i64, ptr %967, align 4
-  store i64 %968, ptr %r1, align 4
+  store i64 %965, ptr %r2, align 4
+  %966 = load i64, ptr %r2, align 4
+  %967 = load i64, ptr %r1, align 4
+  %968 = add i64 %966, %967
+  store i64 %968, ptr %r2, align 4
   %969 = load i64, ptr %r3, align 4
-  %970 = load i64, ptr %r1, align 4
-  %971 = add i64 %969, %970
-  store i64 %971, ptr %r3, align 4
-  %972 = load i64, ptr %r4, align 4
-  %973 = mul i64 %972, -2048144777
-  store i64 %973, ptr %r4, align 4
-  %974 = load i64, ptr %r4, align 4
-  %975 = load i64, ptr %r6, align 4
+  %970 = mul i64 %969, -2048144777
+  store i64 %970, ptr %r3, align 4
+  %971 = load ptr, ptr %r10, align 8
+  %972 = getelementptr i8, ptr %971, i64 -40
+  %973 = load i64, ptr %972, align 4
+  store i64 %973, ptr %r1, align 4
+  %974 = load i64, ptr %r3, align 4
+  %975 = load i64, ptr %r1, align 4
   %976 = add i64 %974, %975
-  store i64 %976, ptr %r4, align 4
-  %977 = load i64, ptr %r2, align 4
-  store i64 %977, ptr %r1, align 4
-  %978 = load i64, ptr %r1, align 4
-  %979 = shl i64 %978, 13
-  store i64 %979, ptr %r1, align 4
+  store i64 %976, ptr %r3, align 4
+  %977 = load i64, ptr %r4, align 4
+  %978 = mul i64 %977, -2048144777
+  store i64 %978, ptr %r4, align 4
+  %979 = load i64, ptr %r4, align 4
+  %980 = load i64, ptr %r6, align 4
+  %981 = add i64 %979, %980
+  store i64 %981, ptr %r4, align 4
+  %982 = load i64, ptr %r2, align 4
+  store i64 %982, ptr %r1, align 4
+  %983 = load i64, ptr %r1, align 4
+  %984 = shl i64 %983, 13
+  store i64 %984, ptr %r1, align 4
   store i64 4294443008, ptr %r8, align 4
-  %980 = load i64, ptr %r2, align 4
-  %981 = load i64, ptr %r8, align 4
-  %982 = and i64 %980, %981
-  store i64 %982, ptr %r2, align 4
-  %983 = load i64, ptr %r2, align 4
-  %984 = lshr i64 %983, 19
-  store i64 %984, ptr %r2, align 4
-  %985 = load i64, ptr %r1, align 4
-  %986 = load i64, ptr %r2, align 4
-  %987 = or i64 %985, %986
-  store i64 %987, ptr %r1, align 4
-  %988 = load i64, ptr %r9, align 4
-  store i64 %988, ptr %r0, align 4
-  %989 = load i64, ptr %r0, align 4
-  %990 = shl i64 %989, 13
-  store i64 %990, ptr %r0, align 4
-  %991 = load i64, ptr %r9, align 4
-  %992 = load i64, ptr %r8, align 4
-  %993 = and i64 %991, %992
-  store i64 %993, ptr %r9, align 4
-  %994 = load i64, ptr %r9, align 4
-  %995 = lshr i64 %994, 19
-  store i64 %995, ptr %r9, align 4
-  %996 = load i64, ptr %r0, align 4
-  %997 = load i64, ptr %r9, align 4
-  %998 = or i64 %996, %997
-  store i64 %998, ptr %r0, align 4
-  %999 = load i64, ptr %r4, align 4
-  store i64 %999, ptr %r6, align 4
-  %1000 = load i64, ptr %r6, align 4
-  %1001 = shl i64 %1000, 13
-  store i64 %1001, ptr %r6, align 4
-  %1002 = load i64, ptr %r4, align 4
-  %1003 = load i64, ptr %r8, align 4
-  %1004 = and i64 %1002, %1003
-  store i64 %1004, ptr %r4, align 4
-  %1005 = load i64, ptr %r4, align 4
-  %1006 = lshr i64 %1005, 19
-  store i64 %1006, ptr %r4, align 4
-  %1007 = load i64, ptr %r6, align 4
-  %1008 = load i64, ptr %r4, align 4
-  %1009 = or i64 %1007, %1008
-  store i64 %1009, ptr %r6, align 4
-  %1010 = load i64, ptr %r3, align 4
-  store i64 %1010, ptr %r2, align 4
-  %1011 = load i64, ptr %r2, align 4
-  %1012 = load i64, ptr %r8, align 4
-  %1013 = and i64 %1011, %1012
-  store i64 %1013, ptr %r2, align 4
-  %1014 = load i64, ptr %r3, align 4
-  %1015 = shl i64 %1014, 13
-  store i64 %1015, ptr %r3, align 4
+  %985 = load i64, ptr %r2, align 4
+  %986 = load i64, ptr %r8, align 4
+  %987 = and i64 %985, %986
+  store i64 %987, ptr %r2, align 4
+  %988 = load i64, ptr %r2, align 4
+  %989 = lshr i64 %988, 19
+  store i64 %989, ptr %r2, align 4
+  %990 = load i64, ptr %r1, align 4
+  %991 = load i64, ptr %r2, align 4
+  %992 = or i64 %990, %991
+  store i64 %992, ptr %r1, align 4
+  %993 = load i64, ptr %r9, align 4
+  store i64 %993, ptr %r0, align 4
+  %994 = load i64, ptr %r0, align 4
+  %995 = shl i64 %994, 13
+  store i64 %995, ptr %r0, align 4
+  %996 = load i64, ptr %r9, align 4
+  %997 = load i64, ptr %r8, align 4
+  %998 = and i64 %996, %997
+  store i64 %998, ptr %r9, align 4
+  %999 = load i64, ptr %r9, align 4
+  %1000 = lshr i64 %999, 19
+  store i64 %1000, ptr %r9, align 4
+  %1001 = load i64, ptr %r0, align 4
+  %1002 = load i64, ptr %r9, align 4
+  %1003 = or i64 %1001, %1002
+  store i64 %1003, ptr %r0, align 4
+  %1004 = load i64, ptr %r4, align 4
+  store i64 %1004, ptr %r6, align 4
+  %1005 = load i64, ptr %r6, align 4
+  %1006 = shl i64 %1005, 13
+  store i64 %1006, ptr %r6, align 4
+  %1007 = load i64, ptr %r4, align 4
+  %1008 = load i64, ptr %r8, align 4
+  %1009 = and i64 %1007, %1008
+  store i64 %1009, ptr %r4, align 4
+  %1010 = load i64, ptr %r4, align 4
+  %1011 = lshr i64 %1010, 19
+  store i64 %1011, ptr %r4, align 4
+  %1012 = load i64, ptr %r6, align 4
+  %1013 = load i64, ptr %r4, align 4
+  %1014 = or i64 %1012, %1013
+  store i64 %1014, ptr %r6, align 4
+  %1015 = load i64, ptr %r3, align 4
+  store i64 %1015, ptr %r2, align 4
   %1016 = load i64, ptr %r2, align 4
-  %1017 = lshr i64 %1016, 19
-  store i64 %1017, ptr %r2, align 4
-  %1018 = load i64, ptr %r3, align 4
-  %1019 = load i64, ptr %r2, align 4
-  %1020 = or i64 %1018, %1019
+  %1017 = load i64, ptr %r8, align 4
+  %1018 = and i64 %1016, %1017
+  store i64 %1018, ptr %r2, align 4
+  %1019 = load i64, ptr %r3, align 4
+  %1020 = shl i64 %1019, 13
   store i64 %1020, ptr %r3, align 4
-  %1021 = load i64, ptr %r7, align 4
-  %1022 = add i64 %1021, 16
-  store i64 %1022, ptr %r7, align 4
+  %1021 = load i64, ptr %r2, align 4
+  %1022 = lshr i64 %1021, 19
+  store i64 %1022, ptr %r2, align 4
   %1023 = load i64, ptr %r3, align 4
-  %1024 = mul i64 %1023, -1640531535
-  store i64 %1024, ptr %r3, align 4
-  %1025 = load i64, ptr %r6, align 4
-  %1026 = mul i64 %1025, -1640531535
-  store i64 %1026, ptr %r6, align 4
-  %1027 = load i64, ptr %r0, align 4
-  %1028 = mul i64 %1027, -1640531535
-  store i64 %1028, ptr %r0, align 4
-  %1029 = load i64, ptr %r1, align 4
-  %1030 = mul i64 %1029, -1640531535
-  store i64 %1030, ptr %r1, align 4
-  %1031 = load i64, ptr %r5, align 4
-  %1032 = add i64 %1031, -16
-  store i64 %1032, ptr %r5, align 4
-  %1033 = load i64, ptr %r5, align 4
-  store i64 %1033, ptr %r2, align 4
-  %1034 = load i64, ptr %r2, align 4
-  %1035 = shl i64 %1034, 32
-  store i64 %1035, ptr %r2, align 4
-  %1036 = load i64, ptr %r2, align 4
-  %1037 = lshr i64 %1036, 32
-  store i64 %1037, ptr %r2, align 4
-  %1038 = load i64, ptr %r3, align 4
-  store i64 %1038, ptr %r4, align 4
+  %1024 = load i64, ptr %r2, align 4
+  %1025 = or i64 %1023, %1024
+  store i64 %1025, ptr %r3, align 4
+  %1026 = load i64, ptr %r7, align 4
+  %1027 = add i64 %1026, 16
+  store i64 %1027, ptr %r7, align 4
+  %1028 = load i64, ptr %r3, align 4
+  %1029 = mul i64 %1028, -1640531535
+  store i64 %1029, ptr %r3, align 4
+  %1030 = load i64, ptr %r6, align 4
+  %1031 = mul i64 %1030, -1640531535
+  store i64 %1031, ptr %r6, align 4
+  %1032 = load i64, ptr %r0, align 4
+  %1033 = mul i64 %1032, -1640531535
+  store i64 %1033, ptr %r0, align 4
+  %1034 = load i64, ptr %r1, align 4
+  %1035 = mul i64 %1034, -1640531535
+  store i64 %1035, ptr %r1, align 4
+  %1036 = load i64, ptr %r5, align 4
+  %1037 = add i64 %1036, -16
+  store i64 %1037, ptr %r5, align 4
+  %1038 = load i64, ptr %r5, align 4
+  store i64 %1038, ptr %r2, align 4
   %1039 = load i64, ptr %r2, align 4
-  %1040 = icmp ugt i64 %1039, 15
-  br i1 %1040, label %bb_inst_401, label %bb_inst_484
+  %1040 = shl i64 %1039, 32
+  store i64 %1040, ptr %r2, align 4
+  %1041 = load i64, ptr %r2, align 4
+  %1042 = lshr i64 %1041, 32
+  store i64 %1042, ptr %r2, align 4
+  %1043 = load i64, ptr %r3, align 4
+  store i64 %1043, ptr %r4, align 4
+  %1044 = load i64, ptr %r2, align 4
+  %1045 = icmp ugt i64 %1044, 15
+  br i1 %1045, label %bb_inst_401, label %bb_inst_484
 
 bb_inst_484:                                      ; preds = %bb_inst_401
   store i64 4261412864, ptr %r2, align 4
-  %1041 = load i64, ptr %r0, align 4
-  store i64 %1041, ptr %r4, align 4
-  %1042 = load i64, ptr %r4, align 4
-  %1043 = load i64, ptr %r2, align 4
-  %1044 = and i64 %1042, %1043
-  store i64 %1044, ptr %r4, align 4
-  %1045 = load i64, ptr %r4, align 4
-  %1046 = lshr i64 %1045, 25
+  %1046 = load i64, ptr %r0, align 4
   store i64 %1046, ptr %r4, align 4
-  %1047 = load i64, ptr %r0, align 4
-  %1048 = shl i64 %1047, 7
-  store i64 %1048, ptr %r0, align 4
-  %1049 = load i64, ptr %r0, align 4
+  %1047 = load i64, ptr %r4, align 4
+  %1048 = load i64, ptr %r2, align 4
+  %1049 = and i64 %1047, %1048
+  store i64 %1049, ptr %r4, align 4
   %1050 = load i64, ptr %r4, align 4
-  %1051 = or i64 %1049, %1050
-  store i64 %1051, ptr %r0, align 4
+  %1051 = lshr i64 %1050, 25
+  store i64 %1051, ptr %r4, align 4
+  %1052 = load i64, ptr %r0, align 4
+  %1053 = shl i64 %1052, 7
+  store i64 %1053, ptr %r0, align 4
+  %1054 = load i64, ptr %r0, align 4
+  %1055 = load i64, ptr %r4, align 4
+  %1056 = or i64 %1054, %1055
+  store i64 %1056, ptr %r0, align 4
   store i64 2147483648, ptr %r2, align 4
-  %1052 = load i64, ptr %r1, align 4
-  store i64 %1052, ptr %r4, align 4
-  %1053 = load i64, ptr %r4, align 4
-  %1054 = load i64, ptr %r2, align 4
-  %1055 = and i64 %1053, %1054
-  store i64 %1055, ptr %r4, align 4
-  %1056 = load i64, ptr %r4, align 4
-  %1057 = lshr i64 %1056, 31
+  %1057 = load i64, ptr %r1, align 4
   store i64 %1057, ptr %r4, align 4
-  %1058 = load i64, ptr %r1, align 4
-  %1059 = shl i64 %1058, 1
-  store i64 %1059, ptr %r1, align 4
-  %1060 = load i64, ptr %r1, align 4
+  %1058 = load i64, ptr %r4, align 4
+  %1059 = load i64, ptr %r2, align 4
+  %1060 = and i64 %1058, %1059
+  store i64 %1060, ptr %r4, align 4
   %1061 = load i64, ptr %r4, align 4
-  %1062 = or i64 %1060, %1061
-  store i64 %1062, ptr %r1, align 4
+  %1062 = lshr i64 %1061, 31
+  store i64 %1062, ptr %r4, align 4
   %1063 = load i64, ptr %r1, align 4
-  %1064 = load i64, ptr %r0, align 4
-  %1065 = add i64 %1063, %1064
-  store i64 %1065, ptr %r1, align 4
+  %1064 = shl i64 %1063, 1
+  store i64 %1064, ptr %r1, align 4
+  %1065 = load i64, ptr %r1, align 4
+  %1066 = load i64, ptr %r4, align 4
+  %1067 = or i64 %1065, %1066
+  store i64 %1067, ptr %r1, align 4
+  %1068 = load i64, ptr %r1, align 4
+  %1069 = load i64, ptr %r0, align 4
+  %1070 = add i64 %1068, %1069
+  store i64 %1070, ptr %r1, align 4
   store i64 4293918720, ptr %r2, align 4
-  %1066 = load i64, ptr %r6, align 4
-  store i64 %1066, ptr %r4, align 4
-  %1067 = load i64, ptr %r4, align 4
-  %1068 = load i64, ptr %r2, align 4
-  %1069 = and i64 %1067, %1068
-  store i64 %1069, ptr %r4, align 4
-  %1070 = load i64, ptr %r4, align 4
-  %1071 = lshr i64 %1070, 20
+  %1071 = load i64, ptr %r6, align 4
   store i64 %1071, ptr %r4, align 4
-  %1072 = load i64, ptr %r6, align 4
-  %1073 = shl i64 %1072, 12
-  store i64 %1073, ptr %r6, align 4
-  %1074 = load i64, ptr %r6, align 4
+  %1072 = load i64, ptr %r4, align 4
+  %1073 = load i64, ptr %r2, align 4
+  %1074 = and i64 %1072, %1073
+  store i64 %1074, ptr %r4, align 4
   %1075 = load i64, ptr %r4, align 4
-  %1076 = or i64 %1074, %1075
-  store i64 %1076, ptr %r6, align 4
-  %1077 = load i64, ptr %r1, align 4
-  %1078 = load i64, ptr %r6, align 4
-  %1079 = add i64 %1077, %1078
-  store i64 %1079, ptr %r1, align 4
+  %1076 = lshr i64 %1075, 20
+  store i64 %1076, ptr %r4, align 4
+  %1077 = load i64, ptr %r6, align 4
+  %1078 = shl i64 %1077, 12
+  store i64 %1078, ptr %r6, align 4
+  %1079 = load i64, ptr %r6, align 4
+  %1080 = load i64, ptr %r4, align 4
+  %1081 = or i64 %1079, %1080
+  store i64 %1081, ptr %r6, align 4
+  %1082 = load i64, ptr %r1, align 4
+  %1083 = load i64, ptr %r6, align 4
+  %1084 = add i64 %1082, %1083
+  store i64 %1084, ptr %r1, align 4
   store i64 4294950912, ptr %r2, align 4
-  %1080 = load i64, ptr %r3, align 4
-  store i64 %1080, ptr %r4, align 4
-  %1081 = load i64, ptr %r4, align 4
-  %1082 = load i64, ptr %r2, align 4
-  %1083 = and i64 %1081, %1082
-  store i64 %1083, ptr %r4, align 4
-  %1084 = load i64, ptr %r4, align 4
-  %1085 = lshr i64 %1084, 14
+  %1085 = load i64, ptr %r3, align 4
   store i64 %1085, ptr %r4, align 4
-  %1086 = load i64, ptr %r3, align 4
-  %1087 = shl i64 %1086, 18
-  store i64 %1087, ptr %r3, align 4
-  %1088 = load i64, ptr %r3, align 4
+  %1086 = load i64, ptr %r4, align 4
+  %1087 = load i64, ptr %r2, align 4
+  %1088 = and i64 %1086, %1087
+  store i64 %1088, ptr %r4, align 4
   %1089 = load i64, ptr %r4, align 4
-  %1090 = or i64 %1088, %1089
-  store i64 %1090, ptr %r3, align 4
-  %1091 = load i64, ptr %r1, align 4
-  %1092 = load i64, ptr %r3, align 4
-  %1093 = add i64 %1091, %1092
-  store i64 %1093, ptr %r1, align 4
+  %1090 = lshr i64 %1089, 14
+  store i64 %1090, ptr %r4, align 4
+  %1091 = load i64, ptr %r3, align 4
+  %1092 = shl i64 %1091, 18
+  store i64 %1092, ptr %r3, align 4
+  %1093 = load i64, ptr %r3, align 4
+  %1094 = load i64, ptr %r4, align 4
+  %1095 = or i64 %1093, %1094
+  store i64 %1095, ptr %r3, align 4
+  %1096 = load i64, ptr %r1, align 4
+  %1097 = load i64, ptr %r3, align 4
+  %1098 = add i64 %1096, %1097
+  store i64 %1098, ptr %r1, align 4
   store i64 12, ptr %r0, align 4
-  %1094 = load i64, ptr %r1, align 4
-  %1095 = add i64 %1094, 60
-  store i64 %1095, ptr %r1, align 4
+  %1099 = load i64, ptr %r1, align 4
+  %1100 = add i64 %1099, 60
+  store i64 %1100, ptr %r1, align 4
   store i64 4, ptr %r3, align 4
   store i64 4294934528, ptr %r4, align 4
   store i64 4292870144, ptr %r5, align 4
-  %1096 = load ptr, ptr %r10, align 8
-  %1097 = getelementptr i8, ptr %1096, i64 -64
-  %1098 = load i64, ptr %1097, align 4
-  store i64 %1098, ptr %r8, align 4
-  %1099 = load ptr, ptr %r10, align 8
-  %1100 = getelementptr i8, ptr %1099, i64 -72
-  %1101 = load i64, ptr %1100, align 4
-  store i64 %1101, ptr %r9, align 4
+  %1101 = load ptr, ptr %r10, align 8
+  %1102 = getelementptr i8, ptr %1101, i64 -64
+  %1103 = load i64, ptr %1102, align 4
+  store i64 %1103, ptr %r8, align 4
+  %1104 = load ptr, ptr %r10, align 8
+  %1105 = getelementptr i8, ptr %1104, i64 -72
+  %1106 = load i64, ptr %1105, align 4
+  store i64 %1106, ptr %r9, align 4
   br label %bb_inst_524
 
 bb_inst_524:                                      ; preds = %bb_inst_484, %bb_inst_549
-  %1102 = load i64, ptr %r0, align 4
-  store i64 %1102, ptr %r2, align 4
-  %1103 = load i64, ptr %r2, align 4
-  %1104 = shl i64 %1103, 32
-  store i64 %1104, ptr %r2, align 4
-  %1105 = load i64, ptr %r2, align 4
-  %1106 = lshr i64 %1105, 32
-  store i64 %1106, ptr %r2, align 4
-  %1107 = load i64, ptr %r2, align 4
-  %1108 = load i64, ptr %r3, align 4
-  %1109 = icmp ugt i64 %1108, %1107
-  br i1 %1109, label %bb_inst_554, label %bb_inst_528
+  %1107 = load i64, ptr %r0, align 4
+  store i64 %1107, ptr %r2, align 4
+  %1108 = load i64, ptr %r2, align 4
+  %1109 = shl i64 %1108, 32
+  store i64 %1109, ptr %r2, align 4
+  %1110 = load i64, ptr %r2, align 4
+  %1111 = lshr i64 %1110, 32
+  store i64 %1111, ptr %r2, align 4
+  %1112 = load i64, ptr %r2, align 4
+  %1113 = load i64, ptr %r3, align 4
+  %1114 = icmp ugt i64 %1113, %1112
+  br i1 %1114, label %bb_inst_554, label %bb_inst_528
 
 bb_inst_528:                                      ; preds = %bb_inst_524
-  %1110 = load ptr, ptr %r9, align 8
-  %1111 = getelementptr i8, ptr %1110, i64 1
-  %1112 = load i8, ptr %1111, align 1
-  %1113 = zext i8 %1112 to i64
-  store i64 %1113, ptr %r2, align 4
-  %1114 = load i64, ptr %r2, align 4
-  %1115 = shl i64 %1114, 8
-  store i64 %1115, ptr %r2, align 4
-  %1116 = load ptr, ptr %r9, align 8
-  %1117 = getelementptr i8, ptr %1116, i64 0
-  %1118 = load i8, ptr %1117, align 1
-  %1119 = zext i8 %1118 to i64
-  store i64 %1119, ptr %r6, align 4
-  %1120 = load i64, ptr %r2, align 4
-  %1121 = load i64, ptr %r6, align 4
-  %1122 = or i64 %1120, %1121
-  store i64 %1122, ptr %r2, align 4
-  %1123 = load ptr, ptr %r9, align 8
-  %1124 = getelementptr i8, ptr %1123, i64 2
-  %1125 = load i8, ptr %1124, align 1
-  %1126 = zext i8 %1125 to i64
-  store i64 %1126, ptr %r6, align 4
-  %1127 = load i64, ptr %r6, align 4
-  %1128 = shl i64 %1127, 16
-  store i64 %1128, ptr %r6, align 4
-  %1129 = load i64, ptr %r2, align 4
-  %1130 = load i64, ptr %r6, align 4
-  %1131 = or i64 %1129, %1130
-  store i64 %1131, ptr %r2, align 4
-  %1132 = load ptr, ptr %r9, align 8
-  %1133 = getelementptr i8, ptr %1132, i64 3
-  %1134 = load i8, ptr %1133, align 1
-  %1135 = zext i8 %1134 to i64
-  store i64 %1135, ptr %r6, align 4
-  %1136 = load i64, ptr %r6, align 4
-  %1137 = shl i64 %1136, 24
-  store i64 %1137, ptr %r6, align 4
-  %1138 = load i64, ptr %r2, align 4
-  %1139 = load i64, ptr %r6, align 4
-  %1140 = or i64 %1138, %1139
-  store i64 %1140, ptr %r2, align 4
-  %1141 = load i64, ptr %r2, align 4
-  %1142 = mul i64 %1141, -1028477379
-  store i64 %1142, ptr %r2, align 4
+  %1115 = load ptr, ptr %r9, align 8
+  %1116 = getelementptr i8, ptr %1115, i64 1
+  %1117 = load i8, ptr %1116, align 1
+  %1118 = zext i8 %1117 to i64
+  store i64 %1118, ptr %r2, align 4
+  %1119 = load i64, ptr %r2, align 4
+  %1120 = shl i64 %1119, 8
+  store i64 %1120, ptr %r2, align 4
+  %1121 = load ptr, ptr %r9, align 8
+  %1122 = getelementptr i8, ptr %1121, i64 0
+  %1123 = load i8, ptr %1122, align 1
+  %1124 = zext i8 %1123 to i64
+  store i64 %1124, ptr %r6, align 4
+  %1125 = load i64, ptr %r2, align 4
+  %1126 = load i64, ptr %r6, align 4
+  %1127 = or i64 %1125, %1126
+  store i64 %1127, ptr %r2, align 4
+  %1128 = load ptr, ptr %r9, align 8
+  %1129 = getelementptr i8, ptr %1128, i64 2
+  %1130 = load i8, ptr %1129, align 1
+  %1131 = zext i8 %1130 to i64
+  store i64 %1131, ptr %r6, align 4
+  %1132 = load i64, ptr %r6, align 4
+  %1133 = shl i64 %1132, 16
+  store i64 %1133, ptr %r6, align 4
+  %1134 = load i64, ptr %r2, align 4
+  %1135 = load i64, ptr %r6, align 4
+  %1136 = or i64 %1134, %1135
+  store i64 %1136, ptr %r2, align 4
+  %1137 = load ptr, ptr %r9, align 8
+  %1138 = getelementptr i8, ptr %1137, i64 3
+  %1139 = load i8, ptr %1138, align 1
+  %1140 = zext i8 %1139 to i64
+  store i64 %1140, ptr %r6, align 4
+  %1141 = load i64, ptr %r6, align 4
+  %1142 = shl i64 %1141, 24
+  store i64 %1142, ptr %r6, align 4
   %1143 = load i64, ptr %r2, align 4
-  %1144 = load i64, ptr %r1, align 4
-  %1145 = add i64 %1143, %1144
+  %1144 = load i64, ptr %r6, align 4
+  %1145 = or i64 %1143, %1144
   store i64 %1145, ptr %r2, align 4
   %1146 = load i64, ptr %r2, align 4
-  store i64 %1146, ptr %r1, align 4
-  %1147 = load i64, ptr %r1, align 4
-  %1148 = load i64, ptr %r4, align 4
-  %1149 = and i64 %1147, %1148
-  store i64 %1149, ptr %r1, align 4
-  %1150 = load i64, ptr %r2, align 4
-  %1151 = shl i64 %1150, 17
-  store i64 %1151, ptr %r2, align 4
+  %1147 = mul i64 %1146, -1028477379
+  store i64 %1147, ptr %r2, align 4
+  %1148 = load i64, ptr %r2, align 4
+  %1149 = load i64, ptr %r1, align 4
+  %1150 = add i64 %1148, %1149
+  store i64 %1150, ptr %r2, align 4
+  %1151 = load i64, ptr %r2, align 4
+  store i64 %1151, ptr %r1, align 4
   %1152 = load i64, ptr %r1, align 4
-  %1153 = lshr i64 %1152, 15
-  store i64 %1153, ptr %r1, align 4
-  %1154 = load i64, ptr %r2, align 4
-  %1155 = load i64, ptr %r1, align 4
-  %1156 = or i64 %1154, %1155
+  %1153 = load i64, ptr %r4, align 4
+  %1154 = and i64 %1152, %1153
+  store i64 %1154, ptr %r1, align 4
+  %1155 = load i64, ptr %r2, align 4
+  %1156 = shl i64 %1155, 17
   store i64 %1156, ptr %r2, align 4
+  %1157 = load i64, ptr %r1, align 4
+  %1158 = lshr i64 %1157, 15
+  store i64 %1158, ptr %r1, align 4
+  %1159 = load i64, ptr %r2, align 4
+  %1160 = load i64, ptr %r1, align 4
+  %1161 = or i64 %1159, %1160
+  store i64 %1161, ptr %r2, align 4
   store i64 4294967292, ptr %r6, align 4
   store i64 4, ptr %r7, align 4
-  %1157 = load i64, ptr %r2, align 4
-  %1158 = mul i64 %1157, 668265263
-  store i64 %1158, ptr %r2, align 4
+  %1162 = load i64, ptr %r2, align 4
+  %1163 = mul i64 %1162, 668265263
+  store i64 %1163, ptr %r2, align 4
   br label %bb_inst_549
 
 bb_inst_549:                                      ; preds = %bb_inst_528, %bb_inst_555
-  %1159 = load i64, ptr %r2, align 4
-  store i64 %1159, ptr %r1, align 4
-  %1160 = load i64, ptr %r6, align 4
-  %1161 = load i64, ptr %r0, align 4
-  %1162 = add i64 %1160, %1161
-  store i64 %1162, ptr %r6, align 4
-  %1163 = load i64, ptr %r9, align 4
-  %1164 = load i64, ptr %r7, align 4
-  %1165 = add i64 %1163, %1164
-  store i64 %1165, ptr %r9, align 4
-  %1166 = load i64, ptr %r6, align 4
-  store i64 %1166, ptr %r0, align 4
+  %1164 = load i64, ptr %r2, align 4
+  store i64 %1164, ptr %r1, align 4
+  %1165 = load i64, ptr %r6, align 4
+  %1166 = load i64, ptr %r0, align 4
+  %1167 = add i64 %1165, %1166
+  store i64 %1167, ptr %r6, align 4
+  %1168 = load i64, ptr %r9, align 4
+  %1169 = load i64, ptr %r7, align 4
+  %1170 = add i64 %1168, %1169
+  store i64 %1170, ptr %r9, align 4
+  %1171 = load i64, ptr %r6, align 4
+  store i64 %1171, ptr %r0, align 4
   br label %bb_inst_524
 
 bb_inst_554:                                      ; preds = %bb_inst_524
-  %1167 = load i64, ptr %r2, align 4
-  %1168 = icmp eq i64 %1167, 0
-  br i1 %1168, label %bb_inst_568, label %bb_inst_555
+  %1172 = load i64, ptr %r2, align 4
+  %1173 = icmp eq i64 %1172, 0
+  br i1 %1173, label %bb_inst_568, label %bb_inst_555
 
 bb_inst_555:                                      ; preds = %bb_inst_554
-  %1169 = load ptr, ptr %r9, align 8
-  %1170 = getelementptr i8, ptr %1169, i64 0
-  %1171 = load i8, ptr %1170, align 1
-  %1172 = zext i8 %1171 to i64
-  store i64 %1172, ptr %r2, align 4
-  %1173 = load i64, ptr %r2, align 4
-  %1174 = mul i64 %1173, 374761393
-  store i64 %1174, ptr %r2, align 4
-  %1175 = load i64, ptr %r2, align 4
-  %1176 = load i64, ptr %r1, align 4
-  %1177 = add i64 %1175, %1176
+  %1174 = load ptr, ptr %r9, align 8
+  %1175 = getelementptr i8, ptr %1174, i64 0
+  %1176 = load i8, ptr %1175, align 1
+  %1177 = zext i8 %1176 to i64
   store i64 %1177, ptr %r2, align 4
   %1178 = load i64, ptr %r2, align 4
-  store i64 %1178, ptr %r1, align 4
-  %1179 = load i64, ptr %r1, align 4
-  %1180 = load i64, ptr %r5, align 4
-  %1181 = and i64 %1179, %1180
-  store i64 %1181, ptr %r1, align 4
-  %1182 = load i64, ptr %r2, align 4
-  %1183 = shl i64 %1182, 11
-  store i64 %1183, ptr %r2, align 4
+  %1179 = mul i64 %1178, 374761393
+  store i64 %1179, ptr %r2, align 4
+  %1180 = load i64, ptr %r2, align 4
+  %1181 = load i64, ptr %r1, align 4
+  %1182 = add i64 %1180, %1181
+  store i64 %1182, ptr %r2, align 4
+  %1183 = load i64, ptr %r2, align 4
+  store i64 %1183, ptr %r1, align 4
   %1184 = load i64, ptr %r1, align 4
-  %1185 = lshr i64 %1184, 21
-  store i64 %1185, ptr %r1, align 4
-  %1186 = load i64, ptr %r2, align 4
-  %1187 = load i64, ptr %r1, align 4
-  %1188 = or i64 %1186, %1187
+  %1185 = load i64, ptr %r5, align 4
+  %1186 = and i64 %1184, %1185
+  store i64 %1186, ptr %r1, align 4
+  %1187 = load i64, ptr %r2, align 4
+  %1188 = shl i64 %1187, 11
   store i64 %1188, ptr %r2, align 4
+  %1189 = load i64, ptr %r1, align 4
+  %1190 = lshr i64 %1189, 21
+  store i64 %1190, ptr %r1, align 4
+  %1191 = load i64, ptr %r2, align 4
+  %1192 = load i64, ptr %r1, align 4
+  %1193 = or i64 %1191, %1192
+  store i64 %1193, ptr %r2, align 4
   store i64 4294967295, ptr %r6, align 4
   store i64 1, ptr %r7, align 4
-  %1189 = load i64, ptr %r2, align 4
-  %1190 = mul i64 %1189, -1640531535
-  store i64 %1190, ptr %r2, align 4
+  %1194 = load i64, ptr %r2, align 4
+  %1195 = mul i64 %1194, -1640531535
+  store i64 %1195, ptr %r2, align 4
   br label %bb_inst_549
 
 bb_inst_568:                                      ; preds = %bb_inst_554
   store i64 4294934528, ptr %r2, align 4
-  %1191 = load i64, ptr %r1, align 4
-  store i64 %1191, ptr %r3, align 4
-  %1192 = load i64, ptr %r3, align 4
-  %1193 = load i64, ptr %r2, align 4
-  %1194 = and i64 %1192, %1193
-  store i64 %1194, ptr %r3, align 4
-  %1195 = load i64, ptr %r3, align 4
-  %1196 = lshr i64 %1195, 15
+  %1196 = load i64, ptr %r1, align 4
   store i64 %1196, ptr %r3, align 4
   %1197 = load i64, ptr %r3, align 4
-  %1198 = load i64, ptr %r1, align 4
-  %1199 = xor i64 %1197, %1198
+  %1198 = load i64, ptr %r2, align 4
+  %1199 = and i64 %1197, %1198
   store i64 %1199, ptr %r3, align 4
   %1200 = load i64, ptr %r3, align 4
-  %1201 = mul i64 %1200, -2048144777
+  %1201 = lshr i64 %1200, 15
   store i64 %1201, ptr %r3, align 4
-  store i64 4294959104, ptr %r2, align 4
   %1202 = load i64, ptr %r3, align 4
-  store i64 %1202, ptr %r1, align 4
   %1203 = load i64, ptr %r1, align 4
-  %1204 = load i64, ptr %r2, align 4
-  %1205 = and i64 %1203, %1204
-  store i64 %1205, ptr %r1, align 4
-  %1206 = load i64, ptr %r1, align 4
-  %1207 = lshr i64 %1206, 13
+  %1204 = xor i64 %1202, %1203
+  store i64 %1204, ptr %r3, align 4
+  %1205 = load i64, ptr %r3, align 4
+  %1206 = mul i64 %1205, -2048144777
+  store i64 %1206, ptr %r3, align 4
+  store i64 4294959104, ptr %r2, align 4
+  %1207 = load i64, ptr %r3, align 4
   store i64 %1207, ptr %r1, align 4
   %1208 = load i64, ptr %r1, align 4
-  %1209 = load i64, ptr %r3, align 4
-  %1210 = xor i64 %1208, %1209
+  %1209 = load i64, ptr %r2, align 4
+  %1210 = and i64 %1208, %1209
   store i64 %1210, ptr %r1, align 4
-  %1211 = load ptr, ptr %r10, align 8
-  %1212 = getelementptr i8, ptr %1211, i64 -48
-  %1213 = load i64, ptr %1212, align 4
-  store i64 %1213, ptr %r3, align 4
+  %1211 = load i64, ptr %r1, align 4
+  %1212 = lshr i64 %1211, 13
+  store i64 %1212, ptr %r1, align 4
+  %1213 = load i64, ptr %r1, align 4
   %1214 = load i64, ptr %r3, align 4
-  store i64 %1214, ptr %r2, align 4
-  %1215 = load i64, ptr %r2, align 4
-  %1216 = lshr i64 %1215, 24
-  store i64 %1216, ptr %r2, align 4
-  %1217 = load i64, ptr %r2, align 4
-  %1218 = trunc i64 %1217 to i8
-  %1219 = load ptr, ptr %r8, align 8
-  %1220 = getelementptr i8, ptr %1219, i64 37
-  store i8 %1218, ptr %1220, align 1
-  %1221 = load i64, ptr %r3, align 4
+  %1215 = xor i64 %1213, %1214
+  store i64 %1215, ptr %r1, align 4
+  %1216 = load ptr, ptr %r10, align 8
+  %1217 = getelementptr i8, ptr %1216, i64 -48
+  %1218 = load i64, ptr %1217, align 4
+  store i64 %1218, ptr %r3, align 4
+  %1219 = load i64, ptr %r3, align 4
+  store i64 %1219, ptr %r2, align 4
+  %1220 = load i64, ptr %r2, align 4
+  %1221 = lshr i64 %1220, 24
   store i64 %1221, ptr %r2, align 4
   %1222 = load i64, ptr %r2, align 4
-  %1223 = lshr i64 %1222, 16
-  store i64 %1223, ptr %r2, align 4
-  %1224 = load i64, ptr %r2, align 4
-  %1225 = trunc i64 %1224 to i8
-  %1226 = load ptr, ptr %r8, align 8
-  %1227 = getelementptr i8, ptr %1226, i64 36
-  store i8 %1225, ptr %1227, align 1
-  %1228 = load i64, ptr %r3, align 4
-  %1229 = trunc i64 %1228 to i8
-  %1230 = load ptr, ptr %r8, align 8
-  %1231 = getelementptr i8, ptr %1230, i64 34
-  store i8 %1229, ptr %1231, align 1
-  %1232 = load i64, ptr %r3, align 4
-  %1233 = lshr i64 %1232, 8
-  store i64 %1233, ptr %r3, align 4
-  %1234 = load i64, ptr %r3, align 4
-  %1235 = trunc i64 %1234 to i8
-  %1236 = load ptr, ptr %r8, align 8
-  %1237 = getelementptr i8, ptr %1236, i64 35
-  store i8 %1235, ptr %1237, align 1
-  %1238 = load i64, ptr %r1, align 4
-  %1239 = mul i64 %1238, -1028477379
-  store i64 %1239, ptr %r1, align 4
-  %1240 = load i64, ptr %r1, align 4
-  store i64 %1240, ptr %r2, align 4
-  %1241 = load i64, ptr %r2, align 4
-  %1242 = lshr i64 %1241, 24
-  store i64 %1242, ptr %r2, align 4
-  %1243 = load i64, ptr %r2, align 4
-  %1244 = trunc i64 %1243 to i8
-  %1245 = load ptr, ptr %r8, align 8
-  %1246 = getelementptr i8, ptr %1245, i64 41
-  store i8 %1244, ptr %1246, align 1
-  %1247 = load i64, ptr %r1, align 4
+  %1223 = trunc i64 %1222 to i8
+  %1224 = load ptr, ptr %r8, align 8
+  %1225 = getelementptr i8, ptr %1224, i64 37
+  store i8 %1223, ptr %1225, align 1
+  %1226 = load i64, ptr %r3, align 4
+  store i64 %1226, ptr %r2, align 4
+  %1227 = load i64, ptr %r2, align 4
+  %1228 = lshr i64 %1227, 16
+  store i64 %1228, ptr %r2, align 4
+  %1229 = load i64, ptr %r2, align 4
+  %1230 = trunc i64 %1229 to i8
+  %1231 = load ptr, ptr %r8, align 8
+  %1232 = getelementptr i8, ptr %1231, i64 36
+  store i8 %1230, ptr %1232, align 1
+  %1233 = load i64, ptr %r3, align 4
+  %1234 = trunc i64 %1233 to i8
+  %1235 = load ptr, ptr %r8, align 8
+  %1236 = getelementptr i8, ptr %1235, i64 34
+  store i8 %1234, ptr %1236, align 1
+  %1237 = load i64, ptr %r3, align 4
+  %1238 = lshr i64 %1237, 8
+  store i64 %1238, ptr %r3, align 4
+  %1239 = load i64, ptr %r3, align 4
+  %1240 = trunc i64 %1239 to i8
+  %1241 = load ptr, ptr %r8, align 8
+  %1242 = getelementptr i8, ptr %1241, i64 35
+  store i8 %1240, ptr %1242, align 1
+  %1243 = load i64, ptr %r1, align 4
+  %1244 = mul i64 %1243, -1028477379
+  store i64 %1244, ptr %r1, align 4
+  %1245 = load i64, ptr %r1, align 4
+  store i64 %1245, ptr %r2, align 4
+  %1246 = load i64, ptr %r2, align 4
+  %1247 = lshr i64 %1246, 24
   store i64 %1247, ptr %r2, align 4
   %1248 = load i64, ptr %r2, align 4
-  %1249 = lshr i64 %1248, 16
-  store i64 %1249, ptr %r2, align 4
-  %1250 = load i64, ptr %r2, align 4
-  %1251 = trunc i64 %1250 to i8
-  %1252 = load ptr, ptr %r8, align 8
-  %1253 = getelementptr i8, ptr %1252, i64 40
-  store i8 %1251, ptr %1253, align 1
+  %1249 = trunc i64 %1248 to i8
+  %1250 = load ptr, ptr %r8, align 8
+  %1251 = getelementptr i8, ptr %1250, i64 41
+  store i8 %1249, ptr %1251, align 1
+  %1252 = load i64, ptr %r1, align 4
+  store i64 %1252, ptr %r2, align 4
+  %1253 = load i64, ptr %r2, align 4
+  %1254 = lshr i64 %1253, 16
+  store i64 %1254, ptr %r2, align 4
+  %1255 = load i64, ptr %r2, align 4
+  %1256 = trunc i64 %1255 to i8
+  %1257 = load ptr, ptr %r8, align 8
+  %1258 = getelementptr i8, ptr %1257, i64 40
+  store i8 %1256, ptr %1258, align 1
   store i64 4294901760, ptr %r2, align 4
-  %1254 = load i64, ptr %r1, align 4
-  store i64 %1254, ptr %r3, align 4
-  %1255 = load i64, ptr %r3, align 4
-  %1256 = load i64, ptr %r2, align 4
-  %1257 = and i64 %1255, %1256
-  store i64 %1257, ptr %r3, align 4
-  %1258 = load i64, ptr %r3, align 4
-  %1259 = lshr i64 %1258, 16
+  %1259 = load i64, ptr %r1, align 4
   store i64 %1259, ptr %r3, align 4
   %1260 = load i64, ptr %r3, align 4
-  %1261 = load i64, ptr %r1, align 4
-  %1262 = xor i64 %1260, %1261
+  %1261 = load i64, ptr %r2, align 4
+  %1262 = and i64 %1260, %1261
   store i64 %1262, ptr %r3, align 4
   %1263 = load i64, ptr %r3, align 4
-  %1264 = trunc i64 %1263 to i8
-  %1265 = load ptr, ptr %r8, align 8
-  %1266 = getelementptr i8, ptr %1265, i64 38
-  store i8 %1264, ptr %1266, align 1
-  %1267 = load i64, ptr %r3, align 4
-  %1268 = lshr i64 %1267, 8
-  store i64 %1268, ptr %r3, align 4
-  %1269 = load i64, ptr %r3, align 4
-  %1270 = trunc i64 %1269 to i8
-  %1271 = load ptr, ptr %r8, align 8
-  %1272 = getelementptr i8, ptr %1271, i64 39
-  store i8 %1270, ptr %1272, align 1
+  %1264 = lshr i64 %1263, 16
+  store i64 %1264, ptr %r3, align 4
+  %1265 = load i64, ptr %r3, align 4
+  %1266 = load i64, ptr %r1, align 4
+  %1267 = xor i64 %1265, %1266
+  store i64 %1267, ptr %r3, align 4
+  %1268 = load i64, ptr %r3, align 4
+  %1269 = trunc i64 %1268 to i8
+  %1270 = load ptr, ptr %r8, align 8
+  %1271 = getelementptr i8, ptr %1270, i64 38
+  store i8 %1269, ptr %1271, align 1
+  %1272 = load i64, ptr %r3, align 4
+  %1273 = lshr i64 %1272, 8
+  store i64 %1273, ptr %r3, align 4
+  %1274 = load i64, ptr %r3, align 4
+  %1275 = trunc i64 %1274 to i8
+  %1276 = load ptr, ptr %r8, align 8
+  %1277 = getelementptr i8, ptr %1276, i64 39
+  store i8 %1275, ptr %1277, align 1
   store i64 3, ptr %r7, align 4
   br label %bb_inst_37
 
 exitBlock:                                        ; preds = %bb_inst_37
-  %1273 = load i64, ptr %r0, align 4
-  ret i64 %1273
+  %1278 = load i64, ptr %r0, align 4
+  ret i64 %1278
 
 localFuncReturnBlock:                             ; preds = %bb_inst_37
-  %1274 = load i64, ptr %callItemCnt, align 4
-  %1275 = sub i64 %1274, 1
-  %1276 = getelementptr ptr, ptr %callStack, i64 %1275
-  %1277 = load ptr, ptr %1276, align 8
-  %1278 = sub i64 %1274, 2
-  %1279 = getelementptr i64, ptr %callStack, i64 %1278
-  %1280 = load i64, ptr %1279, align 4
-  store i64 %1280, ptr %r6, align 4
-  %1281 = sub i64 %1274, 3
-  %1282 = getelementptr i64, ptr %callStack, i64 %1281
-  %1283 = load i64, ptr %1282, align 4
-  store i64 %1283, ptr %r7, align 4
-  %1284 = sub i64 %1274, 4
-  %1285 = getelementptr i64, ptr %callStack, i64 %1284
-  %1286 = load i64, ptr %1285, align 4
-  store i64 %1286, ptr %r8, align 4
-  %1287 = sub i64 %1274, 5
-  %1288 = getelementptr i64, ptr %callStack, i64 %1287
-  %1289 = load i64, ptr %1288, align 4
-  store i64 %1289, ptr %r9, align 4
-  %1290 = sub i64 %1274, 5
-  store i64 %1290, ptr %callItemCnt, align 4
-  %1291 = load i64, ptr %r10, align 4
-  %1292 = add i64 %1291, 64
-  store i64 %1292, ptr %r10, align 4
-  indirectbr ptr %1277, []
+  %1279 = load i64, ptr %callItemCnt, align 4
+  %1280 = sub i64 %1279, 1
+  %1281 = getelementptr ptr, ptr %callStack, i64 %1280
+  %1282 = load ptr, ptr %1281, align 8
+  %1283 = sub i64 %1279, 2
+  %1284 = getelementptr i64, ptr %callStack, i64 %1283
+  %1285 = load i64, ptr %1284, align 4
+  store i64 %1285, ptr %r6, align 4
+  %1286 = sub i64 %1279, 3
+  %1287 = getelementptr i64, ptr %callStack, i64 %1286
+  %1288 = load i64, ptr %1287, align 4
+  store i64 %1288, ptr %r7, align 4
+  %1289 = sub i64 %1279, 4
+  %1290 = getelementptr i64, ptr %callStack, i64 %1289
+  %1291 = load i64, ptr %1290, align 4
+  store i64 %1291, ptr %r8, align 4
+  %1292 = sub i64 %1279, 5
+  %1293 = getelementptr i64, ptr %callStack, i64 %1292
+  %1294 = load i64, ptr %1293, align 4
+  store i64 %1294, ptr %r9, align 4
+  %1295 = sub i64 %1279, 5
+  store i64 %1295, ptr %callItemCnt, align 4
+  %1296 = load i64, ptr %r10, align 4
+  %1297 = add i64 %1296, 64
+  store i64 %1297, ptr %r10, align 4
+  indirectbr ptr %1282, []
 }

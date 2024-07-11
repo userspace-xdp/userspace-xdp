@@ -23,6 +23,7 @@ static __always_inline void* bpf_map_lookup_elem_aot(const unsigned long long* m
     return &__vrrp_vrid_filter[*(const __u32*)key];
   return _bpf_helper_ext_0001(*map, key);
 }
+
 static __always_inline int bpf_map_delete_elem_aot(const unsigned long long* map, const void* key) {
     if (*map == l3_filter_id)
         return elem_delete(&__l3_filter, key);
@@ -30,6 +31,7 @@ static __always_inline int bpf_map_delete_elem_aot(const unsigned long long* map
         return 0;
   return _bpf_helper_ext_0003(*map, key);
 }
+
 static __always_inline int bpf_map_update_elem_aot(const unsigned long long* map, void* key, void* value, unsigned long long flags) {
     if (*map == l3_filter_id)
         return elem_update(&__l3_filter, key, value);
