@@ -560,27 +560,54 @@ $ objdump -S /home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.inl
 Disassembly of section .text:
 
 0000000000000000 <bpf_main>:
-   0:   b8 02 00 00 00          mov    $0x2,%eax
-   5:   83 3d 00 00 00 00 00    cmpl   $0x0,0x0(%rip)        # c <bpf_main+0xc>
-   c:   74 01                   je     f <bpf_main+0xf>
-   e:   c3                      ret    
-   f:   48 8b 0f                mov    (%rdi),%rcx
-  12:   48 8b 47 08             mov    0x8(%rdi),%rax
-  16:   48 ff 05 00 00 00 00    incq   0x0(%rip)        # 1d <bpf_main+0x1d>
-  1d:   48 8d 51 0e             lea    0xe(%rcx),%rdx
-  21:   48 39 c2                cmp    %rax,%rdx
-  24:   b8 01 00 00 00          mov    $0x1,%eax
-  29:   77 e3                   ja     e <bpf_main+0xe>
-  2b:   8b 01                   mov    (%rcx),%eax
-  2d:   0f b7 51 06             movzwl 0x6(%rcx),%edx
-  31:   66 89 11                mov    %dx,(%rcx)
-  34:   8b 51 08                mov    0x8(%rcx),%edx
-  37:   0f b7 71 04             movzwl 0x4(%rcx),%esi
-  3b:   89 51 02                mov    %edx,0x2(%rcx)
-  3e:   66 89 71 0a             mov    %si,0xa(%rcx)
-  42:   89 41 06                mov    %eax,0x6(%rcx)
-  45:   b8 03 00 00 00          mov    $0x3,%eax
-  4a:   c3                      ret    
+   0:   41 56                   push   %r14
+   2:   53                      push   %rbx
+   3:   48 81 ec 58 40 00 00    sub    $0x4058,%rsp
+   a:   48 8b 1f                mov    (%rdi),%rbx
+   d:   4c 8b 77 08             mov    0x8(%rdi),%r14
+  11:   48 8d b4 24 04 40 00    lea    0x4004(%rsp),%rsi
+  18:   00 
+  19:   48 c7 84 24 00 40 00    movq   $0x0,0x4000(%rsp)
+  20:   00 00 00 00 00 
+  25:   48 bf 00 00 00 00 04    movabs $0x400000000,%rdi
+  2c:   00 00 00 
+  2f:   e8 00 00 00 00          call   34 <bpf_main+0x34>
+  34:   48 89 c1                mov    %rax,%rcx
+  37:   b8 02 00 00 00          mov    $0x2,%eax
+  3c:   48 85 c9                test   %rcx,%rcx
+  3f:   74 05                   je     46 <bpf_main+0x46>
+  41:   83 39 00                cmpl   $0x0,(%rcx)
+  44:   74 0b                   je     51 <bpf_main+0x51>
+  46:   48 81 c4 58 40 00 00    add    $0x4058,%rsp
+  4d:   5b                      pop    %rbx
+  4e:   41 5e                   pop    %r14
+  50:   c3                      ret    
+  51:   48 8d b4 24 08 40 00    lea    0x4008(%rsp),%rsi
+  58:   00 
+  59:   48 83 c6 f8             add    $0xfffffffffffffff8,%rsi
+  5d:   48 bf 00 00 00 00 05    movabs $0x500000000,%rdi
+  64:   00 00 00 
+  67:   e8 00 00 00 00          call   6c <bpf_main+0x6c>
+  6c:   48 85 c0                test   %rax,%rax
+  6f:   74 03                   je     74 <bpf_main+0x74>
+  71:   48 ff 00                incq   (%rax)
+  74:   48 8d 4b 0e             lea    0xe(%rbx),%rcx
+  78:   b8 01 00 00 00          mov    $0x1,%eax
+  7d:   4c 39 f1                cmp    %r14,%rcx
+  80:   77 c4                   ja     46 <bpf_main+0x46>
+  82:   8b 03                   mov    (%rbx),%eax
+  84:   0f b7 4b 06             movzwl 0x6(%rbx),%ecx
+  88:   66 89 0b                mov    %cx,(%rbx)
+  8b:   8b 4b 08                mov    0x8(%rbx),%ecx
+  8e:   0f b7 53 04             movzwl 0x4(%rbx),%edx
+  92:   89 4b 02                mov    %ecx,0x2(%rbx)
+  95:   66 89 53 0a             mov    %dx,0xa(%rbx)
+  99:   89 43 06                mov    %eax,0x6(%rbx)
+  9c:   b8 03 00 00 00          mov    $0x3,%eax
+  a1:   48 81 c4 58 40 00 00    add    $0x4058,%rsp
+  a8:   5b                      pop    %rbx
+  a9:   41 5e                   pop    %r14
+  ab:   c3                      ret 
 ```
 
 The baseline:
