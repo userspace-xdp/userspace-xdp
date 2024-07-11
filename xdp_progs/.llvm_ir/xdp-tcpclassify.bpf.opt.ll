@@ -1,5 +1,9 @@
-; ModuleID = '.llvm_ir/xdp-tcpclassify.bpf.ll'
+; ModuleID = '/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.llvm_ir/xdp-tcpclassify.bpf.ll'
 source_filename = "bpf-jit"
+
+declare i64 @__lddw_helper_map_by_fd(i32) local_unnamed_addr
+
+declare i64 @__lddw_helper_map_val(i64) local_unnamed_addr
 
 declare i64 @_bpf_helper_ext_0130(i64, i64, i64, i64, i64) local_unnamed_addr
 
@@ -110,43 +114,46 @@ bb_inst_17:                                       ; preds = %bb_inst_12
 bb_inst_56:                                       ; preds = %bb_inst_17
   %68 = add i64 %2, -260
   %69 = call i64 @_bpf_helper_ext_0189(i64 %3, i64 0, i64 %68, i64 4, i64 undef)
-  %70 = call i64 @_bpf_helper_ext_0182(i64 %68, i64 4, i64 0, i64 4, i64 undef)
-  %71 = icmp eq i64 %70, 0
-  %72 = zext i1 %71 to i32
-  %73 = getelementptr inbounds i8, ptr %stackEnd, i64 -268
-  store i32 %72, ptr %73, align 4
+  %70 = call i64 @__lddw_helper_map_by_fd(i32 5)
+  %71 = call i64 @__lddw_helper_map_val(i64 %70)
+  %72 = call i64 @_bpf_helper_ext_0182(i64 %68, i64 4, i64 %71, i64 4, i64 undef)
+  %73 = icmp eq i64 %72, 0
+  %74 = zext i1 %73 to i32
+  %75 = getelementptr inbounds i8, ptr %stackEnd, i64 -268
+  store i32 %74, ptr %75, align 4
   br label %bb_inst_72
 
 bb_inst_72:                                       ; preds = %bb_inst_56, %bb_inst_17
-  %74 = add i64 %6, 60
-  %.not118 = icmp ult i64 %74, %5
+  %76 = add i64 %6, 60
+  %.not118 = icmp ult i64 %76, %5
   br i1 %.not118, label %bb_inst_75, label %bb_inst_81
 
 bb_inst_75:                                       ; preds = %bb_inst_72
-  %75 = add i64 %2, -260
-  %76 = call i64 @_bpf_helper_ext_0189(i64 %3, i64 0, i64 %75, i64 60, i64 undef)
+  %77 = add i64 %2, -260
+  %78 = call i64 @_bpf_helper_ext_0189(i64 %3, i64 0, i64 %77, i64 60, i64 undef)
   br label %bb_inst_81
 
 bb_inst_81:                                       ; preds = %bb_inst_75, %bb_inst_72
-  %77 = add i64 %2, -304
-  %78 = call i64 @_bpf_helper_ext_0130(i64 17179869184, i64 %77, i64 300, i64 0, i64 undef)
-  %79 = load i16, ptr %9, align 2
-  %80 = getelementptr i8, ptr %9, i64 6
-  %81 = load i16, ptr %80, align 2
-  store i16 %81, ptr %9, align 2
-  %82 = getelementptr i8, ptr %9, i64 2
-  %83 = load i16, ptr %82, align 2
-  %84 = getelementptr i8, ptr %9, i64 8
-  %85 = load i16, ptr %84, align 2
-  store i16 %85, ptr %82, align 2
-  %86 = getelementptr i8, ptr %9, i64 4
-  %87 = load i16, ptr %86, align 2
-  %88 = getelementptr i8, ptr %9, i64 10
-  %89 = load i16, ptr %88, align 2
-  store i16 %89, ptr %86, align 2
-  store i16 %79, ptr %80, align 2
-  store i16 %83, ptr %84, align 2
-  store i16 %87, ptr %88, align 2
+  %79 = add i64 %2, -304
+  %80 = call i64 @__lddw_helper_map_by_fd(i32 4)
+  %81 = call i64 @_bpf_helper_ext_0130(i64 %80, i64 %79, i64 300, i64 0, i64 undef)
+  %82 = load i16, ptr %9, align 2
+  %83 = getelementptr i8, ptr %9, i64 6
+  %84 = load i16, ptr %83, align 2
+  store i16 %84, ptr %9, align 2
+  %85 = getelementptr i8, ptr %9, i64 2
+  %86 = load i16, ptr %85, align 2
+  %87 = getelementptr i8, ptr %9, i64 8
+  %88 = load i16, ptr %87, align 2
+  store i16 %88, ptr %85, align 2
+  %89 = getelementptr i8, ptr %9, i64 4
+  %90 = load i16, ptr %89, align 2
+  %91 = getelementptr i8, ptr %9, i64 10
+  %92 = load i16, ptr %91, align 2
+  store i16 %92, ptr %89, align 2
+  store i16 %82, ptr %83, align 2
+  store i16 %86, ptr %87, align 2
+  store i16 %90, ptr %91, align 2
   br label %bb_inst_101
 
 bb_inst_101:                                      ; preds = %bb_inst_81, %bb_inst_12, %bb_inst_9, %bb_inst_7, %setupBlock

@@ -167,7 +167,7 @@ $(OUTPUT)/%.aot.o: %.bpf.c
 	opt -O3 -opaque-pointers -o $(OUTPUT)/$*.bpf.bc .llvm_ir/$*.bpf.opt.ll
 	llc -O3 -opaque-pointers -filetype=obj -o $(OUTPUT)/$*.base.aot.o $(OUTPUT)/$*.bpf.bc
 	opt -O3 -opaque-pointers -o $(OUTPUT)/$*.bpf.inline.bc .llvm_ir/$*.bpf.inline.ll
-	llc -O3 -opaque-pointers -filetype=obj -o $(OUTPUT)/$*.bpf.inline.o $(OUTPUT)/$*.bpf.inline.bc
+	llc -O3 --disable-simplify-libcalls -opaque-pointers -filetype=obj -o $(OUTPUT)/$*.bpf.inline.o $(OUTPUT)/$*.bpf.inline.bc
 	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/map-ids/$*/  -c $< -o $@
 	$(CC) -O3 -fno-stack-protector -Iaot-header/ -Iaot-header/inline-map-ids/$*/  -c $< -o $(OUTPUT)/$*.aot.inline.o
 
