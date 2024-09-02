@@ -4,11 +4,10 @@
 #include <linux/bpf.h>
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
-#include "xdp-tcpclassify.h"
-#include "xdp-tcpclassify.skel.h"
-#include <linux/if_link.h>
 #include <arpa/inet.h>
 #include <net/if.h>
+#include "main.h"
+#include "main.skel.h"
 
 void handle_sigint(int sig)
 {
@@ -16,13 +15,18 @@ void handle_sigint(int sig)
     exit(0);
 }
 
+int count = 0;
+
 int handle_event(void *ctx, void *data, size_t len)
 {
     struct event *e = (struct event *)data;
-    printf("%u.%u.%u.%u ", e->sip & 0xFF, e->sip >> 8 & 0xFF, e->sip >> 16 & 0xFF, e->sip >> 24 & 0xFF);
-    printf("%u.%u.%u.%u ", e->dip & 0xFF, e->dip >> 8 & 0xFF, e->dip >> 16 & 0xFF, e->dip >> 24 & 0xFF);
+    printf("Got pkt len: %u\n", e->len);
+    char fname_buffer[100];
+    sprintf(fname_buffer, "pkt_%d_%d.bin", count++, e->len);
+    FILE *f = fopen(fname_buffer, "wb");
 
-    printf("%d %d %d %d %d %d %d\n", e->sport, e->dport, e->syn, e->fin, e->rst, e->psh, e->ack);
+    fwrite(e->data, e->len, 1, f);
+    fclose(f);
     return 0;
 }
 
@@ -46,6 +50,12 @@ int main(int argc, char *argv[])
 	);
 	if (argc == 3)
 		opts.btf_custom_path = argv[2];
+    ifindex = if_nametoindex(argv[1]);
+    if (ifindex == 0)
+    {
+        fprintf(stderr, "Invalid interface\n");
+        return 1;
+    }
     libbpf_set_print(libbpf_print_fn);
 
     signal(SIGINT, handle_sigint);
@@ -64,39 +74,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // struct bpf_link *link = bpf_program__attach_xdp(skel->progs.xdp_pass, ifindex);
-    // if (!link)
-    // {
-    //     fprintf(stderr, "bpf_program__attach_xdp\n");
-    //     return 1;
-    // }
-    int prog_fd = bpf_program__fd(skel->progs.xdp_pass);
-    int xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST;
-	if (getenv("SKBMODE")) {
-		printf("skb mode\n");
-		xdp_flags |= XDP_FLAGS_SKB_MODE;
-	} else if (getenv("DRVMODE")) {
-		printf("DRV mode\n");
-		xdp_flags |= XDP_FLAGS_DRV_MODE;
-	} else if (getenv("HWMODE")) {
-		printf("HWMODE mode\n");
-		xdp_flags |= XDP_FLAGS_HW_MODE;
-	} else {
-		printf("XDP native mode\n");
-	}
-
-    ifindex = if_nametoindex(argv[1]);
-    if (ifindex == 0)
+    struct bpf_link *link = bpf_program__attach_xdp(skel->progs.xdp_pass, ifindex);
+    if (!link)
     {
-        fprintf(stderr, "Invalid interface\n");
+        fprintf(stderr, "bpf_program__attach_xdp\n");
         return 1;
     }
-	err = bpf_xdp_attach(ifindex, prog_fd,
-							 xdp_flags,
-							 nullptr);
-	if (err) {
-		printf("attach maybe error\n");
-	}
 
     struct bpf_map *ringbuf_map = bpf_object__find_map_by_name(skel->obj, "ringbuf");
     if (!ringbuf_map)

@@ -4,8 +4,8 @@
 #include <linux/bpf.h>
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
-#include "xdp-tcpclassify.h"
-#include "xdp-tcpclassify.skel.h"
+#include "main.h"
+#include "main.skel.h"
 #include <linux/if_link.h>
 #include <arpa/inet.h>
 #include <net/if.h>
