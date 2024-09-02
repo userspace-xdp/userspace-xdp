@@ -15,7 +15,7 @@
             "environment": [
                 // {
                 //     "name": "LD_PRELOAD",
-                //     "value": "/home/yunwei/ebpf-xdp-dpdk/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so"
+                //     "value": "${workspaceFolder}/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so"
                 // },
 
             ],
@@ -45,7 +45,7 @@
             "environment": [
                 {
                     "name": "LD_PRELOAD",
-                    "value": "/home/yunwei/ebpf-xdp-dpdk/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so"
+                    "value": "${workspaceFolder}/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so"
                 },
 
             ],

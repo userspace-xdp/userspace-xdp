@@ -11,10 +11,6 @@ BENCH_EXEC=afxdp/l2fwd/xdpsock_ubpf afxdp/l2fwd/xdpsock_llvm dpdk_l2fwd/dpdk_l2f
 dpdk:
 	cd external/dpdk && meson --prefix /home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir -Dplatform=generic build && cd build && ninja && ninja install
 
-dpdk-ebpf:
-	make -C build distclean
-	make -C build
-
 build-bench-lib: dpdk $(BPFTIME_DIR_LLVM) $(BPFTIME_DIR_UBPF)
 
 bench-bin: $(BENCH_EXEC)

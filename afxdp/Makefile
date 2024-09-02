@@ -12,8 +12,7 @@ MAKEFLAGS += --no-print-directory
 Q = @
 endif
 
-LESSONS = $(wildcard basic*) $(wildcard packet*) $(wildcard tracing??-*)
-LESSONS += src
+LESSONS += l2fwd
 LESSONS_CLEAN = $(addsuffix _clean,$(LESSONS))
 
 .PHONY: clean clobber distclean $(LESSONS) $(LESSONS_CLEAN)
