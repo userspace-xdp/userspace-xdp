@@ -13,6 +13,10 @@ dpdk:
 
 build-bench-lib: dpdk $(BPFTIME_DIR_LLVM) $(BPFTIME_DIR_UBPF)
 
+base.btf: base.c
+	gcc -g base.c -c -o base.o
+	pahole --btf_encode_detached base.btf base.o 
+
 bench-bin: $(BENCH_EXEC)
 
 LTO_FLAG ?= -flto

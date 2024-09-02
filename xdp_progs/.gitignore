@@ -75,3 +75,4 @@ xdping_no_check
 xdp-maps
 xdp-tcpclassify 
 xdp_firewall
+xdp_pass
