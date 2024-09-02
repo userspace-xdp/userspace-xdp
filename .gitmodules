@@ -14,9 +14,7 @@
 [submodule "af_xdp_simple/libbpf"]
 	path = af_xdp_simple/libbpf
 	url = https://github.com/libbpf/libbpf/
-[submodule "Pktgen-DPDK"]
-	path = Pktgen-DPDK
-	url = https://github.com/pktgen/Pktgen-DPDK
+
 [submodule "external/dpdk"]
 	path = external/dpdk
 	url = https://github.com/DPDK/dpdk
