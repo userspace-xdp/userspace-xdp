@@ -3,13 +3,13 @@
 generate icmp traffic for ipv4:
 
 ```sh
-sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen file enp24s0f1np1 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin
+sudo afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen file enp24s0f1np1 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin
 ```
 
 generate udp traffic for ipv6:
 
 ```sh
-sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769
+sudo afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769
 ```
 
 ## generated traffic config
@@ -17,7 +17,7 @@ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficge
 thread 1:
 
 ```sh
-$ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen file enp24s0f1np1 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin -t 1
+$ sudo afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen file enp24s0f1np1 /home/yunwei/ebpf-xdp-dpdk/documents/benchmark/icmp.bin -t 1
 read 98 bytes from file as packet
 Transmitting on enp24s0f1np1 (ifindex 6)
 lo->enp24s0f1np1                0 err/s         3,654,912 xmit/s       
@@ -28,7 +28,7 @@ lo->enp24s0f1np1                0 err/s         5,267,649 xmit/s
 thread 4:
 
 ```sh
-$ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769 -t 4
+$ sudo afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769 -t 4
 Transmitting on enp24s0f1np1 (ifindex 6)
 lo->enp24s0f1np1                0 err/s        19,610,944 xmit/s       
 lo->enp24s0f1np1                0 err/s        19,738,552 xmit/s       
@@ -40,7 +40,7 @@ lo->enp24s0f1np1                0 err/s        20,085,613 xmit/s
 thread 10:
 
 ```sh
-$ sudo /home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769 -t 10
+$ sudo afxdp/lib/xdp-tools/xdp-trafficgen/xdp-trafficgen udp enp24s0f1np1 --dst-mac b8:3f:d2:2a:e5:11 --src-mac b8:3f:d2:2a:e7:69 --dst-addr fe80::ba3f:d2ff:fe2a:e511 --src-addr fe80::ba3f:d2ff:fe2a:e769 -t 10
 Transmitting on enp24s0f1np1 (ifindex 6)
 lo->enp24s0f1np1                0 err/s        30,041,242 xmit/s       
 lo->enp24s0f1np1                0 err/s        29,960,434 xmit/s       
@@ -215,7 +215,7 @@ LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-serv
 ## trouble shooting
 
 ```console
-yunwei@octopus1:~/ebpf-xdp-dpdk$ sudo -E SPDLOG_LEVEL=Debug LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/ dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+yunwei@octopus1:~/ebpf-xdp-dpdk$ sudo -E SPDLOG_LEVEL=Debug LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/ dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 [2024-03-22 12:25:43.492] [info] [bpftime_shm_internal.cpp:627] Global shm constructed. shm_open_type 1 for bpftime_maps_shm
 [2024-03-22 12:25:43.492] [info] [llvm_jit_context.cpp:81] Initializing llvm
 find eBPF program xdp_pass   60
