@@ -32,18 +32,19 @@ uint64_t bpf_helper_ext_0189(uint64_t _xdp_md, uint64_t offset, uint64_t buf, ui
 
     return 0;
 }
-// uint64_t bpf_helper_ext_0190(uint64_t _xdp_md, uint64_t offset, uint64_t buf,
-// 			     uint64_t len)
-// {
-// 	struct xdp_md_userspace *xdp_md = (struct xdp_md_userspace *)_xdp_md;
-// 	// We don't support fragmented packets
-// 	uint64_t data = xdp_md->data + offset;
-// 	// if (data + len > xdp_md->data_end) {
-// 	// 	return -EINVAL;
-// 	// }
-// 	__builtin_memcpy((void *)(data), (void*)buf, len);
-// 	return 0;
-// }
+
+uint64_t bpf_helper_ext_0190(uint64_t _xdp_md, uint64_t offset, uint64_t buf,
+			     uint64_t len)
+{
+	struct xdp_md_userspace *xdp_md = (struct xdp_md_userspace *)_xdp_md;
+	// We don't support fragmented packets
+	uint64_t data = xdp_md->data + offset;
+	// if (data + len > xdp_md->data_end) {
+	// 	return -EINVAL;
+	// }
+	__builtin_memcpy((void *)(data), (void*)buf, len);
+	return 0;
+}
 
 uint64_t bpf_helper_ext_0182(uint64_t s1, uint64_t s1_sz, uint64_t s2) {
     const char *str1 = (const char *)s1;

@@ -30,7 +30,7 @@ Currently, the project only supports `l2fwd`, which is mainly `XDP_DROP` and `XD
 - [bpftime](bpftime): Used as loader library, and support maps and helpers for the runtime.
   - `JIT/AOT`: The project supports using [llvmbpf](https://github.com/eunomia-bpf/llvmbpf) or [uBPF](https://github.com/iovisor/ubpf) as the JIT/AOTbackend, the optimization is based on `llvmbpf`.
   - The [module](module) is the addons based on the bpftime library, which supports maps such as `lpm_trie`, `lrucache`, some helpers and runtime optimizations maps implementation.
-- l2fwd userspace network drivers:
+- l2fwd userspace network runtime:
   - [afxdp](afxdp): The `AF_XDP` userspace runtime, which supports using `AF_XDP` as the XDP driver in userspace eBPF runtime.
   - [dpdk](dpdk): The `DPDK` userspace runtime, which supports `DPDK` as the XDP driver.
 - [xdp_progs](xdp_progs): The example or test programs for the userspace eBPF runtime.

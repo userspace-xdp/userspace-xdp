@@ -116,7 +116,6 @@ sudo ./xdpsock_llvm --l2fwd -i enp24s0f1np1
 The kernel eBPF part is:
 
 ```c
-
 struct {
  __uint(type, BPF_MAP_TYPE_XSKMAP);
  __uint(max_entries, MAX_SOCKS);
