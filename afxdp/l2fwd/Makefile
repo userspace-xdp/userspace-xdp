@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-BPFTIME_LIB_DIR ?= $(ROOTDIR)/build-bpftime/
+BPFTIME_LIB_DIR ?= $(ROOTDIR)/build/
 USER_TARGETS   := xdpsock
 BPF_TARGETS    := xdpsock_kern
 ROOTDIR=$(shell git rev-parse --show-toplevel)

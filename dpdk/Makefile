@@ -9,7 +9,7 @@ SRCS-y := main.c
 
 PKGCONF ?= pkg-config
 LTO_FLAG ?=  -flto
-BPFTIME_LIB_DIR ?= $(ROOTDIR)/build-bpftime/
+BPFTIME_LIB_DIR ?= $(ROOTDIR)/build/
 
 # Build using pkg-config variables if possible
 ifneq ($(shell $(PKGCONF) --exists libdpdk && echo 0),0)
