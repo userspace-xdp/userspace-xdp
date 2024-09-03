@@ -164,13 +164,13 @@ start l2fw in dpdk:
 export PKG_CONFIG_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig
 make -C dpdk/
 
-sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/: dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:build/bpftime/libbpf/: dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 
-sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/ dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:build/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/ dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 
-sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf  AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map.aot.o dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:build/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf  AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map.aot.o dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 
-sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:build/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 
 # Start the process in the background
 ```
@@ -233,7 +233,7 @@ Pkts/s Rx           :                     0                    0
 sudo xdp_progs/xdp_tx xdp_progs/.output/xdp_tx.bpf.o enp24s0f1np1
 
 # load in userspace
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_tx xdp_progs/.output/xdp_tx.bpf.o enp24s0f1np1 xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_tx xdp_progs/.output/xdp_tx.bpf.o enp24s0f1np1 xdp-ebpf-new/base.btf
 ```
 
 measure with nload on octopus3, by redirecting the traffic from octopus1 back to octopus3. test with 10 seconds and get the average.
@@ -322,7 +322,7 @@ sudo  xdp_progs/xdp_tx_iptunnel -i enp24s0f1np1 -a 192.168.1.11 -s 192.168.1.13 
 Run in userspace:
 
 ```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug    xdp_progs/xdp_tx_iptunnel -i enp24s0f1np1 -a 192.168.1.11 -s 192.168.1.13 -d 192.168.1.13 -m b8:3f:d2:2a:e7:69  -p 1-255 -b xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug    xdp_progs/xdp_tx_iptunnel -i enp24s0f1np1 -a 192.168.1.11 -s 192.168.1.13 -d 192.168.1.13 -m b8:3f:d2:2a:e7:69  -p 1-255 -b xdp-ebpf-new/base.btf
 ```
 
 ## ICMP traffic
@@ -341,7 +341,7 @@ sudo xdp_progs/xdping -s -I enp24s0f1np1 -N
 In userspace:
 
 ```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdping -s -I enp24s0f1np1 xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdping -s -I enp24s0f1np1 xdp-ebpf-new/base.btf
 ```
 
 Run with AF_XDP:
@@ -355,7 +355,7 @@ Run with DPDK:
 ## trouble shooting
 
 ```console
-yunwei@octopus1:~/ebpf-xdp-dpdk$ sudo -E SPDLOG_LEVEL=Debug LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/ dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+yunwei@octopus1:~/ebpf-xdp-dpdk$ sudo -E SPDLOG_LEVEL=Debug LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:build/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/ dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 [2024-03-22 12:25:43.492] [info] [bpftime_shm_internal.cpp:627] Global shm constructed. shm_open_type 1 for bpftime_maps_shm
 [2024-03-22 12:25:43.492] [info] [llvm_jit_context.cpp:81] Initializing llvm
 find eBPF program xdp_pass   60

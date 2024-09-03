@@ -70,7 +70,7 @@ xdp_progs/xdp_drop xdp_progs/.output/xdp_drop.bpf.o veth6
 run in userspace:
 
 ```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_drop xdp_progs/.output/xdp_drop.bpf.o veth6 xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_drop xdp_progs/.output/xdp_drop.bpf.o veth6 xdp-ebpf-new/base.btf
 ```
 
 and start af_xdp:
@@ -92,7 +92,7 @@ PING 10.0.0.10 (10.0.0.10) 56(84) bytes of data.
 ## xdp csum
 
 ```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum  veth6 xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum  veth6 xdp-ebpf-new/base.btf
 ```
 
 ## xdp_map_access
@@ -148,7 +148,7 @@ ping 10.0.0.10
 run in userspace:
 
 ```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdping -s -I veth6 xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdping -s -I veth6 xdp-ebpf-new/base.btf
 ```
 
 And start af_xdp:
@@ -198,7 +198,7 @@ Then you can test it with curl and http server.
 Test running in userspace:
 
 ```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug  xdp_progs/xdp_tx_iptunnel -i veth6 -a 10.0.0.10 -p 1-256 -s 10.0.0.1 -d 10.0.0.2 -m DE:AD:BE:EF:00:00 -b xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug  xdp_progs/xdp_tx_iptunnel -i veth6 -a 10.0.0.10 -p 1-256 -s 10.0.0.1 -d 10.0.0.2 -m DE:AD:BE:EF:00:00 -b xdp-ebpf-new/base.btf
 ```
 
 ## xdp_adjust_tail

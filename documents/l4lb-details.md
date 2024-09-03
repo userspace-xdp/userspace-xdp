@@ -1,9 +1,6 @@
 # L4 Load Balancer in DPDK and eBPF
 
-The purpose of this exercise is to gain hands-on experience with different technologies used to implement network functions (NFs) and software middleboxes.
-Specifically, you will use [DPDK](https://www.dpdk.org/) and/or [eBPF](https://ebpf.io/) to implement a very simple connection load balancer.
-
-You can find the repository for this exercise [here](https://gitlab.doc.ic.ac.uk/networked_systems_2023/netsys-exe3).
+Use [DPDK](https://www.dpdk.org/) and/or [eBPF](https://ebpf.io/) to implement a very simple connection load balancer.
 
 Similarly to the previous exercises you can work either individually or in pairs.
 
@@ -11,17 +8,10 @@ This exercise consists of three distinct steps and some extra optional questions
 To get the full points you are expected to go through step 0, and either step 1 or step 2 (i.e. implement the load balancer using one of the two technologies).
 You are more than welcome to do both step 1 and step 2 if you want for bonus points.
 
-### Step 0.1: Creating a Working Environment
+### Basic Topology Setup
 
-We provide a virtual machine image to use as a workstation similar to the previous exercises.
-You can build this VM with vagrant in the [vm-ubuntu-22.04](./vm-ubuntu-22.04/) folder or you can get the prebaked image from [here](https://imperiallondon-my.sharepoint.com/:u:/g/personal/mkogias_ic_ac_uk/EQtJ7o3jQC5JhEail1qXz1EBjTfLzwoiQ49xhrM4wo0grA?e=8acoij).
+Instead of using mininet, you will manually setup the network topology using a [Linux bridge](https://wiki.linuxfoundation.org/networking/bridge) and [network namespaces](https://man7.org/linux/man-pages/man7/network_namespaces.7.html).
 
-We provide this VM for simplicity and avoid compilation bugs that have to do with the kernel and library versions.
-If you already work on Ubuntu 22.04 feel free to use your machine instead of the VM, but run the [vm-ubuntu-22.04/bootstrap.sh](./vm-ubuntu-22.04/bootstrap.sh) script to install the necessary dependencies.
-
-### Step 0.2: Basic Topology Setup
-
-Instead of using mininet, for this exercise you will manually setup the network topology using a [Linux bridge](https://wiki.linuxfoundation.org/networking/bridge) and [network namespaces](https://man7.org/linux/man-pages/man7/network_namespaces.7.html).
 You are provided with the equivalent scripts to do so in the `scripts` [directory](./scripts).
 You are free to explore those scripts, but their exact functionality is beyond the scope of this project.
 
@@ -37,9 +27,7 @@ To destroy the topology run:
 sudo ./testbed-teardown.sh
 ```
 
-These scripts create a topology as seen in the following picture.
-
-![topo3 image](exe3-basic-topo.png "Basic topology")
+These scripts create a topology.
 
 This topology consists of a local area network with one interface on your machine with IP address `10.0.0.1` and two attached network namespaces, which can be considered as different machines.
 

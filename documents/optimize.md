@@ -172,7 +172,7 @@ char _license[] SEC("license") = "GPL";
 run in userspace:
 
 ```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum enp24s0f1np1 xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum enp24s0f1np1 xdp-ebpf-new/base.btf
 ```
 
 Generate traffic with 1 thread, icmp traffic for ipv4.
@@ -197,7 +197,7 @@ DPDK:
 Record the events with perf:
 
 ```sh
-sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/ /home/yunwei/linux/tools/perf/perf record -g dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:build/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/ /home/yunwei/linux/tools/perf/perf record -g dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 ```
 
 Results:

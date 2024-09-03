@@ -1,7 +1,5 @@
 # AF_XDP with eBPF
 
-## run in Afxdp Advanced 03:
-
 ** Assignment 1: Run the example program to eat all packets
 First, you need to set up the test lab environment and start an infinite
 ping. You do this by running the following:

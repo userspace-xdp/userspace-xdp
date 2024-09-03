@@ -41,7 +41,7 @@ make -C  build-bpftime -j
 compile `loop.bpf.o` with bpftime-vm AOT cli:
 
 ```sh
-/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/vm/cli/bpftime-vm build loop.bpf.o
+build/bpftime/vm/cli/bpftime-vm build loop.bpf.o
 ```
 
 it will generate `add_arrays.o`.
@@ -184,7 +184,7 @@ clang -O3 -c loop.bpf.c -o loop.o
 Dump llvm IR:
 
 ```console
-/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/vm/cli/bpftime-vm build loop.bpf.o
+build/bpftime/vm/cli/bpftime-vm build loop.bpf.o
 ```
 
 ## llvm cbe

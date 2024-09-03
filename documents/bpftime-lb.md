@@ -66,7 +66,7 @@ load the eBPF XDP program into shared memory
 scripts/testbed-setup.sh ebpf
 source scripts/aliases.sh
 lb bash
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/base.btf
 ```
 
 problem: data in xdp_md is 32 bit, while kernel will convert it into 64 bit.
@@ -115,7 +115,7 @@ libbpf: CO-RE relocating [24] struct iphdr: found target candidate [11775] struc
 This is for usespace CO-RE commands:
 
 ```txt
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/base.btf
 ```
 
 (ignore the error message)
@@ -173,7 +173,7 @@ scripts/testbed-setup.sh
 Run bpftime server
 
 ```sh
-LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/base.btf
 ```
 
 Run the dpdk server

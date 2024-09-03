@@ -1,4 +1,4 @@
-# Port katran
+# Run katran in userspace
 
 The record for porting katran, include:
 
@@ -9,7 +9,7 @@ The record for porting katran, include:
 
 TOC:
 
-- [Port katran](#port-katran)
+- [Run katran in userspace](#run-katran-in-userspace)
   - [Required features for katran](#required-features-for-katran)
   - [Run katran in kernel with local example](#run-katran-in-kernel-with-local-example)
   - [Test of katran functionality](#test-of-katran-functionality)
@@ -369,7 +369,7 @@ $ sudo ./xdpdump -i veth6 -v --rx-capture exit -x
 ## Run in userspace
 
 ```sh
-sudo BPFTIME_RUN_WITH_KERNEL=true BPFTIME_ALLOW_EXTERNAL_MAPS=true LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so ./_build/build/example_grpc/katran_server_grpc -balancer_prog ./_build/deps/bpfprog/bpf/balancer.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=veth6 -hc_forwarding=false
+sudo BPFTIME_RUN_WITH_KERNEL=true BPFTIME_ALLOW_EXTERNAL_MAPS=true LD_PRELOAD=bpftime/build/runtime/syscall-server/libbpftime-syscall-server.so ./_build/build/example_grpc/katran_server_grpc -balancer_prog ./_build/deps/bpfprog/bpf/balancer.bpf.o -default_mac de:ad:be:ef:00:02 -forwarding_cores=0 -intf=veth6 -hc_forwarding=false
 ```
 
 This include:
@@ -425,7 +425,7 @@ scripts/testbed-setup.sh
 Run dpdk:
 
 ```console
-$ sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf dpdk/dpdk_llvm -l 1  --socket-mem=512 --vdev=net_tap0,iface=tapdpdk -- -p 0x1
+$ sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:build/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf dpdk/dpdk_llvm -l 1  --socket-mem=512 --vdev=net_tap0,iface=tapdpdk -- -p 0x1
 
 load eBPF program xdp_pass
 set entry program xdp_pass

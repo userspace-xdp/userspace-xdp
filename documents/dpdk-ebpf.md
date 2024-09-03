@@ -1,10 +1,8 @@
 # XDP in userspace eBPF with DPDK
 
-## XDP examples: libbpf-bootstrap
+Use rust to load xdp program in userspace.
 
-Use libbpf-bootsrap to load xdp program in userspace.
-
-### Get the syscall for load xdp
+## Get the syscall for load xdp
 
 `xdp` is an example written in Rust (using libbpf-rs). It attaches to
 the ingress path of networking device and logs the size of each packet,
@@ -31,7 +29,7 @@ $ sudo cat /sys/kernel/debug/tracing/trace_pipe
 load into userspace:
 
 ```console
-$ sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
+$ sudo SPDLOG_LEVEL=Debug LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
 [2024-01-29 00:36:14.781] [info] [syscall_context.hpp:84] manager constructed
 [2024-01-29 00:36:14.782] [info] [syscall_server_utils.cpp:24] Initialize syscall server
 ...
@@ -45,7 +43,7 @@ Expected the progs for eBPF, see `documents/xdp_basic.json`.
 
 ```sh
 cd xdp-basic
-sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
+sudo SPDLOG_LEVEL=Debug LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
 ```
 
 and start the dpdk server
@@ -71,7 +69,7 @@ received packet, send data to eBPF module
 
 ```sh
 cd xdp-maps
-sudo SPDLOG_LEVEL=Debug LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
+sudo SPDLOG_LEVEL=Debug LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so ./target/release/xdp 1
 ```
 
 and start the dpdk server
