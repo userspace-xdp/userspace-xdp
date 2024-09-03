@@ -21,5 +21,8 @@ int _bpf_helper_ext_0003();
 
 int _bpf_helper_ext_0130();
 #define bpf_ringbuf_output(a, b, c, d) bpf_ringbuf_output_aot(CONCATENATE_DETAIL(a, _id), b, c, d)
+static __always_inline long bpf_ringbuf_output_aot(const unsigned long long* map, void *data, unsigned long long size, unsigned long long flags) {
+  return _bpf_helper_ext_0130(*map, data, size, flags);
+}
 
 #endif // COMMON_MAP_HELPERS_H

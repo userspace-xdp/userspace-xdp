@@ -50,14 +50,14 @@ int main(int argc, char *argv[])
 
     signal(SIGINT, handle_sigint);
 
-    struct main_bpf *skel = main_bpf__open_opts(&opts);
+    struct xdp_tcpclassify_bpf *skel = xdp_tcpclassify_bpf__open_opts(&opts);
     if (!skel)
     {
         fprintf(stderr, "Failed to open BPF skeleton\n");
         return 1;
     }
 
-    err = main_bpf__load(skel);
+    err = xdp_tcpclassify_bpf__load(skel);
     if (err)
     {
         fprintf(stderr, "Failed to load and verify BPF skeleton\n");
