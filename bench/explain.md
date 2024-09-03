@@ -1,4 +1,4 @@
-# some questions:
+# some questions
 
 ## Why llvm jit is slower than ubpf jit?
 
@@ -542,8 +542,8 @@ Disassembly of section .text:
 The inline array map:
 
 ```sh
-$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/libbpf AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.inline.o /home/yunwei/linux/tools/perf/perf  stat -e cache-references,cache-misses  /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
- Performance counter stats for '/home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1 --socket-mem=512 -a 0000:18:00.1 -- -p 0x1':
+$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/libbpf AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.bpf.inline.o /home/yunwei/linux/tools/perf/perf  stat -e cache-references,cache-misses  /home/yunwei/ebpf-xdp-dpdk/dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+ Performance counter stats for '/home/yunwei/ebpf-xdp-dpdk/dpdk/dpdk_llvm -l 1 --socket-mem=512 -a 0000:18:00.1 -- -p 0x1':
 
      2,784,437,704      cache-references                                                      
          2,816,325      cache-misses                     #    0.10% of all cache refs         
@@ -613,8 +613,8 @@ Disassembly of section .text:
 The baseline:
 
 ```sh
-$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/libbpf AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.base.aot.o /home/yunwei/linux/tools/perf/perf  stat -e cache-references,cache-misses  /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
-Performance counter stats for '/home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1 --socket-mem=512 -a 0000:18:00.1 -- -p 0x1':
+$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm//bpftime/libbpf/libbpf AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp_progs/.output/xdp_map_access.base.aot.o /home/yunwei/linux/tools/perf/perf  stat -e cache-references,cache-misses  /home/yunwei/ebpf-xdp-dpdk/dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+Performance counter stats for '/home/yunwei/ebpf-xdp-dpdk/dpdk/dpdk_llvm -l 1 --socket-mem=512 -a 0000:18:00.1 -- -p 0x1':
 
      1,347,400,460      cache-references                                                      
          2,766,264      cache-misses                     #    0.21% of all cache refs         

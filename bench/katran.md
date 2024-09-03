@@ -17,7 +17,6 @@ Katran performance test and optimization record.
     - [Default katran cache config:](#default-katran-cache-config)
     - [Debug](#debug)
 
-
 ## Setup configuration
 
 The setup configuration of katran.
@@ -35,7 +34,6 @@ which then processes/terminates the TCP session).
 6. Update session table with this lookup information so that katran can simply
 lookup this information for the next packet in the session and not calculate the hash again.
 7. Encapsulate packet in another IP packet and send to the real.
-
 
 Topology:
 
@@ -116,7 +114,7 @@ sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/sy
 Start dpdk and af_xdp is the same as others, for example
 
 ```sh
-sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 ```
 
 See bench [README.md](README.md) for more details.
@@ -151,7 +149,6 @@ Userspace dpdk llvm jit:
 
 ![/home/yunwei/ebpf-xdp-dpdk/bench/katran-size/dpdk_llvm_jit/ipackets.png](katran-size/dpdk_llvm_jit/ipackets.png)
 
-
 ## Discussion
 
 - Need more optimize on the runtime before optimize code (2-3 days)
@@ -163,7 +160,7 @@ The default hash map profile:
 ```console
 # ........  ........  ...............  .......................  ....................................................................>
 #
-    41.54%     0.00%  dpdk_l2fwd_llvm  [unknown]                [k] 0x0020105090230100
+    41.54%     0.00%  dpdk_llvm  [unknown]                [k] 0x0020105090230100
             |
             ---0x20105090230100
                |          
@@ -196,7 +193,7 @@ The default hash map profile:
 
 ## Appendix
 
-### Default katran cache config:
+### Default katran cache config
 
 We have test traffic generator configurations in kernel(Default lru size is 8,000,000):
 
@@ -275,7 +272,6 @@ exiting
 yunwei@octopus3:~/katran$ ./example_grpc/goclient/bin/main  -s -lru
 summary: 373360644 pkts/sec. lru hit: 100.00% lru miss: 0.00% (tcp syn: 0.00% tcp non-syn: 0.00% udp: 1.00%) fallback lru hit: 373364861 pkts/sec
 ```
-
 
 ### Debug
 

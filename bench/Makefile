@@ -215,12 +215,12 @@ $(BASIC_XDP_NAME)/dpdk_intepreter: $(BASIC_XDP_NAME)
 	sleep 2
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_UBPF)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_UBPF)/bpftime/libbpf/libbpf \
 	DISABLE_JIT=1 \
-	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_ubpf \
+	$(ROOTDIR)/dpdk/dpdk_ubpf \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_intepreter
 	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
-	sudo pgrep -f 'dpdk_l2fwd_ubpf' | xargs kill || true
+	sudo pgrep -f 'dpdk_ubpf' | xargs kill || true
 
 $(BASIC_XDP_NAME)/dpdk_ubpf_jit: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
@@ -230,13 +230,13 @@ $(BASIC_XDP_NAME)/dpdk_ubpf_jit: $(BASIC_XDP_NAME)
 	rm -rf ./tmp-pktgen-res
 	sleep 2
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_UBPF)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_UBPF)/bpftime/libbpf/libbpf \
-	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_ubpf \
+	$(ROOTDIR)/dpdk/dpdk_ubpf \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_ubpf_jit
 	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
-	sudo pgrep -f 'dpdk_l2fwd_ubpf' | xargs kill || true
-	sudo pgrep -f 'dpdk_l2fwd_ubpf' | xargs kill || true
+	sudo pgrep -f 'dpdk_ubpf' | xargs kill || true
+	sudo pgrep -f 'dpdk_ubpf' | xargs kill || true
 
 $(BASIC_XDP_NAME)/dpdk_llvm_jit: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
@@ -246,13 +246,13 @@ $(BASIC_XDP_NAME)/dpdk_llvm_jit: $(BASIC_XDP_NAME)
 	rm -rf ./tmp-pktgen-res
 	sleep 2
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_LLVM)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_LLVM)/bpftime/libbpf/libbpf \
-	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_llvm \
+	$(ROOTDIR)/dpdk/dpdk_llvm \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_llvm_jit
 	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
-	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9 || true
-	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9  || true
+	sudo pgrep -f 'dpdk_llvm' | xargs kill -9 || true
+	sudo pgrep -f 'dpdk_llvm' | xargs kill -9  || true
 
 $(BASIC_XDP_NAME)/dpdk_llvm_aot: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp
@@ -263,13 +263,13 @@ $(BASIC_XDP_NAME)/dpdk_llvm_aot: $(BASIC_XDP_NAME)
 	sleep 2
 	sudo -E LD_LIBRARY_PATH=$(DPDK_DIR)/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:$(BPFTIME_DIR_LLVM)/bpftime/libbpf/:$(LIBXDP_PATH):$(BPFTIME_DIR_LLVM)/bpftime/libbpf/libbpf \
 	AOT_OBJECT_NAME=$(BASIC_XDP_AOT_RES_NAME) \
-	$(ROOTDIR)/dpdk_l2fwd/dpdk_l2fwd_llvm \
+	$(ROOTDIR)/dpdk/dpdk_llvm \
 	-l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1 &
 	$(MAKE) tmp-pktgen-res
 	mv ./tmp-pktgen-res $(BASIC_XDP_NAME)/dpdk_llvm_aot
 	pgrep -f '$(ROOTDIR)/xdp_progs/$(BASIC_XDP_NAME)' | xargs kill || true
-	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9 || true
-	sudo pgrep -f 'dpdk_l2fwd_llvm' | xargs kill -9  || true
+	sudo pgrep -f 'dpdk_llvm' | xargs kill -9 || true
+	sudo pgrep -f 'dpdk_llvm' | xargs kill -9  || true
 
 $(BASIC_XDP_NAME)/afxdp_llvm_jit_zero_copy: $(BASIC_XDP_NAME)
 	$(MAKE) remove-xdp

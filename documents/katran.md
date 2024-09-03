@@ -425,7 +425,7 @@ scripts/testbed-setup.sh
 Run dpdk:
 
 ```console
-$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 --vdev=net_tap0,iface=tapdpdk -- -p 0x1
+$ sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk/dpdk_llvm -l 1  --socket-mem=512 --vdev=net_tap0,iface=tapdpdk -- -p 0x1
 
 load eBPF program xdp_pass
 set entry program xdp_pass
@@ -467,4 +467,3 @@ Return value: 2, duration (average): 15ns
 $ sudo bpftool prog run id 57 data_in /home/yunwei/ebpf-xdp-dpdk/documents/katran/udp.bin repeat 1
 Return value: 3, duration: 4514ns
 ```
-

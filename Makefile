@@ -6,7 +6,7 @@ DPDK_DIR=$(ROOTDIR)/external/dpdk
 BPFTIME_DIR_UBPF=$(ROOTDIR)/build-bpftime-ubpf/
 BPFTIME_DIR_LLVM=$(ROOTDIR)/build-bpftime-llvm/
 
-BENCH_EXEC=afxdp/l2fwd/xdpsock_ubpf afxdp/l2fwd/xdpsock_llvm dpdk_l2fwd/dpdk_l2fwd_ubpf dpdk_l2fwd/dpdk_l2fwd_llvm dpdk_l2fwd/dpdk_l2fwd_batch
+BENCH_EXEC=afxdp/l2fwd/xdpsock_ubpf afxdp/l2fwd/xdpsock_llvm dpdk/dpdk_ubpf dpdk/dpdk_llvm dpdk/dpdk_batch
 
 dpdk:
 	cd external/dpdk && meson --prefix /home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir -Dplatform=generic build && cd build && ninja && ninja install
@@ -42,31 +42,32 @@ afxdp/l2fwd/xdpsock_llvm: $(BPFTIME_DIR_LLVM)
 	make -C afxdp/l2fwd
 	mv afxdp/l2fwd/xdpsock afxdp/l2fwd/xdpsock_llvm
 
-dpdk_l2fwd/dpdk_l2fwd_ubpf: $(BPFTIME_DIR_UBPF) dpdk
-	rm -rf dpdk_l2fwd/build
+dpdk/dpdk_ubpf: $(BPFTIME_DIR_UBPF) dpdk
+	rm -rf dpdk/build
 	BPFTIME_LIB_DIR=$(BPFTIME_DIR_UBPF) \
 	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig LTO_FLAG=$(LTO_FLAG) \
-	make -C dpdk_l2fwd
-	mv dpdk_l2fwd/build/l2fwd-static dpdk_l2fwd/dpdk_l2fwd_ubpf
+	make -C dpdk
+	mv dpdk/build/l2fwd-static dpdk/dpdk_ubpf
 
-dpdk_l2fwd/dpdk_l2fwd_llvm: $(BPFTIME_DIR_LLVM) dpdk
-	rm -rf dpdk_l2fwd/build
+dpdk/dpdk_llvm: $(BPFTIME_DIR_LLVM) dpdk
+	rm -rf dpdk/build
 	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) \
 	BPFTIME_VM_LIBRARY=-lbpftime_llvm_jit_vm \
 	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig LTO_FLAG=$(LTO_FLAG) \
-	make -C dpdk_l2fwd
-	mv dpdk_l2fwd/build/l2fwd-static dpdk_l2fwd/dpdk_l2fwd_llvm
+	make -C dpdk
+	mv dpdk/build/l2fwd-static dpdk/dpdk_llvm
 
-dpdk_l2fwd/dpdk_l2fwd_batch: $(BPFTIME_DIR_LLVM) dpdk
-	rm -rf dpdk_l2fwd/build
+dpdk/dpdk_batch: $(BPFTIME_DIR_LLVM) dpdk
+	rm -rf dpdk/build
 	BPFTIME_LIB_DIR=$(BPFTIME_DIR_LLVM) \
 	BPFTIME_VM_LIBRARY=-lbpftime_llvm_jit_vm \
 	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig LTO_FLAG=$(LTO_FLAG) \
 	BATCH_FLAG=-DPROCESS_BATCH_PACKET \
-	make -C dpdk_l2fwd
-	mv dpdk_l2fwd/build/l2fwd-static dpdk_l2fwd/dpdk_l2fwd_batch
+	make -C dpdk
+	mv dpdk/build/l2fwd-static dpdk/dpdk_batch
 
 pktgen:
+	git clone https://github.com/pktgen/Pktgen-DPDK
 	# need to download dpdk v23.11 and build in $(ROOTDIR)/../install-dir/
 	PKG_CONFIG_PATH=$(ROOTDIR)/../install-dir/lib/x86_64-linux-gnu/pkgconfig \
 	make -C Pktgen-DPDK clean && \
@@ -77,12 +78,9 @@ bench-clean:
 	rm -rf $(BPFTIME_DIR_UBPF) $(BPFTIME_DIR_LLVM)
 	rm -f $(BENCH_EXEC)
 	PKG_CONFIG_PATH=$(ROOTDIR)/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig \
-	make -C dpdk_l2fwd/  clean
+	make -C dpdk/  clean
 	make -C afxdp/l2fwd/ clean
-	make clean
 
 bench-examples:
 	make -C xdp_progs
 
-clean:
-	make -C build distclean

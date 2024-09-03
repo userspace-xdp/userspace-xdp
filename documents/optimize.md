@@ -2,7 +2,7 @@
 
 ## SIMD
 
-> The eBPF instruction set aims at achieving a delicate balance between expressiveness and cross-platform compatibility, as the Just-In-Time compiler efficiently compile eBPF instructions into native instructions on many platforms. 
+> The eBPF instruction set aims at achieving a delicate balance between expressiveness and cross-platform compatibility, as the Just-In-Time compiler efficiently compile eBPF instructions into native instructions on many platforms.
 
 > SIMD is supported by many CPUs on the two most common architectures (amd64 and arm64).
 > However, if SIMD instructions are added into eBPF instructions, the JIT compiler on other CPUs not supporting SIMD must “emulate” these instructions, possibly with minor performance penalty.
@@ -38,8 +38,8 @@ Given a eBPF code:
 SEC("uprobe/./victim:target_func")
 int do_uprobe_trace(struct pt_regs *ctx)
 {
-	bpf_printk("target_func called.\n");
-	return 0;
+ bpf_printk("target_func called.\n");
+ return 0;
 }
 
 char LICENSE[] SEC("license") = "GPL";
@@ -86,83 +86,83 @@ The code:
 #define ETH_P_IPV6 0x86DD
 
 struct {
-	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
-	__type(key, u32);
-	__type(value, long);
-	__uint(max_entries, 256);
+ __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+ __type(key, u32);
+ __type(value, long);
+ __uint(max_entries, 256);
 } rxcnt SEC(".maps");
 
 static void swap_src_dst_mac(void *data)
 {
-	unsigned short *p = data;
-	unsigned short dst[3];
+ unsigned short *p = data;
+ unsigned short dst[3];
 
-	dst[0] = p[0];
-	dst[1] = p[1];
-	dst[2] = p[2];
-	p[0] = p[3];
-	p[1] = p[4];
-	p[2] = p[5];
-	p[3] = dst[0];
-	p[4] = dst[1];
-	p[5] = dst[2];
+ dst[0] = p[0];
+ dst[1] = p[1];
+ dst[2] = p[2];
+ p[0] = p[3];
+ p[1] = p[4];
+ p[2] = p[5];
+ p[3] = dst[0];
+ p[4] = dst[1];
+ p[5] = dst[2];
 }
 
 static __always_inline __u16 csum_fold_helper(__u32 csum)
 {
-	return ~((csum & 0xffff) + (csum >> 16));
+ return ~((csum & 0xffff) + (csum >> 16));
 }
 
 static __always_inline void ipv4_csum(void *data_start, int data_size,
-				      __u32 *csum)
+          __u32 *csum)
 {
-	*csum = bpf_csum_diff(0, 0, data_start, data_size, *csum);
-	*csum = csum_fold_helper(*csum);
+ *csum = bpf_csum_diff(0, 0, data_start, data_size, *csum);
+ *csum = csum_fold_helper(*csum);
 }
 
 SEC("xdp")
 int xdp_pass(struct xdp_md *ctx)
 {
-	void *data_end = (void *)(long)ctx->data_end;
-	void *data = (void *)(long)ctx->data;
-	struct ethhdr *eth = data;
-	struct iphdr *iph;
-	int rc = XDP_PASS;
-	long *value;
-	u16 h_proto;
-	u64 nh_off;
-	u32 dummy_int = 23;
-	__u32 csum = 0;
-	int i = 0;
-	// bpf_printk("received packet %p %p\n", data, data_end);
-	nh_off = sizeof(*eth);
-	if (data + nh_off > data_end)
-		return rc;
+ void *data_end = (void *)(long)ctx->data_end;
+ void *data = (void *)(long)ctx->data;
+ struct ethhdr *eth = data;
+ struct iphdr *iph;
+ int rc = XDP_PASS;
+ long *value;
+ u16 h_proto;
+ u64 nh_off;
+ u32 dummy_int = 23;
+ __u32 csum = 0;
+ int i = 0;
+ // bpf_printk("received packet %p %p\n", data, data_end);
+ nh_off = sizeof(*eth);
+ if (data + nh_off > data_end)
+  return rc;
 
-	h_proto = eth->h_proto;
-	
-	if (h_proto != bpf_htons(ETH_P_IP))
-		return rc;
+ h_proto = eth->h_proto;
+ 
+ if (h_proto != bpf_htons(ETH_P_IP))
+  return rc;
 
-	iph = data + nh_off;
-	// bpf_printk("iph->protocol\n");
-	nh_off +=sizeof(*iph);
-	if (data + nh_off  > data_end)
-		return rc;
-	
-	for (i = 0; i < LOOP_LEN ;i++){
-		ipv4_csum(iph, sizeof(struct iphdr), &csum);
-		iph->check = csum;
-		value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
-	}
-	// bpf_printk("csum: %d\n", csum);
+ iph = data + nh_off;
+ // bpf_printk("iph->protocol\n");
+ nh_off +=sizeof(*iph);
+ if (data + nh_off  > data_end)
+  return rc;
+ 
+ for (i = 0; i < LOOP_LEN ;i++){
+  ipv4_csum(iph, sizeof(struct iphdr), &csum);
+  iph->check = csum;
+  value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
+ }
+ // bpf_printk("csum: %d\n", csum);
 
-	value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
-	if (value)
-		*value += 1;
-	swap_src_dst_mac(data);
-	rc = XDP_TX;
-	return rc;
+ value = bpf_map_lookup_elem(&rxcnt, &dummy_int);
+ if (value)
+  *value += 1;
+ swap_src_dst_mac(data);
+ rc = XDP_TX;
+ return rc;
 }
 
 
@@ -197,7 +197,7 @@ DPDK:
 Record the events with perf:
 
 ```sh
-sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/ /home/yunwei/linux/tools/perf/perf record -g /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/ /home/yunwei/linux/tools/perf/perf record -g /home/yunwei/ebpf-xdp-dpdk/dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 ```
 
 Results:
@@ -241,4 +241,4 @@ Samples: 70K of event 'cycles:P', Event count (approx.): 54017267584
 
 ## reference
 
-- https://engineering.purdue.edu/~xiaoqic/documents/draft-eBPF.pdf
+- <https://engineering.purdue.edu/~xiaoqic/documents/draft-eBPF.pdf>

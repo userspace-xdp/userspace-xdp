@@ -1,17 +1,37 @@
-# configs
+# XDP Deployments in Userspace with DPDK and AF_XDP
 
-build bpftime library
+**Userspace XDP** is a novel system that allows eBPF XDP-based network functions (NFs) to execute in userspace, leveraging kernel bypassing techniques. This approach significantly enhances performance while maintaining compatibility with existing eBPF control-plane application, making it possible to achieve superior throughput without modifying the original eBPF programs.
+
+Key Features:
+
+- **Userspace Execution:** Seamlessly runs eBPF XDP-based NFs in userspace, overcoming performance limitations inherent to in-kernel execution.
+- **No Code Modifications Required:** uXDP supports the execution of unmodified eBPF programs, ensuring ease of adoption.
+- **Performance Optimizations:** Includes several userspace-specific compilation optimizations, improving the efficiency of complex network functions.
+- **Enhanced Portability:** Enables the execution of XDP programs even in environments where kernel eBPF is unavailable or disabled.
+
+## Build the project
+
+Init the 
+
+build all runtimes with different config
 
 ```sh
-cmake -B build-bpftime .  -DBUILD_BPFTIME_DAEMON=0 -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
-## with llvm jit:
-cmake -B build-bpftime .  -DBUILD_BPFTIME_DAEMON=0 -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo -DBPFTIME_LLVM_JIT=1
-make -C  build-bpftime -j
+make bench-bin
 ```
 
-The scripts and graphs used to benchmark the performance of the XDP programs implemented in this project are written in Makefile.
+This will include:
 
-## bpftime load balanth
+- The `AF_XDP` userspace eBPF runtime in [afxdp/l2fwd/xdpsock_llvm](afxdp/l2fwd/xdpsock_llvm) and 
+- 
+
+## Benchmark
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+
+## bpftime load bala
 
 See [documents/bpftime-lb.md](documents/bpftime-lb.md)
 
@@ -53,4 +73,3 @@ From other applications
 Some might be useful examples:
 
 - https://github.com/zebaz/xpress-dns/blob/master/src/xdp_dns_kern.c
-- 

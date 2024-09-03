@@ -6,7 +6,7 @@ We have observed two main reasons to do that:
 
 1. Write once and run everywhere NFs
 2. We find that Modern eBPF XDP NFs is complex and taking long time to exec in kernel space, because of the safety requirements, the generic nature of the eBPF runtime. In a single core, the difference of average time of fetching and redirect a packet between kernel Driver with XDP, and DPDK with userspace eBPF is about 10-30ns, but it might take 100-500ns for complex NFs like firewall, load balancer to exec.
-   
+
 ## Contibution
 
 - A new system allow various kinds of eBPF XDP based NFs to run in userspace with DPDK or AF_XDP, provide full compatibility with kernel and performance better than in kernel space.
@@ -42,7 +42,7 @@ Calc the sum for the fist 60 bytes of the packet, and calc the xxhash value for 
 
 ![xdp_hash_sum](xdp_hash_sum/ipackets.png)
 
-- How complex will make the kernel eBPF program to be slowr than userspace eBPF program? 
+- How complex will make the kernel eBPF program to be slowr than userspace eBPF program?
 - What's the difference between ubpf jit and llvm jit?
 - What's the difference if we use SIMD instructions in userspace?
 
@@ -59,13 +59,12 @@ opt -O3 -S xdp_map_access.ll -opaque-pointers  -o xdp_map_access_opt.ll
 # compile llvm IR to native code
 clang -O3 -c -o xdp_map_access.o xdp_map_access.ll
 # load the native code with aot runtime
-sudo -E AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.aot.o /home/yunwei/ebpf-xdp-dpdk/dpdk_l2fwd/dpdk_l2fwd_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+sudo -E AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.aot.o /home/yunwei/ebpf-xdp-dpdk/dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 ```
 
 ### Inline maps - can work
 
 - Case: xdp_map Using BPF_MAP_TYPE_HASH to summarize the incoming packets length.
-
 
 ![xdp_map](xdp_map/ipackets.png)
 
