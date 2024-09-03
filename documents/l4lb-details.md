@@ -141,32 +141,6 @@ DPDK is a framework to implement high-performance networked applications entirel
 Instead of depending on kernel-based drivers, DPDK gives applications direct access to the NIC by implementing these drivers in userspace, completely bypassing the kernel.
 This is a very powerful mechanism widely used in academia and industry to implement not only NFs but also custom and special purpose protocols that run at the endhost.
 
-In this exercise, you will implement a L4 load balancer using the provided DPDK skeleton code found in the `dpdk-lb` [folder](./dpdk-lb).
-
-### Step 1.1: Build and use the provided DPDK skeleton
-
-The provided DPDK skeleton can be built as is and reply to `ARP` requests.
-
-Download the necessary submodules if you haven't already.
-
-```sh
-git submodule update --init --recursive
-```
-
-Build DPDK from the `dpdk-lb` directory
-
-```sh
-make dpdk
-```
-
-Build the skeleton code.
-
-```sh
-make build
-```
-
-Note: if during `make build`, your linker complains about various dpdk functions and PKG_CONFIG complains it could not find the dpdk file, please edit the `build/Makefile` according to the [comment](https://gitlab.doc.ic.ac.uk/networked_systems_2023/netsys-exe3/-/blob/master/dpdk-lb/build/Makefile?ref_type=heads#L23) for the correct PKG_CONFIG_PATH based on your local development environment. The correct location for the pkgconfig file should be printed during the dpdk installation.
-
 DPDK requires huge pages, so run the equivalent script to enable them.
 
 ```sh
@@ -332,34 +306,3 @@ The modified `xdp_lb.bpf.c` file that includes the load balancer implementation 
 You can test your load balancer as in the equivalent step for DPDK using `nc`.
 
 Deliverables: Include a similar packet trace in your report that shows the client opening a connection to `10.0.0.10` and the load balancer forwarding this connection to the backend servers.
-
-### Deliverables
-
-Your load balancer should allow ICMP traffic to go through. Explain why, unlike the DPDK load balancer, the eBPF load balancer can reply to ICMP requests. How could you enable the DPDK load balancer to reply ICMP requests?
-
-## Bonus
-
-Here are three extra deliverables for bonus points.
-These exercises are independent from each other and you can choose to implement any combination of them.
-
-### Multiple clients
-
-An important limitation in the previous implementations, both for DPDK and eBPF, is that the load balancer can only handle a single client that comes from a specific IP.
-Can you extend your favorite implementation from the previous two to support multiple clients?
-What would you have to do to achieve so?
-Could this affect the load balancer scalability?
-
-### Direct Server Return (DSR)
-
-Direct Server Return is an approach used in L4 load balancing that allows backend servers to communicate directly with clients and bypass the load balancer on the return path.
-This way, the load balancer is only on the critical path for packets from the client to the load balanced service.
-
-You can use Linux [`tc`](https://man7.org/linux/man-pages/man8/tc.8.html) to enable DSR at the servers.
-
-Modify your load balancer accordingly to support DSR.
-
-### Different Load Balancing Policies
-
-Our load balancer only implements random load balancing by hashing the incoming 5-tuple.
-Can you implement a more elaborate load balancing policy, e.g. Round-Robin?
-How does this affect the state the load balancer has to keep?

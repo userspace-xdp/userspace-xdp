@@ -3,7 +3,7 @@
 Run in userspace
 
 ```sh
-sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug /home/yunwei/ebpf-xdp-dpdk/xdp-maps/target/release/xdp 20 N xdp-ebpf-new/base.btf
+sudo LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug /home/yunwei/ebpf-xdp-dpdk/xdp-maps/target/release/xdp 20 N base.btf
 ```
 
 run with test tools

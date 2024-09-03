@@ -172,7 +172,7 @@ char _license[] SEC("license") = "GPL";
 run in userspace:
 
 ```sh
-LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum enp24s0f1np1 xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp_csum enp24s0f1np1 base.btf
 ```
 
 Generate traffic with 1 thread, icmp traffic for ipv4.

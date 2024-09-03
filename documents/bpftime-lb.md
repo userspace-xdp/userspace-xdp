@@ -66,7 +66,7 @@ load the eBPF XDP program into shared memory
 scripts/testbed-setup.sh ebpf
 source scripts/aliases.sh
 lb bash
-LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 base.btf
 ```
 
 problem: data in xdp_md is 32 bit, while kernel will convert it into 64 bit.
@@ -115,7 +115,7 @@ libbpf: CO-RE relocating [24] struct iphdr: found target candidate [11775] struc
 This is for usespace CO-RE commands:
 
 ```txt
-LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 base.btf
 ```
 
 (ignore the error message)
@@ -173,13 +173,13 @@ scripts/testbed-setup.sh
 Run bpftime server
 
 ```sh
-LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 /home/yunwei/ebpf-xdp-dpdk/xdp-ebpf-new/base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 base.btf
 ```
 
 Run the dpdk server
 
 ```sh
-./build/base-server -l 0 --vdev=net_tap0,iface=tapdpdk
+sudo -E LD_LIBRARY_PATH=:/usr/lib64/:build/bpftime/libbpf/:afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 ```
 
 Link the tap interface to the dpdk server

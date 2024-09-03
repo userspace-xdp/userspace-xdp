@@ -23,7 +23,7 @@ Source IP, Destination IP, Source Port, Destination Port, SIN, FIN, RST, PSH, AC
 run server
 
 ```console
-# LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp-observer/main veth6 xdp-ebpf-new/base.btf
+# LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp-observer/main veth6 base.btf
 Successfully started! Please Ctrl+C to stop.
 Source IP, Destination IP, Source Port, Destination Port, SIN, FIN, RST, PSH, ACK 
 10.0.0.1 10.0.0.10 44698 8000 1 0 0 0 0
