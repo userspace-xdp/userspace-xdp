@@ -5,15 +5,50 @@
 Key Features:
 
 - **Userspace Execution:** Seamlessly runs eBPF XDP-based NFs in userspace, overcoming performance limitations inherent to in-kernel execution.
-- **No Code Modifications Required:** uXDP supports the execution of unmodified eBPF programs, ensuring ease of adoption.
+- **No Code Modifications Required:** Userspace XDP supports the execution of unmodified eBPF programs, ensuring ease of adoption.
 - **Performance Optimizations:** Includes several userspace-specific compilation optimizations, improving the efficiency of complex network functions.
 - **Enhanced Portability:** Enables the execution of XDP programs even in environments where kernel eBPF is unavailable or disabled.
 
+This project is using [bpftime](https://github.com/eunomia-bpf/bpftime) as Userspace eBPF runtime, and [DPDK](https://www.dpdk.org/) and [AF_XDP](https://www.kernel.org/doc/html/latest/networking/af_xdp.html) as the underlying network stack.
+
+Currently, the project only supports `l2fwd`, which is mainly `XDP_DROP` and `XDP_TX` packets.
+
+## Components
+
+- [bpftime](bpftime): Used as loader library, and support maps and helpers for the runtime.
+  - `JIT/AOT`: The project supports using [llvmbpf](https://github.com/eunomia-bpf/llvmbpf) or [uBPF](https://github.com/iovisor/ubpf) as the JIT/AOTbackend, the optimization is based on `llvmbpf`.
+  - The [module](module) is the addons based on the bpftime library, which supports maps such as `lpm_trie`, `lrucache`, some helpers and runtime optimizations maps implementation.
+- l2fwd userspace network drivers:
+  - [afxdp](afxdp): The `AF_XDP` userspace runtime, which supports using `AF_XDP` as the XDP driver in userspace eBPF runtime.
+  - [dpdk](dpdk): The `DPDK` userspace runtime, which supports `DPDK` as the XDP driver.
+- [xdp_progs](xdp_progs): The example or test programs for the userspace eBPF runtime.
+
+## Examples and Usecases
+
 ## Build the project
 
-Init the 
+### Prerequisites
 
-build all runtimes with different config
+Init the repo:
+
+```sh
+git submodule update --init --recursive
+```
+
+Install the dependencies:
+
+- See <https://doc.dpdk.org/guides/linux_gsg/build_dpdk.html> for more details about how to build `DPDK`.
+- See <https://eunomia.dev/bpftime/documents/build-and-test/> for more details about how to build `bpftime`.
+
+Build the DPDK library:
+
+```sh
+make dpdk
+```
+
+### Build all configurations for benchmark
+
+build all runtimes with different config:
 
 ```sh
 make bench-bin
@@ -21,15 +56,37 @@ make bench-bin
 
 This will include:
 
-- The `AF_XDP` userspace eBPF runtime in [afxdp/l2fwd/xdpsock_llvm](afxdp/l2fwd/xdpsock_llvm) and 
-- 
+- The `AF_XDP` userspace eBPF runtime in [afxdp/l2fwd/xdpsock_llvm](afxdp/l2fwd/xdpsock_llvm) and [afxdp/l2fwd/xdpsock_ubpf](afxdp/l2fwd/xdpsock_ubpf), with LLVM or uBPF as the backend.
+- The `DPDK` userspace eBPF runtime in [dpdk/dpdk_llvm](dpdk/dpdk_llvm) and [dpdk/dpdk_ubpf](dpdk/dpdk_ubpf), with LLVM or uBPF as the backend.
+
+The bpftime loader library:
+
+- [libbpftime-syscall-server.so](build-bpftime-llvm/bpftime/runtime/syscall-server/libbpftime-syscall-server.so): the bpftime loader library for the userspace eBPF runtime.
+
+### Build specific configuration
+
+The bpftime is used as a library, so in order to build the runtime, you need to build the bpftime library first.
+
+```sh
+cmake -B build .  -DBUILD_BPFTIME_DAEMON=0 -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
+make -C build
+```
+
+Then build the selected runtime. For AF_XDP:
+
+```sh
+```
+
+For DPDK:
+
+```sh
+```
 
 ## Benchmark
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
 
 ## bpftime load bala
 
@@ -72,4 +129,4 @@ From other applications
 
 Some might be useful examples:
 
-- https://github.com/zebaz/xpress-dns/blob/master/src/xdp_dns_kern.c
+- <https://github.com/zebaz/xpress-dns/blob/master/src/xdp_dns_kern.c>

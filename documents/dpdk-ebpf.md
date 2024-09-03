@@ -129,7 +129,7 @@ To build the dpdk-based server:
 
 ```sh
 export PKG_CONFIG_PATH=<the path of the pkgconfig directory inside dpdk>
-# e.g. export PKG_CONFIG_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig
+# e.g. export PKG_CONFIG_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig
 make build
 ```
 

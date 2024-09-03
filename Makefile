@@ -9,7 +9,7 @@ BPFTIME_DIR_LLVM=$(ROOTDIR)/build-bpftime-llvm/
 BENCH_EXEC=afxdp/l2fwd/xdpsock_ubpf afxdp/l2fwd/xdpsock_llvm dpdk/dpdk_ubpf dpdk/dpdk_llvm dpdk/dpdk_batch
 
 dpdk:
-	cd external/dpdk && meson --prefix /home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir -Dplatform=generic build && cd build && ninja && ninja install
+	cd external/dpdk && meson --prefix $(ROOTDIR)/external/dpdk/install-dir -Dplatform=generic build && cd build && ninja && ninja install
 
 build-bench-lib: dpdk $(BPFTIME_DIR_LLVM) $(BPFTIME_DIR_UBPF)
 

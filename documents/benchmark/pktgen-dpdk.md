@@ -7,8 +7,8 @@ See <https://pktgen.github.io/Pktgen-DPDK/getting_started.html> for details.
 ```sh
 export RTE_TARGET=x86_64-native-linuxapp-gcc
 export RTE_TARGET=x86_64-native-linux-gcc
-export RTE_SDK=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir
-export PKG_CONFIG_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig
+export RTE_SDK=/path/to/repo/external/dpdk/install-dir
+export PKG_CONFIG_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig
 
 cd Pktgen-DPDK/
 make
@@ -163,7 +163,7 @@ Before running Pktgen-DPDK, make sure that the Ethernet device (02:01.0) is boun
 ```console
 # ./scripts/hugepages.sh
 # tools/run.py -s default
->>> sdk '/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir', target 'x86_64-native-linux-gcc'
+>>> sdk '/path/to/repo/external/dpdk/install-dir', target 'x86_64-native-linux-gcc'
 <module 'cfg' from 'cfg/default.cfg'>
 Setup DPDK to run 'pktgen' application from cfg/default.cfg file
 ```
@@ -179,7 +179,7 @@ Before running Pktgen-DPDK, make sure that the Ethernet device (02:01.0) is boun
 Set LD_LIBRARY_PATH to the DPDK library path:
 
 ```console
-export LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
 ```
 
 Then, go to the Pktgen-DPDK directory and run:
@@ -193,7 +193,7 @@ sudo -E ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socke
 result:
 
 ```console
-root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK# sudo -E LD_LIBRARY_PATH=/home/yunwei/ebpf-xdp-dpdk/external/dpdk/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socket-mem 512 --file-prefix pg -- -P -m "[1:2].0"
+root@yunwei-server:/home/yunwei/ebpf-xdp-dpdk/Pktgen-DPDK# sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen -l 0-3 -n 4 --proc-type auto --log-level 7 --socket-mem 512 --file-prefix pg -- -P -m "[1:2].0"
 - Ports 0-0 of 1   <Main Page>  Copyright(c) <2010-2023>, Intel Corporation
   Port:Flags        : 0:P------      Single
 \ink State          :         <UP-10000-FD>     ---Total Rate---
