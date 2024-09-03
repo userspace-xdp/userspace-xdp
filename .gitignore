@@ -7,5 +7,6 @@ build-bpftime-ubpf/
 build-bpftime-llvm/
 res.json
 perf.data
+tools
 perf.data.old
 afxdp/l2fwd/xdpsock_kern.ll

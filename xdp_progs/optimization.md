@@ -31,7 +31,7 @@ LD_PRELOAD=build/runtime/syscall-server/libbpftime-syscall-server.so example/xdp
 Then, we use the `UXOPT` tool to inline the helper and map defines:
 
 ```sh
-python3 xdp_progs/tools/uxopt.py xdp-counter.ll export res.json -o xdp-counter.inline.ll
+python3 xdp_progs/tools/uxopt.py xdp-counter.ll export res.json -o xdp-counter.inline.aot.o
 ```
 
 ## UXCC
