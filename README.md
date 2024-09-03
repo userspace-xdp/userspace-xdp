@@ -13,6 +13,17 @@ This project is using [bpftime](https://github.com/eunomia-bpf/bpftime) as Users
 
 Currently, the project only supports `l2fwd`, which is mainly `XDP_DROP` and `XDP_TX` packets.
 
+- [XDP Deployments in Userspace with DPDK and AF\_XDP](#xdp-deployments-in-userspace-with-dpdk-and-af_xdp)
+  - [Components](#components)
+  - [Build the project](#build-the-project)
+    - [Prerequisites](#prerequisites)
+    - [Build all configurations for benchmark](#build-all-configurations-for-benchmark)
+    - [Build specific configuration](#build-specific-configuration)
+  - [Usage and documentation](#usage-and-documentation)
+  - [Examples and Usecases](#examples-and-usecases)
+  - [Benchmark](#benchmark)
+  - [License](#license)
+
 ## Components
 
 - [bpftime](bpftime): Used as loader library, and support maps and helpers for the runtime.
@@ -84,11 +95,34 @@ make -C dpdk
 
 ## Usage and documentation
 
+There are typically two steps to run the userspace eBPF runtime. First, load the eBPF program in userspace and create the related maps and meta data; second, run the dpdk or afxdp runtime to receive the packets and process them. For example:
+
+Run bpftime loader to load the eBPF program for observe TCP packet in userspace:
+
+```sh
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=debug xdp_progs/xdp-observer/main veth6 base.btf
+```
+
+Run the dpdk runtime:
+
+```sh
+sudo dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+```
+
+Or run the AF_XDP runtime:
+
+```sh
+cd afxdp/l2fwd
+sudo ./xdpsock_llvm --l2fwd -i veth6
+```
+
+The documentation is in the [documents](documents) directory.
+
+- [Step by step to use Userspace XDP for ebpf load balancer with virtual env](documents/userspace-xdp-lb.md)
 - [Run katran in userspace XDP with virtual env](documents/katran.md)
-
-
-
-Some documents may need some minor fix on the commands.
+- [Bench and optimize katran on userspace eBPF](documents/katran-bench.md)
+- [The detail of the test venv](documents/venv-details.md)
+- [Detail list of examples](documents/benchmark/examples.md)
 
 ## Examples and Usecases
 

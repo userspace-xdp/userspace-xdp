@@ -1,6 +1,17 @@
-# use bpftime for ebpf load balancer
+# Userspace XDP for ebpf load balancer
 
-For details on how to setup the test bed, see [l4lb-ebpf.md](l4lb-ebpf.md)
+Use virtual env to run the userspace XDP load balancer. for test.
+
+- [Userspace XDP for ebpf load balancer](#userspace-xdp-for-ebpf-load-balancer)
+  - [Setup testbed](#setup-testbed)
+  - [default: use kernel xdp load balance](#default-use-kernel-xdp-load-balance)
+  - [run with AF\_XDP and bpftime](#run-with-af_xdp-and-bpftime)
+  - [run with dpdk](#run-with-dpdk)
+
+
+## Setup testbed
+
+For details on how to setup the test bed, see [venv-details.md](venv-details.md)
 
 DPDK:
 
@@ -35,7 +46,7 @@ To load the eBPF program run the following:
 
 ```sh
 lb bash
-xdp-ebpf-new/xdp_lb veth6
+xdp_progs/xdp-lb/xdp_lb veth6
 ```
 
 Note: make sure you have run `source alias.sh` before, so that `lb` make sense.
@@ -66,7 +77,7 @@ load the eBPF XDP program into shared memory
 scripts/testbed-setup.sh ebpf
 source scripts/aliases.sh
 lb bash
-LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp_progs/xdp-lb/xdp_lb veth6 base.btf
 ```
 
 problem: data in xdp_md is 32 bit, while kernel will convert it into 64 bit.
@@ -115,7 +126,7 @@ libbpf: CO-RE relocating [24] struct iphdr: found target candidate [11775] struc
 This is for usespace CO-RE commands:
 
 ```txt
-LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp_progs/xdp-lb/xdp_lb veth6 base.btf
 ```
 
 (ignore the error message)
@@ -160,7 +171,8 @@ compile the dpdk-ebpf
 ```sh
 export PKG_CONFIG_PATH=<the path of the pkgconfig directory inside dpdk>
 # e.g. export PKG_CONFIG_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/pkgconfig
-make dpdk-ebpf
+make dpdk
+make bench-bin
 ```
 
 Set up the testbed
@@ -173,7 +185,7 @@ scripts/testbed-setup.sh
 Run bpftime server
 
 ```sh
-LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp-ebpf-new/xdp_lb veth6 base.btf
+LD_PRELOAD=build/bpftime/runtime/syscall-server/libbpftime-syscall-server.so SPDLOG_LEVEL=trace xdp_progs/xdp-lb/xdp_lb veth6 base.btf
 ```
 
 Run the dpdk server

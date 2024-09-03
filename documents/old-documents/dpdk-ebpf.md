@@ -93,17 +93,6 @@ received packet, send data to eBPF module
 
 These examples are using libbpf-rs to develop and load into kernel or userspace. It should be compatible with kernel xdp.
 
-## XDP example: xdp tutorial
-
-libxdp requires a xdp dispatch program, which is more difficult to load into userspace.
-
-```console
-$ sudo strace /home/yunwei/ebpf-xdp-dpdk/xdp-tutorial/basic01-xdp-pass/xdp_pass_user  --dev lo 2>syscall.txt
-Success: Loading XDP prog name:xdp_prog_simple(id:192) on device:lo(ifindex:1)
-```
-
-See ./documents/bpftime.md for userspace errors.
-
 ## Compile and run
 
 To get and build dpdk from the root project directory:

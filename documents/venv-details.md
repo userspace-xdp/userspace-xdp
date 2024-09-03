@@ -1,18 +1,21 @@
-# L4 Load Balancer in DPDK and eBPF
+# L4 Load Balancer virtual env in DPDK and eBPF
 
 Use [DPDK](https://www.dpdk.org/) and/or [eBPF](https://ebpf.io/) to implement a very simple connection load balancer.
 
-Similarly to the previous exercises you can work either individually or in pairs.
+- [L4 Load Balancer virtual env in DPDK and eBPF](#l4-load-balancer-virtual-env-in-dpdk-and-ebpf)
+  - [Basic Topology Setup](#basic-topology-setup)
+    - [Understanding the endgoal](#understanding-the-endgoal)
+  - [DPDK Load Balancer](#dpdk-load-balancer)
+    - [Test load balancer](#test-load-balancer)
+  - [eBPF Load Balancer](#ebpf-load-balancer)
+    - [Extend the topology and build the provided code skeleton](#extend-the-topology-and-build-the-provided-code-skeleton)
 
-This exercise consists of three distinct steps and some extra optional questions.
-To get the full points you are expected to go through step 0, and either step 1 or step 2 (i.e. implement the load balancer using one of the two technologies).
-You are more than welcome to do both step 1 and step 2 if you want for bonus points.
 
-### Basic Topology Setup
+## Basic Topology Setup
 
 Instead of using mininet, you will manually setup the network topology using a [Linux bridge](https://wiki.linuxfoundation.org/networking/bridge) and [network namespaces](https://man7.org/linux/man-pages/man7/network_namespaces.7.html).
 
-You are provided with the equivalent scripts to do so in the `scripts` [directory](./scripts).
+You are provided with the equivalent scripts to do so in the `scripts` [directory](../scripts).
 You are free to explore those scripts, but their exact functionality is beyond the scope of this project.
 
 To setup the topology run:
@@ -124,16 +127,38 @@ Then:
 sudo iptables -P FORWARD ACCEPT
 ```
 
-### Step 0.3: Understanding the endgoal
+### Understanding the endgoal
 
-The goal of this exercise is to build a load balancer and enhace the previous topology as in the following picture.
+The goal of this is to build a load balancer and enhace the previous topology as in the following picture.
 
-![topo3 targe timage](exe3-target-topo.png "Target topology")
+Here’s a basic text representation of the described topology with the load balancer:
+
+```txt
+   +------------------+
+   |  Local Machine   |
+   |  IP: 10.0.0.1    |
+   +--------+---------+
+            |
+            |
+            |
+   +--------+---------+
+   |   Load Balancer  |
+   |  IP: 10.0.0.10   |
+   +--------+---------+
+            |
+    +-------+-------+
+    |               |
+    |               |
++---+---+       +---+---+
+|  h2   |       |  h3   |
+| IP:   |       | IP:   |
+| 10.0.0.2      | 10.0.0.3 
++-------+       +-------+
+```
 
 In this topology, the load balancer is a middlebox that listens to `10.0.0.10` and forwards packets from your local machine to the two namespaces based on a hash-basesd load balancing policy.
 The load balancer hashes the 5-tuple of the packets coming from `10.0.0.1` and based on the hash value forwards these packets to the equivalent server running inside `h2` and `h3`.
 On the opposite direction, it forwards packets coming from `h2` and `h3` back to `10.0.0.1`.
-In the previous picture, the green and yellow arrows represent different connections that hash to different backend servers.
 
 ## DPDK Load Balancer
 
@@ -167,35 +192,9 @@ From your machine try `arp`ing the middlebox.
 sudo arping 10.0.0.10
 ```
 
-Are you getting replies back?
+### Test load balancer
 
-### Step 1.2: Implement the load balancer
-
-In this step, you will implement the actual load balancing functionality.
-The load balancer should do the following as seen in the previous figure:
-
-* For every TCP packet coming from `10.0.0.1` it should pick one of the target IPs (`10.0.0.2` or `10.0.0.3`), change the source IP to `10.0.0.10`, the destination IP and MAC addresses to the destination addresses accordingly, and forward the packet.
-* For every packet that comes from `10.0.0.2` or `10.0.0.3` change the IP and MAC addresses accordingly and forward it to  `10.0.0.1`.
-
-The provided code skeleton implements static ARP, i.e. it is already pre-configured with all the MAC addresses in the LAN based on the network configuration used by the setup scripts.
-All the network configuration can be seen in [net-config.h](./dpdk-lb/inc/net-config.h).
-
-Before starting to implement your solution, take some time to browse and understand the provided skeleton.
-
-You should only modify the parts of the code indicated by FIXMEs and nothing more.
-
-#### Deliverables
-
-The modified version of the [net.c](./dpdk-lb/src/net.c) file.
-
-Useful links:
-
-* [Endianess](https://en.wikipedia.org/wiki/Endianness)
-* [DPDK Documentation](https://doc.dpdk.org/api-22.11/): Useful for header formats and not only.
-
-### Step 1.3: Test your load balancer
-
-To test your load balancer you will simply use the netcat (`nc`) program both for the client and the server.
+To test load balancer you will simply use the netcat (`nc`) program both for the client and the server.
 
 In two different terminals run two netcat servers in the two namespaces
 
@@ -213,17 +212,10 @@ From your machine run to connect to one of the servers and send some messages.
 nc 10.0.0.10 8080
 ```
 
-On which of the two servers do you see the output?
-
-> Both servers should receive some packets.
+Both servers should receive some packets.
 
 Execute the same process again several times till you receive packets on both servers.
 
-### Deliverables
-
-In your report, provide a short description of what happens during the above process, and screenshots that show both servers respond to the client for different client connections.
-
-Also, include a screenshot from a packet capture on the bridge, either from wireshark or tcpdump, that shows the packets that are exchanged.
 
 ## eBPF Load Balancer
 
@@ -233,7 +225,7 @@ eBPF implements an event-based approach, according to which eBPF programs are at
 In this exercise, we will use eBPF to process incoming packets at the lowest level of the networking stack.
 To do so, we will use a special kind of hook called `XDP`.
 
-### Step 2.0: Extend the topology and build the provided code skeleton
+### Extend the topology and build the provided code skeleton
 
 Unlike the DPDK load balancer that used a TAP interface, eBPF is part of the Linux kernel.
 So, we need to add another endpoint in the provided topology that will play the role of the load balancer.
@@ -258,18 +250,13 @@ git submodule update --init --recursive
 To build the provided code run in xdp-ebpf directory:
 
 ```sh
-make
+make -C xdp_progs/xdp-lb
 ```
-
-After successfully finishing the above step, you should see:
-
-* the `loader` executable: This is a program that will help you load your eBPF program and configure the necessary maps
-* the `xdp_lb.bpf.o` object file: This is the eBPF program
 
 To load the eBPF program run the following:
 
 ```sh
-lb ./loader xdp_lb.bpf.o xdp_lb veth6
+xdp_lb veth6
 ```
 
 Note: make sure you have run `source alias.sh` before, so that `lb` make sense.
@@ -284,25 +271,3 @@ To unload the eBPF program run:
 ```sh
 lb ip link set dev veth6 xdpgeneric off
 ```
-
-### Step 2.1: Implement the eBPF load balancer
-
-Use the provided skeleton code to implement a load balancer similar to the previous one using eBPF XDP.
-Before starting your implementation, take some time to study and understand the provided code in the `loader.cpp` and `xdp_lb.bpf.c` files.
-`loader.cpp` is the one that configures the necessary maps and loads the eBPF program, while `xdp_lb.bfp.c` is the actual eBPF dataplane program that processes all incoming packets.
-
-You should only modify the `xdp_lb.bpf.c` file and not the loader.
-The loader is already configures the eBPF maps accordingly based on the needs of this exercise and loads the eBPF program.
-
-Writing eBPF programs can be challenging since the [verifier](https://docs.kernel.org/bpf/verifier.html) needs to guarantee certain properties for the program, such as termination and safe memory accesses.
-Thus, we already provide you with certain functionality that you might find useful and challenging to implement, e.g. `compute_tcp_csum()` which computes the tcp checksums.
-
-### Deliverables
-
-The modified `xdp_lb.bpf.c` file that includes the load balancer implementation for this specific topology and usecase.
-
-### Step 2.2: Test your load balancer
-
-You can test your load balancer as in the equivalent step for DPDK using `nc`.
-
-Deliverables: Include a similar packet trace in your report that shows the client opening a connection to `10.0.0.10` and the load balancer forwarding this connection to the backend servers.
