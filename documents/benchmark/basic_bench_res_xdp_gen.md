@@ -215,7 +215,7 @@ LD_PRELOAD=/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/runtime/syscall-serv
 ## trouble shooting
 
 ```console
-yunwei@octopus1:~/ebpf-xdp-dpdk$ sudo -E SPDLOG_LEVEL=Debug LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/ /home/yunwei/ebpf-xdp-dpdk/dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+yunwei@octopus1:~/ebpf-xdp-dpdk$ sudo -E SPDLOG_LEVEL=Debug LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/ dpdk/build/l2fwd -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 [2024-03-22 12:25:43.492] [info] [bpftime_shm_internal.cpp:627] Global shm constructed. shm_open_type 1 for bpftime_maps_shm
 [2024-03-22 12:25:43.492] [info] [llvm_jit_context.cpp:81] Initializing llvm
 find eBPF program xdp_pass   60

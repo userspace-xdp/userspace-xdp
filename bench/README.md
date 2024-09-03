@@ -1,31 +1,34 @@
 # test framework and results
 
 - [test framework and results](#test-framework-and-results)
- 	- [test setup](#test-setup)
- 	- [Test configurations](#test-configurations)
-  		- [DPDK](#dpdk)
-  		- [af\_xdp](#af_xdp)
-  		- [LLVM JIT](#llvm-jit)
-  		- [ubpf JIT](#ubpf-jit)
-  		- [LLVM AOT](#llvm-aot)
- 	- [Case: xdp\_tx](#case-xdp_tx)
-  		- [For different configurations](#for-different-configurations)
-  		- [For different size](#for-different-size)
- 	- [different latency](#different-latency)
- 	- [Case: xdp\_map\_access](#case-xdp_map_access)
-  		- [Take aways](#take-aways)
- 	- [Case: xdp\_csum](#case-xdp_csum)
-  		- [Take aways](#take-aways-1)
- 	- [Case: xdp\_hash\_sum](#case-xdp_hash_sum)
-  		- [Take aways](#take-aways-2)
- 	- [Case: xdping](#case-xdping)
- 	- [Case: xdp\_map](#case-xdp_map)
- 	- [Case: xdp\_firewall](#case-xdp_firewall)
- 	- [Case: xdp\_adjust\_tail](#case-xdp_adjust_tail)
- 	- [Case: xdp\_lb](#case-xdp_lb)
- 	- [xdp-observer](#xdp-observer)
- 	- [xdp-tcpclassify](#xdp-tcpclassify)
- 	- [commands to run the test](#commands-to-run-the-test)
+  - [test setup](#test-setup)
+  - [Test configurations](#test-configurations)
+    - [DPDK](#dpdk)
+    - [af\_xdp](#af_xdp)
+    - [LLVM JIT](#llvm-jit)
+    - [ubpf JIT](#ubpf-jit)
+    - [LLVM AOT](#llvm-aot)
+  - [Case: xdp\_tx](#case-xdp_tx)
+    - [For different configurations](#for-different-configurations)
+    - [For different size](#for-different-size)
+    - [different latency](#different-latency)
+  - [Case: xdp\_map\_access](#case-xdp_map_access)
+    - [Take aways](#take-aways)
+  - [Case: xdp\_csum](#case-xdp_csum)
+    - [Take aways](#take-aways-1)
+  - [Case: xdp\_hash\_sum](#case-xdp_hash_sum)
+    - [Take aways](#take-aways-2)
+  - [Case: xdping](#case-xdping)
+  - [Case: xdp\_map](#case-xdp_map)
+  - [Case: xdp\_firewall](#case-xdp_firewall)
+  - [Case: xdp\_adjust\_tail](#case-xdp_adjust_tail)
+  - [Case: xdp\_lb](#case-xdp_lb)
+  - [xdp-observer](#xdp-observer)
+  - [xdp-tcpclassify](#xdp-tcpclassify)
+  - [Steps to run the test](#steps-to-run-the-test)
+    - [Setup test environment](#setup-test-environment)
+    - [Test commands](#test-commands)
+    - [Microbenchmark: run eBPF only](#microbenchmark-run-ebpf-only)
 
 ## test setup
 
@@ -45,7 +48,7 @@ We have machine octopus1 and octopus3
 
 octopus1:
 
-```
+```txt
 Intel(R) Xeon(R) Gold 5318N CPU @ 2.10GHz
 Core Count: 24
 Core Enabled: 24
@@ -67,7 +70,7 @@ $ lspci -nn | grep -i 'mellanox'
 
 octopus3(DUT):
 
-```
+```txt
 Version: Intel(R) Xeon(R) Gold 5318N CPU @ 2.10GHz
 $ uname -a
 Linux octopus3 6.7.10-zabbly+ #ubuntu22.04 SMP PREEMPT_DYNAMIC Wed Mar 20 00:36:40 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
@@ -87,7 +90,7 @@ For the kernel eBPF, it's tested on `Linux octopus3 6.7.10-zabbly+ #ubuntu22.04 
 The dpdk application is tested with command:
 
 ```console
-$ sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf /home/yunwei/ebpf-xdp-dpdk/dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+$ sudo -E LD_LIBRARY_PATH=/path/to/repo/external/dpdk/install-dir/lib/x86_64-linux-gnu/:/usr/lib64/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime/bpftime/libbpf/:/home/yunwei/ebpf-xdp-dpdk/afxdp/lib/xdp-tools/lib/libxdp/:/home/yunwei/ebpf-xdp-dpdk/build-bpftime-llvm/bpftime/libbpf dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 
 load eBPF program xdp_pass
 set entry program xdp_pass
@@ -381,7 +384,7 @@ Take aways:
 - pkt size overhead for dpdk, from 64-1024 is about `50ns` for each pkt.
 - 256 is the fastest pkt size for most of the configurations, maybe due to the cache line size?
 
-## different latency
+### different latency
 
 setting:
 
@@ -929,12 +932,41 @@ A simple xdp program to observer the incoming xdp packets, and using ring buffer
 
 ![xdp_observer](xdp-tcpclassify/ipackets.png)
 
-## commands to run the test
+## Steps to run the test
+
+### Setup test environment
+
+1. First, have two machine connect back to back with a 10G NIC, and setup the NIC.
+2. Clone the repo on both machines.
+3. On the DUT machine, run the test command will use ssh to login to another machine, and run the pktgen with desire scripts.
+
+For example, the ssh will exec commands like:
+
+```python
+ssh_cmd = [
+    "ssh", "-t", "yunwei@octopus1.doc.res.ic.ac.uk", "-i", "/home/yunwei/.ssh/id_rsa1",
+    f"cd ~/ebpf-xdp-dpdk/Pktgen-DPDK && sudo -E LD_LIBRARY_PATH=/home/yunwei/install-dir/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH ./Builddir/app/pktgen -l 0-2 -n 4 -a 18:00.1 -- -P -m \"[1-2].0\" -f /home/yunwei/ebpf-xdp-dpdk/bench/pktgen/{traffic_profile} -g 146.179.4.8:0x5606"
+]
+```
+
+You need to:
+
+1. modify the [bench/pktgen/remote.py](pktgen/remote.py) to fit your environment.
+2. have `socat` and `pktgen` installed on the remote machine.
+3. able to connect to the generator machine from `DUT` machine in `ssh` without password.
+
+### Test commands
 
 Test all for a single use case
 
 ```sh
 sudo ./test_all.sh xdp_map_access
+```
+
+Test all and use the optimized AOT results for a single use case
+
+```sh
+sudo ./test_all.sh xdp_map_access aot
 ```
 
 generate the plot graph
@@ -951,6 +983,11 @@ sudo BASIC_XDP_NAME=xdp_map make xdp_map/afxdp_llvm_aot
 sudo BASIC_XDP_NAME=xdp_hash_sum make xdp_hash_sum/afxdp_llvm_aot
 sudo BASIC_XDP_NAME=xdp-tcpclassify make xdp-tcpclassify/afxdp_llvm_aot
 ```
+
+- See the `Makefile` and `test_all.sh` for more details.
+- Uncomment the lines in `test_all.sh` can also enable the tests.
+
+### Microbenchmark: run eBPF only
 
 measure the exec time:
 

@@ -59,7 +59,7 @@ opt -O3 -S xdp_map_access.ll -opaque-pointers  -o xdp_map_access_opt.ll
 # compile llvm IR to native code
 clang -O3 -c -o xdp_map_access.o xdp_map_access.ll
 # load the native code with aot runtime
-sudo -E AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.aot.o /home/yunwei/ebpf-xdp-dpdk/dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
+sudo -E AOT_OBJECT_NAME=/home/yunwei/ebpf-xdp-dpdk/xdp-firewall/.output/xdp_firewall.aot.o dpdk/dpdk_llvm -l 1  --socket-mem=512 -a 0000:18:00.1 -- -p 0x1
 ```
 
 ### Inline maps - can work
