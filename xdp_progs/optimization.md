@@ -1,6 +1,9 @@
 # optimizations
 
-## The tools for optimizations
+The tools for optimizations can be found in:
+
+- [tools](tools): python scripts for optimizations
+- [aot-header](aot-header): C header and python scripts for AOT build
 
 ## Install deps
 
@@ -12,8 +15,23 @@ pip3 install -r xdp_progs/tools/requirements.txt
 
 ## Inline the LLVM IR
 
+First, you need to generate the LLVM IR and JSON definition of maps in bpftime.
+
+For example, in the bpftime project:
+
 ```sh
-llvm-link -S -o a.ll xdp_progs/tools/helpers_ir/inline_hash_map.ll /home/yunwei37/userspace-xdp/xdp_progs/.llvm_ir/xdp_lb.bpf.ll
+# load the eBPF program with bpftime
+LD_PRELOAD=build/runtime/syscall-server/libbpftime-syscall-server.so example/xdp-counter/xdp-counter example/xdp-counter/.output/xdp-counter.bpf.o veth1
+# dump the map and eBPF bytecode define
+./build/tools/bpftimetool/bpftimetool export res.json
+# build the eBPF program into llvm IR
+./build/tools/aot/bpftime-aot compile --emit_llvm 1>xdp-counter.ll
+```
+
+Then, we use the `UXOPT` tool to inline the helper and map defines:
+
+```sh
+python3 xdp_progs/tools/uxopt.py xdp-counter.ll export res.json -o xdp-counter.inline.ll
 ```
 
 ## UXCC
@@ -22,9 +40,13 @@ llvm-link -S -o a.ll xdp_progs/tools/helpers_ir/inline_hash_map.ll /home/yunwei3
 
 `uxcc` packages the optimized eBPF bytecode and LLVM IR into a single signed ELF file, ensuring secure distribution and deployment.
 
+```sh
+python3 xdp_progs/tools/uxcc.py -I./usr/include -I../ -DDEBUG -D__KERNEL__ -Wno-unused-value -Wno-pointer-sign -Wno-compare-distinct-pointer-types -O2 -target bpf -g lib/bpf/balancer.bpf.c -c -o balancer.bpf.o
+```
 
+When deployed, You can use `package.py` to extract the content and optimize with `uxopt`.
 
-### Package and extract the LLVM IR from elf file
+### Extract the LLVM IR from elf file
 
 The `package.py` script is a custom tool designed to package and extract files within ELF binaries, primarily for the purpose of embedding auxiliary data (such as LLVM IR or metadata) into eBPF-related ELF files. The script supports two main operations:
 
