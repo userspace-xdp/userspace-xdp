@@ -1,5 +1,7 @@
 # XDP Deployments in Userspace with DPDK and AF_XDP
 
+> **Note! The code in this repo is a Research project. It's not for production usage. The component will be maintained in [bpftime](https://github.com/eunomia-bpf/bpftime) repo later.**
+
 **Userspace XDP** is a novel system that allows eBPF XDP-based network functions (NFs) to execute in userspace, leveraging kernel bypassing techniques. This approach significantly enhances performance while maintaining compatibility with existing eBPF control-plane application, making it possible to achieve superior throughput without modifying the original eBPF programs.
 
 Key Features:
