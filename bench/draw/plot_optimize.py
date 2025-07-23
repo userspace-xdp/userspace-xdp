@@ -19,7 +19,7 @@ def parse_file(file_path):
             ipackets = int(match.group(1))
         else:
             ipackets = 0  # Default to 0 if not found
-        ipackets = ipackets / run_seconds
+        ipackets = ipackets / run_seconds / 1000000  # Convert to Mpps
     return ipackets
 
 dir_path_list = ["dpdk_llvm_base", "dpdk_bpf_inline", "dpdk_add_type", "dpdk_inline"]
@@ -63,7 +63,7 @@ def plot_data(data, target_file, ax, colors, display_name_map):
     # Create bars with assigned colors
     bars = ax.bar(labels, values, color=[colors[label] for label in data.keys()])
 
-    ax.set_ylabel('Pkt/s', fontsize=25)  # Set font size for y-axis label
+    ax.set_ylabel('Mpps', fontsize=25)  # Set font size for y-axis label
     ax.set_title(f'{target_file}', fontsize=45)  # Set font size for title
     ax.set_xticks([])  # Remove x-axis ticks
     ax.tick_params(axis='y', labelsize=16)  # Set font size for y-tick labels
@@ -86,7 +86,7 @@ all_bars = []
 # Iterate over target files and plot each in a subplot
 def plot_each(name):
     global index
-    root_dir = os.path.join("/home/yunwei", "ebpf-xdp-dpdk/bench/draw", name)
+    root_dir = os.path.join("/root/yunwei37/userspace-xdp/bench/draw", name)
     target_file = 'size-64.txt'
     if name == "xdping" or name == "xdp_adjust_tail":
         target_file = 'size-256.txt'
