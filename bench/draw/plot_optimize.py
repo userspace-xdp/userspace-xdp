@@ -63,7 +63,7 @@ def plot_data(data, target_file, ax, colors, display_name_map):
     # Create bars with assigned colors
     bars = ax.bar(labels, values, color=[colors[label] for label in data.keys()])
 
-    ax.set_ylabel('Mpps', fontsize=25)  # Set font size for y-axis label
+    # ax.set_ylabel('Mpps', fontsize=25)  # Set font size for y-axis label - removed for shared label
     ax.set_title(f'{target_file}', fontsize=45)  # Set font size for title
     ax.set_xticks([])  # Remove x-axis ticks
     ax.tick_params(axis='y', labelsize=16)  # Set font size for y-tick labels
@@ -116,9 +116,12 @@ legend_labels = [display_name_map[label] for label in color_map.keys()]
 legend_colors = [color_map[label] for label in color_map.keys()]
 legend_patches = [mpatches.Patch(color=color, label=display_name_map[label]) for label, color in color_map.items()]
 
+# Add shared y-axis label
+fig.text(0.008, 0.5, 'Throughput (Mpps)', va='center', rotation='vertical', fontsize=45)
+
 # Add legend below the last subplot
 fig.legend(legend_patches, legend_labels, loc='lower center', fontsize=50, ncol=4)
 
-plt.tight_layout(rect=[0, 0.15, 1, 1])  # Adjust layout to not cut off labels, reserving space for legend
+plt.tight_layout(rect=[0.03, 0.15, 1, 1])  # Adjust layout to not cut off labels, reserving space for legend and y-label
 plt.savefig('imgs/optimize.pdf')
 plt.savefig('imgs/optimize.png')
