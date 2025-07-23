@@ -3,6 +3,9 @@ import re
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from collections import OrderedDict
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 
 # Directory to traverse
 run_seconds = 60

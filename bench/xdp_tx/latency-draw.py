@@ -1,7 +1,10 @@
 import json
 import matplotlib.pyplot as plt
 import numpy as np
-
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+  
 # Reading the JSON data
 with open('latency.json', 'r') as file:
     data = json.load(file)
