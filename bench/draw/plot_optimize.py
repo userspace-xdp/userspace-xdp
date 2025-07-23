@@ -66,7 +66,7 @@ def plot_data(data, target_file, ax, colors, display_name_map):
     # ax.set_ylabel('Mpps', fontsize=25)  # Set font size for y-axis label - removed for shared label
     ax.set_title(f'{target_file}', fontsize=45)  # Set font size for title
     ax.set_xticks([])  # Remove x-axis ticks
-    ax.tick_params(axis='y', labelsize=16)  # Set font size for y-tick labels
+    ax.tick_params(axis='y', labelsize=30)  # Set font size for y-tick labels
     ax.grid(True)
     return bars
 
