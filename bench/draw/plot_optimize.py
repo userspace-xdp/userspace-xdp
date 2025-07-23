@@ -78,8 +78,9 @@ color_map = {
     "dpdk_inline": "tab:orange"
 }
 
-# Create subplots
-fig, axs = plt.subplots(1, 9, figsize=(6 * 9, 10))
+# Create subplots with proper spacing
+fig, axs = plt.subplots(1, 9, figsize=(6 * 9, 12))
+fig.subplots_adjust(wspace=0.5)  # Add horizontal spacing between subplots
 index = 0
 all_bars = []
 
